@@ -1,5 +1,6 @@
 package com.zombachu.stick.impl
 
+import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ParsingResult

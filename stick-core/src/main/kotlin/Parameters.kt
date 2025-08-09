@@ -1,10 +1,8 @@
 package com.zombachu.stick
 
-import com.zombachu.stick.impl.Aliasable
 import com.zombachu.stick.impl.Parameter
 import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.StructureElement
-import com.zombachu.stick.impl.lowercase
 import com.zombachu.stick.parameters.BooleanParameter
 import com.zombachu.stick.parameters.ByteParameter
 import com.zombachu.stick.parameters.DoubleParameter

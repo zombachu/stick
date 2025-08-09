@@ -1,5 +1,6 @@
 package com.zombachu.stick.paper
 
+import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.command
@@ -9,7 +10,6 @@ import com.zombachu.stick.flag
 import com.zombachu.stick.group
 import com.zombachu.stick.helper
 import com.zombachu.stick.id
-import com.zombachu.stick.impl.Aliasable
 import com.zombachu.stick.invoke
 import com.zombachu.stick.optionally
 import com.zombachu.stick.requireAs

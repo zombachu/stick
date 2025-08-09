@@ -5,7 +5,6 @@ import com.zombachu.stick.impl.FlagParameter
 import com.zombachu.stick.impl.Parameter
 import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.StructureElement
-import com.zombachu.stick.impl.lowercase
 
 fun <S> SenderScope<S>.flag(
     id: TypedIdentifier<Boolean>,

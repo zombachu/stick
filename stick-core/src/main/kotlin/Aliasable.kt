@@ -1,4 +1,4 @@
-package com.zombachu.stick.impl
+package com.zombachu.stick
 
 interface Aliasable {
     val label: String

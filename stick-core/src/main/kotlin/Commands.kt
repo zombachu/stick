@@ -3,7 +3,6 @@ package com.zombachu.stick
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.StructureContext
-import com.zombachu.stick.impl.lowercase
 
 fun <S> SenderScope<S>.command(
     name: String,
