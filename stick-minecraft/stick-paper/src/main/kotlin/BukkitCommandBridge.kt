@@ -1,7 +1,7 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.Command
-import com.zombachu.stick.impl.Structure
+import com.zombachu.stick.CommandStructure
 import com.zombachu.stick.impl.StructureContext
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.requireIs
@@ -19,7 +19,7 @@ class BukkitCommandBridge(
 
     inline fun <reified S : CommandSender> registerCommand(command: Command<S>) {
         val emptyContext = StructureContext.empty<CommandSender>()
-        val structureElement: StructureElement<CommandSender, Structure<CommandSender>> =
+        val structureElement: StructureElement<CommandSender, CommandStructure<CommandSender>> =
             if (S::class == CommandSender::class) {
                 (command as Command<CommandSender>).structure
             } else {
@@ -29,7 +29,7 @@ class BukkitCommandBridge(
         registerStructure(structure)
     }
 
-    fun registerStructure(structure: Structure<CommandSender>) {
+    fun registerStructure(structure: CommandStructure<CommandSender>) {
         commandMap.register(fallbackPrefix, BukkitCommandWrapper(structure))
     }
 }

@@ -1,15 +1,15 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.Command
+import com.zombachu.stick.CommandStructure
 import com.zombachu.stick.ExecutionContext
-import com.zombachu.stick.impl.Structure
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 typealias BukkitCommand = Command<CommandSender>
 typealias PlayerCommand = Command<Player>
 
-class BukkitCommandWrapper(val structure: Structure<CommandSender>) : org.bukkit.command.Command(
+class BukkitCommandWrapper(val structure: CommandStructure<CommandSender>) : org.bukkit.command.Command(
     structure.label,
     structure.description,
     "/${structure.label}",

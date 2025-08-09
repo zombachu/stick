@@ -1,5 +1,6 @@
 package com.zombachu.stick.impl
 
+import com.zombachu.stick.CommandStructure
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ParsingResult
@@ -51,22 +52,22 @@ class ValidatedFlag<S, S2, T : Any>(
     }
 }
 
-class ValidatedCommand<S, S2>(
-    val command: Structure<S2>,
+internal class ValidatedCommand<S, S2>(
+    val command: CommandStructure<S2>,
     override val validate: (S) -> Boolean,
     val transform: (S) -> S2,
-) : Structure<S>(
+) : StructureImpl<S>(
     command.id,
     command.aliases,
     command.description,
     validate,
-    command.signature as Signature<S>, // TODO: Handle properly
-), Validator<S> {
+    (command as StructureImpl<S>).signature, // TODO: Handle properly
+) {
 
     override val size: Size = command.size
     override val type: ElementType = command.type
 
-    override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<Unit> {
+    override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<out Unit> {
         val newContext = context.forSender(transform(context.sender))
         return command.parse(newContext, args)
     }

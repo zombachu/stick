@@ -10,8 +10,6 @@ import com.zombachu.stick.group
 import com.zombachu.stick.helper
 import com.zombachu.stick.id
 import com.zombachu.stick.impl.Aliasable
-import com.zombachu.stick.impl.Structure
-import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.invoke
 import com.zombachu.stick.optionally
 import com.zombachu.stick.requireAs
@@ -132,7 +130,7 @@ class WarpInfoCommand(): BukkitCommand {
 }
 
 class SomePlayerCommand(): PlayerCommand {
-    override val structure: StructureElement<Player, Structure<Player>> =
+    override val structure =
         command("hey")(stringParameter(id("hi")))
 }
 

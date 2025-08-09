@@ -1,5 +1,6 @@
 package com.zombachu.stick.paper
 
+import com.zombachu.stick.CommandStructure
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.GroupResult
@@ -14,7 +15,6 @@ import com.zombachu.stick.impl.Groupable
 import com.zombachu.stick.impl.Parameter
 import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.Size
-import com.zombachu.stick.impl.Structure
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.intParameter
 import com.zombachu.stick.invoke
@@ -121,7 +121,7 @@ class TestFlag(): BukkitCommand {
 
 class SomeClass : BukkitCommand {
 
-    override val structure: StructureElement<CommandSender, Structure<CommandSender>>
+    override val structure: StructureElement<CommandSender, CommandStructure<CommandSender>>
         get() = TODO("Not yet implemented")
 
     init {
@@ -198,7 +198,7 @@ class PlayerRequiredUnknownInt(name: String) : Parameter.UnknownSize<Player, Int
 }
 
 class OrangeCommand : BukkitCommand {
-    override val structure: StructureElement<CommandSender, Structure<CommandSender>> =
+    override val structure: StructureElement<CommandSender, CommandStructure<CommandSender>> =
         command("orange", requirement = permission("syn.orange"))(
             requireIs(Player::class) {
                     command("apple")(
@@ -209,8 +209,8 @@ class OrangeCommand : BukkitCommand {
 }
 
 fun <S> SenderScope<S>.mcpSender(
-    command: StructureElement<MinecraftProfile, StructureElement<MinecraftProfile, Structure<MinecraftProfile>>>,
-): StructureElement<S, Structure<S>> = requireAs(
+    command: StructureElement<MinecraftProfile, StructureElement<MinecraftProfile, CommandStructure<MinecraftProfile>>>,
+): StructureElement<S, CommandStructure<S>> = requireAs(
     { PlayerUtil.getProfile(it as Player) },
     command = command,
 )
