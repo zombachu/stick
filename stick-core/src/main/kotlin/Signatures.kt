@@ -16,6 +16,7 @@ import com.zombachu.stick.impl.Signature7
 import com.zombachu.stick.impl.Signature8
 import com.zombachu.stick.impl.Signature9
 import com.zombachu.stick.impl.SignatureConstraint
+import com.zombachu.stick.impl.Structure
 import com.zombachu.stick.impl.StructureContext
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.Tuple0
@@ -36,20 +37,20 @@ import kotlin.experimental.ExperimentalTypeInference
 @OverloadResolutionByLambdaReturnType
 operator fun <S> StructureContext<S>.invoke(
     execute: ExecutionContext<S>.() -> ExecutionResult,
-): CommandStructure<S> =
+): Structure<S> =
     build(Signature0(execute, Tuple0()))
 
 @OverloadResolutionByLambdaReturnType
 operator fun <S, A : Any> StructureContext<S>.invoke(
     execute: ExecutionContext<S>.(A) -> ExecutionResult,
     element: StructureElement<S, SignatureConstraint.Terminating<S, A>>,
-): StructureElement<S, CommandStructure<S>> = {
+): StructureElement<S, Structure<S>> = {
     build(Signature1(execute, Tuple1(element.invoke(this))))
 }
 @OverloadResolutionByLambdaReturnType
 operator fun <S, A : Any> StructureContext<S>.invoke(
     element: StructureElement<S, SignatureConstraint.Terminating<S, A>>,
-): StructureElement<S, CommandStructure<S>> =
+): StructureElement<S, Structure<S>> =
     invoke({ a: A -> ExecutionResult.success() }, element)
 
 @OverloadResolutionByLambdaReturnType
@@ -57,14 +58,14 @@ operator fun <S, A : Any, B : Any> StructureContext<S>.invoke(
     execute: ExecutionContext<S>.(A, B) -> ExecutionResult,
     elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
     elementB: StructureElement<S, SignatureConstraint.Terminating<S, B>>,
-): StructureElement<S, CommandStructure<S>> = {
+): StructureElement<S, Structure<S>> = {
     build(Signature2(execute, Tuple2(elementA.invoke(this), elementB.invoke(this))))
 }
 @OverloadResolutionByLambdaReturnType
 operator fun <S, A : Any, B : Any> StructureContext<S>.invoke(
     elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
     elementB: StructureElement<S, SignatureConstraint.Terminating<S, B>>,
-): StructureElement<S, CommandStructure<S>> =
+): StructureElement<S, Structure<S>> =
     invoke({ a, b -> ExecutionResult.success() }, elementA, elementB)
 
 @OverloadResolutionByLambdaReturnType
@@ -73,7 +74,7 @@ operator fun <S, A : Any, B : Any, C : Any> StructureContext<S>.invoke(
     elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
     elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
     elementC: StructureElement<S, SignatureConstraint.Terminating<S, C>>,
-): StructureElement<S, CommandStructure<S>> = {
+): StructureElement<S, Structure<S>> = {
     build(Signature3(execute,
         Tuple3(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this))
     ))
@@ -83,7 +84,7 @@ operator fun <S, A : Any, B : Any, C : Any> StructureContext<S>.invoke(
     elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
     elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
     elementC: StructureElement<S, SignatureConstraint.Terminating<S, C>>,
-): StructureElement<S, CommandStructure<S>> =
+): StructureElement<S, Structure<S>> =
     invoke({ a, b, c -> ExecutionResult.success() }, elementA, elementB, elementC)
 
 @OverloadResolutionByLambdaReturnType
@@ -93,7 +94,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any> StructureContext<S>.invoke(
     elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
     elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
     elementD: StructureElement<S, SignatureConstraint.Terminating<S, D>>,
-): StructureElement<S, CommandStructure<S>> = {
+): StructureElement<S, Structure<S>> = {
     build(Signature4(execute,
         Tuple4(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this))
     ))
@@ -104,7 +105,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any> StructureContext<S>.invoke(
     elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
     elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
     elementD: StructureElement<S, SignatureConstraint.Terminating<S, D>>,
-): StructureElement<S, CommandStructure<S>> =
+): StructureElement<S, Structure<S>> =
     invoke({ a, b, c, d -> ExecutionResult.success() }, elementA, elementB, elementC, elementD)
 
 @OverloadResolutionByLambdaReturnType
@@ -115,7 +116,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any, E : Any> StructureContext<S
     elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
     elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
     elementE: StructureElement<S, SignatureConstraint.Terminating<S, E>>,
-): StructureElement<S, CommandStructure<S>> = {
+): StructureElement<S, Structure<S>> = {
     build(Signature5(execute,
         Tuple5(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this))
@@ -128,7 +129,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any, E : Any> StructureContext<S
     elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
     elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
     elementE: StructureElement<S, SignatureConstraint.Terminating<S, E>>,
-): StructureElement<S, CommandStructure<S>> =
+): StructureElement<S, Structure<S>> =
     invoke({ a, b, c, d, e -> ExecutionResult.success() }, elementA, elementB, elementC, elementD, elementE)
 
 @OverloadResolutionByLambdaReturnType
@@ -140,7 +141,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any> Structure
     elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
     elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
     elementF: StructureElement<S, SignatureConstraint.Terminating<S, F>>,
-): StructureElement<S, CommandStructure<S>> = {
+): StructureElement<S, Structure<S>> = {
     build(Signature6(execute,
         Tuple6(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this))
@@ -154,7 +155,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any> Structure
     elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
     elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
     elementF: StructureElement<S, SignatureConstraint.Terminating<S, F>>,
-): StructureElement<S, CommandStructure<S>> =
+): StructureElement<S, Structure<S>> =
     invoke({ a, b, c, d, e, f -> ExecutionResult.success() }, elementA, elementB, elementC, elementD, elementE,
         elementF)
 
@@ -168,7 +169,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any> 
     elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
     elementF: StructureElement<S, SignatureConstraint.NonTerminating<S, F>>,
     elementG: StructureElement<S, SignatureConstraint.Terminating<S, G>>,
-): StructureElement<S, CommandStructure<S>> = {
+): StructureElement<S, Structure<S>> = {
     build(Signature7(execute,
         Tuple7(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this))
@@ -183,7 +184,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any> 
     elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
     elementF: StructureElement<S, SignatureConstraint.NonTerminating<S, F>>,
     elementG: StructureElement<S, SignatureConstraint.Terminating<S, G>>,
-): StructureElement<S, CommandStructure<S>> =
+): StructureElement<S, Structure<S>> =
     invoke({ a, b, c, d, e, f, g -> ExecutionResult.success() }, elementA, elementB, elementC, elementD, elementE,
         elementF, elementG)
 
@@ -198,7 +199,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, 
     elementF: StructureElement<S, SignatureConstraint.NonTerminating<S, F>>,
     elementG: StructureElement<S, SignatureConstraint.NonTerminating<S, G>>,
     elementH: StructureElement<S, SignatureConstraint.Terminating<S, H>>,
-): StructureElement<S, CommandStructure<S>> = {
+): StructureElement<S, Structure<S>> = {
     build(Signature8(execute,
         Tuple8(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this), elementH.invoke(this))
@@ -214,7 +215,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, 
     elementF: StructureElement<S, SignatureConstraint.NonTerminating<S, F>>,
     elementG: StructureElement<S, SignatureConstraint.NonTerminating<S, G>>,
     elementH: StructureElement<S, SignatureConstraint.Terminating<S, H>>,
-): StructureElement<S, CommandStructure<S>> =
+): StructureElement<S, Structure<S>> =
     invoke({ a, b, c, d, e, f, g, h -> ExecutionResult.success() }, elementA, elementB, elementC, elementD, elementE,
         elementF, elementG, elementH)
 
@@ -231,7 +232,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, 
     elementG: StructureElement<S, SignatureConstraint.NonTerminating<S, G>>,
     elementH: StructureElement<S, SignatureConstraint.NonTerminating<S, H>>,
     elementI: StructureElement<S, SignatureConstraint.Terminating<S, I>>,
-): StructureElement<S, CommandStructure<S>> = {
+): StructureElement<S, Structure<S>> = {
     build(Signature9(execute,
         Tuple9(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this), elementH.invoke(this),
@@ -250,7 +251,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, 
     elementG: StructureElement<S, SignatureConstraint.NonTerminating<S, G>>,
     elementH: StructureElement<S, SignatureConstraint.NonTerminating<S, H>>,
     elementI: StructureElement<S, SignatureConstraint.Terminating<S, I>>,
-): StructureElement<S, CommandStructure<S>> =
+): StructureElement<S, Structure<S>> =
     invoke({ a, b, c, d, e, f, g, h, i -> ExecutionResult.success() }, elementA, elementB, elementC, elementD, elementE,
         elementF, elementG, elementH, elementI)
 
@@ -268,7 +269,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, 
     elementH: StructureElement<S, SignatureConstraint.NonTerminating<S, H>>,
     elementI: StructureElement<S, SignatureConstraint.NonTerminating<S, I>>,
     elementJ: StructureElement<S, SignatureConstraint.Terminating<S, J>>,
-): StructureElement<S, CommandStructure<S>> = {
+): StructureElement<S, Structure<S>> = {
     build(Signature10(execute,
         Tuple10(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this), elementH.invoke(this),
@@ -288,7 +289,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, 
     elementH: StructureElement<S, SignatureConstraint.NonTerminating<S, H>>,
     elementI: StructureElement<S, SignatureConstraint.NonTerminating<S, I>>,
     elementJ: StructureElement<S, SignatureConstraint.Terminating<S, J>>,
-): StructureElement<S, CommandStructure<S>> =
+): StructureElement<S, Structure<S>> =
     invoke({ a, b, c, d, e, f, g, h, i, j -> ExecutionResult.success() }, elementA, elementB, elementC, elementD,
         elementE, elementF, elementG, elementH, elementI, elementJ)
 
@@ -307,7 +308,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, 
     elementI: StructureElement<S, SignatureConstraint.NonTerminating<S, I>>,
     elementJ: StructureElement<S, SignatureConstraint.NonTerminating<S, J>>,
     elementK: StructureElement<S, SignatureConstraint.Terminating<S, K>>,
-): StructureElement<S, CommandStructure<S>> = {
+): StructureElement<S, Structure<S>> = {
     build(Signature11(execute,
         Tuple11(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this), elementH.invoke(this),
@@ -328,7 +329,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, 
     elementI: StructureElement<S, SignatureConstraint.NonTerminating<S, I>>,
     elementJ: StructureElement<S, SignatureConstraint.NonTerminating<S, J>>,
     elementK: StructureElement<S, SignatureConstraint.Terminating<S, K>>,
-): StructureElement<S, CommandStructure<S>> =
+): StructureElement<S, Structure<S>> =
     invoke({ a, b, c, d, e, f, g, h, i, j, k -> ExecutionResult.success() }, elementA, elementB, elementC, elementD,
         elementE, elementF, elementG, elementH, elementI, elementJ, elementK)
 
@@ -348,7 +349,7 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, 
     elementJ: StructureElement<S, SignatureConstraint.NonTerminating<S, J>>,
     elementK: StructureElement<S, SignatureConstraint.NonTerminating<S, K>>,
     elementL: StructureElement<S, SignatureConstraint.Terminating<S, L>>,
-): StructureElement<S, CommandStructure<S>> = {
+): StructureElement<S, Structure<S>> = {
     build(Signature12(execute,
         Tuple12(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this), elementH.invoke(this),
@@ -370,6 +371,6 @@ operator fun <S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, 
     elementJ: StructureElement<S, SignatureConstraint.NonTerminating<S, J>>,
     elementK: StructureElement<S, SignatureConstraint.NonTerminating<S, K>>,
     elementL: StructureElement<S, SignatureConstraint.Terminating<S, L>>,
-): StructureElement<S, CommandStructure<S>> =
+): StructureElement<S, Structure<S>> =
     invoke({ a, b, c, d, e, f, g, h, i, j, k, l -> ExecutionResult.success() }, elementA, elementB, elementC, elementD,
         elementE, elementF, elementG, elementH, elementI, elementJ, elementK, elementL)

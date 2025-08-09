@@ -1,6 +1,5 @@
 package com.zombachu.stick.impl
 
-import com.zombachu.stick.CommandStructure
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ParsingResult
@@ -53,7 +52,7 @@ class ValidatedFlag<S, S2, T : Any>(
 }
 
 internal class ValidatedCommand<S, S2>(
-    val command: CommandStructure<S2>,
+    val command: Structure<S2>,
     override val validate: (S) -> Boolean,
     val transform: (S) -> S2,
 ) : StructureImpl<S>(

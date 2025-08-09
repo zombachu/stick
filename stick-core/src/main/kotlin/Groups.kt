@@ -1,6 +1,7 @@
 package com.zombachu.stick
 
 import com.zombachu.stick.impl.Group
+import com.zombachu.stick.impl.GroupImpl
 import com.zombachu.stick.impl.Groupable
 import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.StructureContext
@@ -28,7 +29,7 @@ fun <S> SenderScope<S>.group(
         parent = this,
         requirement = { true },
     )
-    Group(
+    GroupImpl(
         id(groupScope.name),
         description,
         elements.map { it.invoke(groupScope) }.toList(),

@@ -7,6 +7,7 @@ import com.zombachu.stick.impl.Groupable
 import com.zombachu.stick.impl.Parameter
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.SenderScope
+import com.zombachu.stick.impl.Structure
 import com.zombachu.stick.impl.StructureContext
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.ValidatedCommand
@@ -54,8 +55,8 @@ fun <S, S2> SenderScope<S>.requireAs(
     transform: (S) -> S2,
     requirement: Requirement<S> = Requirement { true },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    command: StructureElement<S2, StructureElement<S2, CommandStructure<S2>>>,
-): StructureElement<S, CommandStructure<S>> = {
+    command: StructureElement<S2, StructureElement<S2, Structure<S2>>>,
+): StructureElement<S, Structure<S>> = {
     val scope: StructureContext<S2> = this.forSender()
     ValidatedCommand(
         command(scope)(scope),
@@ -114,8 +115,8 @@ inline fun <S : Any, reified S2 : S> SenderScope<S>.requireIs(
     senderType: KClass<S2>,
     requirement: Requirement<S> = Requirement { true },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    noinline command: StructureElement<S2, StructureElement<S2, CommandStructure<S2>>>,
-): StructureElement<S, CommandStructure<S>> =
+    noinline command: StructureElement<S2, StructureElement<S2, Structure<S2>>>,
+): StructureElement<S, Structure<S>> =
     requireAs(
         { it as S2 },
         requirement + { it is S2 },
@@ -154,6 +155,6 @@ fun <S, T : Any> SenderScope<S>.require(
 fun <S> SenderScope<S>.require(
     requirement: Requirement<S> = Requirement { true },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    command: StructureElement<S, StructureElement<S, CommandStructure<S>>>,
-): StructureElement<S, CommandStructure<S>> =
+    command: StructureElement<S, StructureElement<S, Structure<S>>>,
+): StructureElement<S, Structure<S>> =
     requireAs({ it }, requirement, command)

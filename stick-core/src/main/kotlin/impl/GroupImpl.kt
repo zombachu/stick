@@ -5,11 +5,13 @@ import com.zombachu.stick.GroupResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TypedIdentifier
 
-class Group<S>(
+interface Group<S> : SyntaxElement<S, GroupResult<*>>, SignatureConstraint.Terminating<S, GroupResult<*>>
+
+internal class GroupImpl<S>(
     override val id: TypedIdentifier<GroupResult<*>>,
     override val description: String,
     private val elements: List<Groupable<S, *>>,
-) : SyntaxElement<S, GroupResult<*>>, SignatureConstraint.Terminating<S, GroupResult<*>> {
+) : Group<S> {
 
     private val prioritizedElements: List<SyntaxElement<S, Any>> = elements.sortedWith(
         compareBy<SyntaxElement<S, Any>> { type.parsingPriority }
