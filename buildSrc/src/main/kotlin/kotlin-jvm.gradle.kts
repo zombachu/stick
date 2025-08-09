@@ -38,8 +38,4 @@ tasks {
             )
         }
     }
-
-    build {
-        dependsOn(publishToMavenLocal)
-    }
 }

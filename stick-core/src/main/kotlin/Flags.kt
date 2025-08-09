@@ -14,7 +14,20 @@ fun <S> SenderScope<S>.flag(
 ): StructureElement<S, Flag<S, Boolean>> = {
     Flag(
         { false },
-        FlagParameter.BooleanFlagParameter(id, aliases.lowercase(), description)
+        FlagParameter.PresenceFlagParameter(id, { true }, aliases.lowercase(), description)
+    )
+}
+
+fun <S, T : Any> SenderScope<S>.flag(
+    id: TypedIdentifier<T>,
+    default: ContextualValue<S, T>,
+    presentValue: ContextualValue<S, T>,
+    aliases: Set<String> = setOf(),
+    description: String = "",
+): StructureElement<S, Flag<S, T>> = {
+    Flag(
+        default,
+        FlagParameter.PresenceFlagParameter(id, presentValue, aliases.lowercase(), description)
     )
 }
 

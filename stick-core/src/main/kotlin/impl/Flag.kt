@@ -15,14 +15,15 @@ sealed class FlagParameter<S, T : Any>(
     override val label: String = "-${id.name}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
 
-    internal class BooleanFlagParameter<S>(
-        id: TypedIdentifier<Boolean>,
+    internal class PresenceFlagParameter<S, T : Any>(
+        id: TypedIdentifier<T>,
+        val presentValue: ContextualValue<S, T>,
         aliases: Set<String>,
         description: String,
-    ) : FlagParameter<S, Boolean>(Size(1), id, aliases, description) {
-        override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<Boolean> {
+    ) : FlagParameter<S, T>(Size(1), id, aliases, description) {
+        override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<T> {
             if (matches(args[0].lowercase())) {
-                return ParsingResult.success(true)
+                return ParsingResult.success(context.presentValue())
             }
             return ParsingResult.failType()
         }
