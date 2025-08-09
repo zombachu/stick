@@ -6,7 +6,9 @@ import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TypedIdentifier
 
-sealed class FlagParameter<S, T : Any>(
+interface Flag<S, T : Any> : SyntaxElement<S, T>, SignatureConstraint.NonTerminating<S, T>
+
+internal sealed class FlagParameter<S, T : Any>(
     size: Size.Fixed,
     id: TypedIdentifier<T>,
     aliases: Set<String>,
@@ -49,10 +51,10 @@ sealed class FlagParameter<S, T : Any>(
     }
 }
 
-open class Flag<S, T : Any>(
+internal open class FlagImpl<S, T : Any>(
     val default: ContextualValue<S, T>,
     val flagParameter: FlagParameter<S, T>,
-): SyntaxElement<S, T>, SignatureConstraint.NonTerminating<S, T> {
+): Flag<S, T> {
 
     override val size: Size = flagParameter.size
     override val type: ElementType = ElementType.Flag

@@ -14,7 +14,7 @@ class StructureContext<S>(
 
     val root: StructureContext<*> = parent?.root ?: this
 
-    fun <S2> forSender(): StructureContext<S2> {
+    internal fun <S2> forSender(): StructureContext<S2> {
         return StructureContext(
             this.name,
             this.aliases,

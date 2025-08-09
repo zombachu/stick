@@ -8,7 +8,7 @@ import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 
-interface Structure<S> : Groupable<S, Unit>, SignatureConstraint.Terminating<S, Unit>, Validator<S>, Aliasable
+interface Structure<S> : Groupable<S, Unit>, SignatureConstraint.Terminating<S, Unit>, Aliasable
 
 internal open class StructureImpl<S>(
     override val id: TypedIdentifier<out Unit>,
@@ -16,7 +16,7 @@ internal open class StructureImpl<S>(
     override val description: String,
     override val validate: (S) -> Boolean,
     internal val signature: Signature<S>,
-) : Structure<S> {
+) : Structure<S>, Validator<S> {
 
     override val label by id
     override val size: Size = Size.Deferred

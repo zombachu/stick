@@ -12,12 +12,12 @@ import kotlin.contracts.contract
 internal sealed class Signature<S>(
     elements: Tuple<SignatureConstraint<S, Any>>
 ) {
-    private val flags: List<IndexedElement<S, Flag<S, Any>>>
+    private val flags: List<IndexedElement<S, FlagImpl<S, Any>>>
     private val linearElements: List<IndexedElement<S, Element<S, Any>>>
 
     init {
-        val partitioned = elements.toList().mapIndexed { i, e -> IndexedElement(i, e) }.partition { it.element is Flag }
-        flags = partitioned.first as List<IndexedElement<S, Flag<S, Any>>>
+        val partitioned = elements.toList().mapIndexed { i, e -> IndexedElement(i, e) }.partition { it.element is FlagImpl }
+        flags = partitioned.first as List<IndexedElement<S, FlagImpl<S, Any>>>
         linearElements = partitioned.second
     }
 
@@ -96,7 +96,7 @@ internal sealed class Signature<S>(
             val flagsIt = unprocessedFlags.iterator()
             while (flagsIt.hasNext()) {
                 val indexedFlag = flagsIt.next()
-                val flag: Flag<S, Any> = indexedFlag.element
+                val flag: FlagImpl<S, Any> = indexedFlag.element
 
                 // Ignore flags unable to be accessed by the sender
                 if (!flag.isSenderValid(context.sender)) {
@@ -139,13 +139,13 @@ internal sealed class Signature<S>(
 
     private fun Element<S, Any>.isHelper(): Boolean {
         contract {
-            returns(true) implies (this@isHelper is HelperElement<S, Any>)
+            returns(true) implies (this@isHelper is HelperImpl<S, Any>)
             returns(false) implies (this@isHelper is SyntaxElement<S, Any>)
         }
-        return this is HelperElement<S, Any>
+        return this is HelperImpl<S, Any>
     }
 
-    private fun Flag<S, Any>.isSenderValid(sender: S): Boolean {
+    private fun FlagImpl<S, Any>.isSenderValid(sender: S): Boolean {
         contract {
             returns(false) implies (this@isSenderValid is ValidatedFlag<S, *, *>)
         }

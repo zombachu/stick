@@ -15,11 +15,11 @@ fun interface Requirement<S> {
     }
 }
 
-interface Validator<S> {
+internal interface Validator<S> {
     val validate: (S) -> Boolean
 }
 
-class ValidatedParameter<S, S2, T : Any>(
+internal class ValidatedParameter<S, S2, T : Any>(
     val parameter: Parameter<S2, T>,
     override val validate: (S) -> Boolean,
     val transform: (S) -> S2,
@@ -38,12 +38,12 @@ class ValidatedParameter<S, S2, T : Any>(
     override fun getSyntax(sender: S): String = parameter.getSyntax(transform(sender))
 }
 
-class ValidatedFlag<S, S2, T : Any>(
+internal class ValidatedFlag<S, S2, T : Any>(
     val flag: Flag<S2, T>,
     override val validate: (S) -> Boolean,
     val invalidDefault: ContextualValue<S, T>,
     val transform: (S) -> S2,
-) : Flag<S, T>(flag.default as ContextualValue<S, T>, flag.flagParameter as FlagParameter<S, T>), Validator<S> { // TODO: Handle casts better
+) : FlagImpl<S, T>((flag as FlagImpl<S2, T>).default as ContextualValue<S, T>, flag.flagParameter as FlagParameter<S, T>), Validator<S> { // TODO: Handle casts better
 
     override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<out T> {
         val newContext = context.forSender(transform(context.sender))

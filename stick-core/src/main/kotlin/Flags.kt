@@ -1,6 +1,7 @@
 package com.zombachu.stick
 
 import com.zombachu.stick.impl.Flag
+import com.zombachu.stick.impl.FlagImpl
 import com.zombachu.stick.impl.FlagParameter
 import com.zombachu.stick.impl.Parameter
 import com.zombachu.stick.impl.SenderScope
@@ -11,7 +12,7 @@ fun <S> SenderScope<S>.flag(
     aliases: Set<String> = setOf(),
     description: String = "",
 ): StructureElement<S, Flag<S, Boolean>> = {
-    Flag(
+    FlagImpl(
         { false },
         FlagParameter.PresenceFlagParameter(id, { true }, aliases.lowercase(), description)
     )
@@ -24,7 +25,7 @@ fun <S, T : Any> SenderScope<S>.flag(
     aliases: Set<String> = setOf(),
     description: String = "",
 ): StructureElement<S, Flag<S, T>> = {
-    Flag(
+    FlagImpl(
         default,
         FlagParameter.PresenceFlagParameter(id, presentValue, aliases.lowercase(), description)
     )
@@ -37,7 +38,7 @@ fun <S, T : Any> SenderScope<S>.valueFlag(
     aliases: Set<String> = setOf(),
     description: String = "",
 ): StructureElement<S, Flag<S, T>> = {
-    Flag(
+    FlagImpl(
         default,
         FlagParameter.ValueFlagParameter(id, parameter(this), aliases.lowercase(), description)
     )
