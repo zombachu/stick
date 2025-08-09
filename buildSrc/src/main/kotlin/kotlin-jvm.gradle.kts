@@ -5,27 +5,41 @@ package buildsrc.convention
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
+    `maven-publish`
     // Apply the Kotlin JVM plugin to add support for Kotlin in JVM projects.
     kotlin("jvm")
 }
 
-version = "0.1.0"
+group = "com.zombachu.stick"
+version = "0.0.1"
 
 kotlin {
     // Use a specific Java version to make it easier to work in different environments.
     jvmToolchain(21)
 }
 
-tasks.withType<Test>().configureEach {
-    // Configure all test Gradle tasks to use JUnitPlatform.
-    useJUnitPlatform()
+publishing {
+    publications.create<MavenPublication>("maven") {
+        from(components["java"])
+    }
+}
 
-    // Log information about all test results, not only the failed ones.
-    testLogging {
-        events(
-            TestLogEvent.FAILED,
-            TestLogEvent.PASSED,
-            TestLogEvent.SKIPPED
-        )
+tasks {
+    withType<Test>().configureEach {
+        // Configure all test Gradle tasks to use JUnitPlatform.
+        useJUnitPlatform()
+
+        // Log information about all test results, not only the failed ones.
+        testLogging {
+            events(
+                TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED
+            )
+        }
+    }
+
+    build {
+        dependsOn(publishToMavenLocal)
     }
 }
