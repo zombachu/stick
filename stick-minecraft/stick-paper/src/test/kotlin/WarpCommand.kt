@@ -34,7 +34,7 @@ class WarpCommand : BukkitCommand {
                 description = "The warp to target",
             ),
             valueFlag(
-                id("wg"),
+                name = "wg",
                 default = permissionedValue(
                     permission = "syn.secretwgs",
                     default = "secretworld",
@@ -54,11 +54,11 @@ class WarpCommand : BukkitCommand {
                     )(
                         ::teleport,
                         helper(warpParameterId),
-                        flag(id("raw")),
+                        flag("raw"),
                         optionally(
                             defaultSender(),
                             playerParameter(
-                                id("player"),
+                                "player",
                                 description = "The player to warp",
                             ),
                         ),
