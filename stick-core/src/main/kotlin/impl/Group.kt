@@ -29,7 +29,7 @@ internal class GroupImpl<S>(
                 continue
             }
 
-            val parseResult = context.processSyntaxElement(element)
+            val parseResult = (context as ExecutionContextImpl<S>).processSyntaxElement(element)
             when (parseResult) {
                 // If successful, return
                 is ParsingResult.Success -> return ParsingResult.success(GroupResult(element.id, parseResult.value))

@@ -23,7 +23,7 @@ internal open class StructureImpl<S>(
     override val type: ElementType = ElementType.Literal
 
     override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<out Unit> {
-        val peeked = context.peek(Size(1))
+        val peeked = (context as ExecutionContextImpl<S>).peek(Size(1))
         if (peeked !is PeekingResult.Success) {
             return ParsingResult.failType()
         }

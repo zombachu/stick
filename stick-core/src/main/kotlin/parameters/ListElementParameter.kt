@@ -6,7 +6,7 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.impl.Parameter
 
-class ListElementParameter<S, T : Any>(
+open class ListElementParameter<S, T : Any>(
     id: TypedIdentifier<T>,
     description: String,
     val list: ContextualValue<S, List<T>>,

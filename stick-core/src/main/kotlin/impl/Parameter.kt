@@ -62,7 +62,7 @@ sealed class Parameter<S, T : Any>(
             return parse(context, args[0], args[1], args[2], args[3], args[4], args[5])
         }
         abstract fun parse(context: ExecutionContext<S>, arg0: String, arg1: String, arg2: String, arg3: String,
-            arg4: String, arg5: String): ParsingResult<out T>
+                           arg4: String, arg5: String): ParsingResult<out T>
     }
     abstract class Size7<S, T : Any>(id: TypedIdentifier<T>, description: String) :
         FixedSize<S, T>(Size(7), id, description) {
@@ -70,7 +70,7 @@ sealed class Parameter<S, T : Any>(
             return parse(context, args[0], args[1], args[2], args[3], args[4], args[5], args[6])
         }
         abstract fun parse(context: ExecutionContext<S>, arg0: String, arg1: String, arg2: String, arg3: String,
-            arg4: String, arg5: String, arg6: String): ParsingResult<out T>
+                           arg4: String, arg5: String, arg6: String): ParsingResult<out T>
     }
     abstract class Size8<S, T : Any>(id: TypedIdentifier<T>, description: String) :
         FixedSize<S, T>(Size(8), id, description) {
@@ -78,7 +78,7 @@ sealed class Parameter<S, T : Any>(
             return parse(context, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7])
         }
         abstract fun parse(context: ExecutionContext<S>, arg0: String, arg1: String, arg2: String, arg3: String,
-            arg4: String, arg5: String, arg6: String, arg7: String): ParsingResult<out T>
+                           arg4: String, arg5: String, arg6: String, arg7: String): ParsingResult<out T>
     }
 
     abstract class UnknownSize<S, T : Any>(

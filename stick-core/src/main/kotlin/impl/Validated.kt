@@ -31,7 +31,7 @@ internal class ValidatedParameter<S, S2, T : Any>(
     override val description: String = parameter.description
 
     override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<out T> {
-        val newContext = context.forSender(transform(context.sender))
+        val newContext = (context as ExecutionContextImpl<S>).forSender(transform(context.sender))
         return parameter.parse(newContext, args)
     }
 
@@ -46,7 +46,7 @@ internal class ValidatedFlag<S, S2, T : Any>(
 ) : FlagImpl<S, T>((flag as FlagImpl<S2, T>).default as ContextualValue<S, T>, flag.flagParameter as FlagParameter<S, T>), Validator<S> { // TODO: Handle casts better
 
     override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<out T> {
-        val newContext = context.forSender(transform(context.sender))
+        val newContext = (context as ExecutionContextImpl<S>).forSender(transform(context.sender))
         return flag.parse(newContext, args)
     }
 }
@@ -67,7 +67,7 @@ internal class ValidatedCommand<S, S2>(
     override val type: ElementType = command.type
 
     override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<out Unit> {
-        val newContext = context.forSender(transform(context.sender))
+        val newContext = (context as ExecutionContextImpl<S>).forSender(transform(context.sender))
         return command.parse(newContext, args)
     }
 }

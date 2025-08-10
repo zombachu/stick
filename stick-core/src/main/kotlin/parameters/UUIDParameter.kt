@@ -6,7 +6,7 @@ import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.impl.Parameter
 import java.util.*
 
-class UUIDParameter<S>(
+open class UUIDParameter<S>(
     id: TypedIdentifier<UUID>,
     description: String,
 ) : Parameter.Size1<S, UUID>(id, description) {

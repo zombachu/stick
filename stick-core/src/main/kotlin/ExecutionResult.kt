@@ -81,3 +81,18 @@ sealed class ParsingResult<T> : ExecutionResult() {
         }
     }
 }
+
+internal sealed class PeekingResult : Result {
+    class Success internal constructor(private val mutableArgs: MutableList<String>): PeekingResult(), Result.Success {
+        val args: List<String> = mutableArgs
+        fun consume() {
+            mutableArgs.clear()
+        }
+    }
+    class InvalidSizeError internal constructor() : PeekingResult(), Result.Failure
+
+    companion object {
+        fun success(mutableArgs: MutableList<String>): Success = Success(mutableArgs)
+        fun failSize(): InvalidSizeError = InvalidSizeError()
+    }
+}

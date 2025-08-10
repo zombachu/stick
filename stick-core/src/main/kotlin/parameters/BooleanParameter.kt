@@ -5,7 +5,7 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.impl.Parameter
 
-class BooleanParameter<S>(
+open class BooleanParameter<S>(
     id: TypedIdentifier<Boolean>,
     description: String,
 ) : Parameter.Size1<S, Boolean>(id, description) {

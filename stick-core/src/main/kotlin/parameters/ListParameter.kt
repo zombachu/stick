@@ -6,7 +6,7 @@ import com.zombachu.stick.ParsingResult.Companion.isSuccess
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.impl.Parameter
 
-class ListParameter<S, T : Any>(
+open class ListParameter<S, T : Any>(
     id: TypedIdentifier<List<T>>,
     description: String,
     val parameter: Size1<S, T>,

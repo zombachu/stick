@@ -1,7 +1,7 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.Command
-import com.zombachu.stick.ExecutionContext
+import com.zombachu.stick.impl.ExecutionContextImpl
 import com.zombachu.stick.impl.Structure
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -17,7 +17,7 @@ class BukkitCommandWrapper(val structure: Structure<CommandSender>) : org.bukkit
 ) {
     override fun execute(sender: CommandSender, label: String, args: Array<String>): Boolean {
         val args = args.toMutableList()
-        val context = ExecutionContext(sender, label, args)
+        val context = ExecutionContextImpl(sender, label, args)
 
         args.addFirst(label)
         // TODO: Error handling
