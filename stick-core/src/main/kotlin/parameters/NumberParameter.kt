@@ -18,7 +18,7 @@ open class NumberParameter<S, T>(
 
         // If the given number is not in the valid range then give the sender an error
         if (number !in min..max) {
-            return ParsingResult.failArgument("commands.error.out_of_range")
+            return ParsingResult.failArgument()
         }
 
         return ParsingResult.success(number)

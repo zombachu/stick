@@ -34,7 +34,7 @@ internal class GroupImpl<S>(
             if (parseResult.isSuccess()) {
                 // If successful, return
                 return ParsingResult.success(GroupResult(element.id, parseResult.value))
-            } else if (parseResult is ParsingResult.Failure.InvalidTypeError) {
+            } else if (parseResult is ParsingResult.Failure.UnknownTypeError) {
                 // Ignore type errors (element didn't match)
                 continue
             } else {

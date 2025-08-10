@@ -23,7 +23,7 @@ open class ListElementParameter<S, T : Any>(
 
         // If the given number is not in the valid range then give the sender an error
         if (index !in 0..list.size) {
-            return ParsingResult.failArgument("commands.error.out_of_range")
+            return ParsingResult.failArgument()
         }
 
         return ParsingResult.success(list[index])
