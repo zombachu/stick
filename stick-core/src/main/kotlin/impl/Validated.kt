@@ -19,6 +19,10 @@ internal interface Validator<S> {
     val validate: (S) -> Boolean
 }
 
+internal fun <S> SyntaxElement<S, Any>.isSenderValid(sender: S): Boolean {
+    return this !is Validator<*> || (this as Validator<S>).validate(sender)
+}
+
 internal class ValidatedParameter<S, S2, T : Any>(
     val parameter: Parameter<S2, T>,
     override val validate: (S) -> Boolean,

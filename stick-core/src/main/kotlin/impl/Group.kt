@@ -48,11 +48,7 @@ internal class GroupImpl<S>(
     }
 
     override fun getSyntax(sender: S): String {
-        val elementSyntax = elements.map { it.getGroupedSyntax(sender) }
+        val elementSyntax = elements.filter { it.isSenderValid(sender) }.map { it.getGroupedSyntax(sender) }
         return "<${elementSyntax.joinToString("|")}>"
-    }
-
-    private fun SyntaxElement<S, Any>.isSenderValid(sender: S): Boolean {
-        return this !is Validator<*> || (this as Validator<S>).validate(sender)
     }
 }

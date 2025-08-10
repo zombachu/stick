@@ -153,10 +153,6 @@ internal sealed class Signature<S>(
         return this !is Validator<*> || (this as Validator<S>).validate(sender)
     }
 
-    private fun SyntaxElement<S, Any>.isSenderValid(sender: S): Boolean {
-        return this !is Validator<*> || (this as Validator<S>).validate(sender)
-    }
-
     data class IndexedElement<S, out E : Element<S, *>>(
         val index: Int,
         val element: E
