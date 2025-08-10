@@ -4,8 +4,8 @@ import com.zombachu.stick.impl.Group
 import com.zombachu.stick.impl.GroupImpl
 import com.zombachu.stick.impl.Groupable
 import com.zombachu.stick.impl.SenderScope
-import com.zombachu.stick.impl.StructureContext
 import com.zombachu.stick.impl.StructureElement
+import com.zombachu.stick.impl.StructureScope
 
 data class GroupResult<T : Any>(
     val id: TypedIdentifier<out T>,
@@ -22,7 +22,7 @@ fun <S> SenderScope<S>.group(
     vararg elements: StructureElement<S, Groupable<S, *>>,
     description: String = "",
 ): StructureElement<S, Group<S>> = {
-    val groupScope = StructureContext<S>(
+    val groupScope = StructureScope<S>(
         name = "${this.name}_group",
         aliases = setOf(),
         description = "",

@@ -8,8 +8,8 @@ import com.zombachu.stick.impl.Parameter
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.Structure
-import com.zombachu.stick.impl.StructureContext
 import com.zombachu.stick.impl.StructureElement
+import com.zombachu.stick.impl.StructureScope
 import com.zombachu.stick.impl.ValidatedCommand
 import com.zombachu.stick.impl.ValidatedFlag
 import com.zombachu.stick.impl.ValidatedParameter
@@ -24,7 +24,7 @@ fun <S, S2, T : Any> SenderScope<S>.requireAs(
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     parameter: StructureElement<S2, StructureElement<S2, Parameter<S2, T>>>,
 ): StructureElement<S, Groupable<S, T>> = {
-    val scope: StructureContext<S2> = this.forSender()
+    val scope: StructureScope<S2> = this.forSender()
     ValidatedParameter(
         parameter(scope)(scope),
         { requirement(it) },
@@ -40,7 +40,7 @@ fun <S, S2, T : Any> SenderScope<S>.requireAs(
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     flag: StructureElement<S2, StructureElement<S2, Flag<S2, T>>>,
 ): StructureElement<S, Flag<S, T>> = {
-    val scope: StructureContext<S2> = this.forSender()
+    val scope: StructureScope<S2> = this.forSender()
     ValidatedFlag(
         flag(scope)(scope),
         { requirement(it) },
@@ -57,7 +57,7 @@ fun <S, S2> SenderScope<S>.requireAs(
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     command: StructureElement<S2, StructureElement<S2, Structure<S2>>>,
 ): StructureElement<S, Structure<S>> = {
-    val scope: StructureContext<S2> = this.forSender()
+    val scope: StructureScope<S2> = this.forSender()
     ValidatedCommand(
         command(scope)(scope),
         { requirement(it) },

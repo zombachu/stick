@@ -2,20 +2,20 @@ package com.zombachu.stick.impl
 
 import com.zombachu.stick.id
 
-typealias StructureElement<S, T> = StructureContext<S>.() -> T
+typealias StructureElement<S, T> = StructureScope<S>.() -> T
 
-class StructureContext<S>(
+class StructureScope<S>(
     val name: String,
     val aliases: Set<String>,
     val description: String,
-    val parent: StructureContext<*>?,
+    val parent: StructureScope<*>?,
     internal val requirement: Requirement<S>,
 ): SenderScope<S> {
 
-    val root: StructureContext<*> = parent?.root ?: this
+    val root: StructureScope<*> = parent?.root ?: this
 
-    internal fun <S2> forSender(): StructureContext<S2> {
-        return StructureContext(
+    internal fun <S2> forSender(): StructureScope<S2> {
+        return StructureScope(
             this.name,
             this.aliases,
             this.description,
@@ -36,7 +36,7 @@ class StructureContext<S>(
     }
 
     companion object {
-        fun <S> empty(): StructureContext<S> = StructureContext(
+        fun <S> empty(): StructureScope<S> = StructureScope(
             name = "",
             aliases = setOf(),
             description = "",
