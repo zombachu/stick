@@ -4,6 +4,7 @@ import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.ParsingResult.Companion.isSuccess
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
@@ -38,12 +39,11 @@ internal open class StructureImpl<S>(
             return ParsingResult.failSyntax()
         }
 
-        val result = signature.execute(context)
-        when (result) {
-            is Result.Success -> return ParsingResult.success()
-            is ParsingResult.Failure<*> -> return result.cast()
-            is ExecutionResult.Failure -> return result.toParsingResult()
+        val executionResult = signature.execute(context)
+        if (!executionResult.isSuccess()) {
+            return executionResult.cast()
         }
+        return ExecutionResult.success()
     }
 
     override fun getSyntax(sender: S): String {

@@ -3,6 +3,7 @@ package com.zombachu.stick.impl
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.ParsingResult.Companion.isSuccess
 import com.zombachu.stick.TypedIdentifier
 
 interface Group<S> : SyntaxElement<S, GroupResult<*>>, SignatureConstraint.Terminating<S, GroupResult<*>>
@@ -30,13 +31,15 @@ internal class GroupImpl<S>(
             }
 
             val parseResult = (context as ExecutionContextImpl<S>).processSyntaxElement(element)
-            when (parseResult) {
+            if (parseResult.isSuccess()) {
                 // If successful, return
-                is ParsingResult.Success -> return ParsingResult.success(GroupResult(element.id, parseResult.value))
+                return ParsingResult.success(GroupResult(element.id, parseResult.value))
+            } else if (parseResult is ParsingResult.Failure.InvalidTypeError) {
                 // Ignore type errors (element didn't match)
-                is ParsingResult.Failure.InvalidTypeError -> continue
+                continue
+            } else {
                 // If the element matched and an error occurred in parsing then propagate it up
-                else -> return (parseResult as ParsingResult.Failure<*>).cast()
+                return parseResult.cast()
             }
         }
 

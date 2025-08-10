@@ -8,6 +8,9 @@ import kotlin.contracts.contract
 sealed interface Result {
     sealed interface Success : Result
     sealed interface Failure : Result
+//    sealed interface Failure : Result {
+//        val feedback: Feedback
+//    }
 }
 
 sealed class SenderValidationResult: Result {
@@ -15,6 +18,11 @@ sealed class SenderValidationResult: Result {
     open class Failure internal constructor() : SenderValidationResult(), Result.Failure {
         class InvalidSenderError : Failure()
     }
+//    open class Failure internal constructor(
+//        override val feedback: Feedback
+//    ) : SenderValidationResult(), Result.Failure {
+//        class InvalidSenderError : Failure()
+//    }
 
     companion object {
         fun success(): Success = Success()
@@ -22,41 +30,41 @@ sealed class SenderValidationResult: Result {
     }
 }
 
-sealed class ExecutionResult : Result {
-    class Success internal constructor() : ExecutionResult(), Result.Success
-    class Failure internal constructor() : ExecutionResult(), Result.Failure {
-        fun <T> toParsingResult(): ParsingResult.Failure<T> {
-            return ParsingResult.Failure.ExecutionError(this)
-        }
-    }
-
+sealed interface ExecutionResult : ParsingResult<Unit> {
     companion object {
-        fun success(): Success = Success()
-        fun error(): Failure = Failure()
+        fun success(): ExecutionResult = ParsingResult.Success.ExecutionSuccess()
+        fun error(): ExecutionResult = ParsingResult.Failure.ExecutionError()
     }
 }
 
-sealed class ParsingResult<T> : ExecutionResult() {
-    class Success<T> internal constructor(val value: T): ParsingResult<T>(), Result.Success
-    sealed class Failure<T> : ParsingResult<T>(), Result.Failure {
-        class UnknownError<T> internal constructor() : Failure<T>()
+sealed interface ParsingResult<T> : Result {
+    sealed interface Success<T> : ParsingResult<T>, Result.Success {
+        val value: T
+
+        class ParsingSuccess<T> internal constructor(override val value: T) : Success<T>
+        class ExecutionSuccess internal constructor() : Success<Unit>, ExecutionResult {
+            override val value: Unit = Unit
+        }
+    }
+    sealed interface Failure<T> : ParsingResult<T>, Result.Failure {
+        class UnknownError<T> internal constructor() : Failure<T>
+
+        class ExecutionError internal constructor() : Failure<Unit>, ExecutionResult
 
         /**
          * Error when the argument is unable to be parsed.
          */
-        class InvalidTypeError<T> internal constructor() : Failure<T>()
+        class InvalidTypeError<T> internal constructor() : Failure<T>
 
         /**
          * Error when the command is unable to be resolved.
          */
-        class InvalidSyntaxError<T> internal constructor() : Failure<T>()
+        class InvalidSyntaxError<T> internal constructor() : Failure<T>
 
         /**
          * Error when the argument is parsable but invalid for the caller.
          */
-        class InvalidArgumentError<T> internal constructor(val message: String) : Failure<T>()
-
-        class ExecutionError<T> internal constructor(val executionResult: ExecutionResult.Failure) : Failure<T>()
+        class InvalidArgumentError<T> internal constructor(val message: String) : Failure<T>
 
         fun <T2> cast(): Failure<T2> {
             // TODO: Handle safer
@@ -65,8 +73,7 @@ sealed class ParsingResult<T> : ExecutionResult() {
     }
 
     companion object {
-        fun success(): Success<Unit> = Success(Unit)
-        fun <T> success(value: T): Success<T> = Success(value)
+        fun <T> success(value: T): Success<T> = Success.ParsingSuccess(value)
         fun <T> failUnknown(): Failure.UnknownError<T> = Failure.UnknownError()
         fun <T> failType(): Failure.InvalidTypeError<T> = Failure.InvalidTypeError()
         fun <T> failSyntax(): Failure.InvalidSyntaxError<T> = Failure.InvalidSyntaxError()

@@ -31,7 +31,7 @@ internal sealed class FlagParameter<S, T : Any>(
             return ParsingResult.failType()
         }
 
-        override fun getSyntax(sender: S): String = "[${id.name}]"
+        override fun getSyntax(sender: S): String = "[$label]"
     }
 
     internal class ValueFlagParameter<S, T : Any>(
@@ -47,7 +47,7 @@ internal sealed class FlagParameter<S, T : Any>(
             return ParsingResult.failType()
         }
 
-        override fun getSyntax(sender: S): String = "[${id.name} ${super.getSyntax(sender)}]"
+        override fun getSyntax(sender: S): String = "[$label ${valueElement.getSyntax(sender)}]"
     }
 }
 

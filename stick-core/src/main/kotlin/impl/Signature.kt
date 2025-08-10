@@ -23,9 +23,9 @@ internal sealed class Signature<S>(
     // TODO("Return execution result")
     protected abstract fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult
 
-    fun execute(context: ExecutionContextImpl<S>): ExecutionResult {
+    fun execute(context: ExecutionContextImpl<S>): ParsingResult<*> {
         val result = parse(context)
-        if (result !is ParsingResult.Success) {
+        if (!result.isSuccess()) {
             return result
         }
         return executeParsed(context, result.value)
@@ -103,13 +103,15 @@ internal sealed class Signature<S>(
                 }
 
                 val processResult = processSyntaxElement(context, values, flag, indexedFlag.index)
-                when (processResult) {
+                if (processResult.isSuccess()) {
                     // Mark the flag as processed if it succeeded
-                    is ParsingResult.Success -> flagsIt.remove()
+                    flagsIt.remove()
+                } else if (processResult is ParsingResult.Failure.InvalidTypeError) {
                     // Ignore type errors (flag didn't match)
-                    is ParsingResult.Failure.InvalidTypeError -> continue
+                    continue
+                } else {
                     // If the flag matched and an error occurred in parsing then propagate it up
-                    else -> return (processResult as ParsingResult.Failure).cast()
+                    return processResult.cast()
                 }
             }
 
