@@ -5,19 +5,20 @@ package com.zombachu.stick
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.feedback.Feedback0
 import com.zombachu.stick.feedback.Feedback1
+import com.zombachu.stick.impl.Tuple
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 sealed interface Result {
     sealed interface Success : Result
     sealed interface Failure : Result {
-        val feedback: Feedback<*>
+        val feedback: Feedback<out Tuple<String>>
     }
 }
 
 sealed class SenderValidationResult: Result {
     open class Success internal constructor() : SenderValidationResult(), Result.Success
-    open class Failure internal constructor(override val feedback: Feedback<*>) : SenderValidationResult(), Result.Failure {
+    open class Failure internal constructor(override val feedback: Feedback<out Tuple<String>>) : SenderValidationResult(), Result.Failure {
         class InvalidSenderError internal constructor(feedback: Feedback0): Failure(feedback)
     }
 
@@ -31,7 +32,7 @@ sealed interface ExecutionResult : ParsingResult<Unit> {
     class Success internal constructor() : ExecutionResult, ParsingResult.Success<Unit> {
         override val value: Unit = Unit
     }
-    class Failure internal constructor(override val feedback: Feedback<*>) : ExecutionResult, ParsingResult.Failure<Unit>
+    class Failure internal constructor(override val feedback: Feedback<out Tuple<String>>) : ExecutionResult, ParsingResult.Failure<Unit>
 
     companion object {
         fun success(): ExecutionResult = Success()
@@ -42,36 +43,34 @@ sealed interface ExecutionResult : ParsingResult<Unit> {
 sealed interface ParsingResult<T> : Result {
     sealed interface Success<T> : ParsingResult<T>, Result.Success {
         val value: T
-
-        class ParsingSuccess<T> internal constructor(override val value: T) : Success<T>
     }
+    class ParsingSuccess<T> internal constructor(override val value: T) : Success<T>
+
     sealed interface Failure<T> : ParsingResult<T>, Result.Failure {
-        // TODO: Document potentially ignored
-        class UnknownTypeError<T> internal constructor(override val feedback: Feedback1) : Failure<T>
-
-        sealed interface SyntaxError<T> : Failure<T> {
-            // TODO: Document causes syntax printing
-            class InvalidSyntaxError<T> internal constructor(override val feedback: Feedback1) : SyntaxError<T>
-            class InvalidArgumentError<T> internal constructor(override val feedback: Feedback1) : SyntaxError<T>
-        }
-        sealed interface StateError<T> : Failure<T> {
-            class IllegalStateError<T> internal constructor(override val feedback: Feedback1) : StateError<T>
-            class UnknownError<T> internal constructor(override val feedback: Feedback1) : StateError<T>
-        }
-
         fun <T2> cast(): Failure<T2> {
             // TODO: Handle safer
             return this as Failure<T2>
         }
     }
+    // TODO: Document potentially ignored
+    class UnknownTypeError<T> internal constructor(override val feedback: Feedback1) : Failure<T>
+
+    // TODO: Document causes syntax printing
+    sealed interface SyntaxError<T> : Failure<T>
+    class InvalidSyntaxError<T> internal constructor(override val feedback: Feedback1) : SyntaxError<T>
+    class InvalidArgumentError<T> internal constructor(override val feedback: Feedback1) : SyntaxError<T>
+
+    sealed interface StateError<T> : Failure<T>
+    class IllegalStateError<T> internal constructor(override val feedback: Feedback1) : StateError<T>
+    class UnknownError<T> internal constructor(override val feedback: Feedback1) : StateError<T>
 
     companion object {
-        fun <T> success(value: T): ParsingResult<T> = Success.ParsingSuccess(value)
-        fun <T> failType(): ParsingResult<T> = Failure.UnknownTypeError(TODO())
-        fun <T> failSyntax(): ParsingResult<T> = Failure.SyntaxError.InvalidSyntaxError(TODO())
-        fun <T> failArgument(): ParsingResult<T> = Failure.SyntaxError.InvalidArgumentError(TODO())
-        fun <T> failState(): ParsingResult<T> = Failure.StateError.IllegalStateError(TODO())
-        fun <T> failUnknown(): ParsingResult<T> = Failure.StateError.UnknownError(TODO())
+        fun <T> success(value: T): ParsingResult<T> = ParsingSuccess(value)
+        fun <T> failType(): ParsingResult<T> = UnknownTypeError(TODO())
+        fun <T> failSyntax(): ParsingResult<T> = InvalidSyntaxError(TODO())
+        fun <T> failArgument(): ParsingResult<T> = InvalidArgumentError(TODO())
+        fun <T> failState(): ParsingResult<T> = IllegalStateError(TODO())
+        fun <T> failUnknown(): ParsingResult<T> = UnknownError(TODO())
 
         fun <T> ParsingResult<T>.isSuccess(): Boolean {
             contract {

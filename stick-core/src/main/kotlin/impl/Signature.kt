@@ -106,7 +106,7 @@ internal sealed class Signature<S>(
                 if (processResult.isSuccess()) {
                     // Mark the flag as processed if it succeeded
                     flagsIt.remove()
-                } else if (processResult is ParsingResult.Failure.UnknownTypeError) {
+                } else if (processResult is ParsingResult.UnknownTypeError) {
                     // Ignore type errors (flag didn't match)
                     continue
                 } else {

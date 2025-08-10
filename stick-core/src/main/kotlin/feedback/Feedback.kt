@@ -17,12 +17,12 @@ import com.zombachu.stick.impl.Tuple
 import com.zombachu.stick.impl.Tuple0
 
 data class Feedback<N : Tuple<String>>(
-    val defaultMessage: FeedbackMessage<N>,
+    val message: FeedbackMessage<N>,
     val args: List<String>,
 ) {
     internal constructor(message: FeedbackMessage<N>, args: N) : this(message, args.toList())
 
-    protected fun format(message: FeedbackMessage<N>): String {
+    fun format(message: FeedbackMessage<N> = this.message): String {
         val stringBuilder = StringBuilder(message.text)
         args.forEachIndexed { index, arg ->
             val regex = Regex.fromLiteral("%$index")

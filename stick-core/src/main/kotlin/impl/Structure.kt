@@ -6,7 +6,6 @@ import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.ParsingResult.Companion.isSuccess
 import com.zombachu.stick.PeekingResult
-import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 
 interface Structure<S> : Groupable<S, Unit>, SignatureConstraint.Terminating<S, Unit>, Aliasable
