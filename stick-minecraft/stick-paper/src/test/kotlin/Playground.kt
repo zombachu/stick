@@ -1,5 +1,6 @@
 package com.zombachu.stick.paper
 
+import com.zombachu.stick.registerCommand
 import kotlin.experimental.ExperimentalTypeInference
 
 typealias FruitScope = Fruit.() -> Int
@@ -31,6 +32,11 @@ fun main() {
 }
 
 class Playground {
+
+    fun test() {
+        val bridge = BukkitCommandBridge("synergy")
+        bridge.registerCommand(WarpCommand())
+    }
 
 
 

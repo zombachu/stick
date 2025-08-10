@@ -1,6 +1,8 @@
 package com.zombachu.stick.paper
 
+import com.zombachu.stick.Bridge
 import com.zombachu.stick.Command
+import com.zombachu.stick.feedback.ParsingFailureHandler
 import com.zombachu.stick.impl.Structure
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
@@ -11,25 +13,14 @@ import org.bukkit.command.CommandSender
 import org.bukkit.plugin.Plugin
 
 class BukkitCommandBridge(
-    val fallbackPrefix: String
-) {
+    val fallbackPrefix: String,
+    override val parsingFailureHandler: ParsingFailureHandler<CommandSender> = BukkitParsingFailureHandler()
+) : Bridge<CommandSender> {
     constructor(plugin: Plugin) : this(plugin.name.lowercase())
 
     private val commandMap: CommandMap = Bukkit.getServer().commandMap
 
-    inline fun <reified S : CommandSender> registerCommand(command: Command<S>) {
-        val emptyContext = StructureScope.empty<CommandSender>()
-        val structureElement: StructureElement<CommandSender, Structure<CommandSender>> =
-            if (S::class == CommandSender::class) {
-                (command as Command<CommandSender>).structure
-            } else {
-                emptyContext.requireIs(S::class) { command.structure }
-            }
-        val structure = structureElement(emptyContext)
-        registerStructure(structure)
-    }
-
-    fun registerStructure(structure: Structure<CommandSender>) {
-        commandMap.register(fallbackPrefix, BukkitCommandWrapper(structure))
+    override fun registerStructure(structure: Structure<CommandSender>) {
+        commandMap.register(fallbackPrefix, BukkitCommandWrapper(structure, parsingFailureHandler))
     }
 }
