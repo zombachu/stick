@@ -2,9 +2,10 @@ package com.zombachu.stick.impl
 
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.ParsingResult.Companion.isSuccess
 import com.zombachu.stick.PeekingResult
+import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
+import com.zombachu.stick.isSuccess
 
 class ExecutionContextImpl<S>(
     override val sender: S,
@@ -55,13 +56,13 @@ class ExecutionContextImpl<S>(
 
     internal fun processSyntaxElement(
         element: SyntaxElement<S, Any>,
-    ): ParsingResult<out Any> {
+    ): Result<out Any> {
         val peeked = peek(element.size)
         if (peeked !is PeekingResult.Success) {
-            return ParsingResult.Companion.failSyntax()
+            return ParsingResult.failSyntax()
         }
 
-        val parseResult = element.parse(this, peeked.args)
+        val parseResult = element.parse(this, peeked.value)
         if (!parseResult.isSuccess()) {
             return parseResult
         }

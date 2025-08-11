@@ -2,7 +2,7 @@ package com.zombachu.stick.impl
 
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.ExecutionContext
-import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 
 fun interface Requirement<S> {
@@ -34,7 +34,7 @@ internal class ValidatedParameter<S, S2, T : Any>(
     override val id: TypedIdentifier<out T> = parameter.id
     override val description: String = parameter.description
 
-    override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<out T> {
+    override fun parse(context: ExecutionContext<S>, args: List<String>): Result<out T> {
         val newContext = (context as ExecutionContextImpl<S>).forSender(transform(context.sender))
         return parameter.parse(newContext, args)
     }
@@ -49,7 +49,7 @@ internal class ValidatedFlag<S, S2, T : Any>(
     val transform: (S) -> S2,
 ) : FlagImpl<S, T>((flag as FlagImpl<S2, T>).default as ContextualValue<S, T>, flag.flagParameter as FlagParameter<S, T>), Validator<S> { // TODO: Handle casts better
 
-    override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<out T> {
+    override fun parse(context: ExecutionContext<S>, args: List<String>): Result<out T> {
         val newContext = (context as ExecutionContextImpl<S>).forSender(transform(context.sender))
         return flag.parse(newContext, args)
     }
@@ -70,7 +70,7 @@ internal class ValidatedCommand<S, S2>(
     override val size: Size = command.size
     override val type: ElementType = command.type
 
-    override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<out Unit> {
+    override fun parse(context: ExecutionContext<S>, args: List<String>): Result<out Unit> {
         val newContext = (context as ExecutionContextImpl<S>).forSender(transform(context.sender))
         return command.parse(newContext, args)
     }

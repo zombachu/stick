@@ -3,10 +3,10 @@ package com.zombachu.stick.impl
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.ParsingResult.Companion.isSuccess
+import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
-
-interface Group<S> : SyntaxElement<S, GroupResult<*>>, SignatureConstraint.Terminating<S, GroupResult<*>>
+import com.zombachu.stick.cast
+import com.zombachu.stick.isSuccess
 
 internal class GroupImpl<S>(
     override val id: TypedIdentifier<GroupResult<*>>,
@@ -23,23 +23,23 @@ internal class GroupImpl<S>(
     override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Default
 
-    override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<GroupResult<*>> {
+    override fun parse(context: ExecutionContext<S>, args: List<String>): Result<GroupResult<*>> {
         for (element in prioritizedElements) {
             // Ignore elements unable to be accessed by the sender
             if (!element.isSenderValid(context.sender)) {
                 continue
             }
 
-            val parseResult = (context as ExecutionContextImpl<S>).processSyntaxElement(element)
-            if (parseResult.isSuccess()) {
+            val processResult = (context as ExecutionContextImpl<S>).processSyntaxElement(element)
+            if (processResult.isSuccess()) {
                 // If successful, return
-                return ParsingResult.success(GroupResult(element.id, parseResult.value))
-            } else if (parseResult is ParsingResult.UnknownTypeError) {
+                return ParsingResult.success(GroupResult(element.id, processResult.value))
+            } else if (processResult is ParsingResult.UnknownTypeError) {
                 // Ignore type errors (element didn't match)
                 continue
             } else {
                 // If the element matched and an error occurred in parsing then propagate it up
-                return parseResult.cast()
+                return processResult.cast()
             }
         }
 

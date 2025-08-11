@@ -3,7 +3,7 @@ package com.zombachu.stick.paper
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.GroupResult
-import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.command
 import com.zombachu.stick.flag
@@ -145,7 +145,7 @@ class SomeClass : BukkitCommand {
             override fun parse(
                 context: ExecutionContext<CommandSender>,
                 arg0: String,
-            ): ParsingResult<Boolean> {
+            ): Result<Boolean> {
                 TODO("Not yet implemented")
             }
 
@@ -192,7 +192,7 @@ class PlayerRequiredUnknownInt(name: String) : Parameter.UnknownSize<Player, Int
     override fun parse(
         context: ExecutionContext<Player>,
         args: List<String>,
-    ): ParsingResult<Int> {
+    ): Result<Int> {
         TODO("Not yet implemented")
     }
 }

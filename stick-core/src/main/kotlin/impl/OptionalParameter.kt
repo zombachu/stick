@@ -3,6 +3,7 @@ package com.zombachu.stick.impl
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Result
 
 class ValidatedDefault<S, T : Any>(
     val value: ContextualValue<S, T>,
@@ -13,7 +14,7 @@ internal class OptionalParameter<S, T : Any>(
     val validatedDefault: ValidatedDefault<S, T>,
     val parameter: Parameter<S, T>
 ) : Parameter.UnknownSize<S, T>(Size.Deferred, parameter.id, parameter.description) {
-    override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<out T> {
+    override fun parse(context: ExecutionContext<S>, args: List<String>): Result<out T> {
         if (args.isEmpty()) {
             if (!validatedDefault.validate(context.sender)) {
                 return ParsingResult.failSyntax()

@@ -4,7 +4,9 @@ package com.zombachu.stick.impl
 
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.ParsingResult.Companion.isSuccess
+import com.zombachu.stick.Result
+import com.zombachu.stick.cast
+import com.zombachu.stick.isSuccess
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -23,7 +25,7 @@ internal sealed class Signature<S>(
     // TODO("Return execution result")
     protected abstract fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult
 
-    fun execute(context: ExecutionContextImpl<S>): ParsingResult<*> {
+    fun execute(context: ExecutionContextImpl<S>): Result<*> {
         val result = parse(context)
         if (!result.isSuccess()) {
             return result
@@ -64,7 +66,7 @@ internal sealed class Signature<S>(
         values: MutableList<Any>,
         element: SyntaxElement<S, Any>,
         index: Int
-    ): ParsingResult<out Any> {
+    ): Result<out Any> {
         val processResult = context.processSyntaxElement(element)
         if (processResult.isSuccess()) {
             values[index] = processResult.value
@@ -74,7 +76,7 @@ internal sealed class Signature<S>(
 
     private fun parse(
         context: ExecutionContextImpl<S>,
-    ): ParsingResult<List<Any>> {
+    ): Result<List<Any>> {
         val values: MutableList<Any> = MutableList(flags.size + linearElements.size) {}
 
         val unprocessedFlags = flags.toMutableList()

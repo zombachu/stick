@@ -1,14 +1,13 @@
 package com.zombachu.stick.impl
 
-import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.ParsingResult.Companion.isSuccess
 import com.zombachu.stick.PeekingResult
+import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
-
-interface Structure<S> : Groupable<S, Unit>, SignatureConstraint.Terminating<S, Unit>, Aliasable
+import com.zombachu.stick.cast
+import com.zombachu.stick.isSuccess
 
 internal open class StructureImpl<S>(
     override val id: TypedIdentifier<out Unit>,
@@ -22,13 +21,13 @@ internal open class StructureImpl<S>(
     override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Literal
 
-    override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<out Unit> {
+    override fun parse(context: ExecutionContext<S>, args: List<String>): Result<out Unit> {
         val peeked = (context as ExecutionContextImpl<S>).peek(Size(1))
         if (peeked !is PeekingResult.Success) {
             return ParsingResult.failType()
         }
 
-        val label = peeked.args.first().lowercase()
+        val label = peeked.value.first().lowercase()
         if (!matches(label)) {
             return ParsingResult.failType()
         }

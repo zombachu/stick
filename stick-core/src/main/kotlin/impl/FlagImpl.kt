@@ -4,9 +4,8 @@ import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
-
-interface Flag<S, T : Any> : SyntaxElement<S, T>, SignatureConstraint.NonTerminating<S, T>
 
 internal sealed class FlagParameter<S, T : Any>(
     size: Size.Fixed,
@@ -24,7 +23,7 @@ internal sealed class FlagParameter<S, T : Any>(
         aliases: Set<String>,
         description: String,
     ) : FlagParameter<S, T>(Size(1), id, aliases, description) {
-        override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<T> {
+        override fun parse(context: ExecutionContext<S>, args: List<String>): Result<out T> {
             if (matches(args[0].lowercase())) {
                 return ParsingResult.success(context.presentValue())
             }
@@ -40,7 +39,7 @@ internal sealed class FlagParameter<S, T : Any>(
         aliases: Set<String>,
         description: String,
     ) : FlagParameter<S, T>(Size(1) + valueElement.size, id, aliases, description) {
-        override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<out T> {
+        override fun parse(context: ExecutionContext<S>, args: List<String>): Result<out T> {
             if (matches(args[0].lowercase())) {
                 return valueElement.parse(context, args.subList(1, args.size))
             }
@@ -61,7 +60,7 @@ internal open class FlagImpl<S, T : Any>(
     override val id: TypedIdentifier<out T> = flagParameter.id
     override val description: String = flagParameter.description
 
-    override fun parse(context: ExecutionContext<S>, args: List<String>): ParsingResult<out T> {
+    override fun parse(context: ExecutionContext<S>, args: List<String>): Result<out T> {
         return flagParameter.parse(context, args)
     }
 

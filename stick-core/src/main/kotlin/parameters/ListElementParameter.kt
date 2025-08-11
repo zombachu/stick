@@ -3,6 +3,7 @@ package com.zombachu.stick.parameters
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.impl.Parameter
 
@@ -12,7 +13,7 @@ open class ListElementParameter<S, T : Any>(
     val list: ContextualValue<S, List<T>>,
 ) : Parameter.Size1<S, T>(id, description) {
 
-    override fun parse(context: ExecutionContext<S>, arg0: String): ParsingResult<T> {
+    override fun parse(context: ExecutionContext<S>, arg0: String): Result<T> {
         val index = arg0.toIntOrNull() ?: return ParsingResult.failType()
         val list = list(context)
 

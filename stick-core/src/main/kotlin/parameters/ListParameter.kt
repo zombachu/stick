@@ -2,9 +2,11 @@ package com.zombachu.stick.parameters
 
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.ParsingResult.Companion.isSuccess
+import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
+import com.zombachu.stick.cast
 import com.zombachu.stick.impl.Parameter
+import com.zombachu.stick.isSuccess
 
 open class ListParameter<S, T : Any>(
     id: TypedIdentifier<List<T>>,
@@ -12,7 +14,7 @@ open class ListParameter<S, T : Any>(
     val parameter: Size1<S, T>,
 ) : Parameter.Size1<S, List<T>>(id, description) {
 
-    override fun parse(context: ExecutionContext<S>, arg0: String): ParsingResult<List<T>> {
+    override fun parse(context: ExecutionContext<S>, arg0: String): Result<List<T>> {
         val values = arg0.split(",")
         val parsedValues = values.map {
             val parsedValue = parameter.parse(context, listOf(it))
