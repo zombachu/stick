@@ -1,9 +1,10 @@
 package com.zombachu.stick
 
+import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.ParsingFailureHandler
-import com.zombachu.stick.impl.Structure
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
+import com.zombachu.stick.structure.requireIs
 
 interface Bridge<S> {
     val parsingFailureHandler: ParsingFailureHandler<S>

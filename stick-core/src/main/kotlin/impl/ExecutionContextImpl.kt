@@ -5,6 +5,7 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
+import com.zombachu.stick.element.SyntaxElement
 import com.zombachu.stick.isSuccess
 
 class ExecutionContextImpl<S>(

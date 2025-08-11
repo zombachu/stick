@@ -1,6 +1,8 @@
 package com.zombachu.stick.impl
 
-import com.zombachu.stick.id
+import com.zombachu.stick.element.Signature
+import com.zombachu.stick.element.StructureImpl
+import com.zombachu.stick.structure.id
 
 typealias StructureElement<S, T> = StructureScope<S>.() -> T
 

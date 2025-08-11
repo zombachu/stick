@@ -1,8 +1,8 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.Bridge
+import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.ParsingFailureHandler
-import com.zombachu.stick.impl.Structure
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandMap
 import org.bukkit.command.CommandSender

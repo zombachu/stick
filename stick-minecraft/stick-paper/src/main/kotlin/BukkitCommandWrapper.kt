@@ -1,9 +1,9 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.Command
+import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.ParsingFailureHandler
 import com.zombachu.stick.impl.ExecutionContextImpl
-import com.zombachu.stick.impl.Structure
 import com.zombachu.stick.isSuccess
 import org.bukkit.Location
 import org.bukkit.command.CommandSender
