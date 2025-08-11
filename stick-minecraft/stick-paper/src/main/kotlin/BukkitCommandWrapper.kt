@@ -1,9 +1,9 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.Command
+import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.ParsingFailureHandler
-import com.zombachu.stick.impl.ExecutionContextImpl
 import com.zombachu.stick.isSuccess
 import org.bukkit.Location
 import org.bukkit.command.CommandSender
@@ -26,7 +26,7 @@ class BukkitCommandWrapper(
 
     override fun execute(sender: CommandSender, label: String, args: Array<String>): Boolean {
         val args = args.toMutableList()
-        val context = ExecutionContextImpl(sender, label, args)
+        val context = ExecutionContext(sender, label, args)
         args.addFirst(label)
 
         val result = structure.parse(context, args)

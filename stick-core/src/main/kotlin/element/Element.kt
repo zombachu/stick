@@ -28,7 +28,8 @@ sealed interface Groupable<S, T : Any> : SyntaxElement<S, T> {
     fun getGroupedSyntax(sender: S): String = id.name
 }
 
-interface Helper<S, T : Any> : SignatureConstraint.NonTerminating<S, T>
-interface Flag<S, T : Any> : SyntaxElement<S, T>, SignatureConstraint.NonTerminating<S, T>
-interface Group<S> : SyntaxElement<S, GroupResult<*>>, SignatureConstraint.Terminating<S, GroupResult<*>>
-interface Structure<S> : Groupable<S, Unit>, SignatureConstraint.Terminating<S, Unit>, Aliasable
+sealed interface Helper<S, T : Any> : SignatureConstraint.NonTerminating<S, T>
+sealed interface Flag<S, T : Any> : SyntaxElement<S, T>, SignatureConstraint.NonTerminating<S, T>
+sealed interface Group<S> : SyntaxElement<S, GroupResult<*>>, SignatureConstraint.Terminating<S, GroupResult<*>>
+sealed interface Structure<S> : Groupable<S, Unit>, SignatureConstraint.Terminating<S, Unit>, Aliasable
+sealed interface ValidatedParameter<S, T : Any> : Groupable<S, T>

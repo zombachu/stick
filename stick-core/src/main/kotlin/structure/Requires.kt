@@ -4,12 +4,12 @@ package com.zombachu.stick.structure
 
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.element.Flag
-import com.zombachu.stick.element.Groupable
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.ValidatedCommand
 import com.zombachu.stick.element.ValidatedFlag
 import com.zombachu.stick.element.ValidatedParameter
+import com.zombachu.stick.element.ValidatedParameterImpl
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.StructureElement
@@ -24,9 +24,9 @@ fun <S, S2, T : Any> SenderScope<S>.requireAs(
     requirement: Requirement<S> = Requirement { true },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     parameter: StructureElement<S2, StructureElement<S2, Parameter<S2, T>>>,
-): StructureElement<S, Groupable<S, T>> = {
+): StructureElement<S, ValidatedParameter<S, T>> = {
     val scope: StructureScope<S2> = this.forSender()
-    ValidatedParameter(
+    ValidatedParameterImpl(
         parameter(scope)(scope),
         { requirement(it) },
         transform,
@@ -73,7 +73,7 @@ inline fun <S : Any, reified S2 : S, T : Any> SenderScope<S>.requireIs(
     requirement: Requirement<S> = Requirement { true },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline parameter: StructureElement<S2, StructureElement<S2, Parameter<S2, T>>>,
-): StructureElement<S, Groupable<S, T>> =
+): StructureElement<S, ValidatedParameter<S, T>> =
     requireAs(
         { it as S2 },
         requirement + { it is S2 },
@@ -130,7 +130,7 @@ fun <S, T : Any> SenderScope<S>.require(
     requirement: Requirement<S>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     parameter: StructureElement<S, StructureElement<S, Parameter<S, T>>>,
-): StructureElement<S, Groupable<S, T>> =
+): StructureElement<S, ValidatedParameter<S, T>> =
     requireAs({ it }, requirement, parameter)
 
 @OverloadResolutionByLambdaReturnType

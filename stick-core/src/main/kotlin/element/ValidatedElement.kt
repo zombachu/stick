@@ -15,11 +15,11 @@ internal fun <S> SyntaxElement<S, Any>.isSenderValid(sender: S): Boolean {
     return this !is Validator<*> || (this as Validator<S>).validate(sender)
 }
 
-internal class ValidatedParameter<S, S2, T : Any>(
+internal class ValidatedParameterImpl<S, S2, T : Any>(
     val parameter: Parameter<S2, T>,
     override val validate: (S) -> Boolean,
     val transform: (S) -> S2,
-) : Groupable<S, T>, Validator<S> {
+) : ValidatedParameter<S, T>, Validator<S> {
 
     override val size: Size = parameter.size
     override val type: ElementType = parameter.type
