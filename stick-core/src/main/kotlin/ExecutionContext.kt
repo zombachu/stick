@@ -10,6 +10,7 @@ interface ExecutionContext<S> : SenderScope<S> {
 
     fun <T : Any> get(id: TypedIdentifier<T>): T
     fun <T : Any> getOrPut(id: TypedIdentifier<T>, defaultValue: () -> T): T
+    fun getSyntax(): String = TODO()
 
     companion object {
         operator fun <S> invoke(sender: S, label: String, args: List<String>): ExecutionContext<S> {

@@ -44,6 +44,7 @@ class Tuple12<T, A:T, B:T, C:T, D:T, E:T, F:T, G:T, S:T, I:T, J:T, K:T, L:T>(val
     override fun toList(): List<T> = listOf(a, b, c, d, e, f, g, h, i, j, k, l)
 }
 
+typealias Array<T> = Tuple<T>
 typealias Array0<T> = Tuple0<T>
 typealias Array1<T> = Tuple1<T, T>
 typealias Array2<T> = Tuple2<T, T, T>
