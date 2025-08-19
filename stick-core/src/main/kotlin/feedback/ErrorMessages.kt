@@ -1,6 +1,12 @@
 package com.zombachu.stick.feedback
 
+import com.zombachu.stick.impl.Array2
+
 object ErrorMessages {
-    object NotANumber : FeedbackMessage1("The argument provided is not a number: %0.")
-    object OutOfRange : FeedbackMessage3("The number provided is not in the valid range of %0 to %1: %2.")
+    val Empty = Feedback0("")
+    val Unknown = Feedback0("An unknown error has occurred.")
+    val NotAType = FeedbackMessage2("The argument provided is not a %0: %1.")
+    val InvalidSyntax = FeedbackMessage1("Invalid syntax. Correct usage: %0.")
+    val OutOfRange = FeedbackMessage3("The number provided is not in the valid range of %0 to %1: %2.")
+    val InvalidLiteral = PreformattedFeedbackMessage<Array2<String>>("The value provided is not one of %0: %1.")
 }

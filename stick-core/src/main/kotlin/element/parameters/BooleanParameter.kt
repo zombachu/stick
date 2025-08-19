@@ -12,7 +12,7 @@ open class BooleanParameter<S>(
 ) : Parameter.Size1<S, Boolean>(id, description) {
 
     override fun parse(context: ExecutionContext<S>, arg0: String): Result<Boolean> {
-        val bool = arg0.toBooleanStrictOrNull() ?: return ParsingResult.failType()
+        val bool = arg0.toBooleanStrictOrNull() ?: return ParsingResult.failType("boolean", arg0)
         return ParsingResult.success(bool)
     }
 }

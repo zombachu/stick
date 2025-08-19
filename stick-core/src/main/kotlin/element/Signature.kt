@@ -24,7 +24,6 @@ internal sealed class Signature<S>(
         linearElements = partitioned.second
     }
 
-    // TODO("Return execution result")
     protected abstract fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult
 
     fun execute(context: ExecutionContextImpl<S>): Result<*> {
@@ -104,7 +103,7 @@ internal sealed class Signature<S>(
                 }
 
                 val unused = processSyntaxElement(context, values, flag, indexedFlag.index).valueOrPropagate {
-                    if (it is ParsingResult.UnknownTypeError) {
+                    if (it is ParsingResult.TypeNotMatchedError) {
                         // Ignore type errors (flag didn't match)
                         continue
                     } else {

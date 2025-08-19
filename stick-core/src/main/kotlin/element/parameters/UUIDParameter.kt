@@ -17,7 +17,7 @@ open class UUIDParameter<S>(
             val uuid = UUID.fromString(arg0)
             return ParsingResult.success(uuid)
         } catch (_: IllegalArgumentException) {
-            return ParsingResult.failType()
+            return ParsingResult.failType("UUID", arg0)
         }
     }
 }

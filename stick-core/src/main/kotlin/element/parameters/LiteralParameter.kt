@@ -19,7 +19,7 @@ open class LiteralParameter<S>(
 
     override fun parse(context: ExecutionContext<S>, arg0: String): Result<String> {
         if (!matches(arg0.lowercase())) {
-            return ParsingResult.failType()
+            return ParsingResult.failLiteral(listOf(label), arg0)
         }
         return ParsingResult.success(arg0)
     }

@@ -13,13 +13,13 @@ internal class OptionalParameter<S, T : Any>(
     override fun parse(context: ExecutionContext<S>, args: List<String>): Result<out T> {
         if (args.isEmpty()) {
             if (!validatedDefault.validate(context.sender)) {
-                return ParsingResult.failSyntax()
+                return ParsingResult.failSyntax(context.getSyntax())
             }
             return ParsingResult.success(validatedDefault.value(context))
         }
 
         if (!parameter.size.matches(args.size)) {
-            return ParsingResult.failSyntax()
+            return ParsingResult.failSyntax(context.getSyntax())
         }
         return parameter.parse(context, args)
     }

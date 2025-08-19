@@ -4,9 +4,13 @@ package com.zombachu.stick
 
 import com.zombachu.stick.Result.Failure
 import com.zombachu.stick.Result.Success
+import com.zombachu.stick.feedback.ErrorMessages
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.feedback.Feedback0
 import com.zombachu.stick.feedback.Feedback1
+import com.zombachu.stick.feedback.Feedback2
+import com.zombachu.stick.feedback.Feedback3
+import com.zombachu.stick.impl.Array2
 import com.zombachu.stick.impl.Tuple
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -17,32 +21,39 @@ sealed interface Result<T> {
     }
 
     sealed interface Failure<T> : Result<T> {
-        val feedback: Feedback<out Tuple<String>>
+        val feedback: () -> Feedback<out Tuple<String>>
     }
 }
 
 sealed interface ParsingResult<T> : Result<T> {
     class Success<T> internal constructor(override val value: T) : ParsingResult<T>, Result.Success<T>
 
-    // TODO: Document potentially ignored
-    class UnknownTypeError<T> internal constructor(override val feedback: Feedback1) : ParsingResult<T>, Failure<T>
+    class UnknownError<T> internal constructor(override val feedback: () -> Feedback0) : ParsingResult<T>, Failure<T>
 
-    // TODO: Document causes syntax printing
+    interface TypeMatchError<T> : ParsingResult<T>, Failure<T>
+    class TypeNotMatchedInternal<T> internal constructor(override val feedback: () -> Feedback0) : TypeMatchError<T>
+    class TypeNotMatchedError<T> internal constructor(override val feedback: () -> Feedback2) : TypeMatchError<T>
+    class TypeNotMatchedSyntaxError<T> internal constructor(override val feedback: () -> Feedback1) : TypeMatchError<T>
+    class LiteralNotMatchedError<T> internal constructor(override val feedback: () -> Feedback2) : TypeMatchError<T>
+
     interface SyntaxError<T> : ParsingResult<T>, Failure<T>
-    class InvalidSyntaxError<T> internal constructor(override val feedback: Feedback1) : SyntaxError<T>
-    class InvalidArgumentError<T> internal constructor(override val feedback: Feedback1) : SyntaxError<T>
+    class InvalidSyntaxError<T> internal constructor(override val feedback: () -> Feedback1) : SyntaxError<T>
+
+    interface ArgumentError<T> : ParsingResult<T>, Failure<T>
+    class OutOfRangeError<T> internal constructor(override val feedback: () -> Feedback3) : ArgumentError<T>
 
     interface StateError<T> : ParsingResult<T>, Failure<T>
-    class IllegalStateError<T> internal constructor(override val feedback: Feedback1) : StateError<T>
-    class UnknownError<T> internal constructor(override val feedback: Feedback1) : StateError<T>
+    class IllegalStateError<T> internal constructor(override val feedback: () -> Feedback1) : StateError<T>
 
     companion object {
         fun <T> success(value: T): ParsingResult<T> = Success(value)
-        fun <T> failType(): ParsingResult<T> = UnknownTypeError(TODO())
-        fun <T> failSyntax(): ParsingResult<T> = InvalidSyntaxError(TODO())
-        fun <T> failArgument(): ParsingResult<T> = InvalidArgumentError(TODO())
-        fun <T> failState(): ParsingResult<T> = IllegalStateError(TODO())
-        fun <T> failUnknown(): ParsingResult<T> = UnknownError(TODO())
+        fun <T> failUnknown(): ParsingResult<T> = UnknownError { ErrorMessages.Unknown }
+        internal fun <T> failTypeInternal(): ParsingResult<T> = TypeNotMatchedInternal { ErrorMessages.Empty }
+        fun <T> failType(type: String, arg: String): ParsingResult<T> = TypeNotMatchedError { ErrorMessages.NotAType.with(type, arg) }
+        fun <T> failTypeSyntax(syntax: String): ParsingResult<T> = TypeNotMatchedSyntaxError { ErrorMessages.InvalidSyntax.with(syntax) }
+        fun <T> failLiteral(valid: List<String>, arg: String): ParsingResult<T> = LiteralNotMatchedError { ErrorMessages.InvalidLiteral.with(Array2(valid.joinToString(","), arg), valid) }
+        fun <T> failSyntax(syntax: String): ParsingResult<T> = InvalidSyntaxError { ErrorMessages.InvalidSyntax.with(syntax) }
+        fun <T> failRange(min: String, max: String, arg: String): ParsingResult<T> = OutOfRangeError { ErrorMessages.OutOfRange.with(min, max, arg) }
     }
 }
 
@@ -50,11 +61,11 @@ sealed interface ExecutionResult : Result<Unit> {
     class Success internal constructor() : ExecutionResult, Result.Success<Unit> {
         override val value: Unit = Unit
     }
-    class Failure internal constructor(override val feedback: Feedback<out Tuple<String>>) : ExecutionResult, Result.Failure<Unit>
+    class Failure internal constructor(override val feedback: () -> Feedback<out Tuple<String>>) : ExecutionResult, Result.Failure<Unit>
 
     companion object {
         fun success(): ExecutionResult = Success()
-        fun error(feedback: Feedback<*> = Feedback.empty()): ExecutionResult = Failure(feedback)
+        fun error(feedback: Feedback<*> = ErrorMessages.Empty): ExecutionResult = Failure { feedback }
     }
 }
 
@@ -64,7 +75,7 @@ sealed interface SenderValidationResult: Result<Unit> {
     }
 
     interface Failure : SenderValidationResult, Result.Failure<Unit> {}
-    class InvalidSenderError internal constructor(override val feedback: Feedback0): Failure
+    class InvalidSenderError internal constructor(override val feedback: () -> Feedback0): Failure
 
     companion object {
         fun success(): SenderValidationResult = Success()
@@ -79,11 +90,11 @@ internal sealed interface PeekingResult : Result<List<String>> {
             mutableArgs.clear()
         }
     }
-    class InvalidSizeError internal constructor(override val feedback: Feedback1) : PeekingResult, Result.Failure<List<String>>
+    class InvalidSizeError internal constructor(override val feedback: () -> Feedback0) : PeekingResult, Failure<List<String>>
 
     companion object {
         fun success(mutableArgs: MutableList<String>): PeekingResult = Success(mutableArgs)
-        fun failSize(): InvalidSizeError = InvalidSizeError(TODO())
+        fun failSize(): PeekingResult = InvalidSizeError { ErrorMessages.Empty }
     }
 }
 

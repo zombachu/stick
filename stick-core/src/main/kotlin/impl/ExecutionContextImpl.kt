@@ -60,7 +60,7 @@ class ExecutionContextImpl<S>(
     ): Result<out Any> {
         val peeked = peek(element.size)
         if (peeked !is PeekingResult.Success) {
-            return ParsingResult.failSyntax()
+            return ParsingResult.failSyntax(getSyntax())
         }
 
         val value = element.parse(this, peeked.value).valueOrPropagate { return it }

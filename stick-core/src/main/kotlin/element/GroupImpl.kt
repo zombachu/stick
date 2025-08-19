@@ -32,7 +32,7 @@ internal class GroupImpl<S>(
             }
 
             val value = (context as ExecutionContextImpl<S>).processSyntaxElement(element).valueOrPropagate {
-                if (it is ParsingResult.UnknownTypeError) {
+                if (it is ParsingResult.TypeNotMatchedError) {
                     // Ignore type errors (element didn't match)
                     continue
                 } else {
@@ -45,7 +45,7 @@ internal class GroupImpl<S>(
         }
 
         // No elements could be matched, fail syntax
-        return ParsingResult.failSyntax()
+        return ParsingResult.failSyntax(context.getSyntax())
     }
 
     override fun getSyntax(sender: S): String {

@@ -45,7 +45,7 @@ internal sealed class FlagParameter<S, T : Any>(
             if (matches(args[0].lowercase())) {
                 return ParsingResult.success(context.presentValue())
             }
-            return ParsingResult.failType()
+            return ParsingResult.failTypeInternal()
         }
 
         override fun getSyntax(sender: S): String = "[$label]"
@@ -61,7 +61,7 @@ internal sealed class FlagParameter<S, T : Any>(
             if (matches(args[0].lowercase())) {
                 return valueElement.parse(context, args.subList(1, args.size))
             }
-            return ParsingResult.failType()
+            return ParsingResult.failTypeInternal()
         }
 
         override fun getSyntax(sender: S): String = "[$label ${valueElement.getSyntax(sender)}]"
