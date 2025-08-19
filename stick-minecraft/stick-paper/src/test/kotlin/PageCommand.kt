@@ -52,6 +52,10 @@ class PageCommand: BukkitCommand {
                     id("intElement"),
                     list = {
                         listOf(1, 2, 3)
+                    },
+                    onEmpty = {
+                        sender.sendMessage("No pages")
+                        ExecutionResult.success()
                     }
                 ),
                 group(

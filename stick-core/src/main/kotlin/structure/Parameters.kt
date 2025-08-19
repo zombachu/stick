@@ -2,6 +2,8 @@ package com.zombachu.stick.structure
 
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ContextualValue
+import com.zombachu.stick.ExecutionContext
+import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.parameters.BooleanParameter
@@ -232,12 +234,14 @@ fun <S, T : Any> SenderScope<S>.listParameter(
 fun <S, T : Any> SenderScope<S>.listElementParameter(
     id: TypedIdentifier<T>,
     list: ContextualValue<S, List<T>>,
+    onEmpty: ExecutionContext<S>.() -> ExecutionResult,
     description: String = "",
 ): StructureElement<S, ListElementParameter<S, T>> = {
-    ListElementParameter(id, description, list)
+    ListElementParameter(id, description, list, onEmpty)
 }
 inline fun <S, reified T : Any> SenderScope<S>.listElementParameter(
     name: String,
     noinline list: ContextualValue<S, List<T>>,
+    noinline onEmpty: ExecutionContext<S>.() -> ExecutionResult,
     description: String = "",
-): StructureElement<S, ListElementParameter<S, T>> = listElementParameter(id(name), list, description)
+): StructureElement<S, ListElementParameter<S, T>> = listElementParameter(id(name), list, onEmpty, description)

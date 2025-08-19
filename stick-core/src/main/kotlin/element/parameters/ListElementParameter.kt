@@ -2,29 +2,35 @@ package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.ExecutionContext
+import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
+import com.zombachu.stick.valueOrPropagate
 
 open class ListElementParameter<S, T : Any>(
     id: TypedIdentifier<T>,
     description: String,
     val list: ContextualValue<S, List<T>>,
+    val onEmpty: ExecutionContext<S>.() -> ExecutionResult,
 ) : Parameter.Size1<S, T>(id, description) {
 
     override fun parse(context: ExecutionContext<S>, arg0: String): Result<T> {
-        val index = arg0.toIntOrNull() ?: return ParsingResult.failType()
         val list = list(context)
-
         if (list.isEmpty()) {
-            // TODO: Give a better error
+            onEmpty(context).valueOrPropagate { return it }
+            // TODO: Don't return a result, shortcircuit execution
             return ParsingResult.failUnknown()
         }
 
+        val index = arg0.toIntOrNull() ?: return ParsingResult.failType("index", arg0)
+
         // If the given number is not in the valid range then give the sender an error
-        if (index !in 0..list.size) {
-            return ParsingResult.failArgument()
+        val min = 0
+        val max = list.size - 1
+        if (index !in min..max) {
+            return ParsingResult.failRange(min.toString(), max.toString(), arg0)
         }
 
         return ParsingResult.success(list[index])

@@ -1,7 +1,8 @@
 package com.zombachu.stick.feedback
 
+import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.Result
 
 interface ParsingFailureHandler<S> {
-    fun handleFailure(sender: S, result: Result.Failure<*>)
+    fun onFailure(context: ExecutionContext<S>, result: Result.Failure<*>)
 }

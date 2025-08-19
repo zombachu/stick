@@ -31,7 +31,7 @@ class BukkitCommandWrapper(
 
         val result = structure.parse(context, args)
         if (!result.isSuccess()) {
-            parsingFailureHandler.handleFailure(sender, result)
+            parsingFailureHandler.onFailure(context, result)
         }
         return true
     }
