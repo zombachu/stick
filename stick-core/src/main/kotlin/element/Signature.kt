@@ -5,10 +5,10 @@ package com.zombachu.stick.element
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
-import com.zombachu.stick.cast
 import com.zombachu.stick.impl.ExecutionContextImpl
 import com.zombachu.stick.impl.Tuple
 import com.zombachu.stick.isSuccess
+import com.zombachu.stick.valueOrPropagate
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -28,11 +28,8 @@ internal sealed class Signature<S>(
     protected abstract fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult
 
     fun execute(context: ExecutionContextImpl<S>): Result<*> {
-        val result = parse(context)
-        if (!result.isSuccess()) {
-            return result
-        }
-        return executeParsed(context, result.value)
+        val value = parse(context).valueOrPropagate { it: Result<List<Any>> -> return it }
+        return executeParsed(context, value)
     }
 
     fun getSyntax(sender: S): String {
@@ -106,24 +103,22 @@ internal sealed class Signature<S>(
                     continue
                 }
 
-                val processResult = processSyntaxElement(context, values, flag, indexedFlag.index)
-                if (processResult.isSuccess()) {
-                    // Mark the flag as processed if it succeeded
-                    flagsIt.remove()
-                } else if (processResult is ParsingResult.UnknownTypeError) {
-                    // Ignore type errors (flag didn't match)
-                    continue
-                } else {
-                    // If the flag matched and an error occurred in parsing then propagate it up
-                    return processResult.cast()
+                val unused = processSyntaxElement(context, values, flag, indexedFlag.index).valueOrPropagate {
+                    if (it is ParsingResult.UnknownTypeError) {
+                        // Ignore type errors (flag didn't match)
+                        continue
+                    } else {
+                        // If the flag matched and an error occurred in parsing then propagate it up
+                        return it
+                    }
                 }
+                // Mark the flag as processed if it succeeded
+                flagsIt.remove()
             }
 
             // Parse with the element as a syntax element
-            val processResult = processSyntaxElement(context, values, element, indexedElement.index)
-            if (!processResult.isSuccess()) {
-                // Propagate errors up
-                return processResult.cast()
+            val unused = processSyntaxElement(context, values, element, indexedElement.index).valueOrPropagate {
+                return it
             }
             parameterIndex++
         }

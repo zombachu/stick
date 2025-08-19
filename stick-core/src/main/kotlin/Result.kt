@@ -87,6 +87,13 @@ internal sealed interface PeekingResult : Result<List<String>> {
     }
 }
 
+inline fun <T, T2> Result<T>.valueOrPropagate(onFailure: (Failure<T2>) -> Nothing): T {
+    if (isSuccess()) {
+        return value
+    }
+    onFailure(unsafeCast())
+}
+
 fun <T> Result<T>.isSuccess(): Boolean {
     contract {
         returns(true) implies (this@isSuccess is Success<T>)
@@ -95,7 +102,7 @@ fun <T> Result<T>.isSuccess(): Boolean {
     return this is Success<T>
 }
 
-internal fun <T2> Failure<*>.cast(): Failure<T2> {
+fun <T2> Failure<*>.unsafeCast(): Failure<T2> {
     // TODO: Handle safer
     return this as Failure<T2>
 }

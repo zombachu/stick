@@ -6,7 +6,7 @@ import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.SyntaxElement
-import com.zombachu.stick.isSuccess
+import com.zombachu.stick.valueOrPropagate
 
 class ExecutionContextImpl<S>(
     override val sender: S,
@@ -63,14 +63,10 @@ class ExecutionContextImpl<S>(
             return ParsingResult.failSyntax()
         }
 
-        val parseResult = element.parse(this, peeked.value)
-        if (!parseResult.isSuccess()) {
-            return parseResult
-        }
+        val value = element.parse(this, peeked.value).valueOrPropagate { return it }
         peeked.consume()
-
-        put(element.id, parseResult.value)
-        return parseResult
+        put(element.id, value)
+        return ParsingResult.success(value)
     }
 
     internal fun <T : Any> put(id: TypedIdentifier<out T>, parsedValue: T) {

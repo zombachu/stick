@@ -5,10 +5,9 @@ import com.zombachu.stick.GroupResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
-import com.zombachu.stick.cast
 import com.zombachu.stick.impl.ExecutionContextImpl
 import com.zombachu.stick.impl.Size
-import com.zombachu.stick.isSuccess
+import com.zombachu.stick.valueOrPropagate
 
 internal class GroupImpl<S>(
     override val id: TypedIdentifier<GroupResult<*>>,
@@ -32,17 +31,17 @@ internal class GroupImpl<S>(
                 continue
             }
 
-            val processResult = (context as ExecutionContextImpl<S>).processSyntaxElement(element)
-            if (processResult.isSuccess()) {
-                // If successful, return
-                return ParsingResult.success(GroupResult(element.id, processResult.value))
-            } else if (processResult is ParsingResult.UnknownTypeError) {
-                // Ignore type errors (element didn't match)
-                continue
-            } else {
-                // If the element matched and an error occurred in parsing then propagate it up
-                return processResult.cast()
+            val value = (context as ExecutionContextImpl<S>).processSyntaxElement(element).valueOrPropagate {
+                if (it is ParsingResult.UnknownTypeError) {
+                    // Ignore type errors (element didn't match)
+                    continue
+                } else {
+                    // If the element matched and an error occurred in parsing then propagate it up
+                    return it
+                }
             }
+            // If successful, return
+            return ParsingResult.success(GroupResult(element.id, value))
         }
 
         // No elements could be matched, fail syntax

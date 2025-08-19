@@ -6,10 +6,9 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
-import com.zombachu.stick.cast
 import com.zombachu.stick.impl.ExecutionContextImpl
 import com.zombachu.stick.impl.Size
-import com.zombachu.stick.isSuccess
+import com.zombachu.stick.valueOrPropagate
 
 internal open class StructureImpl<S>(
     override val id: TypedIdentifier<out Unit>,
@@ -39,10 +38,7 @@ internal open class StructureImpl<S>(
             return ParsingResult.failSyntax()
         }
 
-        val executionResult = signature.execute(context)
-        if (!executionResult.isSuccess()) {
-            return executionResult.cast()
-        }
+        val unused = signature.execute(context).valueOrPropagate { return it }
         return ExecutionResult.success()
     }
 
