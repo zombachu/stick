@@ -16,6 +16,7 @@ inline fun <reified S : Any, reified S2 : S> Bridge<S>.registerCommand(command: 
     val emptyContext = StructureScope.empty<S>()
     val structureElement: StructureElement<S, Structure<S>> =
         if (S2::class == S::class) {
+            @Suppress("UNCHECKED_CAST")
             (command as Command<S>).structure
         } else {
             emptyContext.requireIs(S2::class) { command.structure }

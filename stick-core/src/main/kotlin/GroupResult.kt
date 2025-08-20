@@ -6,6 +6,7 @@ data class GroupResult<T : Any>(
 ) {
     inline fun <T2 : Any> on(id: TypedIdentifier<T2>, onValue: (T2) -> Unit) {
         if (id == this.id) {
+            @Suppress("UNCHECKED_CAST")
             onValue(value as T2)
         }
     }

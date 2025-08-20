@@ -12,6 +12,7 @@ internal interface Validator<S> {
 }
 
 internal fun <S> SyntaxElement<S, Any>.isSenderValid(sender: S): Boolean {
+    @Suppress("UNCHECKED_CAST")
     return this !is Validator<*> || (this as Validator<S>).validate(sender)
 }
 

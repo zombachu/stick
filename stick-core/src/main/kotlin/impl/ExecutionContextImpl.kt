@@ -24,6 +24,7 @@ class ExecutionContextImpl<S>(
     private var parsed: MutableMap<TypedIdentifier<*>, Any> = mutableMapOf()
 
     override fun <T : Any> get(id: TypedIdentifier<T>): T {
+        @Suppress("UNCHECKED_CAST")
         return parsed[id] as T
     }
 

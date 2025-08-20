@@ -20,6 +20,7 @@ internal sealed class Signature<S>(
 
     init {
         val partitioned = elements.toList().mapIndexed { i, e -> IndexedElement(i, e) }.partition { it.element is FlagImpl }
+        @Suppress("UNCHECKED_CAST")
         flags = partitioned.first as List<IndexedElement<S, FlagImpl<S, Any>>>
         linearElements = partitioned.second
     }
@@ -148,6 +149,7 @@ internal sealed class Signature<S>(
         contract {
             returns(false) implies (this@isSenderValid is ValidatedFlag<S, *, *>)
         }
+        @Suppress("UNCHECKED_CAST")
         return this !is Validator<*> || (this as Validator<S>).validate(sender)
     }
 
