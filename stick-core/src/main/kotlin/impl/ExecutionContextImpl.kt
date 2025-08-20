@@ -5,6 +5,7 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
+import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.SyntaxElement
 import com.zombachu.stick.valueOrPropagate
 
@@ -12,7 +13,11 @@ class ExecutionContextImpl<S>(
     override val sender: S,
     override val label: String,
     override val args: List<String>,
+    private val structure: Structure<S>,
+    parent: ExecutionContextImpl<*>?,
 ) : ExecutionContext<S> {
+
+    private val root: ExecutionContextImpl<*> = parent?.root ?: this
 
     // Use a reversed view of a list to optimize removal of args in order
     private var unparsed: MutableList<String> = mutableListOf<String>().asReversed()
@@ -31,11 +36,21 @@ class ExecutionContextImpl<S>(
         return value
     }
 
+    override fun getSyntax(): String {
+        return "/${root.getSyntaxForSender()}"
+    }
+
+    private fun getSyntaxForSender(): String {
+        return structure.getSyntax(sender)
+    }
+
     internal fun <S2> forSender(sender: S2): ExecutionContextImpl<S2> {
         return ExecutionContextImpl(
             sender,
-            label,
-            args,
+            this.label,
+            this.args,
+            this.structure as Structure<S2>, // TODO: Handle safer
+            parent = this,
         ).also {
             it.unparsed = this.unparsed
             it.parsed = this.parsed

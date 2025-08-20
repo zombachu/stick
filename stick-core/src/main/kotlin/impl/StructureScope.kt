@@ -14,7 +14,7 @@ class StructureScope<S>(
     internal val requirement: Requirement<S>,
 ): SenderScope<S> {
 
-    val root: StructureScope<*> = parent?.root ?: this
+    private val root: StructureScope<*> = parent?.root ?: this
 
     internal fun <S2> forSender(): StructureScope<S2> {
         return StructureScope(

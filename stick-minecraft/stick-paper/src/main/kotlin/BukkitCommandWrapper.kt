@@ -26,7 +26,7 @@ class BukkitCommandWrapper(
 
     override fun execute(sender: CommandSender, label: String, args: Array<String>): Boolean {
         val args = args.toMutableList()
-        val context = ExecutionContext(sender, label, args)
+        val context = ExecutionContext(sender, label, args, structure)
         args.addFirst(label)
 
         val result = structure.parse(context, args)
