@@ -1,5 +1,6 @@
 package com.zombachu.stick.structure
 
+import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.element.Group
 import com.zombachu.stick.element.GroupImpl
 import com.zombachu.stick.element.Groupable
@@ -16,7 +17,7 @@ fun <S> SenderScope<S>.group(
         aliases = setOf(),
         description = "",
         parent = this,
-        requirement = { true },
+        requirement = requirement { SenderValidationResult.success() },
     )
     GroupImpl(
         id(groupScope.name),

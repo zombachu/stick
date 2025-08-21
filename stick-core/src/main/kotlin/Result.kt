@@ -13,6 +13,7 @@ import com.zombachu.stick.feedback.Feedback3
 import com.zombachu.stick.impl.Array2
 import com.zombachu.stick.impl.Tuple
 import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 sealed interface Result<T> {
@@ -29,6 +30,8 @@ sealed interface ParsingResult<T> : Result<T> {
     class Success<T> internal constructor(override val value: T) : ParsingResult<T>, Result.Success<T>
 
     class UnknownError<T> internal constructor(override val feedback: () -> Feedback0) : ParsingResult<T>, Failure<T>
+
+    class HandledError<T> internal constructor(override val feedback: () -> Feedback0) : ParsingResult<T>, Failure<T>
 
     interface TypeMatchError<T> : ParsingResult<T>, Failure<T>
     class TypeNotMatchedInternal<T> internal constructor(override val feedback: () -> Feedback0) : TypeMatchError<T>
@@ -48,6 +51,7 @@ sealed interface ParsingResult<T> : Result<T> {
     companion object {
         fun <T> success(value: T): ParsingResult<T> = Success(value)
         fun <T> failUnknown(): ParsingResult<T> = UnknownError { ErrorMessages.Unknown }
+        fun <T> failHandled(): ParsingResult<T> = HandledError { ErrorMessages.Empty }
         internal fun <T> failTypeInternal(): ParsingResult<T> = TypeNotMatchedInternal { ErrorMessages.Empty }
         fun <T> failType(type: String, arg: String): ParsingResult<T> = TypeNotMatchedError { ErrorMessages.NotAType.with(type, arg) }
         fun <T> failTypeSyntax(syntax: String): ParsingResult<T> = TypeNotMatchedSyntaxError { ErrorMessages.InvalidSyntax.with(syntax) }
@@ -76,10 +80,12 @@ sealed interface SenderValidationResult: Result<Unit> {
 
     interface Failure : SenderValidationResult, Result.Failure<Unit> {}
     class InvalidSenderError internal constructor(override val feedback: () -> Feedback0): Failure
+    class InvalidSenderTypeError internal constructor(override val feedback: () -> Feedback0): Failure
 
     companion object {
         fun success(): SenderValidationResult = Success()
-        fun failSender(): SenderValidationResult = InvalidSenderError(TODO())
+        fun failSender(): SenderValidationResult = InvalidSenderError { ErrorMessages.InvalidSender }
+        fun failSenderType(): SenderValidationResult = InvalidSenderTypeError { ErrorMessages.InvalidSenderType }
     }
 }
 
@@ -98,7 +104,26 @@ internal sealed interface PeekingResult : Result<List<String>> {
     }
 }
 
-inline fun <T, T2> Result<T>.valueOrPropagate(onFailure: (Failure<T2>) -> Nothing): T {
+inline fun <T, R> Result<T>.handle(onSuccess: (Success<T>) -> R, onFailure: (Failure<T>) -> R): R {
+    return if (isSuccess()) onSuccess(this) else onFailure(this)
+}
+
+inline fun <T2> Result<*>.propagateError(onFailure: (Failure<T2>) -> Nothing) {
+    contract {
+        callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
+    }
+
+    if (isSuccess()) {
+        return
+    }
+    onFailure(unsafeCast())
+}
+
+inline fun <T, T2> Result<T>.valueOrPropagateError(onFailure: (Failure<T2>) -> Nothing): T {
+    contract {
+        callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
+    }
+
     if (isSuccess()) {
         return value
     }

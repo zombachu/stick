@@ -1,22 +1,25 @@
 package com.zombachu.stick.structure
 
 import com.zombachu.stick.ContextualValue
+import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.SignatureConstraint
+import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.ValidatedDefault
 
 fun <S, T : Any> SenderScope<S>.defaultValidated(
     value: ContextualValue<S, T>,
-    validate: (S) -> Boolean = { true },
+    requirement: Requirement<S> = requirement { SenderValidationResult.success() },
 ): ValidatedDefault<S, T> {
-    return ValidatedDefault(value, validate)
+    return ValidatedDefault(value, requirement::validateSender)
 }
 
 inline fun <S, reified S2 : Any> SenderScope<S>.defaultSender(): ValidatedDefault<S, S2> {
-    return defaultValidated({ sender as S2 }, { it is S2 })
+    // TODO: Tell player it's not optional for them
+    return defaultValidated({ sender as S2 }, requirement() { it is S2 })
 }
 
 fun <S, T : Any> SenderScope<S>.optionally(

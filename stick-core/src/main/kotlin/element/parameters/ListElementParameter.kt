@@ -7,7 +7,7 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
-import com.zombachu.stick.valueOrPropagate
+import com.zombachu.stick.propagateError
 
 open class ListElementParameter<S, T : Any>(
     id: TypedIdentifier<T>,
@@ -19,9 +19,8 @@ open class ListElementParameter<S, T : Any>(
     override fun parse(context: ExecutionContext<S>, arg0: String): Result<T> {
         val list = list(context)
         if (list.isEmpty()) {
-            onEmpty(context).valueOrPropagate { return it }
-            // TODO: Don't return a result, shortcircuit execution
-            return ParsingResult.failUnknown()
+            onEmpty(context).propagateError { return it }
+            return ParsingResult.failHandled()
         }
 
         val index = arg0.toIntOrNull() ?: return ParsingResult.failType("index", arg0)

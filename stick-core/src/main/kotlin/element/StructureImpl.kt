@@ -7,16 +7,17 @@ import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.impl.ExecutionContextImpl
+import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
-import com.zombachu.stick.valueOrPropagate
+import com.zombachu.stick.propagateError
 
 internal open class StructureImpl<S>(
     override val id: TypedIdentifier<out Unit>,
     override val aliases: Set<String>,
     override val description: String,
-    override val validate: (S) -> Boolean,
+    internal val requirement: Requirement<S>,
     internal val signature: Signature<S>,
-) : Structure<S>, Validator<S> {
+) : Structure<S>, SenderValidator<S> {
 
     override val label by id
     override val size: Size = Size.Deferred
@@ -34,13 +35,12 @@ internal open class StructureImpl<S>(
         }
         peeked.consume()
 
-        if (!validate(context.sender)) {
-            return ParsingResult.failSyntax(context.getSyntax())
-        }
-
-        val unused = signature.execute(context).valueOrPropagate { return it }
+        validateSender(context.sender).propagateError { return it }
+        signature.execute(context).propagateError { return it }
         return ExecutionResult.success()
     }
+
+    override fun validateSender(sender: S): Result<Unit> = requirement.validateSender(sender)
 
     override fun getSyntax(sender: S): String {
         val signatureSyntax = signature.getSyntax(sender)

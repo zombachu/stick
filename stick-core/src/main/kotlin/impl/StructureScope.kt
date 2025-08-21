@@ -1,5 +1,6 @@
 package com.zombachu.stick.impl
 
+import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.element.Signature
 import com.zombachu.stick.element.StructureImpl
 import com.zombachu.stick.structure.id
@@ -23,7 +24,7 @@ class StructureScope<S>(
             this.description,
             this.parent,
             // To get to this point they must have already passed the previous requirement so should be safe to set to true
-            requirement = { true }
+            requirement = Requirement { SenderValidationResult.success() }
         )
     }
 
@@ -32,7 +33,7 @@ class StructureScope<S>(
             id(this.name),
             this.aliases,
             this.description,
-            { this.requirement(it) },
+            this.requirement,
             signature
         )
     }
@@ -43,7 +44,7 @@ class StructureScope<S>(
             aliases = setOf(),
             description = "",
             parent = null,
-            requirement = { true }
+            requirement = Requirement { SenderValidationResult.success() }
         )
     }
 }

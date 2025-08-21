@@ -5,6 +5,7 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.impl.ValidatedDefault
+import com.zombachu.stick.propagateError
 
 internal class OptionalParameter<S, T : Any>(
     val validatedDefault: ValidatedDefault<S, T>,
@@ -12,9 +13,7 @@ internal class OptionalParameter<S, T : Any>(
 ) : Parameter.UnknownSize<S, T>(Size.Deferred, parameter.id, parameter.description) {
     override fun parse(context: ExecutionContext<S>, args: List<String>): Result<out T> {
         if (args.isEmpty()) {
-            if (!validatedDefault.validate(context.sender)) {
-                return ParsingResult.failSyntax(context.getSyntax())
-            }
+            validatedDefault.validateSender(context.sender).propagateError<T> { return it }
             return ParsingResult.success(validatedDefault.value(context))
         }
 

@@ -5,7 +5,7 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
-import com.zombachu.stick.valueOrPropagate
+import com.zombachu.stick.valueOrPropagateError
 
 open class ListParameter<S, T : Any>(
     id: TypedIdentifier<List<T>>,
@@ -16,7 +16,7 @@ open class ListParameter<S, T : Any>(
     override fun parse(context: ExecutionContext<S>, arg0: String): Result<List<T>> {
         val args = arg0.split(",")
         val parsedValues = args.map { arg ->
-            parameter.parse(context, arg).valueOrPropagate { return it }
+            parameter.parse(context, arg).valueOrPropagateError { return it }
         }
         return ParsingResult.success(parsedValues)
     }

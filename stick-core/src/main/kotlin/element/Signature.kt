@@ -5,10 +5,12 @@ package com.zombachu.stick.element
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
+import com.zombachu.stick.handle
 import com.zombachu.stick.impl.ExecutionContextImpl
 import com.zombachu.stick.impl.Tuple
 import com.zombachu.stick.isSuccess
-import com.zombachu.stick.valueOrPropagate
+import com.zombachu.stick.propagateError
+import com.zombachu.stick.valueOrPropagateError
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -28,7 +30,7 @@ internal sealed class Signature<S>(
     protected abstract fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult
 
     fun execute(context: ExecutionContextImpl<S>): Result<*> {
-        val value = parse(context).valueOrPropagate { it: Result<List<Any>> -> return it }
+        val value = parse(context).valueOrPropagateError { it: Result<List<Any>> -> return it }
         return executeParsed(context, value)
     }
 
@@ -36,11 +38,11 @@ internal sealed class Signature<S>(
         var linearSyntax: List<String> = linearElements
             .map { it.element }
             .filterIsInstance<SyntaxElement<S, *>>()
-            .filter { it.isSenderValid(sender) }
+            .filter { it.validateSender(sender).isSuccess() }
             .map { it.getSyntax(sender) }
         val flagSyntax: List<String> = flags
             .map { it.element }
-            .filter { it.isSenderValid(sender) }
+            .filter { it.validateSender(sender).isSuccess() }
             .map { it.getSyntax(sender) }
 
         // Add terminating element after flags
@@ -99,11 +101,9 @@ internal sealed class Signature<S>(
                 val flag: FlagImpl<S, Any> = indexedFlag.element
 
                 // Ignore flags unable to be accessed by the sender
-                if (!flag.isSenderValid(context.sender)) {
-                    continue
-                }
+                flag.validateSender(context.sender).propagateError<List<Any>> { continue }
 
-                val unused = processSyntaxElement(context, values, flag, indexedFlag.index).valueOrPropagate {
+                processSyntaxElement(context, values, flag, indexedFlag.index).propagateError {
                     if (it is ParsingResult.TypeNotMatchedError) {
                         // Ignore type errors (flag didn't match)
                         continue
@@ -117,20 +117,18 @@ internal sealed class Signature<S>(
             }
 
             // Parse with the element as a syntax element
-            val unused = processSyntaxElement(context, values, element, indexedElement.index).valueOrPropagate {
-                return it
-            }
+            processSyntaxElement(context, values, element, indexedElement.index).propagateError { return it }
             parameterIndex++
         }
 
         // Populate unused flag values with defaults
         for (indexedFlag in unprocessedFlags) {
             val flag = indexedFlag.element
-            val default = if (flag.isSenderValid(context.sender)) {
-                flag.default(context)
-            } else {
-                flag.invalidDefault(context)
-            }
+
+            val default = flag.validateSender(context.sender).handle(
+                onSuccess = { flag.default(context) },
+                onFailure = { (flag as ValidatedFlag<S, *, *>).invalidDefault(context) }
+            )
             values[indexedFlag.index] = default
         }
 
@@ -143,14 +141,6 @@ internal sealed class Signature<S>(
             returns(false) implies (this@isHelper is SyntaxElement<S, Any>)
         }
         return this is HelperImpl<S, Any>
-    }
-
-    private fun FlagImpl<S, Any>.isSenderValid(sender: S): Boolean {
-        contract {
-            returns(false) implies (this@isSenderValid is ValidatedFlag<S, *, *>)
-        }
-        @Suppress("UNCHECKED_CAST")
-        return this !is Validator<*> || (this as Validator<S>).validate(sender)
     }
 
     data class IndexedElement<S, out E : Element<S, *>>(

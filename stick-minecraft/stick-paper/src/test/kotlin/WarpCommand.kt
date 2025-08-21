@@ -14,6 +14,7 @@ import com.zombachu.stick.structure.invoke
 import com.zombachu.stick.structure.optionally
 import com.zombachu.stick.structure.requireAs
 import com.zombachu.stick.structure.requireIs
+import com.zombachu.stick.structure.requirement
 import com.zombachu.stick.structure.stringParameter
 import com.zombachu.stick.structure.valueFlag
 import org.bukkit.command.CommandSender
@@ -67,7 +68,7 @@ class WarpCommand : BukkitCommand {
                 WarpInfoCommand().structure,
                 requireAs<CommandSender, MinecraftProfile>(
                     { PlayerUtil.getProfile(it as Player) },
-                    { it::class == Player::class },
+                    requirement { it::class == Player::class },
                 ) {
                     command("anothercommand")(
                             mcpRequiredStringParameter(id("playerStringParameter"))

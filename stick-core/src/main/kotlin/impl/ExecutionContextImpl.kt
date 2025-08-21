@@ -7,7 +7,7 @@ import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.SyntaxElement
-import com.zombachu.stick.valueOrPropagate
+import com.zombachu.stick.valueOrPropagateError
 
 class ExecutionContextImpl<S>(
     override val sender: S,
@@ -79,7 +79,7 @@ class ExecutionContextImpl<S>(
             return ParsingResult.failSyntax(getSyntax())
         }
 
-        val value = element.parse(this, peeked.value).valueOrPropagate { return it }
+        val value = element.parse(this, peeked.value).valueOrPropagateError { return it }
         peeked.consume()
         put(element.id, value)
         return ParsingResult.success(value)

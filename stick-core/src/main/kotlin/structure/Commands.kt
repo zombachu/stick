@@ -1,6 +1,7 @@
 package com.zombachu.stick.structure
 
 import com.zombachu.stick.Command
+import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.StructureScope
 import com.zombachu.stick.lowercase
@@ -8,7 +9,7 @@ import com.zombachu.stick.lowercase
 fun <S> Command<S>.command(
     name: String,
     aliases: Set<String> = setOf(),
-    requirement: Requirement<S> = Requirement { true },
+    requirement: Requirement<S> = requirement { SenderValidationResult.success() },
     description: String = "",
 ): StructureScope<S> {
     return StructureScope(
@@ -23,7 +24,7 @@ fun <S> Command<S>.command(
 fun <S> StructureScope<S>.command(
     name: String,
     aliases: Set<String> = setOf(),
-    requirement: Requirement<S> = Requirement { true },
+    requirement: Requirement<S> = requirement { SenderValidationResult.success() },
     description: String = "",
 ): StructureScope<S> {
     return StructureScope(
