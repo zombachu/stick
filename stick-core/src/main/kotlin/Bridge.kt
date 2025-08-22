@@ -4,24 +4,44 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.ParsingFailureHandler
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
-import com.zombachu.stick.structure.requireIs
+import com.zombachu.stick.structure.requireAs
+import com.zombachu.stick.structure.requirement
+import kotlin.reflect.KClass
 
-interface Bridge<S> {
-    val parsingFailureHandler: ParsingFailureHandler<S>
+abstract class Bridge<S : Any>(
+    val platformSenderClass: KClass<S>,
+    val parsingFailureHandler: ParsingFailureHandler<S>,
+) {
+    protected abstract fun registerStructure(structure: Structure<S>)
 
-    fun registerStructure(structure: Structure<S>)
-}
+    inline fun <reified S2 : S> register(command: Command<S2>) {
+        internalRegister(S2::class, command, { it is S2 }, { it as S2 })
+    }
 
-inline fun <reified S : Any, reified S2 : S> Bridge<S>.registerCommand(command: Command<S2>) {
-    val emptyContext = StructureScope.empty<S>()
-    val structureElement: StructureElement<S, Structure<S>> =
-        if (S2::class == S::class) {
-            @Suppress("UNCHECKED_CAST")
-            (command as Command<S>).structure
-        } else {
-            emptyContext.requireIs(S2::class) { command.structure }
-        }
+    @PublishedApi
+    internal fun <S2 : S> internalRegister(
+        commandSenderClass: KClass<S2>,
+        command: Command<S2>,
+        isSenderRequiredType: (S) -> Boolean,
+        castSender: (S) -> S2,
+    ) {
+        val emptyContext = StructureScope.empty<S>()
+        val structureElement: StructureElement<S, Structure<S>> =
+            if (commandSenderClass == platformSenderClass) {
+                @Suppress("UNCHECKED_CAST")
+                (command as Command<S>).structure
+            } else {
+                with(emptyContext) {
+                    requireAs(
+                        castSender,
+                        requirement(SenderValidationResult.failSenderType(), isSenderRequiredType),
+                    ) {
+                        command.structure
+                    }
+                }
+            }
 
-    val structure = structureElement(emptyContext)
-    registerStructure(structure)
+        val structure = structureElement(emptyContext)
+        registerStructure(structure)
+    }
 }

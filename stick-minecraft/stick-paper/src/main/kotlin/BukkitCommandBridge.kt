@@ -10,9 +10,13 @@ import org.bukkit.plugin.Plugin
 
 class BukkitCommandBridge(
     val fallbackPrefix: String,
-    override val parsingFailureHandler: ParsingFailureHandler<CommandSender> = BukkitParsingFailureHandler()
-) : Bridge<CommandSender> {
-    constructor(plugin: Plugin) : this(plugin.name.lowercase())
+    parsingFailureHandler: ParsingFailureHandler<CommandSender> = BukkitParsingFailureHandler()
+) : Bridge<CommandSender>(CommandSender::class, parsingFailureHandler) {
+
+    constructor(
+        plugin: Plugin,
+        parsingFailureHandler: ParsingFailureHandler<CommandSender> = BukkitParsingFailureHandler()
+    ) : this(plugin.name.lowercase(), parsingFailureHandler)
 
     private val commandMap: CommandMap = Bukkit.getServer().commandMap
 
