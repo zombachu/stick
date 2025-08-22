@@ -19,7 +19,7 @@ runs:
     - name: Copy files from my-library to public repo
       shell: bash
       run: |
-        cp -r build/dokka/html docs
+        cp -r build/dokka/htmlMultiModule docs
 
     - name: Commit files
       shell: bash
