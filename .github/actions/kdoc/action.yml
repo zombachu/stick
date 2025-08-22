@@ -12,22 +12,23 @@ runs:
       with:
         persist-credentials: false
         repository: zombachu/stick-kdoc
-        path: docs
+        path: stick-kdoc
         token: ${{ inputs.token }}
         fetch-depth: 0
 
     - name: Copy files from my-library to public repo
       shell: bash
       run: |
-        cp -r build/dokka/html docs
+        cp -r build/dokka/html stick-kdoc
+        mv stick-kdoc/html stick-kdoc/docs
 
     - name: Commit files
       shell: bash
       run: |
-        cd docs
+        cd stick-kdoc
         git config --local user.email "zombachu@gmail.com"
         git config --local user.name "zombachu"
-        git add html
+        git add docs
         git commit -a -m "Update kdoc"
 
     - name: Push to stick-kdoc
@@ -35,7 +36,7 @@ runs:
       with:
         github_token: ${{ inputs.token }}
         repository: zombachu/stick-kdoc
-        directory: docs
+        directory: stick-kdoc
         force: true
 
 inputs:
