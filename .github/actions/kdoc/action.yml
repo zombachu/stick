@@ -1,0 +1,44 @@
+name: 'Push to stick-kdoc'
+runs:
+  using: "composite"
+  steps:
+    - name: Generate kdoc
+      shell: bash
+      run: |
+        ./gradlew dokkaHtmlMultiModule
+
+    - name: Clone public repo
+      uses: actions/checkout@v3
+      with:
+        persist-credentials: false
+        repository: zombachu/stick-kdoc
+        path: docs
+        token: ${{ inputs.token }}
+        fetch-depth: 0
+
+    - name: Copy files from my-library to public repo
+      shell: bash
+      run: |
+        cp -r build/dokka/html docs
+
+    - name: Commit files
+      shell: bash
+      run: |
+        cd docs
+        git config --local user.email "zombachu@gmail.com"
+        git config --local user.name "zombachu"
+        git add html
+        git commit -a -m "Update kdoc"
+
+    - name: Push to stick-kdoc
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ inputs.token }}
+        repository: zombachu/stick-kdoc
+        directory: docs
+        force: true
+
+inputs:
+  token:
+    description: 'SSH private key for pushing to stick-kdoc'
+    required: true
