@@ -22,4 +22,4 @@ jobs:
     - name: Generate kdoc
       uses: ./.github/actions/kdoc
       with:
-        token: '${{ secrets.GH_PAT }}'
+        token: '${{ secrets.KDOC }}'
