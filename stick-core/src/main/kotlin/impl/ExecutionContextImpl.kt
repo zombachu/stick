@@ -9,7 +9,7 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.SyntaxElement
 import com.zombachu.stick.valueOrPropagateError
 
-class ExecutionContextImpl<S>(
+internal class ExecutionContextImpl<S>(
     override val sender: S,
     override val label: String,
     override val args: List<String>,
