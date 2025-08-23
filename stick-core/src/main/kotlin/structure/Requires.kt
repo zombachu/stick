@@ -77,7 +77,7 @@ inline fun <S : Any, reified S2 : S, T : Any> SenderScope<S>.requireIs(
 ): StructureElement<S, ValidatedParameter<S, T>> =
     requireAs(
         { it as S2 },
-        requirement + requirement(SenderValidationResult.failSenderType()) { it is S2 },
+        requirement + requirement(SenderValidationResult.failSenderType()) { it.sender is S2 },
         parameter
     )
 
@@ -92,7 +92,7 @@ inline fun <S : Any, reified S2 : S, T : Any> SenderScope<S>.requireIs(
     requireAs(
         { it as S2 },
         invalidDefault,
-        requirement + requirement(SenderValidationResult.failSenderType()) { it is S2 },
+        requirement + requirement(SenderValidationResult.failSenderType()) { it.sender is S2 },
         flag
     )
 
@@ -107,7 +107,7 @@ inline fun <S : Any, reified S2 : S, T : Any> SenderScope<S>.requireIs(
     requireAs(
         { it as S2 },
         { invalidDefault },
-        requirement + requirement(SenderValidationResult.failSenderType()) { it is S2 },
+        requirement + requirement(SenderValidationResult.failSenderType()) { it.sender is S2 },
         flag
     )
 
@@ -121,7 +121,7 @@ inline fun <S : Any, reified S2 : S> SenderScope<S>.requireIs(
 ): StructureElement<S, Structure<S>> =
     requireAs(
         { it as S2 },
-        requirement + requirement(SenderValidationResult.failSenderType()) { it is S2 },
+        requirement + requirement(SenderValidationResult.failSenderType()) { it.sender is S2 },
         command
     )
 

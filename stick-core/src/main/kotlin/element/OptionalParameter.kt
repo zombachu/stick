@@ -3,6 +3,7 @@ package com.zombachu.stick.element
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
+import com.zombachu.stick.SenderContext
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.impl.ValidatedDefault
 import com.zombachu.stick.propagateError
@@ -13,7 +14,7 @@ internal class OptionalParameter<S, T : Any>(
 ) : Parameter.UnknownSize<S, T>(Size.Deferred, parameter.id, parameter.description) {
     override fun parse(context: ExecutionContext<S>, args: List<String>): Result<out T> {
         if (args.isEmpty()) {
-            validatedDefault.validateSender(context.sender).propagateError<T> { return it }
+            validatedDefault.validateSender(context).propagateError<T> { return it }
             return ParsingResult.success(validatedDefault.value(context))
         }
 
@@ -23,5 +24,5 @@ internal class OptionalParameter<S, T : Any>(
         return parameter.parse(context, args)
     }
 
-    override fun getSyntax(sender: S): String = "[${id.name}]"
+    override fun getSyntax(context: SenderContext<S>): String = "[${id.name}]"
 }

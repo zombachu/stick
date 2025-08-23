@@ -5,6 +5,7 @@ import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
+import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.impl.Size
 
@@ -22,7 +23,7 @@ internal open class FlagImpl<S, T : Any>(
         return flagParameter.parse(context, args)
     }
 
-    override fun getSyntax(sender: S): String = flagParameter.getSyntax(sender)
+    override fun getSyntax(context: SenderContext<S>): String = flagParameter.getSyntax(context)
 }
 
 internal sealed class FlagParameter<S, T : Any>(
@@ -48,7 +49,7 @@ internal sealed class FlagParameter<S, T : Any>(
             return ParsingResult.failTypeInternal()
         }
 
-        override fun getSyntax(sender: S): String = "[$label]"
+        override fun getSyntax(context: SenderContext<S>): String = "[$label]"
     }
 
     internal class ValueFlagParameter<S, T : Any>(
@@ -64,6 +65,6 @@ internal sealed class FlagParameter<S, T : Any>(
             return ParsingResult.failTypeInternal()
         }
 
-        override fun getSyntax(sender: S): String = "[$label ${valueElement.getSyntax(sender)}]"
+        override fun getSyntax(context: SenderContext<S>): String = "[$label ${valueElement.getSyntax(context)}]"
     }
 }

@@ -5,6 +5,7 @@ package com.zombachu.stick.element
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
+import com.zombachu.stick.SenderContext
 import com.zombachu.stick.handle
 import com.zombachu.stick.impl.ExecutionContextImpl
 import com.zombachu.stick.impl.Tuple
@@ -34,16 +35,16 @@ internal sealed class Signature<S>(
         return executeParsed(context, value)
     }
 
-    fun getSyntax(sender: S): String {
+    fun getSyntax(context: SenderContext<S>): String {
         var linearSyntax: List<String> = linearElements
             .map { it.element }
             .filterIsInstance<SyntaxElement<S, *>>()
-            .filter { it.validateSender(sender).isSuccess() }
-            .map { it.getSyntax(sender) }
+            .filter { it.validateSender(context).isSuccess() }
+            .map { it.getSyntax(context) }
         val flagSyntax: List<String> = flags
             .map { it.element }
-            .filter { it.validateSender(sender).isSuccess() }
-            .map { it.getSyntax(sender) }
+            .filter { it.validateSender(context).isSuccess() }
+            .map { it.getSyntax(context) }
 
         // Add terminating element after flags
         val lastLinearElement = linearElements.lastOrNull()?.element
@@ -101,7 +102,7 @@ internal sealed class Signature<S>(
                 val flag: FlagImpl<S, Any> = indexedFlag.element
 
                 // Ignore flags unable to be accessed by the sender
-                flag.validateSender(context.sender).propagateError<List<Any>> { continue }
+                flag.validateSender(context).propagateError<List<Any>> { continue }
 
                 processSyntaxElement(context, values, flag, indexedFlag.index).propagateError {
                     if (it is ParsingResult.TypeNotMatchedError) {
@@ -125,7 +126,7 @@ internal sealed class Signature<S>(
         for (indexedFlag in unprocessedFlags) {
             val flag = indexedFlag.element
 
-            val default = flag.validateSender(context.sender).handle(
+            val default = flag.validateSender(context).handle(
                 onSuccess = { flag.default(context) },
                 onFailure = { (flag as ValidatedFlag<S, *, *>).invalidDefault(context) }
             )

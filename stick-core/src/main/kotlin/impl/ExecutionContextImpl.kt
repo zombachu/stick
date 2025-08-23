@@ -42,12 +42,12 @@ internal class ExecutionContextImpl<S>(
     }
 
     private fun getSyntaxForSender(): String {
-        return structure.getSyntax(sender)
+        return structure.getSyntax(this)
     }
 
-    internal fun <S2> forSender(sender: S2): ExecutionContextImpl<S2> {
+    override fun <S2> forSender(transform: (S) -> S2): ExecutionContextImpl<S2> {
         return ExecutionContextImpl(
-            sender,
+            transform(this.sender),
             this.label,
             this.args,
             this.structure as Structure<S2>, // TODO: Handle safer

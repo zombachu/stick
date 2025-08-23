@@ -15,14 +15,20 @@ abstract class Bridge<S : Any>(
     protected abstract fun registerStructure(structure: Structure<S>)
 
     inline fun <reified S2 : S> register(command: Command<S2>) {
-        internalRegister(S2::class, command, { it is S2 }, { it as S2 })
+        @Suppress("UNCHECKED_CAST")
+        internalRegister(
+            S2::class,
+            command,
+            { it.sender is S2 },
+            { it as S2 }
+        )
     }
 
     @PublishedApi
     internal fun <S2 : S> internalRegister(
         commandSenderClass: KClass<S2>,
         command: Command<S2>,
-        isSenderRequiredType: (S) -> Boolean,
+        isSenderRequiredType: (SenderContext<S>) -> Boolean,
         castSender: (S) -> S2,
     ) {
         val emptyContext = StructureScope.empty<S>()

@@ -7,5 +7,5 @@ import org.bukkit.command.CommandSender
 
 // TODO: Permission message
 fun SenderScope<CommandSender>.permission(permission: String): Requirement<CommandSender> = requirement {
-    it.hasPermission(permission)
+    it.sender.hasPermission(permission)
 }

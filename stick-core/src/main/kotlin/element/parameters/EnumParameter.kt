@@ -3,6 +3,7 @@ package com.zombachu.stick.element.parameters
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
+import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
@@ -21,5 +22,5 @@ open class EnumParameter<S, T : Enum<T>>(
         return ParsingResult.success(enumValue)
     }
 
-    override fun getSyntax(sender: S): String = "<${primaryValues.keys.joinToString("|")}>"
+    override fun getSyntax(context: SenderContext<S>): String = "<${primaryValues.keys.joinToString("|")}>"
 }

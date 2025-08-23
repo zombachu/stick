@@ -5,6 +5,7 @@ import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
+import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.impl.ExecutionContextImpl
 import com.zombachu.stick.impl.Requirement
@@ -35,15 +36,15 @@ internal open class StructureImpl<S>(
         }
         peeked.consume()
 
-        validateSender(context.sender).propagateError { return it }
+        validateSender(context).propagateError { return it }
         signature.execute(context).propagateError { return it }
         return ExecutionResult.success()
     }
 
-    override fun validateSender(sender: S): Result<Unit> = requirement.validateSender(sender)
+    override fun validateSender(context: SenderContext<S>): Result<Unit> = requirement.validateSender(context)
 
-    override fun getSyntax(sender: S): String {
-        val signatureSyntax = signature.getSyntax(sender)
+    override fun getSyntax(context: SenderContext<S>): String {
+        val signatureSyntax = signature.getSyntax(context)
         return if (signatureSyntax.isEmpty()) {
             id.name
         } else {

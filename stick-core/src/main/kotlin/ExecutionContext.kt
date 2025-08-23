@@ -4,8 +4,8 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.impl.ExecutionContextImpl
 import com.zombachu.stick.impl.SenderScope
 
-interface ExecutionContext<S> : SenderScope<S> {
-    val sender: S
+// TODO: Shouldn't extend platformcontext
+interface ExecutionContext<S> : SenderScope<S>, SenderContext<S> {
     val label: String
     val args: List<String>
 

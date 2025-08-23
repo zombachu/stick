@@ -2,6 +2,7 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.Result
+import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.impl.Size
 
@@ -13,7 +14,7 @@ sealed class Parameter<S, T : Any>(
 
     override val type: ElementType = ElementType.Default
 
-    override fun getSyntax(sender: S): String = "<${id.name}>"
+    override fun getSyntax(context: SenderContext<S>): String = "<${id.name}>"
 
     sealed class FixedSize<S, T : Any>(
         override val size: Size.Fixed,
