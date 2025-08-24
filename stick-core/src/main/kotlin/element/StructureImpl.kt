@@ -12,20 +12,20 @@ import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.propagateError
 
-internal open class StructureImpl<O, S : SenderContext>(
+internal open class StructureImpl<S : SenderContext, O>(
     override val id: TypedIdentifier<out Unit>,
     override val aliases: Set<String>,
     override val description: String,
-    internal val requirement: Requirement<O, S>,
-    internal val signature: Signature<O, S>,
-) : Structure<O, S>, SenderValidator<O, S> {
+    internal val requirement: Requirement<S, O>,
+    internal val signature: Signature<S, O>,
+) : Structure<S, O>, SenderValidator<S, O> {
 
     override val label by id
     override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Literal
 
-    override fun parse(context: ExecutionContext<O, S>, args: List<String>): Result<out Unit> {
-        val peeked = (context as ExecutionContextImpl<O, S>).peek(Size.Companion(1))
+    override fun parse(context: ExecutionContext<S, O>, args: List<String>): Result<out Unit> {
+        val peeked = (context as ExecutionContextImpl<S, O>).peek(Size.Companion(1))
         if (peeked !is PeekingResult.Success) {
             return ParsingResult.failTypeSyntax(context.getSyntax())
         }

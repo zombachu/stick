@@ -12,14 +12,14 @@ import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 
-internal class GroupImpl<O, S : SenderContext>(
+internal class GroupImpl<S : SenderContext, O>(
     override val id: TypedIdentifier<GroupResult<*>>,
     override val description: String,
-    private val elements: List<Groupable<O, S, *>>,
-) : Group<O, S> {
+    private val elements: List<Groupable<S, O, *>>,
+) : Group<S, O> {
 
-    private val prioritizedElements: List<SyntaxElement<O, S, Any>> = elements.sortedWith(
-        compareBy<SyntaxElement<O, S, Any>> { type.parsingPriority }
+    private val prioritizedElements: List<SyntaxElement<S, O, Any>> = elements.sortedWith(
+        compareBy<SyntaxElement<S, O, Any>> { type.parsingPriority }
             .thenBy { size.parsingPriority }
             .thenByDescending { if (size is Size.Fixed) size.size else 0 }
     )
@@ -27,12 +27,12 @@ internal class GroupImpl<O, S : SenderContext>(
     override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Default
 
-    override fun parse(context: ExecutionContext<O, S>, args: List<String>): Result<GroupResult<*>> {
+    override fun parse(context: ExecutionContext<S, O>, args: List<String>): Result<GroupResult<*>> {
         for (element in prioritizedElements) {
             // Ignore elements unable to be accessed by the sender
             element.validateSender(context.senderContext).propagateError<GroupResult<*>> { continue }
 
-            val value = (context as ExecutionContextImpl<O, S>).processSyntaxElement(element).valueOrPropagateError {
+            val value = (context as ExecutionContextImpl<S, O>).processSyntaxElement(element).valueOrPropagateError {
                 if (it is ParsingResult.TypeNotMatchedError) {
                     // Ignore type errors (element didn't match)
                     continue

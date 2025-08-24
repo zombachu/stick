@@ -8,12 +8,12 @@ import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 import java.util.*
 
-open class UUIDParameter<O, S : SenderContext>(
+open class UUIDParameter<S : SenderContext, O>(
     id: TypedIdentifier<UUID>,
     description: String,
-) : Parameter.Size1<O, S, UUID>(id, description) {
+) : Parameter.Size1<S, O, UUID>(id, description) {
 
-    override fun parse(context: ExecutionContext<O, S>, arg0: String): Result<UUID> {
+    override fun parse(context: ExecutionContext<S, O>, arg0: String): Result<UUID> {
         try {
             val uuid = UUID.fromString(arg0)
             return ParsingResult.success(uuid)

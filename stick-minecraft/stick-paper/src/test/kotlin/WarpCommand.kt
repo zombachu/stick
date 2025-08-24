@@ -5,6 +5,7 @@ import com.zombachu.stick.Command
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.structure.command
+import com.zombachu.stick.structure.defaultSender
 import com.zombachu.stick.structure.enumParameter
 import com.zombachu.stick.structure.flag
 import com.zombachu.stick.structure.group
@@ -20,7 +21,7 @@ import com.zombachu.stick.structure.valueFlag
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
-class WarpCommand : Command<CommandSender, BukkitContext> {
+class WarpCommand : Command<BukkitContext, CommandSender> {
 
     private val warpParameterId = id<String>("warp")
 
@@ -46,14 +47,10 @@ class WarpCommand : Command<CommandSender, BukkitContext> {
                 ),
             ),
             group(
-                requireIs<CommandSender, BukkitContext, Player>(
-//                requireIs(
-//                    BukkitContext<Player>::class,
+                requireIs(
                     Player::class,
-//                    getContextTypeClass<Player, BukkitContext<Player>>(),
-//                    getLClass<BukkitContext<Player>>(),
                     permission("syn.warp.tp")) {
-                    command<Player, BukkitContext>(
+                    command<BukkitContext, Player>(
                         name = "tp",
                         aliases = setOf("teleport"),
                         description = "Teleports you to a warp. If you have access to multiple warps with the same name, " +
@@ -62,17 +59,17 @@ class WarpCommand : Command<CommandSender, BukkitContext> {
                         ::teleport,
                         helper(warpParameterId),
                         flag("raw"),
-//                        optionally(
-//                            defaultSender(),
-//                            playerParameter(
-//                                "player",
-//                                description = "The player to warp",
-//                            ),
-//                        ),
+                        optionally<BukkitContext, Player, Player>(
+                            defaultSender(),
+                            parameter = playerParameter(
+                                "player",
+                                description = "The player to warp",
+                            ),
+                        ),
                     )
                 },
                 WarpInfoCommand().structure,
-                requireAs<CommandSender, BukkitContext, MinecraftProfile>(
+                requireAs<BukkitContext, CommandSender, MinecraftProfile>(
                     { PlayerUtil.getProfile(it as Player) },
                     requirement { it.sender is Player },
                 ) {
@@ -98,14 +95,13 @@ class WarpCommand : Command<CommandSender, BukkitContext> {
             ),
         )
 
-//    fun teleport(context: ExecutionContext<Player, BukkitContext<Player>>, warp: String, isRaw: Boolean, player: Player): ExecutionResult {
-    fun teleport(context: ExecutionContext<Player, BukkitContext>, warp: String, isRaw: Boolean): ExecutionResult {
+    fun teleport(context: ExecutionContext<BukkitContext, Player>, warp: String, isRaw: Boolean, player: Player): ExecutionResult {
         val warp: String = context.get(warpParameterId)
         return ExecutionResult.success()
     }
 }
 
-class WarpInfoCommand(): Command<CommandSender, BukkitContext> {
+class WarpInfoCommand(): Command<BukkitContext, CommandSender> {
 
     override val structure = mcpSender {
         command(
@@ -132,12 +128,12 @@ class WarpInfoCommand(): Command<CommandSender, BukkitContext> {
         )
     }
 
-    fun doSomething(context: ExecutionContext<MinecraftProfile, BukkitContext>, wgFlag: String, weather: WeatherEnum, playerRequiredInt: Int): ExecutionResult {
+    fun doSomething(context: ExecutionContext<BukkitContext, MinecraftProfile>, wgFlag: String, weather: WeatherEnum, playerRequiredInt: Int): ExecutionResult {
         return ExecutionResult.success()
     }
 }
 
-class SomePlayerCommand(): Command<Player, BukkitContext> {
+class SomePlayerCommand(): Command<BukkitContext, Player> {
     override val structure =
         command("hey")(stringParameter(id("hi")))
 }

@@ -11,13 +11,13 @@ import com.zombachu.stick.element.SyntaxElement
 import com.zombachu.stick.transformSender
 import com.zombachu.stick.valueOrPropagateError
 
-internal class ExecutionContextImpl<O, S : SenderContext>(
+internal class ExecutionContextImpl<S : SenderContext, O>(
     override val senderContext: S,
     override val label: String,
     override val args: List<String>,
-    private val structure: Structure<O, S>,
+    private val structure: Structure<S, O>,
     parent: ExecutionContextImpl<*, *>?,
-) : ExecutionContext<O, S> {
+) : ExecutionContext<S, O> {
 
     private val root: ExecutionContextImpl<*, *> = parent?.root ?: this
 
@@ -47,12 +47,12 @@ internal class ExecutionContextImpl<O, S : SenderContext>(
         return structure.getSyntax(this.senderContext)
     }
 
-    fun <O2 : Any> forSender(transform: (O) -> O2): ExecutionContextImpl<O2, S> {
+    fun <O2 : Any> forSender(transform: (O) -> O2): ExecutionContextImpl<S, O2> {
         return ExecutionContextImpl(
             this.senderContext.transformSender(transform),
             this.label,
             this.args,
-            this.structure as Structure<O2, S>, // TODO: Handle safer
+            this.structure as Structure<S, O2>, // TODO: Handle safer
             parent = this,
         ).also {
             it.unparsed = this.unparsed
@@ -74,7 +74,7 @@ internal class ExecutionContextImpl<O, S : SenderContext>(
     }
 
     internal fun processSyntaxElement(
-        element: SyntaxElement<O, S, Any>,
+        element: SyntaxElement<S, O, Any>,
     ): Result<out Any> {
         val peeked = peek(element.size)
         if (peeked !is PeekingResult.Success) {

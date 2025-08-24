@@ -8,13 +8,13 @@ import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.valueOrPropagateError
 
-open class ListParameter<O, S : SenderContext, T : Any>(
+open class ListParameter<S : SenderContext, O, T : Any>(
     id: TypedIdentifier<List<T>>,
     description: String,
-    val parameter: Size1<O, S, T>,
-) : Parameter.Size1<O, S, List<T>>(id, description) {
+    val parameter: Size1<S, O, T>,
+) : Parameter.Size1<S, O, List<T>>(id, description) {
 
-    override fun parse(context: ExecutionContext<O, S>, arg0: String): Result<List<T>> {
+    override fun parse(context: ExecutionContext<S, O>, arg0: String): Result<List<T>> {
         val args = arg0.split(",")
         val parsedValues = args.map { arg ->
             parameter.parse(context, arg).valueOrPropagateError { return it }

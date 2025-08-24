@@ -9,40 +9,40 @@ import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.impl.Size
 
-internal open class FlagImpl<O, S : SenderContext, T : Any>(
-    val default: ContextualValue<O, S, T>,
-    val flagParameter: FlagParameter<O, S, T>,
-): Flag<O, S, T> {
+internal open class FlagImpl<S : SenderContext, O, T : Any>(
+    val default: ContextualValue<S, O, T>,
+    val flagParameter: FlagParameter<S, O, T>,
+): Flag<S, O, T> {
 
     override val size: Size = flagParameter.size
     override val type: ElementType = ElementType.Flag
     override val id: TypedIdentifier<out T> = flagParameter.id
     override val description: String = flagParameter.description
 
-    override fun parse(context: ExecutionContext<O, S>, args: List<String>): Result<out T> {
+    override fun parse(context: ExecutionContext<S, O>, args: List<String>): Result<out T> {
         return flagParameter.parse(context, args)
     }
 
     override fun getSyntax(senderContext: S): String = flagParameter.getSyntax(senderContext)
 }
 
-internal sealed class FlagParameter<O, S : SenderContext, T : Any>(
+internal sealed class FlagParameter<S : SenderContext, O, T : Any>(
     size: Size.Fixed,
     id: TypedIdentifier<T>,
     aliases: Set<String>,
     description: String,
-) : Parameter.FixedSize<O, S, T>(size, id, description), Aliasable {
+) : Parameter.FixedSize<S, O, T>(size, id, description), Aliasable {
 
     override val label: String = "-${id.name}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
 
-    internal class PresenceFlagParameter<O, S : SenderContext, T : Any>(
+    internal class PresenceFlagParameter<S : SenderContext, O, T : Any>(
         id: TypedIdentifier<T>,
-        val presentValue: ContextualValue<O, S, T>,
+        val presentValue: ContextualValue<S, O, T>,
         aliases: Set<String>,
         description: String,
-    ) : FlagParameter<O, S, T>(Size.Companion(1), id, aliases, description) {
-        override fun parse(context: ExecutionContext<O, S>, args: List<String>): Result<out T> {
+    ) : FlagParameter<S, O, T>(Size.Companion(1), id, aliases, description) {
+        override fun parse(context: ExecutionContext<S, O>, args: List<String>): Result<out T> {
             if (matches(args[0].lowercase())) {
                 return ParsingResult.success(context.presentValue())
             }
@@ -52,13 +52,13 @@ internal sealed class FlagParameter<O, S : SenderContext, T : Any>(
         override fun getSyntax(senderContext: S): String = "[$label]"
     }
 
-    internal class ValueFlagParameter<O, S : SenderContext, T : Any>(
+    internal class ValueFlagParameter<S : SenderContext, O, T : Any>(
         id: TypedIdentifier<T>,
-        val valueElement: FixedSize<O, S, T>,
+        val valueElement: FixedSize<S, O, T>,
         aliases: Set<String>,
         description: String,
-    ) : FlagParameter<O, S, T>(Size.Companion(1) + valueElement.size, id, aliases, description) {
-        override fun parse(context: ExecutionContext<O, S>, args: List<String>): Result<out T> {
+    ) : FlagParameter<S, O, T>(Size.Companion(1) + valueElement.size, id, aliases, description) {
+        override fun parse(context: ExecutionContext<S, O>, args: List<String>): Result<out T> {
             if (matches(args[0].lowercase())) {
                 return valueElement.parse(context, args.subList(1, args.size))
             }

@@ -12,23 +12,23 @@ import org.bukkit.entity.Player
 class PlayerParameter<O : Any>(
     id: TypedIdentifier<Player>,
     description: String,
-) : Parameter.Size1<O, BukkitContext, Player>(id, description) {
+) : Parameter.Size1<BukkitContext, O, Player>(id, description) {
 
-    override fun parse(context: ExecutionContext<O, BukkitContext>, arg0: String): Result<Player> {
+    override fun parse(context: ExecutionContext<BukkitContext, O>, arg0: String): Result<Player> {
         TODO("Not yet implemented")
     }
 }
 
-fun <O : Any> SenderScope<O, BukkitContext>.playerParameter(
+fun <O : Any> SenderScope<BukkitContext, O>.playerParameter(
     id: TypedIdentifier<Player>,
     description: String = "",
-): StructureElement<O, BukkitContext, PlayerParameter<O>> = {
+): StructureElement<BukkitContext, O, PlayerParameter<O>> = {
     PlayerParameter(
         id,
         description,
     )
 }
-fun <O : Any> SenderScope<O, BukkitContext>.playerParameter(
+fun <O : Any> SenderScope<BukkitContext, O>.playerParameter(
     name: String,
     description: String = "",
-): StructureElement<O, BukkitContext, PlayerParameter<O>> = playerParameter(id(name), description)
+): StructureElement<BukkitContext, O, PlayerParameter<O>> = playerParameter(id(name), description)

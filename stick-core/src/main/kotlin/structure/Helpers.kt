@@ -8,13 +8,13 @@ import com.zombachu.stick.element.HelperImpl
 import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.StructureElement
 
-fun <O, S : SenderContext, T : Any> SenderScope<O, S>.helper(
-    value: ContextualValue<O, S, T>
-): StructureElement<O, S, Helper<O, S, T>> = {
+fun <S : SenderContext, O, T : Any> SenderScope<S, O>.helper(
+    value: ContextualValue<S, O, T>
+): StructureElement<S, O, Helper<S, O, T>> = {
     HelperImpl(value)
 }
 
-fun <O, S : SenderContext, T : Any> SenderScope<O, S>.helper(
+fun <S : SenderContext, O, T : Any> SenderScope<S, O>.helper(
     id: TypedIdentifier<T>,
-): StructureElement<O, S, Helper<O, S, T>> =
+): StructureElement<S, O, Helper<S, O, T>> =
     helper { get(id) }

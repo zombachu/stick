@@ -18,17 +18,17 @@ class BukkitContext(override val sender: Any) : SenderContext {
 
 class BukkitCommandBridge(
     val fallbackPrefix: String,
-    parsingFailureHandler: ParsingFailureHandler<CommandSender, BukkitContext> = BukkitParsingFailureHandler()
-) : Bridge<CommandSender, BukkitContext>(CommandSender::class, parsingFailureHandler) {
+    parsingFailureHandler: ParsingFailureHandler<BukkitContext, CommandSender> = BukkitParsingFailureHandler()
+) : Bridge<BukkitContext, CommandSender>(CommandSender::class, parsingFailureHandler) {
 
     constructor(
         plugin: Plugin,
-        parsingFailureHandler: ParsingFailureHandler<CommandSender, BukkitContext> = BukkitParsingFailureHandler()
+        parsingFailureHandler: ParsingFailureHandler<BukkitContext, CommandSender> = BukkitParsingFailureHandler()
     ) : this(plugin.name.lowercase(), parsingFailureHandler)
 
     private val commandMap: CommandMap = Bukkit.getServer().commandMap
 
-    override fun registerStructure(structure: Structure<CommandSender, BukkitContext>) {
+    override fun registerStructure(structure: Structure<BukkitContext, CommandSender>) {
         commandMap.register(fallbackPrefix, BukkitCommandWrapper(structure, parsingFailureHandler))
     }
 }

@@ -10,14 +10,14 @@ import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.propagateError
 
-open class ListElementParameter<O, S : SenderContext, T : Any>(
+open class ListElementParameter<S : SenderContext, O, T : Any>(
     id: TypedIdentifier<T>,
     description: String,
-    val list: ContextualValue<O, S, List<T>>,
-    val onEmpty: ExecutionContext<O, S>.() -> ExecutionResult,
-) : Parameter.Size1<O, S, T>(id, description) {
+    val list: ContextualValue<S, O, List<T>>,
+    val onEmpty: ExecutionContext<S, O>.() -> ExecutionResult,
+) : Parameter.Size1<S, O, T>(id, description) {
 
-    override fun parse(context: ExecutionContext<O, S>, arg0: String): Result<T> {
+    override fun parse(context: ExecutionContext<S, O>, arg0: String): Result<T> {
         val list = list(context)
         if (list.isEmpty()) {
             onEmpty(context).propagateError { return it }

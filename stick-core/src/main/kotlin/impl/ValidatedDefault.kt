@@ -5,9 +5,9 @@ import com.zombachu.stick.Result
 import com.zombachu.stick.SenderContext
 import com.zombachu.stick.element.SenderValidator
 
-class ValidatedDefault<O, S : SenderContext, T : Any>(
-    val value: ContextualValue<O, S, T>,
+class ValidatedDefault<S : SenderContext, O, T : Any>(
+    val value: ContextualValue<S, O, T>,
     val validate: (S) -> Result<Unit>,
-): SenderValidator<O, S> {
+): SenderValidator<S, O> {
     override fun validateSender(senderContext: S): Result<Unit> = this.validate(senderContext)
 }

@@ -8,13 +8,13 @@ import com.zombachu.stick.structure.requireAs
 import com.zombachu.stick.structure.requirement
 import kotlin.reflect.KClass
 
-abstract class Bridge<O : Any, S : SenderContext>(
+abstract class Bridge<S : SenderContext, O : Any>(
     val platformSenderClass: KClass<O>,
-    val parsingFailureHandler: ParsingFailureHandler<O, S>,
+    val parsingFailureHandler: ParsingFailureHandler<S, O>,
 ) {
-    protected abstract fun registerStructure(structure: Structure<O, S>)
+    protected abstract fun registerStructure(structure: Structure<S, O>)
 
-    inline fun <reified O2 : O> register(command: Command<O2, S>) {
+    inline fun <reified O2 : O> register(command: Command<S, O2>) {
         @Suppress("UNCHECKED_CAST")
         internalRegister(
             O2::class,
@@ -27,18 +27,18 @@ abstract class Bridge<O : Any, S : SenderContext>(
     @PublishedApi
     internal fun <O2 : O> internalRegister(
         commandSenderClass: KClass<O2>,
-        command: Command<O2, S>,
+        command: Command<S, O2>,
         isSenderRequiredType: (O) -> Boolean,
         castSender: (O) -> O2,
     ) {
-        val emptyContext = StructureScope.empty<O, S>()
-        val structureElement: StructureElement<O, S, Structure<O, S>> =
+        val emptyContext = StructureScope.empty<S, O>()
+        val structureElement: StructureElement<S, O, Structure<S, O>> =
             if (commandSenderClass == platformSenderClass) {
                 @Suppress("UNCHECKED_CAST")
-                (command as Command<O, S>).structure
+                (command as Command<S, O>).structure
             } else {
                 with(emptyContext) {
-                    requireAs<O, S, O2>(
+                    requireAs<S, O, O2>(
                         castSender,
                         // TODO: Handle safer
                         requirement(SenderValidationResult.failSenderType()) { isSenderRequiredType(it.sender as O) },

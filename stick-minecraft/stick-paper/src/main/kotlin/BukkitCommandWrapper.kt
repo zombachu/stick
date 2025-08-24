@@ -10,8 +10,8 @@ import org.bukkit.command.PluginIdentifiableCommand
 import org.bukkit.plugin.Plugin
 
 class BukkitCommandWrapper(
-    val structure: Structure<CommandSender, BukkitContext>,
-    val parsingFailureHandler: ParsingFailureHandler<CommandSender, BukkitContext>,
+    val structure: Structure<BukkitContext, CommandSender>,
+    val parsingFailureHandler: ParsingFailureHandler<BukkitContext, CommandSender>,
 ) : org.bukkit.command.Command(
     structure.label,
     structure.description,
