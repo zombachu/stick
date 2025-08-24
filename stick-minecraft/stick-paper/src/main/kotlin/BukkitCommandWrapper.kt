@@ -21,12 +21,15 @@ class BukkitCommandWrapper(
 
     override fun execute(sender: CommandSender, label: String, args: Array<String>): Boolean {
         val args = args.toMutableList()
-        val context = ExecutionContext(BukkitContext(sender), label, args, structure)
+        val senderContext = BukkitContext(sender)
+        val executionContext = ExecutionContext(senderContext, label, args, structure)
         args.addFirst(label)
 
-        val result = structure.parse(context, args)
-        if (!result.isSuccess()) {
-            parsingFailureHandler.onFailure(context, result)
+        context(senderContext, executionContext) {
+            val result = structure.parse(args)
+            if (!result.isSuccess()) {
+                parsingFailureHandler.onFailure(executionContext, result)
+            }
         }
         return true
     }

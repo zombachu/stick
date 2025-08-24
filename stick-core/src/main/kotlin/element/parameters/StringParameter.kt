@@ -15,7 +15,8 @@ open class StringParameter<S : SenderContext, O>(
 
     override val type: ElementType = ElementType.Passthrough
 
-    override fun parse(context: ExecutionContext<S, O>, arg0: String): Result<String> {
+    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    override fun parse(arg0: String): Result<out String> {
         return ParsingResult.success(arg0)
     }
 }

@@ -18,7 +18,8 @@ open class LiteralParameter<S : SenderContext, O>(
     override val label by id
     override val type: ElementType = ElementType.Literal
 
-    override fun parse(context: ExecutionContext<S, O>, arg0: String): Result<String> {
+    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    override fun parse(arg0: String): Result<out String> {
         if (!matches(arg0.lowercase())) {
             return ParsingResult.failLiteral(listOf(label), arg0)
         }

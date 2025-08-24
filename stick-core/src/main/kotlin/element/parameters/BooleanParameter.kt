@@ -12,7 +12,8 @@ open class BooleanParameter<S : SenderContext, O>(
     description: String,
 ) : Parameter.Size1<S, O, Boolean>(id, description) {
 
-    override fun parse(context: ExecutionContext<S, O>, arg0: String): Result<Boolean> {
+    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    override fun parse(arg0: String): Result<out Boolean> {
         val bool = arg0.toBooleanStrictOrNull() ?: return ParsingResult.failType("boolean", arg0)
         return ParsingResult.success(bool)
     }

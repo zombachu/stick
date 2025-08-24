@@ -24,31 +24,34 @@ internal open class StructureImpl<S : SenderContext, O>(
     override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Literal
 
-    override fun parse(context: ExecutionContext<S, O>, args: List<String>): Result<out Unit> {
-        val peeked = (context as ExecutionContextImpl<S, O>).peek(Size.Companion(1))
+    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    override fun parse(args: List<String>): Result<out Unit> {
+        val peeked = (executionContext as ExecutionContextImpl<S, O>).peek(Size.Companion(1))
         if (peeked !is PeekingResult.Success) {
-            return ParsingResult.failTypeSyntax(context.getSyntax())
+            return ParsingResult.failTypeSyntax(executionContext.getSyntax())
         }
 
         val label = peeked.value.first().lowercase()
         if (!matches(label)) {
-            return ParsingResult.failTypeSyntax(context.getSyntax())
+            return ParsingResult.failTypeSyntax(executionContext.getSyntax())
         }
         peeked.consume()
 
-        validateSender(context.senderContext).propagateError { return it }
-        signature.execute(context).propagateError { return it }
+        validateSender().propagateError { return it }
+        signature.execute().propagateError { return it }
         return ExecutionResult.success()
     }
 
-    override fun validateSender(senderContext: S): Result<Unit> = requirement.validateSender(senderContext)
-
-    override fun getSyntax(senderContext: S): String {
-        val signatureSyntax = signature.getSyntax(senderContext)
+    context(senderContext: S)
+    override fun getSyntax(): String {
+        val signatureSyntax = signature.getSyntax()
         return if (signatureSyntax.isEmpty()) {
             id.name
         } else {
             "${id.name} $signatureSyntax"
         }
     }
+
+    context(senderContext: S)
+    override fun validateSender(): Result<Unit> = requirement.validateSender()
 }

@@ -12,9 +12,9 @@ import com.zombachu.stick.transformSender
 import com.zombachu.stick.valueOrPropagateError
 
 internal class ExecutionContextImpl<S : SenderContext, O>(
-    override val senderContext: S,
     override val label: String,
     override val args: List<String>,
+    private val senderContext: S, // TODO: Remove
     private val structure: Structure<S, O>,
     parent: ExecutionContextImpl<*, *>?,
 ) : ExecutionContext<S, O> {
@@ -24,6 +24,10 @@ internal class ExecutionContextImpl<S : SenderContext, O>(
     // Use a reversed view of a list to optimize removal of args in order
     private var unparsed: MutableList<String> = mutableListOf<String>().asReversed()
     private var parsed: MutableMap<TypedIdentifier<*>, Any> = mutableMapOf()
+
+    @Suppress("UNCHECKED_CAST")
+    override val sender: O
+        get() = senderContext.sender as O
 
     override fun <T : Any> get(id: TypedIdentifier<T>): T {
         @Suppress("UNCHECKED_CAST")
@@ -44,14 +48,16 @@ internal class ExecutionContextImpl<S : SenderContext, O>(
     }
 
     private fun getSyntaxForSender(): String {
-        return structure.getSyntax(this.senderContext)
+        context(this.senderContext) {
+            return structure.getSyntax()
+        }
     }
 
     fun <O2 : Any> forSender(transform: (O) -> O2): ExecutionContextImpl<S, O2> {
         return ExecutionContextImpl(
-            this.senderContext.transformSender(transform),
             this.label,
             this.args,
+            this.senderContext.transformSender(transform),
             this.structure as Structure<S, O2>, // TODO: Handle safer
             parent = this,
         ).also {
@@ -73,6 +79,7 @@ internal class ExecutionContextImpl<S : SenderContext, O>(
         }
     }
 
+    context(senderContext: S)
     internal fun processSyntaxElement(
         element: SyntaxElement<S, O, Any>,
     ): Result<out Any> {
@@ -81,10 +88,12 @@ internal class ExecutionContextImpl<S : SenderContext, O>(
             return ParsingResult.failSyntax(getSyntax())
         }
 
-        val value = element.parse(this, peeked.value).valueOrPropagateError { return it }
-        peeked.consume()
-        put(element.id, value)
-        return ParsingResult.success(value)
+        context(this) {
+            val value = element.parse(peeked.value).valueOrPropagateError { return it }
+            peeked.consume()
+            put(element.id, value)
+            return ParsingResult.success(value)
+        }
     }
 
     internal fun <T : Any> put(id: TypedIdentifier<out T>, parsedValue: T) {

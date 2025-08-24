@@ -55,8 +55,7 @@ class PageCommand: Command<BukkitContext, CommandSender> {
                         listOf(1, 2, 3)
                     },
                     onEmpty = {
-                        // TODO: Cast in context
-                        (this.senderContext.sender as CommandSender).sendMessage("No pages")
+                        sender.sendMessage("No pages")
                         ExecutionResult.success()
                     }
                 ),
@@ -147,13 +146,10 @@ class SomeClass : Command<BukkitContext, CommandSender> {
         )
 
         val test = object : Parameter.Size1<BukkitContext, CommandSender, Boolean>(id(""), "") {
-            override fun parse(
-                context: ExecutionContext<BukkitContext, CommandSender>,
-                arg0: String,
-            ): Result<Boolean> {
+            context(senderContext: BukkitContext, executionContext: ExecutionContext<BukkitContext, CommandSender>)
+            override fun parse(arg0: String): Result<out Boolean> {
                 TODO("Not yet implemented")
             }
-
         }
 
         val flag: StructureElement<BukkitContext, CommandSender, Flag<BukkitContext, CommandSender, Boolean>> = flag(
@@ -192,10 +188,8 @@ class McpRequiredIntParameter(id: TypedIdentifier<Int>) : IntParameter<BukkitCon
 
 class PlayerRequiredUnknownInt(name: String) : Parameter.UnknownSize<BukkitContext, Player, Int>(Size.Unbounded,
     id(""), "") {
-    override fun parse(
-        context: ExecutionContext<BukkitContext, Player>,
-        args: List<String>,
-    ): Result<Int> {
+    context(senderContext: BukkitContext, executionContext: ExecutionContext<BukkitContext, Player>)
+    override fun parse(args: List<String>): Result<out Int> {
         TODO("Not yet implemented")
     }
 }

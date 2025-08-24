@@ -27,12 +27,13 @@ internal class GroupImpl<S : SenderContext, O>(
     override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Default
 
-    override fun parse(context: ExecutionContext<S, O>, args: List<String>): Result<GroupResult<*>> {
+    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    override fun parse(args: List<String>): Result<out GroupResult<*>> {
         for (element in prioritizedElements) {
             // Ignore elements unable to be accessed by the sender
-            element.validateSender(context.senderContext).propagateError<GroupResult<*>> { continue }
+            element.validateSender().propagateError<GroupResult<*>> { continue }
 
-            val value = (context as ExecutionContextImpl<S, O>).processSyntaxElement(element).valueOrPropagateError {
+            val value = (executionContext as ExecutionContextImpl<S, O>).processSyntaxElement(element).valueOrPropagateError {
                 if (it is ParsingResult.TypeNotMatchedError) {
                     // Ignore type errors (element didn't match)
                     continue
@@ -46,11 +47,12 @@ internal class GroupImpl<S : SenderContext, O>(
         }
 
         // No elements could be matched, fail syntax
-        return ParsingResult.failSyntax(context.getSyntax())
+        return ParsingResult.failSyntax(executionContext.getSyntax())
     }
 
-    override fun getSyntax(senderContext: S): String {
-        val elementSyntax = elements.filter { it.validateSender(senderContext).isSuccess() }.map { it.getGroupedSyntax(senderContext) }
+    context(senderContext: S)
+    override fun getSyntax(): String {
+        val elementSyntax = elements.filter { it.validateSender().isSuccess() }.map { it.getGroupedSyntax() }
         return "<${elementSyntax.joinToString("|")}>"
     }
 }

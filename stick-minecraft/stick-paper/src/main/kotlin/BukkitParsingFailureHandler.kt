@@ -11,7 +11,6 @@ class BukkitParsingFailureHandler : ParsingFailureHandler<BukkitContext, Command
         if (message.isEmpty()) {
             return
         }
-        // TODO: Cast in context
-        (context.senderContext.sender as CommandSender).sendMessage(message)
+        context.sender.sendMessage(message)
     }
 }

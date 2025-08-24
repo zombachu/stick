@@ -17,10 +17,12 @@ open class EnumParameter<S : SenderContext, O, T : Enum<T>>(
 
     override val type: ElementType = ElementType.Literal
 
-    override fun parse(context: ExecutionContext<S, O>, arg0: String): Result<T> {
+    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    override fun parse(arg0: String): Result<out T> {
         val enumValue = primaryValues[arg0] ?: aliasedValues[arg0] ?: return ParsingResult.failLiteral(primaryValues.keys.toList(), arg0)
         return ParsingResult.success(enumValue)
     }
 
-    override fun getSyntax(senderContext: S): String = "<${primaryValues.keys.joinToString("|")}>"
+    context(senderContext: S)
+    override fun getSyntax(): String = "<${primaryValues.keys.joinToString("|")}>"
 }

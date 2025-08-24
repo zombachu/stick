@@ -16,8 +16,12 @@ sealed interface Element<S : SenderContext, O, out T> {
 sealed interface SyntaxElement<S : SenderContext, O, out T : Any> : Element<S, O, T> {
     val id: TypedIdentifier<out T>
     val description: String
-    fun parse(context: ExecutionContext<S, O>, args: List<String>): Result<out T>
-    fun getSyntax(senderContext: S): String
+
+    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    fun parse(args: List<String>): Result<out T>
+
+    context(senderContext: S)
+    fun getSyntax(): String
 }
 
 sealed interface SignatureConstraint<S : SenderContext, O, out T> : Element<S, O, T> {
@@ -26,7 +30,9 @@ sealed interface SignatureConstraint<S : SenderContext, O, out T> : Element<S, O
 }
 
 sealed interface Groupable<S : SenderContext, O, T : Any> : SyntaxElement<S, O, T> {
-    fun getGroupedSyntax(senderContext: S): String = id.name
+
+    context(senderContext: S)
+    fun getGroupedSyntax(): String = id.name
 }
 
 sealed interface Helper<S : SenderContext, O, T : Any> : SignatureConstraint.NonTerminating<S, O, T>

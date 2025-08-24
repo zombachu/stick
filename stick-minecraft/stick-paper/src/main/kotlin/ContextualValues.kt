@@ -9,6 +9,5 @@ fun <O : CommandSender, T> SenderScope<BukkitContext, O>.permissionedValue(
     default: T,
     fallback: T
 ): ContextualValue<BukkitContext, O, T> = {
-    // TODO: Cast in context
-    if ((senderContext.sender as CommandSender).hasPermission(permission)) default else fallback
+    if (sender.hasPermission(permission)) default else fallback
 }

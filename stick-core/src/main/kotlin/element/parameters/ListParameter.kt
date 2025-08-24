@@ -14,10 +14,11 @@ open class ListParameter<S : SenderContext, O, T : Any>(
     val parameter: Size1<S, O, T>,
 ) : Parameter.Size1<S, O, List<T>>(id, description) {
 
-    override fun parse(context: ExecutionContext<S, O>, arg0: String): Result<List<T>> {
+    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    override fun parse(arg0: String): Result<out List<T>> {
         val args = arg0.split(",")
         val parsedValues = args.map { arg ->
-            parameter.parse(context, arg).valueOrPropagateError { return it }
+            parameter.parse(arg).valueOrPropagateError { return it }
         }
         return ParsingResult.success(parsedValues)
     }

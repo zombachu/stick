@@ -38,7 +38,7 @@ abstract class Bridge<S : SenderContext, O : Any>(
                 (command as Command<S, O>).structure
             } else {
                 with(emptyContext) {
-                    requireAs<S, O, O2>(
+                    requireAs(
                         castSender,
                         // TODO: Handle safer
                         requirement(SenderValidationResult.failSenderType()) { isSenderRequiredType(it.sender as O) },

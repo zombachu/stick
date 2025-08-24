@@ -15,13 +15,13 @@ fun <S : SenderContext, O, T : Any> SenderScope<S, O>.defaultValidated(
     value: ContextualValue<S, O, T>,
     requirement: Requirement<S, O> = requirement { SenderValidationResult.success() },
 ): ValidatedDefault<S, O, T> {
-    return ValidatedDefault(value, requirement::validateSender)
+    return ValidatedDefault(value) { requirement.validateSender() }
 }
 
 inline fun <S : SenderContext, O : Any, reified O2 : O> SenderScope<S, O>.defaultSender(): ValidatedDefault<S, O, O2> {
     // TODO: Tell player it's not optional for them
     // TODO: Handle safer
-    return defaultValidated({ senderContext.sender as O2 }, requirement() { it.sender is O2 })
+    return defaultValidated({ sender as O2 }, requirement() { it.sender is O2 })
 }
 
 fun <S : SenderContext, O, T : Any> SenderScope<S, O>.optionally(

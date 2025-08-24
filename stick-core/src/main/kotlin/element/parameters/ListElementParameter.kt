@@ -17,10 +17,11 @@ open class ListElementParameter<S : SenderContext, O, T : Any>(
     val onEmpty: ExecutionContext<S, O>.() -> ExecutionResult,
 ) : Parameter.Size1<S, O, T>(id, description) {
 
-    override fun parse(context: ExecutionContext<S, O>, arg0: String): Result<T> {
-        val list = list(context)
+    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    override fun parse(arg0: String): Result<out T> {
+        val list = list(executionContext)
         if (list.isEmpty()) {
-            onEmpty(context).propagateError { return it }
+            onEmpty(executionContext).propagateError { return it }
             return ParsingResult.failHandled()
         }
 

@@ -12,15 +12,17 @@ import com.zombachu.stick.impl.Size
 import com.zombachu.stick.transformSender
 
 internal interface SenderValidator<S : SenderContext, O> {
-    fun validateSender(senderContext: S): Result<Unit>
+    context(senderContext: S)
+    fun validateSender(): Result<Unit>
 }
 
-internal fun <S : SenderContext, O> SyntaxElement<S, O, Any>.validateSender(senderContext: S): Result<Unit> {
+context(senderContext: S)
+internal fun <S : SenderContext, O> SyntaxElement<S, O, Any>.validateSender(): Result<Unit> {
     return if (this !is SenderValidator<*, *>) {
         SenderValidationResult.success()
     } else {
         @Suppress("UNCHECKED_CAST")
-        (this as SenderValidator<S, O>).validateSender(senderContext)
+        (this as SenderValidator<S, O>).validateSender()
     }
 }
 
@@ -35,14 +37,24 @@ internal class ValidatedParameterImpl<S : SenderContext, O : Any, O2 : Any, T : 
     override val id: TypedIdentifier<out T> = parameter.id
     override val description: String = parameter.description
 
-    override fun parse(context: ExecutionContext<S, O>, args: List<String>): Result<out T> {
-        val newContext = (context as ExecutionContextImpl<S, O>).forSender(transform)
-        return parameter.parse(newContext, args)
+    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    override fun parse(args: List<String>): Result<out T> {
+        val newExecutionContext = (executionContext as ExecutionContextImpl<S, O>).forSender(transform)
+        context(newExecutionContext) {
+            return parameter.parse(args)
+        }
     }
 
-    override fun validateSender(senderContext: S): Result<Unit> = requirement.validateSender(senderContext)
+    context(senderContext: S)
+    override fun getSyntax(): String {
+        val newSenderContext = senderContext.transformSender<S, O, O2>(transform)
+        context(newSenderContext) {
+           return parameter.getSyntax()
+        }
+    }
 
-    override fun getSyntax(senderContext: S): String = parameter.getSyntax(senderContext.transformSender(transform))
+    context(senderContext: S)
+    override fun validateSender(): Result<Unit> = requirement.validateSender()
 }
 
 internal class ValidatedFlag<S : SenderContext, O, O2 : Any, T : Any>(
@@ -52,12 +64,16 @@ internal class ValidatedFlag<S : SenderContext, O, O2 : Any, T : Any>(
     val transform: (O) -> O2,
 ) : FlagImpl<S, O, T>((flag as FlagImpl<S, O2, T>).default as ContextualValue<S, O, T>, flag.flagParameter as FlagParameter<S, O, T>), SenderValidator<S, O> { // TODO: Handle casts better
 
-    override fun parse(context: ExecutionContext<S, O>, args: List<String>): Result<out T> {
-        val newContext = (context as ExecutionContextImpl<S, O>).forSender(transform)
-        return flag.parse(newContext, args)
+    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    override fun parse(args: List<String>): Result<out T> {
+        val newExecutionContext = (executionContext as ExecutionContextImpl<S, O>).forSender(transform)
+        context(newExecutionContext) {
+            return flag.parse(args)
+        }
     }
 
-    override fun validateSender(senderContext: S): Result<Unit> = requirement.validateSender(senderContext)
+    context(senderContext: S)
+    override fun validateSender(): Result<Unit> = requirement.validateSender()
 }
 
 internal class ValidatedCommand<S : SenderContext, O, O2 : Any>(
@@ -75,8 +91,11 @@ internal class ValidatedCommand<S : SenderContext, O, O2 : Any>(
     override val size: Size = command.size
     override val type: ElementType = command.type
 
-    override fun parse(context: ExecutionContext<S, O>, args: List<String>): Result<out Unit> {
-        val newContext = (context as ExecutionContextImpl<S, O>).forSender(transform)
-        return command.parse(newContext, args)
+    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    override fun parse(args: List<String>): Result<out Unit> {
+        val newExecutionContext = (executionContext as ExecutionContextImpl<S, O>).forSender(transform)
+        context(newExecutionContext) {
+            return command.parse(args)
+        }
     }
 }

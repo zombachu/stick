@@ -16,7 +16,8 @@ open class NumberParameter<S : SenderContext, O, T>(
     val errorType: String,
 ) : Parameter.Size1<S, O, T>(id, description) where T : Number, T : Comparable<T> {
 
-    override fun parse(context: ExecutionContext<S, O>, arg0: String): Result<T> {
+    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    override fun parse(arg0: String): Result<out T> {
         val number = arg0.toOrNull() ?: return ParsingResult.failType(errorType, arg0)
 
         // If the given number is not in the valid range then give the sender an error

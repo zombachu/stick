@@ -19,11 +19,13 @@ internal open class FlagImpl<S : SenderContext, O, T : Any>(
     override val id: TypedIdentifier<out T> = flagParameter.id
     override val description: String = flagParameter.description
 
-    override fun parse(context: ExecutionContext<S, O>, args: List<String>): Result<out T> {
-        return flagParameter.parse(context, args)
+    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    override fun parse(args: List<String>): Result<out T> {
+        return flagParameter.parse(args)
     }
 
-    override fun getSyntax(senderContext: S): String = flagParameter.getSyntax(senderContext)
+    context(senderContext: S)
+    override fun getSyntax(): String = flagParameter.getSyntax()
 }
 
 internal sealed class FlagParameter<S : SenderContext, O, T : Any>(
@@ -42,14 +44,17 @@ internal sealed class FlagParameter<S : SenderContext, O, T : Any>(
         aliases: Set<String>,
         description: String,
     ) : FlagParameter<S, O, T>(Size.Companion(1), id, aliases, description) {
-        override fun parse(context: ExecutionContext<S, O>, args: List<String>): Result<out T> {
+
+        context(senderContext: S, executionContext: ExecutionContext<S, O>)
+        override fun parse(args: List<String>): Result<out T> {
             if (matches(args[0].lowercase())) {
-                return ParsingResult.success(context.presentValue())
+                return ParsingResult.success(executionContext.presentValue())
             }
             return ParsingResult.failTypeInternal()
         }
 
-        override fun getSyntax(senderContext: S): String = "[$label]"
+        context(senderContext: S)
+        override fun getSyntax(): String = "[$label]"
     }
 
     internal class ValueFlagParameter<S : SenderContext, O, T : Any>(
@@ -58,13 +63,16 @@ internal sealed class FlagParameter<S : SenderContext, O, T : Any>(
         aliases: Set<String>,
         description: String,
     ) : FlagParameter<S, O, T>(Size.Companion(1) + valueElement.size, id, aliases, description) {
-        override fun parse(context: ExecutionContext<S, O>, args: List<String>): Result<out T> {
+
+        context(senderContext: S, executionContext: ExecutionContext<S, O>)
+        override fun parse(args: List<String>): Result<out T> {
             if (matches(args[0].lowercase())) {
-                return valueElement.parse(context, args.subList(1, args.size))
+                return valueElement.parse(args.subList(1, args.size))
             }
             return ParsingResult.failTypeInternal()
         }
 
-        override fun getSyntax(senderContext: S): String = "[$label ${valueElement.getSyntax(senderContext)}]"
+        context(senderContext: S)
+        override fun getSyntax(): String = "[$label ${valueElement.getSyntax()}]"
     }
 }

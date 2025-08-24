@@ -14,7 +14,8 @@ class PlayerParameter<O : Any>(
     description: String,
 ) : Parameter.Size1<BukkitContext, O, Player>(id, description) {
 
-    override fun parse(context: ExecutionContext<BukkitContext, O>, arg0: String): Result<Player> {
+    context(senderContext: BukkitContext, executionContext: ExecutionContext<BukkitContext, O>)
+    override fun parse(arg0: String): Result<out Player> {
         TODO("Not yet implemented")
     }
 }

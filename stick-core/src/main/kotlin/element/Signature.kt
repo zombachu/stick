@@ -2,6 +2,7 @@
 
 package com.zombachu.stick.element
 
+import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
@@ -28,23 +29,25 @@ internal sealed class Signature<S : SenderContext, O>(
         linearElements = partitioned.second
     }
 
-    protected abstract fun executeParsed(context: ExecutionContextImpl<S, O>, parsedValues: List<Any>): ExecutionResult
+    protected abstract fun executeParsed(context: ExecutionContext<S, O>, parsedValues: List<Any>): ExecutionResult
 
-    fun execute(context: ExecutionContextImpl<S, O>): Result<*> {
-        val value = parse(context).valueOrPropagateError { it: Result<List<Any>> -> return it }
-        return executeParsed(context, value)
+    context(senderContext: S, executionContext: ExecutionContextImpl<S, O>)
+    fun execute(): Result<*> {
+        val value = parse().valueOrPropagateError { it: Result<List<Any>> -> return it }
+        return executeParsed(executionContext, value)
     }
 
-    fun getSyntax(senderContext: S): String {
+    context(senderContext: S)
+    fun getSyntax(): String {
         var linearSyntax: List<String> = linearElements
             .map { it.element }
             .filterIsInstance<SyntaxElement<S, O, *>>()
-            .filter { it.validateSender(senderContext).isSuccess() }
-            .map { it.getSyntax(senderContext) }
+            .filter { it.validateSender().isSuccess() }
+            .map { it.getSyntax() }
         val flagSyntax: List<String> = flags
             .map { it.element }
-            .filter { it.validateSender(senderContext).isSuccess() }
-            .map { it.getSyntax(senderContext) }
+            .filter { it.validateSender().isSuccess() }
+            .map { it.getSyntax() }
 
         // Add terminating element after flags
         val lastLinearElement = linearElements.lastOrNull()?.element
@@ -63,6 +66,7 @@ internal sealed class Signature<S : SenderContext, O>(
         return syntax.joinToString(" ")
     }
 
+    context(senderContext: S)
     private fun processSyntaxElement(
         context: ExecutionContextImpl<S, O>,
         values: MutableList<Any>,
@@ -76,9 +80,8 @@ internal sealed class Signature<S : SenderContext, O>(
         return processResult
     }
 
-    private fun parse(
-        context: ExecutionContextImpl<S, O>,
-    ): Result<List<Any>> {
+    context(senderContext: S, context: ExecutionContextImpl<S, O>)
+    private fun parse(): Result<List<Any>> {
         val values: MutableList<Any> = MutableList(flags.size + linearElements.size) {}
 
         val unprocessedFlags = flags.toMutableList()
@@ -102,7 +105,7 @@ internal sealed class Signature<S : SenderContext, O>(
                 val flag: FlagImpl<S, O, Any> = indexedFlag.element
 
                 // Ignore flags unable to be accessed by the sender
-                flag.validateSender(context.senderContext).propagateError<List<Any>> { continue }
+                flag.validateSender().propagateError<List<Any>> { continue }
 
                 processSyntaxElement(context, values, flag, indexedFlag.index).propagateError {
                     if (it is ParsingResult.TypeNotMatchedError) {
@@ -126,7 +129,7 @@ internal sealed class Signature<S : SenderContext, O>(
         for (indexedFlag in unprocessedFlags) {
             val flag = indexedFlag.element
 
-            val default = flag.validateSender(context.senderContext).handle(
+            val default = flag.validateSender().handle(
                 onSuccess = { flag.default(context) },
                 onFailure = { (flag as ValidatedFlag<S, O, *, *>).invalidDefault(context) }
             )

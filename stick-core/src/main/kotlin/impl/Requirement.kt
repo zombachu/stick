@@ -10,7 +10,8 @@ class Requirement<S : SenderContext, O> internal constructor(validate: (senderCo
 
     private val validations: MutableList<(senderContext: S) -> Result<Unit>> = mutableListOf(validate)
 
-    override fun validateSender(senderContext: S): Result<Unit> {
+    context(senderContext: S)
+    override fun validateSender(): Result<Unit> {
         validations.forEach { it(senderContext).propagateError { return it } }
         return SenderValidationResult.success()
     }

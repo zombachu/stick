@@ -12,17 +12,20 @@ internal class OptionalParameter<S : SenderContext, O, T : Any>(
     val validatedDefault: ValidatedDefault<S, O, T>,
     val parameter: Parameter<S, O, T>
 ) : Parameter.UnknownSize<S, O, T>(Size.Deferred, parameter.id, parameter.description) {
-    override fun parse(context: ExecutionContext<S, O>, args: List<String>): Result<out T> {
+
+    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    override fun parse(args: List<String>): Result<out T> {
         if (args.isEmpty()) {
-            validatedDefault.validateSender(context.senderContext).propagateError<T> { return it }
-            return ParsingResult.success(validatedDefault.value(context))
+            validatedDefault.validateSender().propagateError<T> { return it }
+            return ParsingResult.success(validatedDefault.value(executionContext))
         }
 
         if (!parameter.size.matches(args.size)) {
-            return ParsingResult.failSyntax(context.getSyntax())
+            return ParsingResult.failSyntax(executionContext.getSyntax())
         }
-        return parameter.parse(context, args)
+        return parameter.parse(args)
     }
 
-    override fun getSyntax(senderContext: S): String = "[${id.name}]"
+    context(senderContext: S)
+    override fun getSyntax(): String = "[${id.name}]"
 }
