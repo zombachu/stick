@@ -11,12 +11,10 @@ import org.bukkit.command.PluginIdentifiableCommand
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 
-open class BukkitContext(override val sender: CommandSender) : SenderContext
-open class PlayerContext(override val sender: Player) : BukkitContext(sender)
-
 class BukkitCommandWrapper(
     val structure: Structure<BukkitContext>,
     val parsingFailureHandler: ParsingFailureHandler<BukkitContext>,
+    val createSenderContext: (CommandSender) -> BukkitContext,
 ) : org.bukkit.command.Command(
     structure.label,
     structure.description,
@@ -26,8 +24,7 @@ class BukkitCommandWrapper(
 
     override fun execute(sender: CommandSender, label: String, args: Array<String>): Boolean {
         val args = args.toMutableList()
-        // TODO: Need to wrap in playercontext
-        val context = ExecutionContext(BukkitContext(sender), label, args, structure)
+        val context = ExecutionContext(createSenderContext(sender), label, args, structure)
         args.addFirst(label)
 
         val result = structure.parse(context, args)
