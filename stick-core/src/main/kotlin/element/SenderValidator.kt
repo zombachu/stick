@@ -10,20 +10,20 @@ import com.zombachu.stick.impl.ExecutionContextImpl
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 
-internal interface SenderValidator<S> {
-    fun validateSender(context: SenderContext<S>): Result<Unit>
+internal interface SenderValidator<S : SenderContext> {
+    fun validateSender(senderContext: S): Result<Unit>
 }
 
-internal fun <S> SyntaxElement<S, Any>.validateSender(context: SenderContext<S>): Result<Unit> {
+internal fun <S : SenderContext> SyntaxElement<S, Any>.validateSender(senderContext: S): Result<Unit> {
     return if (this !is SenderValidator<*>) {
         SenderValidationResult.success()
     } else {
         @Suppress("UNCHECKED_CAST")
-        (this as SenderValidator<S>).validateSender(context)
+        (this as SenderValidator<S>).validateSender(senderContext)
     }
 }
 
-internal class ValidatedParameterImpl<S, S2, T : Any>(
+internal class ValidatedParameterImpl<S : SenderContext, S2 : SenderContext, T : Any>(
     val parameter: Parameter<S2, T>,
     val requirement: Requirement<S>,
     val transform: (S) -> S2,
@@ -39,12 +39,12 @@ internal class ValidatedParameterImpl<S, S2, T : Any>(
         return parameter.parse(newContext, args)
     }
 
-    override fun validateSender(context: SenderContext<S>): Result<Unit> = requirement.validateSender(context)
+    override fun validateSender(senderContext: S): Result<Unit> = requirement.validateSender(senderContext)
 
-    override fun getSyntax(context: SenderContext<S>): String = parameter.getSyntax(context.forSender(transform))
+    override fun getSyntax(senderContext: S): String = parameter.getSyntax(transform(senderContext))
 }
 
-internal class ValidatedFlag<S, S2, T : Any>(
+internal class ValidatedFlag<S : SenderContext, S2 : SenderContext, T : Any>(
     val flag: Flag<S2, T>,
     val requirement: Requirement<S>,
     val invalidDefault: ContextualValue<S, T>,
@@ -56,10 +56,10 @@ internal class ValidatedFlag<S, S2, T : Any>(
         return flag.parse(newContext, args)
     }
 
-    override fun validateSender(context: SenderContext<S>): Result<Unit> = requirement.validateSender(context)
+    override fun validateSender(senderContext: S): Result<Unit> = requirement.validateSender(senderContext)
 }
 
-internal class ValidatedCommand<S, S2>(
+internal class ValidatedCommand<S : SenderContext, S2 : SenderContext>(
     val command: Structure<S2>,
     requirement: Requirement<S>,
     val transform: (S) -> S2,

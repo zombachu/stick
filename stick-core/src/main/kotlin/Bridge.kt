@@ -8,7 +8,7 @@ import com.zombachu.stick.structure.requireAs
 import com.zombachu.stick.structure.requirement
 import kotlin.reflect.KClass
 
-abstract class Bridge<S : Any>(
+abstract class Bridge<S : SenderContext>(
     val platformSenderClass: KClass<S>,
     val parsingFailureHandler: ParsingFailureHandler<S>,
 ) {
@@ -19,7 +19,7 @@ abstract class Bridge<S : Any>(
         internalRegister(
             S2::class,
             command,
-            { it.sender is S2 },
+            { it is S2 },
             { it as S2 }
         )
     }
@@ -28,7 +28,7 @@ abstract class Bridge<S : Any>(
     internal fun <S2 : S> internalRegister(
         commandSenderClass: KClass<S2>,
         command: Command<S2>,
-        isSenderRequiredType: (SenderContext<S>) -> Boolean,
+        isSenderRequiredType: (S) -> Boolean,
         castSender: (S) -> S2,
     ) {
         val emptyContext = StructureScope.empty<S>()

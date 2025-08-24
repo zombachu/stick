@@ -3,6 +3,7 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.ExecutionResult
+import com.zombachu.stick.SenderContext
 import com.zombachu.stick.impl.ExecutionContextImpl
 import com.zombachu.stick.impl.Tuple0
 import com.zombachu.stick.impl.Tuple1
@@ -18,7 +19,7 @@ import com.zombachu.stick.impl.Tuple7
 import com.zombachu.stick.impl.Tuple8
 import com.zombachu.stick.impl.Tuple9
 
-internal class Signature0<S>(
+internal class Signature0<S : SenderContext>(
     val execute: ExecutionContextImpl<S>.() -> ExecutionResult,
     elements: Tuple0<SignatureConstraint<S, Any>>,
 ): Signature<S>(elements) {
@@ -27,7 +28,7 @@ internal class Signature0<S>(
     }
 }
 
-internal class Signature1<S, A : Any>(
+internal class Signature1<S : SenderContext, A : Any>(
     val execute: ExecutionContextImpl<S>.(A) -> ExecutionResult,
     elements: Tuple1<SignatureConstraint<S, Any>,
             SignatureConstraint.Terminating<S, A>>,
@@ -37,7 +38,7 @@ internal class Signature1<S, A : Any>(
     }
 }
 
-internal class Signature2<S, A : Any, B : Any>(
+internal class Signature2<S : SenderContext, A : Any, B : Any>(
     val execute: ExecutionContextImpl<S>.(A, B) -> ExecutionResult,
     elements: Tuple2<SignatureConstraint<S, Any>,
             SignatureConstraint.NonTerminating<S, A>,
@@ -48,7 +49,7 @@ internal class Signature2<S, A : Any, B : Any>(
     }
 }
 
-internal class Signature3<S, A : Any, B : Any, C : Any>(
+internal class Signature3<S : SenderContext, A : Any, B : Any, C : Any>(
     val execute: ExecutionContextImpl<S>.(A, B, C) -> ExecutionResult,
     elements: Tuple3<SignatureConstraint<S, Any>,
             SignatureConstraint.NonTerminating<S, A>,
@@ -60,7 +61,7 @@ internal class Signature3<S, A : Any, B : Any, C : Any>(
     }
 }
 
-internal class Signature4<S, A : Any, B : Any, C : Any, D : Any>(
+internal class Signature4<S : SenderContext, A : Any, B : Any, C : Any, D : Any>(
     val execute: ExecutionContextImpl<S>.(A, B, C, D) -> ExecutionResult,
     elements: Tuple4<SignatureConstraint<S, Any>,
             SignatureConstraint.NonTerminating<S, A>,
@@ -73,7 +74,7 @@ internal class Signature4<S, A : Any, B : Any, C : Any, D : Any>(
     }
 }
 
-internal class Signature5<S, A : Any, B : Any, C : Any, D : Any, E : Any>(
+internal class Signature5<S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any>(
     val execute: ExecutionContextImpl<S>.(A, B, C, D, E) -> ExecutionResult,
     elements: Tuple5<SignatureConstraint<S, Any>,
             SignatureConstraint.NonTerminating<S, A>,
@@ -88,7 +89,7 @@ internal class Signature5<S, A : Any, B : Any, C : Any, D : Any, E : Any>(
     }
 }
 
-internal class Signature6<S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any>(
+internal class Signature6<S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any>(
     val execute: ExecutionContextImpl<S>.(A, B, C, D, E, F) -> ExecutionResult,
     elements: Tuple6<SignatureConstraint<S, Any>,
             SignatureConstraint.NonTerminating<S, A>,
@@ -104,7 +105,7 @@ internal class Signature6<S, A : Any, B : Any, C : Any, D : Any, E : Any, F : An
     }
 }
 
-internal class Signature7<S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any>(
+internal class Signature7<S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any>(
     val execute: ExecutionContextImpl<S>.(A, B, C, D, E, F, G) -> ExecutionResult,
     elements: Tuple7<SignatureConstraint<S, Any>,
             SignatureConstraint.NonTerminating<S, A>,
@@ -121,7 +122,7 @@ internal class Signature7<S, A : Any, B : Any, C : Any, D : Any, E : Any, F : An
     }
 }
 
-internal class Signature8<S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any>(
+internal class Signature8<S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any>(
     val execute: ExecutionContextImpl<S>.(A, B, C, D, E, F, G, H) -> ExecutionResult,
     elements: Tuple8<SignatureConstraint<S, Any>,
             SignatureConstraint.NonTerminating<S, A>,
@@ -139,7 +140,7 @@ internal class Signature8<S, A : Any, B : Any, C : Any, D : Any, E : Any, F : An
     }
 }
 
-internal class Signature9<S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any>(
+internal class Signature9<S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any>(
     val execute: ExecutionContextImpl<S>.(A, B, C, D, E, F, G, H, I) -> ExecutionResult,
     elements: Tuple9<SignatureConstraint<S, Any>,
             SignatureConstraint.NonTerminating<S, A>,
@@ -159,7 +160,7 @@ internal class Signature9<S, A : Any, B : Any, C : Any, D : Any, E : Any, F : An
     }
 }
 
-internal class Signature10<S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any>(
+internal class Signature10<S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any>(
     val execute: ExecutionContextImpl<S>.(A, B, C, D, E, F, G, H, I, J) -> ExecutionResult,
     elements: Tuple10<SignatureConstraint<S, Any>,
             SignatureConstraint.NonTerminating<S, A>,
@@ -180,7 +181,7 @@ internal class Signature10<S, A : Any, B : Any, C : Any, D : Any, E : Any, F : A
     }
 }
 
-internal class Signature11<S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any,
+internal class Signature11<S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any,
         K : Any>(
     val execute: ExecutionContextImpl<S>.(A, B, C, D, E, F, G, H, I, J, K) -> ExecutionResult,
     elements: Tuple11<SignatureConstraint<S, Any>,
@@ -203,7 +204,7 @@ internal class Signature11<S, A : Any, B : Any, C : Any, D : Any, E : Any, F : A
     }
 }
 
-internal class Signature12<S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any,
+internal class Signature12<S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any,
         K : Any, L : Any>(
     val execute: ExecutionContextImpl<S>.(A, B, C, D, E, F, G, H, I, J, K, L) -> ExecutionResult,
     elements: Tuple12<SignatureConstraint<S, Any>,

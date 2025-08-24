@@ -5,11 +5,12 @@ import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
+import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.propagateError
 
-open class ListElementParameter<S, T : Any>(
+open class ListElementParameter<S : SenderContext, T : Any>(
     id: TypedIdentifier<T>,
     description: String,
     val list: ContextualValue<S, List<T>>,

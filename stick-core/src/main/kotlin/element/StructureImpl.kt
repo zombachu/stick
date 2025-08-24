@@ -12,7 +12,7 @@ import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.propagateError
 
-internal open class StructureImpl<S>(
+internal open class StructureImpl<S : SenderContext>(
     override val id: TypedIdentifier<out Unit>,
     override val aliases: Set<String>,
     override val description: String,
@@ -36,15 +36,15 @@ internal open class StructureImpl<S>(
         }
         peeked.consume()
 
-        validateSender(context).propagateError { return it }
+        validateSender(context.senderContext).propagateError { return it }
         signature.execute(context).propagateError { return it }
         return ExecutionResult.success()
     }
 
-    override fun validateSender(context: SenderContext<S>): Result<Unit> = requirement.validateSender(context)
+    override fun validateSender(senderContext: S): Result<Unit> = requirement.validateSender(senderContext)
 
-    override fun getSyntax(context: SenderContext<S>): String {
-        val signatureSyntax = signature.getSyntax(context)
+    override fun getSyntax(senderContext: S): String {
+        val signatureSyntax = signature.getSyntax(senderContext)
         return if (signatureSyntax.isEmpty()) {
             id.name
         } else {

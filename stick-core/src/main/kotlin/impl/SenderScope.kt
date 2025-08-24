@@ -1,3 +1,5 @@
 package com.zombachu.stick.impl
 
-interface SenderScope<out S>
+import com.zombachu.stick.SenderContext
+
+interface SenderScope<out S : SenderContext>

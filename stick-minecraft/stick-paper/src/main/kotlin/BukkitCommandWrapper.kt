@@ -1,7 +1,7 @@
 package com.zombachu.stick.paper
 
-import com.zombachu.stick.Command
 import com.zombachu.stick.ExecutionContext
+import com.zombachu.stick.SenderContext
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.ParsingFailureHandler
 import com.zombachu.stick.isSuccess
@@ -11,12 +11,12 @@ import org.bukkit.command.PluginIdentifiableCommand
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 
-typealias BukkitCommand = Command<CommandSender>
-typealias PlayerCommand = Command<Player>
+open class BukkitContext(override val sender: CommandSender) : SenderContext
+open class PlayerContext(override val sender: Player) : BukkitContext(sender)
 
 class BukkitCommandWrapper(
-    val structure: Structure<CommandSender>,
-    val parsingFailureHandler: ParsingFailureHandler<CommandSender>,
+    val structure: Structure<BukkitContext>,
+    val parsingFailureHandler: ParsingFailureHandler<BukkitContext>,
 ) : org.bukkit.command.Command(
     structure.label,
     structure.description,
@@ -26,7 +26,8 @@ class BukkitCommandWrapper(
 
     override fun execute(sender: CommandSender, label: String, args: Array<String>): Boolean {
         val args = args.toMutableList()
-        val context = ExecutionContext(sender, label, args, structure)
+        // TODO: Need to wrap in playercontext
+        val context = ExecutionContext(BukkitContext(sender), label, args, structure)
         args.addFirst(label)
 
         val result = structure.parse(context, args)

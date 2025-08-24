@@ -4,13 +4,14 @@ import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
+import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.SyntaxElement
 import com.zombachu.stick.valueOrPropagateError
 
-internal class ExecutionContextImpl<S>(
-    override val sender: S,
+internal class ExecutionContextImpl<S : SenderContext>(
+    override val senderContext: S,
     override val label: String,
     override val args: List<String>,
     private val structure: Structure<S>,
@@ -42,12 +43,12 @@ internal class ExecutionContextImpl<S>(
     }
 
     private fun getSyntaxForSender(): String {
-        return structure.getSyntax(this)
+        return structure.getSyntax(this.senderContext)
     }
 
-    override fun <S2> forSender(transform: (S) -> S2): ExecutionContextImpl<S2> {
+    fun <S2 : SenderContext> forSender(transform: (S) -> S2): ExecutionContextImpl<S2> {
         return ExecutionContextImpl(
-            transform(this.sender),
+            transform(this.senderContext),
             this.label,
             this.args,
             this.structure as Structure<S2>, // TODO: Handle safer

@@ -3,11 +3,12 @@ package com.zombachu.stick.element.parameters
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
+import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 import java.util.*
 
-open class UUIDParameter<S>(
+open class UUIDParameter<S : SenderContext>(
     id: TypedIdentifier<UUID>,
     description: String,
 ) : Parameter.Size1<S, UUID>(id, description) {

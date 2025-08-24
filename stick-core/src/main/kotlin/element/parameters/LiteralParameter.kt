@@ -4,11 +4,12 @@ import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
+import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
 
-open class LiteralParameter<S>(
+open class LiteralParameter<S : SenderContext>(
     id: TypedIdentifier<String>,
     override val aliases: Set<String>,
     description: String,

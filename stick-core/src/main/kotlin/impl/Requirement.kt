@@ -6,12 +6,12 @@ import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.element.SenderValidator
 import com.zombachu.stick.propagateError
 
-class Requirement<S> internal constructor(validate: (context: SenderContext<S>) -> Result<Unit>) : SenderValidator<S> {
+class Requirement<S : SenderContext> internal constructor(validate: (senderContext: S) -> Result<Unit>) : SenderValidator<S> {
 
-    private val validations: MutableList<(context: SenderContext<S>) -> Result<Unit>> = mutableListOf(validate)
+    private val validations: MutableList<(senderContext: S) -> Result<Unit>> = mutableListOf(validate)
 
-    override fun validateSender(context: SenderContext<S>): Result<Unit> {
-        validations.forEach { it(context).propagateError { return it } }
+    override fun validateSender(senderContext: S): Result<Unit> {
+        validations.forEach { it(senderContext).propagateError { return it } }
         return SenderValidationResult.success()
     }
 

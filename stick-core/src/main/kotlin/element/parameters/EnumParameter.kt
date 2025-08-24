@@ -8,7 +8,7 @@ import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
 
-open class EnumParameter<S, T : Enum<T>>(
+open class EnumParameter<S : SenderContext, T : Enum<T>>(
     id: TypedIdentifier<T>,
     description: String,
     val primaryValues: Map<String, T>,
@@ -22,5 +22,5 @@ open class EnumParameter<S, T : Enum<T>>(
         return ParsingResult.success(enumValue)
     }
 
-    override fun getSyntax(context: SenderContext<S>): String = "<${primaryValues.keys.joinToString("|")}>"
+    override fun getSyntax(senderContext: S): String = "<${primaryValues.keys.joinToString("|")}>"
 }

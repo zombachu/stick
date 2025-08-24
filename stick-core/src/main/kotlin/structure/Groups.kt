@@ -1,5 +1,6 @@
 package com.zombachu.stick.structure
 
+import com.zombachu.stick.SenderContext
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.element.Group
 import com.zombachu.stick.element.GroupImpl
@@ -8,7 +9,7 @@ import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
 
-fun <S> SenderScope<S>.group(
+fun <S : SenderContext> SenderScope<S>.group(
     vararg elements: StructureElement<S, Groupable<S, *>>,
     description: String = "",
 ): StructureElement<S, Group<S>> = {

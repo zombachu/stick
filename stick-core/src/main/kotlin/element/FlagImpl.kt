@@ -9,7 +9,7 @@ import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.impl.Size
 
-internal open class FlagImpl<S, T : Any>(
+internal open class FlagImpl<S : SenderContext, T : Any>(
     val default: ContextualValue<S, T>,
     val flagParameter: FlagParameter<S, T>,
 ): Flag<S, T> {
@@ -23,10 +23,10 @@ internal open class FlagImpl<S, T : Any>(
         return flagParameter.parse(context, args)
     }
 
-    override fun getSyntax(context: SenderContext<S>): String = flagParameter.getSyntax(context)
+    override fun getSyntax(senderContext: S): String = flagParameter.getSyntax(senderContext)
 }
 
-internal sealed class FlagParameter<S, T : Any>(
+internal sealed class FlagParameter<S : SenderContext, T : Any>(
     size: Size.Fixed,
     id: TypedIdentifier<T>,
     aliases: Set<String>,
@@ -36,7 +36,7 @@ internal sealed class FlagParameter<S, T : Any>(
     override val label: String = "-${id.name}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
 
-    internal class PresenceFlagParameter<S, T : Any>(
+    internal class PresenceFlagParameter<S : SenderContext, T : Any>(
         id: TypedIdentifier<T>,
         val presentValue: ContextualValue<S, T>,
         aliases: Set<String>,
@@ -49,10 +49,10 @@ internal sealed class FlagParameter<S, T : Any>(
             return ParsingResult.failTypeInternal()
         }
 
-        override fun getSyntax(context: SenderContext<S>): String = "[$label]"
+        override fun getSyntax(senderContext: S): String = "[$label]"
     }
 
-    internal class ValueFlagParameter<S, T : Any>(
+    internal class ValueFlagParameter<S : SenderContext, T : Any>(
         id: TypedIdentifier<T>,
         val valueElement: FixedSize<S, T>,
         aliases: Set<String>,
@@ -65,6 +65,6 @@ internal sealed class FlagParameter<S, T : Any>(
             return ParsingResult.failTypeInternal()
         }
 
-        override fun getSyntax(context: SenderContext<S>): String = "[$label ${valueElement.getSyntax(context)}]"
+        override fun getSyntax(senderContext: S): String = "[$label ${valueElement.getSyntax(senderContext)}]"
     }
 }

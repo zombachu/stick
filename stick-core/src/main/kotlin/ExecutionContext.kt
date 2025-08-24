@@ -5,7 +5,8 @@ import com.zombachu.stick.impl.ExecutionContextImpl
 import com.zombachu.stick.impl.SenderScope
 
 // TODO: Shouldn't extend platformcontext
-interface ExecutionContext<S> : SenderScope<S>, SenderContext<S> {
+interface ExecutionContext<S : SenderContext> : SenderScope<S> {
+    val senderContext: S
     val label: String
     val args: List<String>
 
@@ -14,7 +15,7 @@ interface ExecutionContext<S> : SenderScope<S>, SenderContext<S> {
     fun getSyntax(): String
 
     companion object {
-        operator fun <S> invoke(sender: S, label: String, args: List<String>, structure: Structure<S>): ExecutionContext<S> {
+        operator fun <S : SenderContext> invoke(sender: S, label: String, args: List<String>, structure: Structure<S>): ExecutionContext<S> {
             return ExecutionContextImpl(sender, label, args, structure, parent = null)
         }
     }

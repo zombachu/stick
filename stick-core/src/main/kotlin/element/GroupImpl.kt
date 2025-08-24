@@ -12,7 +12,7 @@ import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 
-internal class GroupImpl<S>(
+internal class GroupImpl<S : SenderContext>(
     override val id: TypedIdentifier<GroupResult<*>>,
     override val description: String,
     private val elements: List<Groupable<S, *>>,
@@ -30,7 +30,7 @@ internal class GroupImpl<S>(
     override fun parse(context: ExecutionContext<S>, args: List<String>): Result<GroupResult<*>> {
         for (element in prioritizedElements) {
             // Ignore elements unable to be accessed by the sender
-            element.validateSender(context).propagateError<GroupResult<*>> { continue }
+            element.validateSender(context.senderContext).propagateError<GroupResult<*>> { continue }
 
             val value = (context as ExecutionContextImpl<S>).processSyntaxElement(element).valueOrPropagateError {
                 if (it is ParsingResult.TypeNotMatchedError) {
@@ -49,8 +49,8 @@ internal class GroupImpl<S>(
         return ParsingResult.failSyntax(context.getSyntax())
     }
 
-    override fun getSyntax(context: SenderContext<S>): String {
-        val elementSyntax = elements.filter { it.validateSender(context).isSuccess() }.map { it.getGroupedSyntax(context) }
+    override fun getSyntax(senderContext: S): String {
+        val elementSyntax = elements.filter { it.validateSender(senderContext).isSuccess() }.map { it.getGroupedSyntax(senderContext) }
         return "<${elementSyntax.joinToString("|")}>"
     }
 }

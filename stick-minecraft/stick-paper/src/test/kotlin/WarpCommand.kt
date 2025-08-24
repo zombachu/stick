@@ -1,6 +1,7 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.Aliasable
+import com.zombachu.stick.Command
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.structure.command
@@ -17,10 +18,9 @@ import com.zombachu.stick.structure.requireIs
 import com.zombachu.stick.structure.requirement
 import com.zombachu.stick.structure.stringParameter
 import com.zombachu.stick.structure.valueFlag
-import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
-class WarpCommand : BukkitCommand {
+class WarpCommand : Command<BukkitContext> {
 
     private val warpParameterId = id<String>("warp")
 
@@ -46,7 +46,7 @@ class WarpCommand : BukkitCommand {
                 ),
             ),
             group(
-                requireIs(Player::class, permission("syn.warp.tp")) {
+                requireIs(PlayerContext::class, permission("syn.warp.tp")) {
                     command(
                         name = "tp",
                         aliases = setOf("teleport"),
@@ -66,15 +66,15 @@ class WarpCommand : BukkitCommand {
                     )
                 },
                 WarpInfoCommand().structure,
-                requireAs<CommandSender, MinecraftProfile>(
-                    { PlayerUtil.getProfile(it as Player) },
+                requireAs<BukkitContext, MinecraftProfileContext>(
+                    { MinecraftProfileContext(PlayerUtil.getProfile(it.sender as Player)) },
                     requirement { it::class == Player::class },
                 ) {
                     command("anothercommand")(
                             mcpRequiredStringParameter(id("playerStringParameter"))
                     )
                 },
-                requireIs(Player::class) {
+                requireIs(PlayerContext::class) {
                     stringParameter(id("blah"))
                 },
                 enumParameter(
@@ -92,13 +92,13 @@ class WarpCommand : BukkitCommand {
             ),
         )
 
-    fun teleport(context: ExecutionContext<Player>, warp: String, isRaw: Boolean, player: Player): ExecutionResult {
+    fun teleport(context: ExecutionContext<PlayerContext>, warp: String, isRaw: Boolean, player: Player): ExecutionResult {
         val warp: String = context.get(warpParameterId)
         return ExecutionResult.success()
     }
 }
 
-class WarpInfoCommand(): BukkitCommand {
+class WarpInfoCommand(): Command<BukkitContext> {
 
     override val structure = mcpSender {
         command(
@@ -125,12 +125,12 @@ class WarpInfoCommand(): BukkitCommand {
         )
     }
 
-    fun doSomething(context: ExecutionContext<MinecraftProfile>, wgFlag: String, weather: WeatherEnum, playerRequiredInt: Int): ExecutionResult {
+    fun doSomething(context: ExecutionContext<MinecraftProfileContext>, wgFlag: String, weather: WeatherEnum, playerRequiredInt: Int): ExecutionResult {
         return ExecutionResult.success()
     }
 }
 
-class SomePlayerCommand(): PlayerCommand {
+class SomePlayerCommand(): Command<PlayerContext> {
     override val structure =
         command("hey")(stringParameter(id("hi")))
 }

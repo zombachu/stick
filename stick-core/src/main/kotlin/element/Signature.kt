@@ -15,7 +15,7 @@ import com.zombachu.stick.valueOrPropagateError
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-internal sealed class Signature<S>(
+internal sealed class Signature<S : SenderContext>(
     elements: Tuple<SignatureConstraint<S, Any>>
 ) {
     private val flags: List<IndexedElement<S, FlagImpl<S, Any>>>
@@ -35,16 +35,16 @@ internal sealed class Signature<S>(
         return executeParsed(context, value)
     }
 
-    fun getSyntax(context: SenderContext<S>): String {
+    fun getSyntax(senderContext: S): String {
         var linearSyntax: List<String> = linearElements
             .map { it.element }
             .filterIsInstance<SyntaxElement<S, *>>()
-            .filter { it.validateSender(context).isSuccess() }
-            .map { it.getSyntax(context) }
+            .filter { it.validateSender(senderContext).isSuccess() }
+            .map { it.getSyntax(senderContext) }
         val flagSyntax: List<String> = flags
             .map { it.element }
-            .filter { it.validateSender(context).isSuccess() }
-            .map { it.getSyntax(context) }
+            .filter { it.validateSender(senderContext).isSuccess() }
+            .map { it.getSyntax(senderContext) }
 
         // Add terminating element after flags
         val lastLinearElement = linearElements.lastOrNull()?.element
@@ -102,7 +102,7 @@ internal sealed class Signature<S>(
                 val flag: FlagImpl<S, Any> = indexedFlag.element
 
                 // Ignore flags unable to be accessed by the sender
-                flag.validateSender(context).propagateError<List<Any>> { continue }
+                flag.validateSender(context.senderContext).propagateError<List<Any>> { continue }
 
                 processSyntaxElement(context, values, flag, indexedFlag.index).propagateError {
                     if (it is ParsingResult.TypeNotMatchedError) {
@@ -126,7 +126,7 @@ internal sealed class Signature<S>(
         for (indexedFlag in unprocessedFlags) {
             val flag = indexedFlag.element
 
-            val default = flag.validateSender(context).handle(
+            val default = flag.validateSender(context.senderContext).handle(
                 onSuccess = { flag.default(context) },
                 onFailure = { (flag as ValidatedFlag<S, *, *>).invalidDefault(context) }
             )
@@ -144,7 +144,7 @@ internal sealed class Signature<S>(
         return this is HelperImpl<S, Any>
     }
 
-    data class IndexedElement<S, out E : Element<S, *>>(
+    data class IndexedElement<S : SenderContext, out E : Element<S, *>>(
         val index: Int,
         val element: E
     )
