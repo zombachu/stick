@@ -1,19 +1,17 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.ExecutionContext
-import com.zombachu.stick.SenderContext
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.ParsingFailureHandler
 import com.zombachu.stick.isSuccess
 import org.bukkit.Location
 import org.bukkit.command.CommandSender
 import org.bukkit.command.PluginIdentifiableCommand
-import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 
 class BukkitCommandWrapper(
-    val structure: Structure<CommandSender, BukkitContext<CommandSender>>,
-    val parsingFailureHandler: ParsingFailureHandler<CommandSender, BukkitContext<CommandSender>>,
+    val structure: Structure<CommandSender, BukkitContext>,
+    val parsingFailureHandler: ParsingFailureHandler<CommandSender, BukkitContext>,
 ) : org.bukkit.command.Command(
     structure.label,
     structure.description,

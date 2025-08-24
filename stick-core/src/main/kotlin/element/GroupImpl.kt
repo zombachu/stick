@@ -12,7 +12,7 @@ import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 
-internal class GroupImpl<O, S : SenderContext<O>>(
+internal class GroupImpl<O, S : SenderContext>(
     override val id: TypedIdentifier<GroupResult<*>>,
     override val description: String,
     private val elements: List<Groupable<O, S, *>>,

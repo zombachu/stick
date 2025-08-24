@@ -7,7 +7,7 @@ import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 
-open class NumberParameter<O, S : SenderContext<O>, T>(
+open class NumberParameter<O, S : SenderContext, T>(
     id: TypedIdentifier<T>,
     description: String,
     val toOrNull: String.() -> T?,
@@ -28,42 +28,42 @@ open class NumberParameter<O, S : SenderContext<O>, T>(
     }
 }
 
-open class ByteParameter<O, S : SenderContext<O>>(
+open class ByteParameter<O, S : SenderContext>(
     id: TypedIdentifier<Byte>,
     description: String,
     min: Byte,
     max: Byte,
 ) : NumberParameter<O, S, Byte>(id, description, String::toByteOrNull, min, max, "byte")
 
-open class ShortParameter<O, S : SenderContext<O>>(
+open class ShortParameter<O, S : SenderContext>(
     id: TypedIdentifier<Short>,
     description: String,
     min: Short,
     max: Short,
 ) : NumberParameter<O, S, Short>(id, description, String::toShortOrNull, min, max, "short")
 
-open class IntParameter<O, S : SenderContext<O>>(
+open class IntParameter<O, S : SenderContext>(
     id: TypedIdentifier<Int>,
     description: String,
     min: Int,
     max: Int,
 ) : NumberParameter<O, S, Int>(id, description, String::toIntOrNull, min, max, "integer")
 
-open class LongParameter<O, S : SenderContext<O>>(
+open class LongParameter<O, S : SenderContext>(
     id: TypedIdentifier<Long>,
     description: String,
     min: Long,
     max: Long,
 ) : NumberParameter<O, S, Long>(id, description, String::toLongOrNull, min, max, "long")
 
-open class FloatParameter<O, S : SenderContext<O>>(
+open class FloatParameter<O, S : SenderContext>(
     id: TypedIdentifier<Float>,
     description: String,
     min: Float,
     max: Float,
 ) : NumberParameter<O, S, Float>(id, description, String::toFloatOrNull, min, max, "float")
 
-open class DoubleParameter<O, S : SenderContext<O>>(
+open class DoubleParameter<O, S : SenderContext>(
     id: TypedIdentifier<Double>,
     description: String,
     min: Double,

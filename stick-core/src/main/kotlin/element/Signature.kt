@@ -15,7 +15,7 @@ import com.zombachu.stick.valueOrPropagateError
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-internal sealed class Signature<O, S : SenderContext<O>>(
+internal sealed class Signature<O, S : SenderContext>(
     elements: Tuple<SignatureConstraint<O, S, Any>>
 ) {
     private val flags: List<IndexedElement<O, S, FlagImpl<O, S, Any>>>
@@ -128,7 +128,7 @@ internal sealed class Signature<O, S : SenderContext<O>>(
 
             val default = flag.validateSender(context.senderContext).handle(
                 onSuccess = { flag.default(context) },
-                onFailure = { (flag as ValidatedFlag<O, S, *, *, *>).invalidDefault(context) }
+                onFailure = { (flag as ValidatedFlag<O, S, *, *>).invalidDefault(context) }
             )
             values[indexedFlag.index] = default
         }
@@ -144,7 +144,7 @@ internal sealed class Signature<O, S : SenderContext<O>>(
         return this is HelperImpl<O, S, Any>
     }
 
-    data class IndexedElement<O, S : SenderContext<O>, out E : Element<O, S, *>>(
+    data class IndexedElement<O, S : SenderContext, out E : Element<O, S, *>>(
         val index: Int,
         val element: E
     )

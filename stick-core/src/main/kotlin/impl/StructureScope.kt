@@ -8,7 +8,7 @@ import com.zombachu.stick.structure.id
 
 typealias StructureElement<O, S, T> = StructureScope<O, S>.() -> T
 
-class StructureScope<O, S : SenderContext<O>>(
+class StructureScope<O, S : SenderContext>(
     val name: String,
     val aliases: Set<String>,
     val description: String,
@@ -18,7 +18,7 @@ class StructureScope<O, S : SenderContext<O>>(
 
     private val root: StructureScope<*, *> = parent?.root ?: this
 
-    internal fun <O2, S2 : SenderContext<O2>> forSender(): StructureScope<O2, S2> {
+    internal fun <O2, S2 : SenderContext> forSender(): StructureScope<O2, S2> {
         return StructureScope(
             this.name,
             this.aliases,
@@ -40,7 +40,7 @@ class StructureScope<O, S : SenderContext<O>>(
     }
 
     companion object {
-        fun <O, S : SenderContext<O>> empty(): StructureScope<O, S> = StructureScope(
+        fun <O, S : SenderContext> empty(): StructureScope<O, S> = StructureScope(
             name = "",
             aliases = setOf(),
             description = "",

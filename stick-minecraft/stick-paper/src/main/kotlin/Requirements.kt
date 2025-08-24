@@ -6,6 +6,7 @@ import com.zombachu.stick.structure.requirement
 import org.bukkit.command.CommandSender
 
 // TODO: Permission message
-fun <O : CommandSender, S : BukkitContext<O>> SenderScope<O, S>.permission(permission: String): Requirement<O, S> = requirement {
-    it.sender.hasPermission(permission)
+fun <O : CommandSender> SenderScope<O, BukkitContext>.permission(permission: String): Requirement<O, BukkitContext> = requirement {
+    // TODO: Cast in context
+    (it.sender as CommandSender).hasPermission(permission)
 }

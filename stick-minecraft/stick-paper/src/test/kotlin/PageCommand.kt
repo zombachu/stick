@@ -5,7 +5,6 @@ import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Result
-import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Flag
 import com.zombachu.stick.element.Groupable
@@ -33,7 +32,7 @@ import com.zombachu.stick.structure.valueFlag
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
-class PageCommand: Command<CommandSender, BukkitContext<CommandSender>> {
+class PageCommand: Command<CommandSender, BukkitContext> {
 
     val pageId = id<Int>("page")
 
@@ -56,7 +55,8 @@ class PageCommand: Command<CommandSender, BukkitContext<CommandSender>> {
                         listOf(1, 2, 3)
                     },
                     onEmpty = {
-                        this.senderContext.sender.sendMessage("No pages")
+                        // TODO: Cast in context
+                        (this.senderContext.sender as CommandSender).sendMessage("No pages")
                         ExecutionResult.success()
                     }
                 ),
@@ -71,7 +71,7 @@ class PageCommand: Command<CommandSender, BukkitContext<CommandSender>> {
             )
         }
 
-    fun goToPage(context: ExecutionContext<Player, BukkitContext<Player>>, flagValue: String, intElement: Int, result: GroupResult<*>): ExecutionResult {
+    fun goToPage(context: ExecutionContext<Player, BukkitContext>, flagValue: String, intElement: Int, result: GroupResult<*>): ExecutionResult {
         result.on(id<String>("direction")) {
 
         }
@@ -81,20 +81,20 @@ class PageCommand: Command<CommandSender, BukkitContext<CommandSender>> {
         return ExecutionResult.success()
     }
 
-    fun playerRequiredSubCommand(context: ExecutionContext<Player, BukkitContext<Player>>, string: String): ExecutionResult {
+    fun playerRequiredSubCommand(context: ExecutionContext<Player, BukkitContext>, string: String): ExecutionResult {
         return ExecutionResult.success()
     }
 }
 
-class PlayerRequiredStringParameter(id: TypedIdentifier<String>) : StringParameter<Player, BukkitContext<Player>>(id, "")
-fun <O, S : BukkitContext<O>> SenderScope<O, S>.playerRequiredStringParameter(id: TypedIdentifier<String>): StructureElement<Player, BukkitContext<Player>, StringParameter<Player, BukkitContext<Player>>> =
+class PlayerRequiredStringParameter(id: TypedIdentifier<String>) : StringParameter<Player, BukkitContext>(id, "")
+fun <O> SenderScope<O, BukkitContext>.playerRequiredStringParameter(id: TypedIdentifier<String>): StructureElement<Player, BukkitContext, StringParameter<Player, BukkitContext>> =
     { PlayerRequiredStringParameter(id) }
 
-class McpRequiredStringParameter(id: TypedIdentifier<String>) : StringParameter<MinecraftProfile, BukkitContext<MinecraftProfile>>(id, "")
-fun <O, S : BukkitContext<O>> SenderScope<O, S>.mcpRequiredStringParameter(id: TypedIdentifier<String>): StructureElement<MinecraftProfile, BukkitContext<MinecraftProfile>, StringParameter<MinecraftProfile, BukkitContext<MinecraftProfile>>> =
+class McpRequiredStringParameter(id: TypedIdentifier<String>) : StringParameter<MinecraftProfile, BukkitContext>(id, "")
+fun <O> SenderScope<O, BukkitContext>.mcpRequiredStringParameter(id: TypedIdentifier<String>): StructureElement<MinecraftProfile, BukkitContext, StringParameter<MinecraftProfile, BukkitContext>> =
     { McpRequiredStringParameter(id) }
 
-class TestFlag(): Command<CommandSender, BukkitContext<CommandSender>> {
+class TestFlag(): Command<CommandSender, BukkitContext> {
 
     override val structure =
         require(permission("syn.hi")) {
@@ -117,16 +117,16 @@ class TestFlag(): Command<CommandSender, BukkitContext<CommandSender>> {
             )
         }
 
-    fun execute(context: ExecutionContext<CommandSender, BukkitContext<CommandSender>>, f: String, ints: List<Int>): ExecutionResult {
+    fun execute(context: ExecutionContext<CommandSender, BukkitContext>, f: String, ints: List<Int>): ExecutionResult {
         val id2: String by TypedIdentifier("hello", Int::class)
 
         return ExecutionResult.success()
     }
 }
 
-class SomeClass : Command<CommandSender, BukkitContext<CommandSender>> {
+class SomeClass : Command<CommandSender, BukkitContext> {
 
-    override val structure: StructureElement<CommandSender, BukkitContext<CommandSender>, Structure<CommandSender, BukkitContext<CommandSender>>>
+    override val structure: StructureElement<CommandSender, BukkitContext, Structure<CommandSender, BukkitContext>>
         get() = TODO("Not yet implemented")
 
     init {
@@ -142,13 +142,13 @@ class SomeClass : Command<CommandSender, BukkitContext<CommandSender>> {
 //                }
 //        }
 
-        val flag1: StructureElement<CommandSender, BukkitContext<CommandSender>, Flag<CommandSender, BukkitContext<CommandSender>, Boolean>> = flag(
+        val flag1: StructureElement<CommandSender, BukkitContext, Flag<CommandSender, BukkitContext, Boolean>> = flag(
             id("raw")
         )
 
-        val test = object : Parameter.Size1<CommandSender, BukkitContext<CommandSender>, Boolean>(id(""), "") {
+        val test = object : Parameter.Size1<CommandSender, BukkitContext, Boolean>(id(""), "") {
             override fun parse(
-                context: ExecutionContext<CommandSender, BukkitContext<CommandSender>>,
+                context: ExecutionContext<CommandSender, BukkitContext>,
                 arg0: String,
             ): Result<Boolean> {
                 TODO("Not yet implemented")
@@ -156,31 +156,31 @@ class SomeClass : Command<CommandSender, BukkitContext<CommandSender>> {
 
         }
 
-        val flag: StructureElement<CommandSender, BukkitContext<CommandSender>, Flag<CommandSender, BukkitContext<CommandSender>, Boolean>> = flag(
+        val flag: StructureElement<CommandSender, BukkitContext, Flag<CommandSender, BukkitContext, Boolean>> = flag(
             id("raw")
         )
 
-        object : SenderScope<Player, BukkitContext<Player>> { }.playerRequiredStringParameter<Player, BukkitContext<Player>>(
+        object : SenderScope<Player, BukkitContext> { }.playerRequiredStringParameter<Player>(
             id("worldgroup")
         )
 
-        val structureElement: StructureElement<CommandSender, BukkitContext<CommandSender>, Parameter.Size1<CommandSender, BukkitContext<CommandSender>, String>> = {
-            StringParameter<CommandSender, BukkitContext<CommandSender>>(
+        val structureElement: StructureElement<CommandSender, BukkitContext, Parameter.Size1<CommandSender, BukkitContext, String>> = {
+            StringParameter<CommandSender, BukkitContext>(
                 id("name"),
                 "description",
             )
         }
-        val structureElement2: StructureElement<CommandSender, BukkitContext<CommandSender>, Parameter.FixedSize<CommandSender, BukkitContext<CommandSender>, String>> = stringParameter<CommandSender, BukkitContext<CommandSender>>(
+        val structureElement2: StructureElement<CommandSender, BukkitContext, Parameter.FixedSize<CommandSender, BukkitContext, String>> = stringParameter<CommandSender, BukkitContext>(
             id("1234")
         )
-        val structureElement3: StructureElement<CommandSender, BukkitContext<CommandSender>, StringParameter<CommandSender, BukkitContext<CommandSender>>> = stringParameter<CommandSender, BukkitContext<CommandSender>>(
+        val structureElement3: StructureElement<CommandSender, BukkitContext, StringParameter<CommandSender, BukkitContext>> = stringParameter<CommandSender, BukkitContext>(
             id("1234")
         )
 
-        valueFlag<CommandSender, BukkitContext<CommandSender>, String>(
+        valueFlag<CommandSender, BukkitContext, String>(
             id("wg"),
             default = "",
-            { StringParameter<CommandSender, BukkitContext<CommandSender>>(
+            { StringParameter<CommandSender, BukkitContext>(
                 id("name"),
                 "description",
             ) },
@@ -188,20 +188,20 @@ class SomeClass : Command<CommandSender, BukkitContext<CommandSender>> {
     }
 }
 
-class McpRequiredIntParameter(id: TypedIdentifier<Int>) : IntParameter<MinecraftProfile, BukkitContext<MinecraftProfile>>(id, "", 0, 10)
+class McpRequiredIntParameter(id: TypedIdentifier<Int>) : IntParameter<MinecraftProfile, BukkitContext>(id, "", 0, 10)
 
-class PlayerRequiredUnknownInt(name: String) : Parameter.UnknownSize<Player, BukkitContext<Player>, Int>(Size.Unbounded,
+class PlayerRequiredUnknownInt(name: String) : Parameter.UnknownSize<Player, BukkitContext, Int>(Size.Unbounded,
     id(""), "") {
     override fun parse(
-        context: ExecutionContext<Player, BukkitContext<Player>>,
+        context: ExecutionContext<Player, BukkitContext>,
         args: List<String>,
     ): Result<Int> {
         TODO("Not yet implemented")
     }
 }
 
-class OrangeCommand : Command<CommandSender, BukkitContext<CommandSender>> {
-    override val structure: StructureElement<CommandSender, BukkitContext<CommandSender>, Structure<CommandSender, BukkitContext<CommandSender>>> =
+class OrangeCommand : Command<CommandSender, BukkitContext> {
+    override val structure: StructureElement<CommandSender, BukkitContext, Structure<CommandSender, BukkitContext>> =
         command("orange", requirement = permission("syn.orange"))(
             requireIs(Player::class) {
                     command("apple")(
@@ -211,18 +211,18 @@ class OrangeCommand : Command<CommandSender, BukkitContext<CommandSender>> {
         )
 }
 
-fun <O, S : BukkitContext<O>> SenderScope<O, S>.mcpSender(
-    command: StructureElement<MinecraftProfile, BukkitContext<MinecraftProfile>, StructureElement<MinecraftProfile, BukkitContext<MinecraftProfile>, Structure<MinecraftProfile, BukkitContext<MinecraftProfile>>>>,
-): StructureElement<O, S, Structure<O, S>> = requireAs(
+fun <O : Any> SenderScope<O, BukkitContext>.mcpSender(
+    command: StructureElement<MinecraftProfile, BukkitContext, StructureElement<MinecraftProfile, BukkitContext, Structure<MinecraftProfile, BukkitContext>>>,
+): StructureElement<O, BukkitContext, Structure<O, BukkitContext>> = requireAs<O, BukkitContext, MinecraftProfile>(
     { PlayerUtil.getProfile(it as Player) },
     command = command,
 )
 
-fun <O, S : BukkitContext<O>, T : Any> SenderScope<O, S>.playerSender(
+fun <T : Any> SenderScope<CommandSender, BukkitContext>.playerSender(
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    element: StructureElement<Player, BukkitContext<Player>, StructureElement<Player, BukkitContext<Player>, Parameter<Player, BukkitContext<Player>, T>>>,
-): StructureElement<CommandSender, BukkitContext<CommandSender>, Groupable<CommandSender, BukkitContext<CommandSender>, T>> =
-    requireIs(Player::class, parameter = element)
+    element: StructureElement<Player, BukkitContext, StructureElement<Player, BukkitContext, Parameter<Player, BukkitContext, T>>>,
+): StructureElement<CommandSender, BukkitContext, Groupable<CommandSender, BukkitContext, T>> =
+    requireIs<CommandSender, BukkitContext, Player, T>(Player::class, parameter = element)
 
 class MinecraftProfile()
 

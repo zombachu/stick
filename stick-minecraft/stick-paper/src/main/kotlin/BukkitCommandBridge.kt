@@ -9,8 +9,8 @@ import org.bukkit.command.CommandMap
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.Plugin
 
-class BukkitContext<O>(override val sender: O) : SenderContext<O> {
-    override fun <O2> forSender(sender: O2): BukkitContext<O2> {
+class BukkitContext(override val sender: Any) : SenderContext {
+    override fun forSender(sender: Any): SenderContext {
         TODO("Copy deps")
         return BukkitContext(sender)
     }
@@ -18,17 +18,17 @@ class BukkitContext<O>(override val sender: O) : SenderContext<O> {
 
 class BukkitCommandBridge(
     val fallbackPrefix: String,
-    parsingFailureHandler: ParsingFailureHandler<CommandSender, BukkitContext<CommandSender>> = BukkitParsingFailureHandler()
-) : Bridge<CommandSender, BukkitContext<CommandSender>>(CommandSender::class, parsingFailureHandler) {
+    parsingFailureHandler: ParsingFailureHandler<CommandSender, BukkitContext> = BukkitParsingFailureHandler()
+) : Bridge<CommandSender, BukkitContext>(CommandSender::class, parsingFailureHandler) {
 
     constructor(
         plugin: Plugin,
-        parsingFailureHandler: ParsingFailureHandler<CommandSender, BukkitContext<CommandSender>> = BukkitParsingFailureHandler()
+        parsingFailureHandler: ParsingFailureHandler<CommandSender, BukkitContext> = BukkitParsingFailureHandler()
     ) : this(plugin.name.lowercase(), parsingFailureHandler)
 
     private val commandMap: CommandMap = Bukkit.getServer().commandMap
 
-    override fun registerStructure(structure: Structure<CommandSender, BukkitContext<CommandSender>>) {
+    override fun registerStructure(structure: Structure<CommandSender, BukkitContext>) {
         commandMap.register(fallbackPrefix, BukkitCommandWrapper(structure, parsingFailureHandler))
     }
 }

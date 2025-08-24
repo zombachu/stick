@@ -12,27 +12,27 @@ import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.ValidatedDefault
 import com.zombachu.stick.transformSender
 
-fun <O, S : SenderContext<O>, T : Any> SenderScope<O, S>.defaultValidated(
+fun <O, S : SenderContext, T : Any> SenderScope<O, S>.defaultValidated(
     value: ContextualValue<O, S, T>,
     requirement: Requirement<O, S> = requirement { SenderValidationResult.success() },
 ): ValidatedDefault<O, S, T> {
     return ValidatedDefault(value, requirement::validateSender)
 }
 
-inline fun <O, S : SenderContext<O>, reified O2 : O, S2 : SenderContext<O>> SenderScope<O, S>.defaultSender(): ValidatedDefault<O, S, S2> {
+inline fun <O : Any, S : SenderContext, reified O2 : O> SenderScope<O, S>.defaultSender(): ValidatedDefault<O, S, S> {
     // TODO: Tell player it's not optional for them
     // TODO: Handle safer
-    return defaultValidated({ senderContext.transformSender { it } }, requirement() { it.sender is O2 })
+    return defaultValidated({ senderContext.transformSender<O, O2, S> { it as O2 } }, requirement() { it.sender is O2 })
 }
 
-fun <O, S : SenderContext<O>, T : Any> SenderScope<O, S>.optionally(
+fun <O, S : SenderContext, T : Any> SenderScope<O, S>.optionally(
     validatedDefault: ValidatedDefault<O, S, T>,
     parameter: StructureElement<O, S, Parameter<O, S, T>>,
 ): StructureElement<O, S, SignatureConstraint.Terminating<O, S, T>> = {
     OptionalParameter(validatedDefault, parameter(this))
 }
 
-fun <O, S : SenderContext<O>, T : Any> SenderScope<O, S>.optionally(
+fun <O, S : SenderContext, T : Any> SenderScope<O, S>.optionally(
     default: T,
     parameter: StructureElement<O, S, Parameter<O, S, T>>,
 ): StructureElement<O, S, SignatureConstraint.Terminating<O, S, T>> =

@@ -8,7 +8,7 @@ import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
 
-open class EnumParameter<O, S : SenderContext<O>, T : Enum<T>>(
+open class EnumParameter<O, S : SenderContext, T : Enum<T>>(
     id: TypedIdentifier<T>,
     description: String,
     val primaryValues: Map<String, T>,

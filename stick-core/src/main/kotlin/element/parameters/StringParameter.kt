@@ -8,7 +8,7 @@ import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
 
-open class StringParameter<O, S : SenderContext<O>>(
+open class StringParameter<O, S : SenderContext>(
     id: TypedIdentifier<String>,
     description: String,
 ) : Parameter.Size1<O, S, String>(id, description) {

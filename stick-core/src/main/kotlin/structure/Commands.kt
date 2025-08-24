@@ -7,7 +7,7 @@ import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.StructureScope
 import com.zombachu.stick.lowercase
 
-fun <O, S : SenderContext<O>> Command<O, S>.command(
+fun <O, S : SenderContext> Command<O, S>.command(
     name: String,
     aliases: Set<String> = setOf(),
     requirement: Requirement<O, S> = requirement { SenderValidationResult.success() },
@@ -22,7 +22,7 @@ fun <O, S : SenderContext<O>> Command<O, S>.command(
     )
 }
 
-fun <O, S : SenderContext<O>> StructureScope<O, S>.command(
+fun <O, S : SenderContext> StructureScope<O, S>.command(
     name: String,
     aliases: Set<String> = setOf(),
     requirement: Requirement<O, S> = requirement { SenderValidationResult.success() },

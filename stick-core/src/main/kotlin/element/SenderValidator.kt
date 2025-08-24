@@ -11,11 +11,11 @@ import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.transformSender
 
-internal interface SenderValidator<O, S : SenderContext<O>> {
+internal interface SenderValidator<O, S : SenderContext> {
     fun validateSender(senderContext: S): Result<Unit>
 }
 
-internal fun <O, S : SenderContext<O>> SyntaxElement<O, S, Any>.validateSender(senderContext: S): Result<Unit> {
+internal fun <O, S : SenderContext> SyntaxElement<O, S, Any>.validateSender(senderContext: S): Result<Unit> {
     return if (this !is SenderValidator<*, *>) {
         SenderValidationResult.success()
     } else {
@@ -24,8 +24,8 @@ internal fun <O, S : SenderContext<O>> SyntaxElement<O, S, Any>.validateSender(s
     }
 }
 
-internal class ValidatedParameterImpl<O, S : SenderContext<O>, O2, S2 : SenderContext<O2>, T : Any>(
-    val parameter: Parameter<O2, S2, T>,
+internal class ValidatedParameterImpl<O : Any, S : SenderContext, O2 : Any, T : Any>(
+    val parameter: Parameter<O2, S, T>,
     val requirement: Requirement<O, S>,
     val transform: (O) -> O2,
 ) : ValidatedParameter<O, S, T>, SenderValidator<O, S> {
@@ -36,7 +36,7 @@ internal class ValidatedParameterImpl<O, S : SenderContext<O>, O2, S2 : SenderCo
     override val description: String = parameter.description
 
     override fun parse(context: ExecutionContext<O, S>, args: List<String>): Result<out T> {
-        val newContext = (context as ExecutionContextImpl<O, S>).forSender<O2, S2>(transform)
+        val newContext = (context as ExecutionContextImpl<O, S>).forSender(transform)
         return parameter.parse(newContext, args)
     }
 
@@ -45,23 +45,23 @@ internal class ValidatedParameterImpl<O, S : SenderContext<O>, O2, S2 : SenderCo
     override fun getSyntax(senderContext: S): String = parameter.getSyntax(senderContext.transformSender(transform))
 }
 
-internal class ValidatedFlag<O, S : SenderContext<O>, O2, S2 : SenderContext<O2>, T : Any>(
-    val flag: Flag<O2, S2, T>,
+internal class ValidatedFlag<O, S : SenderContext, O2 : Any, T : Any>(
+    val flag: Flag<O2, S, T>,
     val requirement: Requirement<O, S>,
     val invalidDefault: ContextualValue<O, S, T>,
     val transform: (O) -> O2,
-) : FlagImpl<O, S, T>((flag as FlagImpl<O2, S2, T>).default as ContextualValue<O, S, T>, flag.flagParameter as FlagParameter<O, S, T>), SenderValidator<O, S> { // TODO: Handle casts better
+) : FlagImpl<O, S, T>((flag as FlagImpl<O2, S, T>).default as ContextualValue<O, S, T>, flag.flagParameter as FlagParameter<O, S, T>), SenderValidator<O, S> { // TODO: Handle casts better
 
     override fun parse(context: ExecutionContext<O, S>, args: List<String>): Result<out T> {
-        val newContext = (context as ExecutionContextImpl<O, S>).forSender<O2, S2>(transform)
+        val newContext = (context as ExecutionContextImpl<O, S>).forSender(transform)
         return flag.parse(newContext, args)
     }
 
     override fun validateSender(senderContext: S): Result<Unit> = requirement.validateSender(senderContext)
 }
 
-internal class ValidatedCommand<O, S : SenderContext<O>, O2, S2 : SenderContext<O2>>(
-    val command: Structure<O2, S2>,
+internal class ValidatedCommand<O, S : SenderContext, O2 : Any>(
+    val command: Structure<O2, S>,
     requirement: Requirement<O, S>,
     val transform: (O) -> O2,
 ) : StructureImpl<O, S>(
@@ -76,7 +76,7 @@ internal class ValidatedCommand<O, S : SenderContext<O>, O2, S2 : SenderContext<
     override val type: ElementType = command.type
 
     override fun parse(context: ExecutionContext<O, S>, args: List<String>): Result<out Unit> {
-        val newContext = (context as ExecutionContextImpl<O, S>).forSender<O2, S2>(transform)
+        val newContext = (context as ExecutionContextImpl<O, S>).forSender(transform)
         return command.parse(newContext, args)
     }
 }

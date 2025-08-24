@@ -9,7 +9,7 @@ import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
 
-open class LiteralParameter<O, S : SenderContext<O>>(
+open class LiteralParameter<O, S : SenderContext>(
     id: TypedIdentifier<String>,
     override val aliases: Set<String>,
     description: String,

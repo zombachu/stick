@@ -8,7 +8,7 @@ import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 import java.util.*
 
-open class UUIDParameter<O, S : SenderContext<O>>(
+open class UUIDParameter<O, S : SenderContext>(
     id: TypedIdentifier<UUID>,
     description: String,
 ) : Parameter.Size1<O, S, UUID>(id, description) {

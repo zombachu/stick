@@ -9,7 +9,7 @@ import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.impl.Size
 
-open class UnboundedStringParameter<O, S : SenderContext<O>>(
+open class UnboundedStringParameter<O, S : SenderContext>(
     id: TypedIdentifier<String>,
     description: String,
 ) : Parameter.UnknownSize<O, S, String>(Size.Unbounded, id, description) {

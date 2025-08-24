@@ -9,7 +9,7 @@ import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.impl.Size
 
-internal open class FlagImpl<O, S : SenderContext<O>, T : Any>(
+internal open class FlagImpl<O, S : SenderContext, T : Any>(
     val default: ContextualValue<O, S, T>,
     val flagParameter: FlagParameter<O, S, T>,
 ): Flag<O, S, T> {
@@ -26,7 +26,7 @@ internal open class FlagImpl<O, S : SenderContext<O>, T : Any>(
     override fun getSyntax(senderContext: S): String = flagParameter.getSyntax(senderContext)
 }
 
-internal sealed class FlagParameter<O, S : SenderContext<O>, T : Any>(
+internal sealed class FlagParameter<O, S : SenderContext, T : Any>(
     size: Size.Fixed,
     id: TypedIdentifier<T>,
     aliases: Set<String>,
@@ -36,7 +36,7 @@ internal sealed class FlagParameter<O, S : SenderContext<O>, T : Any>(
     override val label: String = "-${id.name}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
 
-    internal class PresenceFlagParameter<O, S : SenderContext<O>, T : Any>(
+    internal class PresenceFlagParameter<O, S : SenderContext, T : Any>(
         id: TypedIdentifier<T>,
         val presentValue: ContextualValue<O, S, T>,
         aliases: Set<String>,
@@ -52,7 +52,7 @@ internal sealed class FlagParameter<O, S : SenderContext<O>, T : Any>(
         override fun getSyntax(senderContext: S): String = "[$label]"
     }
 
-    internal class ValueFlagParameter<O, S : SenderContext<O>, T : Any>(
+    internal class ValueFlagParameter<O, S : SenderContext, T : Any>(
         id: TypedIdentifier<T>,
         val valueElement: FixedSize<O, S, T>,
         aliases: Set<String>,

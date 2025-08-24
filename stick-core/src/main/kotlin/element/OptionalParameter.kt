@@ -8,7 +8,7 @@ import com.zombachu.stick.impl.Size
 import com.zombachu.stick.impl.ValidatedDefault
 import com.zombachu.stick.propagateError
 
-internal class OptionalParameter<O, S : SenderContext<O>, T : Any>(
+internal class OptionalParameter<O, S : SenderContext, T : Any>(
     val validatedDefault: ValidatedDefault<O, S, T>,
     val parameter: Parameter<O, S, T>
 ) : Parameter.UnknownSize<O, S, T>(Size.Deferred, parameter.id, parameter.description) {

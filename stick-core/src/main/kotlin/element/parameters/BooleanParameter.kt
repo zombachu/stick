@@ -7,7 +7,7 @@ import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 
-open class BooleanParameter<O, S : SenderContext<O>>(
+open class BooleanParameter<O, S : SenderContext>(
     id: TypedIdentifier<Boolean>,
     description: String,
 ) : Parameter.Size1<O, S, Boolean>(id, description) {

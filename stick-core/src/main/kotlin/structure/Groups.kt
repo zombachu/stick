@@ -9,7 +9,7 @@ import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
 
-fun <O, S : SenderContext<O>> SenderScope<O, S>.group(
+fun <O, S : SenderContext> SenderScope<O, S>.group(
     vararg elements: StructureElement<O, S, Groupable<O, S, *>>,
     description: String = "",
 ): StructureElement<O, S, Group<O, S>> = {

@@ -11,13 +11,13 @@ import kotlin.experimental.ExperimentalTypeInference
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requirement")
-fun <O, S : SenderContext<O>> SenderScope<O, S>.requirement(validate: (senderContext: S) -> Result<Unit>): Requirement<O, S> {
+fun <O, S : SenderContext> SenderScope<O, S>.requirement(validate: (senderContext: S) -> Result<Unit>): Requirement<O, S> {
     return Requirement(validate)
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requirementBoolean")
-fun <O, S : SenderContext<O>> SenderScope<O, S>.requirement(
+fun <O, S : SenderContext> SenderScope<O, S>.requirement(
     failureResult: Result<Unit> = SenderValidationResult.failSender(),
     validate: (senderContext: S) -> Boolean
 ): Requirement<O, S> {

@@ -12,7 +12,7 @@ import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.propagateError
 
-internal open class StructureImpl<O, S : SenderContext<O>>(
+internal open class StructureImpl<O, S : SenderContext>(
     override val id: TypedIdentifier<out Unit>,
     override val aliases: Set<String>,
     override val description: String,
