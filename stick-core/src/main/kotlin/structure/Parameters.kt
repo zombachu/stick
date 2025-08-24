@@ -28,148 +28,148 @@ import java.util.*
 import kotlin.enums.enumEntries
 import kotlin.reflect.KClass
 
-fun <S : SenderContext> SenderScope<S>.booleanParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.booleanParameter(
     id: TypedIdentifier<Boolean>,
     description: String = "",
-): StructureElement<S, BooleanParameter<S>> = {
+): StructureElement<O, S, BooleanParameter<O, S>> = {
     BooleanParameter(id, description)
 }
-fun <S : SenderContext> SenderScope<S>.booleanParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.booleanParameter(
     name: String,
     description: String = "",
-): StructureElement<S, BooleanParameter<S>> = booleanParameter(id(name), description)
+): StructureElement<O, S, BooleanParameter<O, S>> = booleanParameter(id(name), description)
 
-fun <S : SenderContext> SenderScope<S>.byteParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.byteParameter(
     id: TypedIdentifier<Byte>,
     min: Byte = Byte.MIN_VALUE,
     max: Byte = Byte.MAX_VALUE,
     description: String = "",
-): StructureElement<S, ByteParameter<S>> = {
+): StructureElement<O, S, ByteParameter<O, S>> = {
     ByteParameter(id, description, min, max)
 }
-fun <S : SenderContext> SenderScope<S>.byteParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.byteParameter(
     name: String,
     min: Byte = Byte.MIN_VALUE,
     max: Byte = Byte.MAX_VALUE,
     description: String = "",
-): StructureElement<S, ByteParameter<S>> = byteParameter(id(name), min, max, description)
+): StructureElement<O, S, ByteParameter<O, S>> = byteParameter(id(name), min, max, description)
 
-fun <S : SenderContext> SenderScope<S>.shortParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.shortParameter(
     id: TypedIdentifier<Short>,
     min: Short = Short.MIN_VALUE,
     max: Short = Short.MAX_VALUE,
     description: String = "",
-): StructureElement<S, ShortParameter<S>> = {
+): StructureElement<O, S, ShortParameter<O, S>> = {
     ShortParameter(id, description, min, max)
 }
-fun <S : SenderContext> SenderScope<S>.shortParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.shortParameter(
     name: String,
     min: Short = Short.MIN_VALUE,
     max: Short = Short.MAX_VALUE,
     description: String = "",
-): StructureElement<S, ShortParameter<S>> = shortParameter(id(name), min, max, description)
+): StructureElement<O, S, ShortParameter<O, S>> = shortParameter(id(name), min, max, description)
 
-fun <S : SenderContext> SenderScope<S>.intParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.intParameter(
     id: TypedIdentifier<Int>,
     min: Int = Int.MIN_VALUE,
     max: Int = Int.MAX_VALUE,
     description: String = "",
-): StructureElement<S, IntParameter<S>> = {
+): StructureElement<O, S, IntParameter<O, S>> = {
     IntParameter(id, description, min, max)
 }
-fun <S : SenderContext> SenderScope<S>.intParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.intParameter(
     name: String,
     min: Int = Int.MIN_VALUE,
     max: Int = Int.MAX_VALUE,
     description: String = "",
-): StructureElement<S, IntParameter<S>> = intParameter(id(name), min, max, description)
+): StructureElement<O, S, IntParameter<O, S>> = intParameter(id(name), min, max, description)
 
-fun <S : SenderContext> SenderScope<S>.longParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.longParameter(
     id: TypedIdentifier<Long>,
     min: Long = Long.MIN_VALUE,
     max: Long = Long.MAX_VALUE,
     description: String = "",
-): StructureElement<S, LongParameter<S>> = {
+): StructureElement<O, S, LongParameter<O, S>> = {
     LongParameter(id, description, min, max)
 }
-fun <S : SenderContext> SenderScope<S>.longParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.longParameter(
     name: String,
     min: Long = Long.MIN_VALUE,
     max: Long = Long.MAX_VALUE,
     description: String = "",
-): StructureElement<S, LongParameter<S>> = longParameter(id(name), min, max, description)
+): StructureElement<O, S, LongParameter<O, S>> = longParameter(id(name), min, max, description)
 
-fun <S : SenderContext> SenderScope<S>.floatParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.floatParameter(
     id: TypedIdentifier<Float>,
     min: Float = -Float.MAX_VALUE,
     max: Float = Float.MAX_VALUE,
     description: String = "",
-): StructureElement<S, FloatParameter<S>> = {
+): StructureElement<O, S, FloatParameter<O, S>> = {
     FloatParameter(id, description, min, max)
 }
-fun <S : SenderContext> SenderScope<S>.floatParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.floatParameter(
     name: String,
     min: Float = -Float.MAX_VALUE,
     max: Float = Float.MAX_VALUE,
     description: String = "",
-): StructureElement<S, FloatParameter<S>> = floatParameter(id(name), min, max, description)
+): StructureElement<O, S, FloatParameter<O, S>> = floatParameter(id(name), min, max, description)
 
-fun <S : SenderContext> SenderScope<S>.doubleParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.doubleParameter(
     id: TypedIdentifier<Double>,
     min: Double = -Double.MAX_VALUE,
     max: Double = Double.MAX_VALUE,
     description: String = "",
-): StructureElement<S, DoubleParameter<S>> = {
+): StructureElement<O, S, DoubleParameter<O, S>> = {
     DoubleParameter(id, description, min, max)
 }
-fun <S : SenderContext> SenderScope<S>.doubleParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.doubleParameter(
     name: String,
     min: Double = -Double.MAX_VALUE,
     max: Double = Double.MAX_VALUE,
     description: String = "",
-): StructureElement<S, DoubleParameter<S>> = doubleParameter(id(name), min, max, description)
+): StructureElement<O, S, DoubleParameter<O, S>> = doubleParameter(id(name), min, max, description)
 
-fun <S : SenderContext> SenderScope<S>.literalParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.literalParameter(
     id: TypedIdentifier<String>,
     aliases: Set<String> = setOf(),
     description: String = "",
-): StructureElement<S, LiteralParameter<S>> = {
+): StructureElement<O, S, LiteralParameter<O, S>> = {
     LiteralParameter(id, aliases.lowercase(), description)
 }
-fun <S : SenderContext> SenderScope<S>.literalParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.literalParameter(
     name: String,
     aliases: Set<String> = setOf(),
     description: String = "",
-): StructureElement<S, LiteralParameter<S>> = literalParameter(name, aliases, description)
+): StructureElement<O, S, LiteralParameter<O, S>> = literalParameter(name, aliases, description)
 
-fun <S : SenderContext> SenderScope<S>.stringParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.stringParameter(
     id: TypedIdentifier<String>,
     description: String = "",
-): StructureElement<S, StringParameter<S>> = {
+): StructureElement<O, S, StringParameter<O, S>> = {
     StringParameter(id, description)
 }
-fun <S : SenderContext> SenderScope<S>.stringParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.stringParameter(
     name: String,
     description: String = "",
-): StructureElement<S, StringParameter<S>> = stringParameter(id(name), description)
+): StructureElement<O, S, StringParameter<O, S>> = stringParameter(id(name), description)
 
-fun <S : SenderContext> SenderScope<S>.unboundedStringParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.unboundedStringParameter(
     id: TypedIdentifier<String>,
     description: String = "",
-): StructureElement<S, UnboundedStringParameter<S>> = {
+): StructureElement<O, S, UnboundedStringParameter<O, S>> = {
     UnboundedStringParameter(id, description)
 }
-fun <S : SenderContext> SenderScope<S>.unboundedStringParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.unboundedStringParameter(
     name: String,
     description: String = "",
-): StructureElement<S, UnboundedStringParameter<S>> = unboundedStringParameter(id(name), description)
+): StructureElement<O, S, UnboundedStringParameter<O, S>> = unboundedStringParameter(id(name), description)
 
 @JvmName("enumParameter")
-inline fun <S : SenderContext, reified T : Enum<T>> SenderScope<S>.enumParameter(
+inline fun <O, S : SenderContext<O>, reified T : Enum<T>> SenderScope<O, S>.enumParameter(
     id: TypedIdentifier<T>,
     enum: KClass<T>,
     description: String = "",
-): StructureElement<S, EnumParameter<S, T>> = {
+): StructureElement<O, S, EnumParameter<O, S, T>> = {
     EnumParameter(
         id,
         description,
@@ -178,18 +178,18 @@ inline fun <S : SenderContext, reified T : Enum<T>> SenderScope<S>.enumParameter
     )
 }
 @JvmName("enumParameterNamed")
-inline fun <S : SenderContext, reified T : Enum<T>> SenderScope<S>.enumParameter(
+inline fun <O, S : SenderContext<O>, reified T : Enum<T>> SenderScope<O, S>.enumParameter(
     name: String,
     enum: KClass<T>,
     description: String = "",
-): StructureElement<S, EnumParameter<S, T>> = enumParameter(id(name), enum, description)
+): StructureElement<O, S, EnumParameter<O, S, T>> = enumParameter(id(name), enum, description)
 
 @JvmName("aliasableEnumParameter")
-inline fun <S : SenderContext, reified T> SenderScope<S>.enumParameter(
+inline fun <O, S : SenderContext<O>, reified T> SenderScope<O, S>.enumParameter(
     id: TypedIdentifier<T>,
     enum: KClass<T>,
     description: String = "",
-): StructureElement<S, EnumParameter<S, T>> where T : Enum<T>, T : Aliasable = {
+): StructureElement<O, S, EnumParameter<O, S, T>> where T : Enum<T>, T : Aliasable = {
     EnumParameter(
         id,
         description,
@@ -201,48 +201,48 @@ inline fun <S : SenderContext, reified T> SenderScope<S>.enumParameter(
     )
 }
 @JvmName("aliasableEnumParameterNamed")
-inline fun <S : SenderContext, reified T> SenderScope<S>.enumParameter(
+inline fun <O, S : SenderContext<O>, reified T> SenderScope<O, S>.enumParameter(
     name: String,
     enum: KClass<T>,
     description: String = "",
-): StructureElement<S, EnumParameter<S, T>> where T : Enum<T>, T : Aliasable =
+): StructureElement<O, S, EnumParameter<O, S, T>> where T : Enum<T>, T : Aliasable =
     enumParameter(id(name), enum, description)
 
-fun <S : SenderContext> SenderScope<S>.uuidParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.uuidParameter(
     id: TypedIdentifier<UUID>,
     description: String = "",
-): StructureElement<S, UUIDParameter<S>> = {
+): StructureElement<O, S, UUIDParameter<O, S>> = {
     UUIDParameter(id, description)
 }
-fun <S : SenderContext> SenderScope<S>.uuidParameter(
+fun <O, S : SenderContext<O>> SenderScope<O, S>.uuidParameter(
     name: String,
     description: String = "",
-): StructureElement<S, UUIDParameter<S>> = uuidParameter(id(name), description)
+): StructureElement<O, S, UUIDParameter<O, S>> = uuidParameter(id(name), description)
 
-fun <S : SenderContext, T : Any> SenderScope<S>.listParameter(
+fun <O, S : SenderContext<O>, T : Any> SenderScope<O, S>.listParameter(
     id: TypedIdentifier<List<T>>,
-    parameter: StructureElement<S, Parameter.Size1<S, T>>,
+    parameter: StructureElement<O, S, Parameter.Size1<O, S, T>>,
     description: String = "",
-): StructureElement<S, ListParameter<S, T>> = {
+): StructureElement<O, S, ListParameter<O, S, T>> = {
     ListParameter(id, description, parameter(this))
 }
-fun <S : SenderContext, T : Any> SenderScope<S>.listParameter(
+fun <O, S : SenderContext<O>, T : Any> SenderScope<O, S>.listParameter(
     name: String,
-    parameter: StructureElement<S, Parameter.Size1<S, T>>,
+    parameter: StructureElement<O, S, Parameter.Size1<O, S, T>>,
     description: String = "",
-): StructureElement<S, ListParameter<S, T>> = listParameter(id(name), parameter, description)
+): StructureElement<O, S, ListParameter<O, S, T>> = listParameter(id(name), parameter, description)
 
-fun <S : SenderContext, T : Any> SenderScope<S>.listElementParameter(
+fun <O, S : SenderContext<O>, T : Any> SenderScope<O, S>.listElementParameter(
     id: TypedIdentifier<T>,
-    list: ContextualValue<S, List<T>>,
-    onEmpty: ExecutionContext<S>.() -> ExecutionResult,
+    list: ContextualValue<O, S, List<T>>,
+    onEmpty: ExecutionContext<O, S>.() -> ExecutionResult,
     description: String = "",
-): StructureElement<S, ListElementParameter<S, T>> = {
+): StructureElement<O, S, ListElementParameter<O, S, T>> = {
     ListElementParameter(id, description, list, onEmpty)
 }
-inline fun <S : SenderContext, reified T : Any> SenderScope<S>.listElementParameter(
+inline fun <O, S : SenderContext<O>, reified T : Any> SenderScope<O, S>.listElementParameter(
     name: String,
-    noinline list: ContextualValue<S, List<T>>,
-    noinline onEmpty: ExecutionContext<S>.() -> ExecutionResult,
+    noinline list: ContextualValue<O, S, List<T>>,
+    noinline onEmpty: ExecutionContext<O, S>.() -> ExecutionResult,
     description: String = "",
-): StructureElement<S, ListElementParameter<S, T>> = listElementParameter(id(name), list, onEmpty, description)
+): StructureElement<O, S, ListElementParameter<O, S, T>> = listElementParameter(id(name), list, onEmpty, description)

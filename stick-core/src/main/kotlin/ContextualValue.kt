@@ -1,3 +1,3 @@
 package com.zombachu.stick
 
-typealias ContextualValue<S, T> = ExecutionContext<S>.() -> T
+typealias ContextualValue<O, S, T> = ExecutionContext<O, S>.() -> T

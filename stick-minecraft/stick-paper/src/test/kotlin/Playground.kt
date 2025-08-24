@@ -35,6 +35,7 @@ class Playground {
     fun test() {
         val bridge = BukkitCommandBridge("synergy")
         bridge.register(WarpCommand())
+        bridge.register(PageCommand())
     }
 
 

@@ -7,16 +7,16 @@ import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 
-open class NumberParameter<S : SenderContext, T>(
+open class NumberParameter<O, S : SenderContext<O>, T>(
     id: TypedIdentifier<T>,
     description: String,
     val toOrNull: String.() -> T?,
     val min: T,
     val max: T,
     val errorType: String,
-) : Parameter.Size1<S, T>(id, description) where T : Number, T : Comparable<T> {
+) : Parameter.Size1<O, S, T>(id, description) where T : Number, T : Comparable<T> {
 
-    override fun parse(context: ExecutionContext<S>, arg0: String): Result<T> {
+    override fun parse(context: ExecutionContext<O, S>, arg0: String): Result<T> {
         val number = arg0.toOrNull() ?: return ParsingResult.failType(errorType, arg0)
 
         // If the given number is not in the valid range then give the sender an error
@@ -28,44 +28,44 @@ open class NumberParameter<S : SenderContext, T>(
     }
 }
 
-open class ByteParameter<S : SenderContext>(
+open class ByteParameter<O, S : SenderContext<O>>(
     id: TypedIdentifier<Byte>,
     description: String,
     min: Byte,
     max: Byte,
-) : NumberParameter<S, Byte>(id, description, String::toByteOrNull, min, max, "byte")
+) : NumberParameter<O, S, Byte>(id, description, String::toByteOrNull, min, max, "byte")
 
-open class ShortParameter<S : SenderContext>(
+open class ShortParameter<O, S : SenderContext<O>>(
     id: TypedIdentifier<Short>,
     description: String,
     min: Short,
     max: Short,
-) : NumberParameter<S, Short>(id, description, String::toShortOrNull, min, max, "short")
+) : NumberParameter<O, S, Short>(id, description, String::toShortOrNull, min, max, "short")
 
-open class IntParameter<S : SenderContext>(
+open class IntParameter<O, S : SenderContext<O>>(
     id: TypedIdentifier<Int>,
     description: String,
     min: Int,
     max: Int,
-) : NumberParameter<S, Int>(id, description, String::toIntOrNull, min, max, "integer")
+) : NumberParameter<O, S, Int>(id, description, String::toIntOrNull, min, max, "integer")
 
-open class LongParameter<S : SenderContext>(
+open class LongParameter<O, S : SenderContext<O>>(
     id: TypedIdentifier<Long>,
     description: String,
     min: Long,
     max: Long,
-) : NumberParameter<S, Long>(id, description, String::toLongOrNull, min, max, "long")
+) : NumberParameter<O, S, Long>(id, description, String::toLongOrNull, min, max, "long")
 
-open class FloatParameter<S : SenderContext>(
+open class FloatParameter<O, S : SenderContext<O>>(
     id: TypedIdentifier<Float>,
     description: String,
     min: Float,
     max: Float,
-) : NumberParameter<S, Float>(id, description, String::toFloatOrNull, min, max, "float")
+) : NumberParameter<O, S, Float>(id, description, String::toFloatOrNull, min, max, "float")
 
-open class DoubleParameter<S : SenderContext>(
+open class DoubleParameter<O, S : SenderContext<O>>(
     id: TypedIdentifier<Double>,
     description: String,
     min: Double,
     max: Double,
-) : NumberParameter<S, Double>(id, description, String::toDoubleOrNull, min, max, "double")
+) : NumberParameter<O, S, Double>(id, description, String::toDoubleOrNull, min, max, "double")

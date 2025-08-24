@@ -10,26 +10,26 @@ import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.structure.id
 import org.bukkit.entity.Player
 
-class PlayerParameter<S : SenderContext>(
+class PlayerParameter<O, S : BukkitContext<O>>(
     id: TypedIdentifier<Player>,
     description: String,
-) : Parameter.Size1<S, Player>(id, description) {
+) : Parameter.Size1<O, S, Player>(id, description) {
 
-    override fun parse(context: ExecutionContext<S>, arg0: String): Result<Player> {
+    override fun parse(context: ExecutionContext<O, S>, arg0: String): Result<Player> {
         TODO("Not yet implemented")
     }
 }
 
-fun <S : SenderContext> SenderScope<S>.playerParameter(
+fun <O, S : BukkitContext<O>> SenderScope<O, S>.playerParameter(
     id: TypedIdentifier<Player>,
     description: String = "",
-): StructureElement<S, PlayerParameter<S>> = {
+): StructureElement<O, S, PlayerParameter<O, S>> = {
     PlayerParameter(
         id,
         description,
     )
 }
-fun <S : SenderContext> SenderScope<S>.playerParameter(
+fun <O, S : BukkitContext<O>> SenderScope<O, S>.playerParameter(
     name: String,
     description: String = "",
-): StructureElement<S, PlayerParameter<S>> = playerParameter(id(name), description)
+): StructureElement<O, S, PlayerParameter<O, S>> = playerParameter(id(name), description)

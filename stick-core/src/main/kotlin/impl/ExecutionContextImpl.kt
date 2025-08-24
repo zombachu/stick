@@ -8,17 +8,18 @@ import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.SyntaxElement
+import com.zombachu.stick.transformSender
 import com.zombachu.stick.valueOrPropagateError
 
-internal class ExecutionContextImpl<S : SenderContext>(
+internal class ExecutionContextImpl<O, S : SenderContext<O>>(
     override val senderContext: S,
     override val label: String,
     override val args: List<String>,
-    private val structure: Structure<S>,
-    parent: ExecutionContextImpl<*>?,
-) : ExecutionContext<S> {
+    private val structure: Structure<O, S>,
+    parent: ExecutionContextImpl<*, *>?,
+) : ExecutionContext<O, S> {
 
-    private val root: ExecutionContextImpl<*> = parent?.root ?: this
+    private val root: ExecutionContextImpl<*, *> = parent?.root ?: this
 
     // Use a reversed view of a list to optimize removal of args in order
     private var unparsed: MutableList<String> = mutableListOf<String>().asReversed()
@@ -46,12 +47,12 @@ internal class ExecutionContextImpl<S : SenderContext>(
         return structure.getSyntax(this.senderContext)
     }
 
-    fun <S2 : SenderContext> forSender(transform: (S) -> S2): ExecutionContextImpl<S2> {
+    fun <O2, S2 : SenderContext<O2>> forSender(transform: (O) -> O2): ExecutionContextImpl<O2, S2> {
         return ExecutionContextImpl(
-            transform(this.senderContext),
+            this.senderContext.transformSender(transform),
             this.label,
             this.args,
-            this.structure as Structure<S2>, // TODO: Handle safer
+            this.structure as Structure<O2, S2>, // TODO: Handle safer
             parent = this,
         ).also {
             it.unparsed = this.unparsed
@@ -73,7 +74,7 @@ internal class ExecutionContextImpl<S : SenderContext>(
     }
 
     internal fun processSyntaxElement(
-        element: SyntaxElement<S, Any>,
+        element: SyntaxElement<O, S, Any>,
     ): Result<out Any> {
         val peeked = peek(element.size)
         if (peeked !is PeekingResult.Success) {

@@ -10,28 +10,30 @@ import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.ValidatedDefault
+import com.zombachu.stick.transformSender
 
-fun <S : SenderContext, T : Any> SenderScope<S>.defaultValidated(
-    value: ContextualValue<S, T>,
-    requirement: Requirement<S> = requirement { SenderValidationResult.success() },
-): ValidatedDefault<S, T> {
+fun <O, S : SenderContext<O>, T : Any> SenderScope<O, S>.defaultValidated(
+    value: ContextualValue<O, S, T>,
+    requirement: Requirement<O, S> = requirement { SenderValidationResult.success() },
+): ValidatedDefault<O, S, T> {
     return ValidatedDefault(value, requirement::validateSender)
 }
 
-inline fun <S : SenderContext, reified S2 : Any> SenderScope<S>.defaultSender(): ValidatedDefault<S, S2> {
+inline fun <O, S : SenderContext<O>, reified O2 : O, S2 : SenderContext<O>> SenderScope<O, S>.defaultSender(): ValidatedDefault<O, S, S2> {
     // TODO: Tell player it's not optional for them
-    return defaultValidated({ senderContext as S2 }, requirement() { it is S2 })
+    // TODO: Handle safer
+    return defaultValidated({ senderContext.transformSender { it } }, requirement() { it.sender is O2 })
 }
 
-fun <S : SenderContext, T : Any> SenderScope<S>.optionally(
-    validatedDefault: ValidatedDefault<S, T>,
-    parameter: StructureElement<S, Parameter<S, T>>,
-): StructureElement<S, SignatureConstraint.Terminating<S, T>> = {
+fun <O, S : SenderContext<O>, T : Any> SenderScope<O, S>.optionally(
+    validatedDefault: ValidatedDefault<O, S, T>,
+    parameter: StructureElement<O, S, Parameter<O, S, T>>,
+): StructureElement<O, S, SignatureConstraint.Terminating<O, S, T>> = {
     OptionalParameter(validatedDefault, parameter(this))
 }
 
-fun <S : SenderContext, T : Any> SenderScope<S>.optionally(
+fun <O, S : SenderContext<O>, T : Any> SenderScope<O, S>.optionally(
     default: T,
-    parameter: StructureElement<S, Parameter<S, T>>,
-): StructureElement<S, SignatureConstraint.Terminating<S, T>> =
+    parameter: StructureElement<O, S, Parameter<O, S, T>>,
+): StructureElement<O, S, SignatureConstraint.Terminating<O, S, T>> =
     optionally(defaultValidated({ default }), parameter)

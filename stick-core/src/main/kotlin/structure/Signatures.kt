@@ -38,204 +38,204 @@ import com.zombachu.stick.impl.Tuple9
 import kotlin.experimental.ExperimentalTypeInference
 
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext> StructureScope<S>.invoke(
-    execute: ExecutionContext<S>.() -> ExecutionResult,
-): Structure<S> =
+operator fun <O, S : SenderContext<O>> StructureScope<O, S>.invoke(
+    execute: ExecutionContext<O, S>.() -> ExecutionResult,
+): Structure<O, S> =
     build(Signature0(execute, Tuple0()))
 
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any> StructureScope<S>.invoke(
-    execute: ExecutionContext<S>.(A) -> ExecutionResult,
-    element: StructureElement<S, SignatureConstraint.Terminating<S, A>>,
-): StructureElement<S, Structure<S>> = {
+operator fun <O, S : SenderContext<O>, A : Any> StructureScope<O, S>.invoke(
+    execute: ExecutionContext<O, S>.(A) -> ExecutionResult,
+    element: StructureElement<O, S, SignatureConstraint.Terminating<O, S, A>>,
+): StructureElement<O, S, Structure<O, S>> = {
     build(Signature1(execute, Tuple1(element.invoke(this))))
 }
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any> StructureScope<S>.invoke(
-    element: StructureElement<S, SignatureConstraint.Terminating<S, A>>,
-): StructureElement<S, Structure<S>> =
+operator fun <O, S : SenderContext<O>, A : Any> StructureScope<O, S>.invoke(
+    element: StructureElement<O, S, SignatureConstraint.Terminating<O, S, A>>,
+): StructureElement<O, S, Structure<O, S>> =
     invoke({ a: A -> ExecutionResult.success() }, element)
 
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any> StructureScope<S>.invoke(
-    execute: ExecutionContext<S>.(A, B) -> ExecutionResult,
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.Terminating<S, B>>,
-): StructureElement<S, Structure<S>> = {
+operator fun <O, S : SenderContext<O>, A : Any, B : Any> StructureScope<O, S>.invoke(
+    execute: ExecutionContext<O, S>.(A, B) -> ExecutionResult,
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.Terminating<O, S, B>>,
+): StructureElement<O, S, Structure<O, S>> = {
     build(Signature2(execute, Tuple2(elementA.invoke(this), elementB.invoke(this))))
 }
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any> StructureScope<S>.invoke(
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.Terminating<S, B>>,
-): StructureElement<S, Structure<S>> =
+operator fun <O, S : SenderContext<O>, A : Any, B : Any> StructureScope<O, S>.invoke(
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.Terminating<O, S, B>>,
+): StructureElement<O, S, Structure<O, S>> =
     invoke({ a, b -> ExecutionResult.success() }, elementA, elementB)
 
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any> StructureScope<S>.invoke(
-    execute: ExecutionContext<S>.(A, B, C) -> ExecutionResult,
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.Terminating<S, C>>,
-): StructureElement<S, Structure<S>> = {
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any> StructureScope<O, S>.invoke(
+    execute: ExecutionContext<O, S>.(A, B, C) -> ExecutionResult,
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.Terminating<O, S, C>>,
+): StructureElement<O, S, Structure<O, S>> = {
     build(Signature3(execute,
         Tuple3(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this))
     ))
 }
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any> StructureScope<S>.invoke(
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.Terminating<S, C>>,
-): StructureElement<S, Structure<S>> =
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any> StructureScope<O, S>.invoke(
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.Terminating<O, S, C>>,
+): StructureElement<O, S, Structure<O, S>> =
     invoke({ a, b, c -> ExecutionResult.success() }, elementA, elementB, elementC)
 
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any> StructureScope<S>.invoke(
-    execute: ExecutionContext<S>.(A, B, C, D) -> ExecutionResult,
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.Terminating<S, D>>,
-): StructureElement<S, Structure<S>> = {
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any> StructureScope<O, S>.invoke(
+    execute: ExecutionContext<O, S>.(A, B, C, D) -> ExecutionResult,
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.Terminating<O, S, D>>,
+): StructureElement<O, S, Structure<O, S>> = {
     build(Signature4(execute,
         Tuple4(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this))
     ))
 }
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any> StructureScope<S>.invoke(
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.Terminating<S, D>>,
-): StructureElement<S, Structure<S>> =
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any> StructureScope<O, S>.invoke(
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.Terminating<O, S, D>>,
+): StructureElement<O, S, Structure<O, S>> =
     invoke({ a, b, c, d -> ExecutionResult.success() }, elementA, elementB, elementC, elementD)
 
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any> StructureScope<S>.invoke(
-    execute: ExecutionContext<S>.(A, B, C, D, E) -> ExecutionResult,
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
-    elementE: StructureElement<S, SignatureConstraint.Terminating<S, E>>,
-): StructureElement<S, Structure<S>> = {
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any> StructureScope<O, S>.invoke(
+    execute: ExecutionContext<O, S>.(A, B, C, D, E) -> ExecutionResult,
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, D>>,
+    elementE: StructureElement<O, S, SignatureConstraint.Terminating<O, S, E>>,
+): StructureElement<O, S, Structure<O, S>> = {
     build(Signature5(execute,
         Tuple5(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this))
     ))
 }
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any> StructureScope<S>.invoke(
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
-    elementE: StructureElement<S, SignatureConstraint.Terminating<S, E>>,
-): StructureElement<S, Structure<S>> =
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any> StructureScope<O, S>.invoke(
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, D>>,
+    elementE: StructureElement<O, S, SignatureConstraint.Terminating<O, S, E>>,
+): StructureElement<O, S, Structure<O, S>> =
     invoke({ a, b, c, d, e -> ExecutionResult.success() }, elementA, elementB, elementC, elementD, elementE)
 
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any> StructureScope<S>.invoke(
-    execute: ExecutionContext<S>.(A, B, C, D, E, F) -> ExecutionResult,
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
-    elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
-    elementF: StructureElement<S, SignatureConstraint.Terminating<S, F>>,
-): StructureElement<S, Structure<S>> = {
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any> StructureScope<O, S>.invoke(
+    execute: ExecutionContext<O, S>.(A, B, C, D, E, F) -> ExecutionResult,
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, D>>,
+    elementE: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, E>>,
+    elementF: StructureElement<O, S, SignatureConstraint.Terminating<O, S, F>>,
+): StructureElement<O, S, Structure<O, S>> = {
     build(Signature6(execute,
         Tuple6(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this))
     ))
 }
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any> StructureScope<S>.invoke(
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
-    elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
-    elementF: StructureElement<S, SignatureConstraint.Terminating<S, F>>,
-): StructureElement<S, Structure<S>> =
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any> StructureScope<O, S>.invoke(
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, D>>,
+    elementE: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, E>>,
+    elementF: StructureElement<O, S, SignatureConstraint.Terminating<O, S, F>>,
+): StructureElement<O, S, Structure<O, S>> =
     invoke({ a, b, c, d, e, f -> ExecutionResult.success() }, elementA, elementB, elementC, elementD, elementE,
         elementF)
 
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any> StructureScope<S>.invoke(
-    execute: ExecutionContext<S>.(A, B, C, D, E, F, G) -> ExecutionResult,
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
-    elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
-    elementF: StructureElement<S, SignatureConstraint.NonTerminating<S, F>>,
-    elementG: StructureElement<S, SignatureConstraint.Terminating<S, G>>,
-): StructureElement<S, Structure<S>> = {
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any> StructureScope<O, S>.invoke(
+    execute: ExecutionContext<O, S>.(A, B, C, D, E, F, G) -> ExecutionResult,
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, D>>,
+    elementE: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, E>>,
+    elementF: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, F>>,
+    elementG: StructureElement<O, S, SignatureConstraint.Terminating<O, S, G>>,
+): StructureElement<O, S, Structure<O, S>> = {
     build(Signature7(execute,
         Tuple7(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this))
     ))
 }
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any> StructureScope<S>.invoke(
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
-    elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
-    elementF: StructureElement<S, SignatureConstraint.NonTerminating<S, F>>,
-    elementG: StructureElement<S, SignatureConstraint.Terminating<S, G>>,
-): StructureElement<S, Structure<S>> =
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any> StructureScope<O, S>.invoke(
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, D>>,
+    elementE: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, E>>,
+    elementF: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, F>>,
+    elementG: StructureElement<O, S, SignatureConstraint.Terminating<O, S, G>>,
+): StructureElement<O, S, Structure<O, S>> =
     invoke({ a, b, c, d, e, f, g -> ExecutionResult.success() }, elementA, elementB, elementC, elementD, elementE,
         elementF, elementG)
 
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any> StructureScope<S>.invoke(
-    execute: ExecutionContext<S>.(A, B, C, D, E, F, G, H) -> ExecutionResult,
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
-    elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
-    elementF: StructureElement<S, SignatureConstraint.NonTerminating<S, F>>,
-    elementG: StructureElement<S, SignatureConstraint.NonTerminating<S, G>>,
-    elementH: StructureElement<S, SignatureConstraint.Terminating<S, H>>,
-): StructureElement<S, Structure<S>> = {
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any> StructureScope<O, S>.invoke(
+    execute: ExecutionContext<O, S>.(A, B, C, D, E, F, G, H) -> ExecutionResult,
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, D>>,
+    elementE: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, E>>,
+    elementF: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, F>>,
+    elementG: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, G>>,
+    elementH: StructureElement<O, S, SignatureConstraint.Terminating<O, S, H>>,
+): StructureElement<O, S, Structure<O, S>> = {
     build(Signature8(execute,
         Tuple8(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this), elementH.invoke(this))
     ))
 }
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any> StructureScope<S>.invoke(
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
-    elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
-    elementF: StructureElement<S, SignatureConstraint.NonTerminating<S, F>>,
-    elementG: StructureElement<S, SignatureConstraint.NonTerminating<S, G>>,
-    elementH: StructureElement<S, SignatureConstraint.Terminating<S, H>>,
-): StructureElement<S, Structure<S>> =
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any> StructureScope<O, S>.invoke(
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, D>>,
+    elementE: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, E>>,
+    elementF: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, F>>,
+    elementG: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, G>>,
+    elementH: StructureElement<O, S, SignatureConstraint.Terminating<O, S, H>>,
+): StructureElement<O, S, Structure<O, S>> =
     invoke({ a, b, c, d, e, f, g, h -> ExecutionResult.success() }, elementA, elementB, elementC, elementD, elementE,
         elementF, elementG, elementH)
 
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any>
-        StructureScope<S>.invoke(
-    execute: ExecutionContext<S>.(A, B, C, D, E, F, G, H, I) -> ExecutionResult,
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
-    elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
-    elementF: StructureElement<S, SignatureConstraint.NonTerminating<S, F>>,
-    elementG: StructureElement<S, SignatureConstraint.NonTerminating<S, G>>,
-    elementH: StructureElement<S, SignatureConstraint.NonTerminating<S, H>>,
-    elementI: StructureElement<S, SignatureConstraint.Terminating<S, I>>,
-): StructureElement<S, Structure<S>> = {
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any>
+        StructureScope<O, S>.invoke(
+    execute: ExecutionContext<O, S>.(A, B, C, D, E, F, G, H, I) -> ExecutionResult,
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, D>>,
+    elementE: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, E>>,
+    elementF: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, F>>,
+    elementG: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, G>>,
+    elementH: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, H>>,
+    elementI: StructureElement<O, S, SignatureConstraint.Terminating<O, S, I>>,
+): StructureElement<O, S, Structure<O, S>> = {
     build(Signature9(execute,
         Tuple9(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this), elementH.invoke(this),
@@ -243,36 +243,36 @@ operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F 
     ))
 }
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any>
-        StructureScope<S>.invoke(
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
-    elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
-    elementF: StructureElement<S, SignatureConstraint.NonTerminating<S, F>>,
-    elementG: StructureElement<S, SignatureConstraint.NonTerminating<S, G>>,
-    elementH: StructureElement<S, SignatureConstraint.NonTerminating<S, H>>,
-    elementI: StructureElement<S, SignatureConstraint.Terminating<S, I>>,
-): StructureElement<S, Structure<S>> =
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any>
+        StructureScope<O, S>.invoke(
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, D>>,
+    elementE: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, E>>,
+    elementF: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, F>>,
+    elementG: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, G>>,
+    elementH: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, H>>,
+    elementI: StructureElement<O, S, SignatureConstraint.Terminating<O, S, I>>,
+): StructureElement<O, S, Structure<O, S>> =
     invoke({ a, b, c, d, e, f, g, h, i -> ExecutionResult.success() }, elementA, elementB, elementC, elementD, elementE,
         elementF, elementG, elementH, elementI)
 
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any>
-        StructureScope<S>.invoke(
-    execute: ExecutionContext<S>.(A, B, C, D, E, F, G, H, I, J) -> ExecutionResult,
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
-    elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
-    elementF: StructureElement<S, SignatureConstraint.NonTerminating<S, F>>,
-    elementG: StructureElement<S, SignatureConstraint.NonTerminating<S, G>>,
-    elementH: StructureElement<S, SignatureConstraint.NonTerminating<S, H>>,
-    elementI: StructureElement<S, SignatureConstraint.NonTerminating<S, I>>,
-    elementJ: StructureElement<S, SignatureConstraint.Terminating<S, J>>,
-): StructureElement<S, Structure<S>> = {
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any>
+        StructureScope<O, S>.invoke(
+    execute: ExecutionContext<O, S>.(A, B, C, D, E, F, G, H, I, J) -> ExecutionResult,
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, D>>,
+    elementE: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, E>>,
+    elementF: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, F>>,
+    elementG: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, G>>,
+    elementH: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, H>>,
+    elementI: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, I>>,
+    elementJ: StructureElement<O, S, SignatureConstraint.Terminating<O, S, J>>,
+): StructureElement<O, S, Structure<O, S>> = {
     build(Signature10(execute,
         Tuple10(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this), elementH.invoke(this),
@@ -280,38 +280,38 @@ operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F 
     ))
 }
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any>
-        StructureScope<S>.invoke(
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
-    elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
-    elementF: StructureElement<S, SignatureConstraint.NonTerminating<S, F>>,
-    elementG: StructureElement<S, SignatureConstraint.NonTerminating<S, G>>,
-    elementH: StructureElement<S, SignatureConstraint.NonTerminating<S, H>>,
-    elementI: StructureElement<S, SignatureConstraint.NonTerminating<S, I>>,
-    elementJ: StructureElement<S, SignatureConstraint.Terminating<S, J>>,
-): StructureElement<S, Structure<S>> =
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any>
+        StructureScope<O, S>.invoke(
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, D>>,
+    elementE: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, E>>,
+    elementF: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, F>>,
+    elementG: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, G>>,
+    elementH: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, H>>,
+    elementI: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, I>>,
+    elementJ: StructureElement<O, S, SignatureConstraint.Terminating<O, S, J>>,
+): StructureElement<O, S, Structure<O, S>> =
     invoke({ a, b, c, d, e, f, g, h, i, j -> ExecutionResult.success() }, elementA, elementB, elementC, elementD,
         elementE, elementF, elementG, elementH, elementI, elementJ)
 
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any, K : Any>
-        StructureScope<S>.invoke(
-    execute: ExecutionContext<S>.(A, B, C, D, E, F, G, H, I, J, K) -> ExecutionResult,
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
-    elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
-    elementF: StructureElement<S, SignatureConstraint.NonTerminating<S, F>>,
-    elementG: StructureElement<S, SignatureConstraint.NonTerminating<S, G>>,
-    elementH: StructureElement<S, SignatureConstraint.NonTerminating<S, H>>,
-    elementI: StructureElement<S, SignatureConstraint.NonTerminating<S, I>>,
-    elementJ: StructureElement<S, SignatureConstraint.NonTerminating<S, J>>,
-    elementK: StructureElement<S, SignatureConstraint.Terminating<S, K>>,
-): StructureElement<S, Structure<S>> = {
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any, K : Any>
+        StructureScope<O, S>.invoke(
+    execute: ExecutionContext<O, S>.(A, B, C, D, E, F, G, H, I, J, K) -> ExecutionResult,
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, D>>,
+    elementE: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, E>>,
+    elementF: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, F>>,
+    elementG: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, G>>,
+    elementH: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, H>>,
+    elementI: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, I>>,
+    elementJ: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, J>>,
+    elementK: StructureElement<O, S, SignatureConstraint.Terminating<O, S, K>>,
+): StructureElement<O, S, Structure<O, S>> = {
     build(Signature11(execute,
         Tuple11(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this), elementH.invoke(this),
@@ -319,40 +319,40 @@ operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F 
     ))
 }
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any, K : Any>
-        StructureScope<S>.invoke(
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
-    elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
-    elementF: StructureElement<S, SignatureConstraint.NonTerminating<S, F>>,
-    elementG: StructureElement<S, SignatureConstraint.NonTerminating<S, G>>,
-    elementH: StructureElement<S, SignatureConstraint.NonTerminating<S, H>>,
-    elementI: StructureElement<S, SignatureConstraint.NonTerminating<S, I>>,
-    elementJ: StructureElement<S, SignatureConstraint.NonTerminating<S, J>>,
-    elementK: StructureElement<S, SignatureConstraint.Terminating<S, K>>,
-): StructureElement<S, Structure<S>> =
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any, K : Any>
+        StructureScope<O, S>.invoke(
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, D>>,
+    elementE: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, E>>,
+    elementF: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, F>>,
+    elementG: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, G>>,
+    elementH: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, H>>,
+    elementI: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, I>>,
+    elementJ: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, J>>,
+    elementK: StructureElement<O, S, SignatureConstraint.Terminating<O, S, K>>,
+): StructureElement<O, S, Structure<O, S>> =
     invoke({ a, b, c, d, e, f, g, h, i, j, k -> ExecutionResult.success() }, elementA, elementB, elementC, elementD,
         elementE, elementF, elementG, elementH, elementI, elementJ, elementK)
 
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any, K : Any,
-        L : Any> StructureScope<S>.invoke(
-    execute: ExecutionContext<S>.(A, B, C, D, E, F, G, H, I, J, K, L) -> ExecutionResult,
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
-    elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
-    elementF: StructureElement<S, SignatureConstraint.NonTerminating<S, F>>,
-    elementG: StructureElement<S, SignatureConstraint.NonTerminating<S, G>>,
-    elementH: StructureElement<S, SignatureConstraint.NonTerminating<S, H>>,
-    elementI: StructureElement<S, SignatureConstraint.NonTerminating<S, I>>,
-    elementJ: StructureElement<S, SignatureConstraint.NonTerminating<S, J>>,
-    elementK: StructureElement<S, SignatureConstraint.NonTerminating<S, K>>,
-    elementL: StructureElement<S, SignatureConstraint.Terminating<S, L>>,
-): StructureElement<S, Structure<S>> = {
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any, K : Any,
+        L : Any> StructureScope<O, S>.invoke(
+    execute: ExecutionContext<O, S>.(A, B, C, D, E, F, G, H, I, J, K, L) -> ExecutionResult,
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, D>>,
+    elementE: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, E>>,
+    elementF: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, F>>,
+    elementG: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, G>>,
+    elementH: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, H>>,
+    elementI: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, I>>,
+    elementJ: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, J>>,
+    elementK: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, K>>,
+    elementL: StructureElement<O, S, SignatureConstraint.Terminating<O, S, L>>,
+): StructureElement<O, S, Structure<O, S>> = {
     build(Signature12(execute,
         Tuple12(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this), elementH.invoke(this),
@@ -360,20 +360,20 @@ operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F 
     ))
 }
 @OverloadResolutionByLambdaReturnType
-operator fun <S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any, K : Any,
-        L : Any> StructureScope<S>.invoke(
-    elementA: StructureElement<S, SignatureConstraint.NonTerminating<S, A>>,
-    elementB: StructureElement<S, SignatureConstraint.NonTerminating<S, B>>,
-    elementC: StructureElement<S, SignatureConstraint.NonTerminating<S, C>>,
-    elementD: StructureElement<S, SignatureConstraint.NonTerminating<S, D>>,
-    elementE: StructureElement<S, SignatureConstraint.NonTerminating<S, E>>,
-    elementF: StructureElement<S, SignatureConstraint.NonTerminating<S, F>>,
-    elementG: StructureElement<S, SignatureConstraint.NonTerminating<S, G>>,
-    elementH: StructureElement<S, SignatureConstraint.NonTerminating<S, H>>,
-    elementI: StructureElement<S, SignatureConstraint.NonTerminating<S, I>>,
-    elementJ: StructureElement<S, SignatureConstraint.NonTerminating<S, J>>,
-    elementK: StructureElement<S, SignatureConstraint.NonTerminating<S, K>>,
-    elementL: StructureElement<S, SignatureConstraint.Terminating<S, L>>,
-): StructureElement<S, Structure<S>> =
+operator fun <O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any, K : Any,
+        L : Any> StructureScope<O, S>.invoke(
+    elementA: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, A>>,
+    elementB: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, B>>,
+    elementC: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, C>>,
+    elementD: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, D>>,
+    elementE: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, E>>,
+    elementF: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, F>>,
+    elementG: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, G>>,
+    elementH: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, H>>,
+    elementI: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, I>>,
+    elementJ: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, J>>,
+    elementK: StructureElement<O, S, SignatureConstraint.NonTerminating<O, S, K>>,
+    elementL: StructureElement<O, S, SignatureConstraint.Terminating<O, S, L>>,
+): StructureElement<O, S, Structure<O, S>> =
     invoke({ a, b, c, d, e, f, g, h, i, j, k, l -> ExecutionResult.success() }, elementA, elementB, elementC, elementD,
         elementE, elementF, elementG, elementH, elementI, elementJ, elementK, elementL)

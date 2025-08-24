@@ -19,209 +19,209 @@ import com.zombachu.stick.impl.Tuple7
 import com.zombachu.stick.impl.Tuple8
 import com.zombachu.stick.impl.Tuple9
 
-internal class Signature0<S : SenderContext>(
-    val execute: ExecutionContextImpl<S>.() -> ExecutionResult,
-    elements: Tuple0<SignatureConstraint<S, Any>>,
-): Signature<S>(elements) {
-    override fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult {
+internal class Signature0<O, S : SenderContext<O>>(
+    val execute: ExecutionContextImpl<O, S>.() -> ExecutionResult,
+    elements: Tuple0<SignatureConstraint<O, S, Any>>,
+): Signature<O, S>(elements) {
+    override fun executeParsed(context: ExecutionContextImpl<O, S>, parsedValues: List<Any>): ExecutionResult {
         return context.execute()
     }
 }
 
-internal class Signature1<S : SenderContext, A : Any>(
-    val execute: ExecutionContextImpl<S>.(A) -> ExecutionResult,
-    elements: Tuple1<SignatureConstraint<S, Any>,
-            SignatureConstraint.Terminating<S, A>>,
-): Signature<S>(elements) {
-    override fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult {
+internal class Signature1<O, S : SenderContext<O>, A : Any>(
+    val execute: ExecutionContextImpl<O, S>.(A) -> ExecutionResult,
+    elements: Tuple1<SignatureConstraint<O, S, Any>,
+            SignatureConstraint.Terminating<O, S, A>>,
+): Signature<O, S>(elements) {
+    override fun executeParsed(context: ExecutionContextImpl<O, S>, parsedValues: List<Any>): ExecutionResult {
         return context.execute(parsedValues[0] as A)
     }
 }
 
-internal class Signature2<S : SenderContext, A : Any, B : Any>(
-    val execute: ExecutionContextImpl<S>.(A, B) -> ExecutionResult,
-    elements: Tuple2<SignatureConstraint<S, Any>,
-            SignatureConstraint.NonTerminating<S, A>,
-            SignatureConstraint.Terminating<S, B>>,
-): Signature<S>(elements) {
-    override fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult {
+internal class Signature2<O, S : SenderContext<O>, A : Any, B : Any>(
+    val execute: ExecutionContextImpl<O, S>.(A, B) -> ExecutionResult,
+    elements: Tuple2<SignatureConstraint<O, S, Any>,
+            SignatureConstraint.NonTerminating<O, S, A>,
+            SignatureConstraint.Terminating<O, S, B>>,
+): Signature<O, S>(elements) {
+    override fun executeParsed(context: ExecutionContextImpl<O, S>, parsedValues: List<Any>): ExecutionResult {
         return context.execute(parsedValues[0] as A, parsedValues[1] as B)
     }
 }
 
-internal class Signature3<S : SenderContext, A : Any, B : Any, C : Any>(
-    val execute: ExecutionContextImpl<S>.(A, B, C) -> ExecutionResult,
-    elements: Tuple3<SignatureConstraint<S, Any>,
-            SignatureConstraint.NonTerminating<S, A>,
-            SignatureConstraint.NonTerminating<S, B>,
-            SignatureConstraint.Terminating<S, C>>,
-): Signature<S>(elements) {
-    override fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult {
+internal class Signature3<O, S : SenderContext<O>, A : Any, B : Any, C : Any>(
+    val execute: ExecutionContextImpl<O, S>.(A, B, C) -> ExecutionResult,
+    elements: Tuple3<SignatureConstraint<O, S, Any>,
+            SignatureConstraint.NonTerminating<O, S, A>,
+            SignatureConstraint.NonTerminating<O, S, B>,
+            SignatureConstraint.Terminating<O, S, C>>,
+): Signature<O, S>(elements) {
+    override fun executeParsed(context: ExecutionContextImpl<O, S>, parsedValues: List<Any>): ExecutionResult {
         return context.execute(parsedValues[0] as A, parsedValues[1] as B, parsedValues[2] as C)
     }
 }
 
-internal class Signature4<S : SenderContext, A : Any, B : Any, C : Any, D : Any>(
-    val execute: ExecutionContextImpl<S>.(A, B, C, D) -> ExecutionResult,
-    elements: Tuple4<SignatureConstraint<S, Any>,
-            SignatureConstraint.NonTerminating<S, A>,
-            SignatureConstraint.NonTerminating<S, B>,
-            SignatureConstraint.NonTerminating<S, C>,
-            SignatureConstraint.Terminating<S, D>>,
-): Signature<S>(elements) {
-    override fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult {
+internal class Signature4<O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any>(
+    val execute: ExecutionContextImpl<O, S>.(A, B, C, D) -> ExecutionResult,
+    elements: Tuple4<SignatureConstraint<O, S, Any>,
+            SignatureConstraint.NonTerminating<O, S, A>,
+            SignatureConstraint.NonTerminating<O, S, B>,
+            SignatureConstraint.NonTerminating<O, S, C>,
+            SignatureConstraint.Terminating<O, S, D>>,
+): Signature<O, S>(elements) {
+    override fun executeParsed(context: ExecutionContextImpl<O, S>, parsedValues: List<Any>): ExecutionResult {
         return context.execute(parsedValues[0] as A, parsedValues[1] as B, parsedValues[2] as C, parsedValues[3] as D)
     }
 }
 
-internal class Signature5<S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any>(
-    val execute: ExecutionContextImpl<S>.(A, B, C, D, E) -> ExecutionResult,
-    elements: Tuple5<SignatureConstraint<S, Any>,
-            SignatureConstraint.NonTerminating<S, A>,
-            SignatureConstraint.NonTerminating<S, B>,
-            SignatureConstraint.NonTerminating<S, C>,
-            SignatureConstraint.NonTerminating<S, D>,
-            SignatureConstraint.Terminating<S, E>>,
-): Signature<S>(elements) {
-    override fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult {
+internal class Signature5<O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any>(
+    val execute: ExecutionContextImpl<O, S>.(A, B, C, D, E) -> ExecutionResult,
+    elements: Tuple5<SignatureConstraint<O, S, Any>,
+            SignatureConstraint.NonTerminating<O, S, A>,
+            SignatureConstraint.NonTerminating<O, S, B>,
+            SignatureConstraint.NonTerminating<O, S, C>,
+            SignatureConstraint.NonTerminating<O, S, D>,
+            SignatureConstraint.Terminating<O, S, E>>,
+): Signature<O, S>(elements) {
+    override fun executeParsed(context: ExecutionContextImpl<O, S>, parsedValues: List<Any>): ExecutionResult {
         return context.execute(parsedValues[0] as A, parsedValues[1] as B, parsedValues[2] as C, parsedValues[3] as D,
             parsedValues[4] as E)
     }
 }
 
-internal class Signature6<S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any>(
-    val execute: ExecutionContextImpl<S>.(A, B, C, D, E, F) -> ExecutionResult,
-    elements: Tuple6<SignatureConstraint<S, Any>,
-            SignatureConstraint.NonTerminating<S, A>,
-            SignatureConstraint.NonTerminating<S, B>,
-            SignatureConstraint.NonTerminating<S, C>,
-            SignatureConstraint.NonTerminating<S, D>,
-            SignatureConstraint.NonTerminating<S, E>,
-            SignatureConstraint.Terminating<S, F>>,
-): Signature<S>(elements) {
-    override fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult {
+internal class Signature6<O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any>(
+    val execute: ExecutionContextImpl<O, S>.(A, B, C, D, E, F) -> ExecutionResult,
+    elements: Tuple6<SignatureConstraint<O, S, Any>,
+            SignatureConstraint.NonTerminating<O, S, A>,
+            SignatureConstraint.NonTerminating<O, S, B>,
+            SignatureConstraint.NonTerminating<O, S, C>,
+            SignatureConstraint.NonTerminating<O, S, D>,
+            SignatureConstraint.NonTerminating<O, S, E>,
+            SignatureConstraint.Terminating<O, S, F>>,
+): Signature<O, S>(elements) {
+    override fun executeParsed(context: ExecutionContextImpl<O, S>, parsedValues: List<Any>): ExecutionResult {
         return context.execute(parsedValues[0] as A, parsedValues[1] as B, parsedValues[2] as C, parsedValues[3] as D,
             parsedValues[4] as E, parsedValues[5] as F)
     }
 }
 
-internal class Signature7<S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any>(
-    val execute: ExecutionContextImpl<S>.(A, B, C, D, E, F, G) -> ExecutionResult,
-    elements: Tuple7<SignatureConstraint<S, Any>,
-            SignatureConstraint.NonTerminating<S, A>,
-            SignatureConstraint.NonTerminating<S, B>,
-            SignatureConstraint.NonTerminating<S, C>,
-            SignatureConstraint.NonTerminating<S, D>,
-            SignatureConstraint.NonTerminating<S, E>,
-            SignatureConstraint.NonTerminating<S, F>,
-            SignatureConstraint.Terminating<S, G>>,
-): Signature<S>(elements) {
-    override fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult {
+internal class Signature7<O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any>(
+    val execute: ExecutionContextImpl<O, S>.(A, B, C, D, E, F, G) -> ExecutionResult,
+    elements: Tuple7<SignatureConstraint<O, S, Any>,
+            SignatureConstraint.NonTerminating<O, S, A>,
+            SignatureConstraint.NonTerminating<O, S, B>,
+            SignatureConstraint.NonTerminating<O, S, C>,
+            SignatureConstraint.NonTerminating<O, S, D>,
+            SignatureConstraint.NonTerminating<O, S, E>,
+            SignatureConstraint.NonTerminating<O, S, F>,
+            SignatureConstraint.Terminating<O, S, G>>,
+): Signature<O, S>(elements) {
+    override fun executeParsed(context: ExecutionContextImpl<O, S>, parsedValues: List<Any>): ExecutionResult {
         return context.execute(parsedValues[0] as A, parsedValues[1] as B, parsedValues[2] as C, parsedValues[3] as D,
             parsedValues[4] as E, parsedValues[5] as F, parsedValues[6] as G)
     }
 }
 
-internal class Signature8<S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any>(
-    val execute: ExecutionContextImpl<S>.(A, B, C, D, E, F, G, H) -> ExecutionResult,
-    elements: Tuple8<SignatureConstraint<S, Any>,
-            SignatureConstraint.NonTerminating<S, A>,
-            SignatureConstraint.NonTerminating<S, B>,
-            SignatureConstraint.NonTerminating<S, C>,
-            SignatureConstraint.NonTerminating<S, D>,
-            SignatureConstraint.NonTerminating<S, E>,
-            SignatureConstraint.NonTerminating<S, F>,
-            SignatureConstraint.NonTerminating<S, G>,
-            SignatureConstraint.Terminating<S, H>>,
-): Signature<S>(elements) {
-    override fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult {
+internal class Signature8<O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any>(
+    val execute: ExecutionContextImpl<O, S>.(A, B, C, D, E, F, G, H) -> ExecutionResult,
+    elements: Tuple8<SignatureConstraint<O, S, Any>,
+            SignatureConstraint.NonTerminating<O, S, A>,
+            SignatureConstraint.NonTerminating<O, S, B>,
+            SignatureConstraint.NonTerminating<O, S, C>,
+            SignatureConstraint.NonTerminating<O, S, D>,
+            SignatureConstraint.NonTerminating<O, S, E>,
+            SignatureConstraint.NonTerminating<O, S, F>,
+            SignatureConstraint.NonTerminating<O, S, G>,
+            SignatureConstraint.Terminating<O, S, H>>,
+): Signature<O, S>(elements) {
+    override fun executeParsed(context: ExecutionContextImpl<O, S>, parsedValues: List<Any>): ExecutionResult {
         return context.execute(parsedValues[0] as A, parsedValues[1] as B, parsedValues[2] as C, parsedValues[3] as D,
             parsedValues[4] as E, parsedValues[5] as F, parsedValues[6] as G, parsedValues[7] as H)
     }
 }
 
-internal class Signature9<S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any>(
-    val execute: ExecutionContextImpl<S>.(A, B, C, D, E, F, G, H, I) -> ExecutionResult,
-    elements: Tuple9<SignatureConstraint<S, Any>,
-            SignatureConstraint.NonTerminating<S, A>,
-            SignatureConstraint.NonTerminating<S, B>,
-            SignatureConstraint.NonTerminating<S, C>,
-            SignatureConstraint.NonTerminating<S, D>,
-            SignatureConstraint.NonTerminating<S, E>,
-            SignatureConstraint.NonTerminating<S, F>,
-            SignatureConstraint.NonTerminating<S, G>,
-            SignatureConstraint.NonTerminating<S, H>,
-            SignatureConstraint.Terminating<S, I>>,
-): Signature<S>(elements) {
-    override fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult {
+internal class Signature9<O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any>(
+    val execute: ExecutionContextImpl<O, S>.(A, B, C, D, E, F, G, H, I) -> ExecutionResult,
+    elements: Tuple9<SignatureConstraint<O, S, Any>,
+            SignatureConstraint.NonTerminating<O, S, A>,
+            SignatureConstraint.NonTerminating<O, S, B>,
+            SignatureConstraint.NonTerminating<O, S, C>,
+            SignatureConstraint.NonTerminating<O, S, D>,
+            SignatureConstraint.NonTerminating<O, S, E>,
+            SignatureConstraint.NonTerminating<O, S, F>,
+            SignatureConstraint.NonTerminating<O, S, G>,
+            SignatureConstraint.NonTerminating<O, S, H>,
+            SignatureConstraint.Terminating<O, S, I>>,
+): Signature<O, S>(elements) {
+    override fun executeParsed(context: ExecutionContextImpl<O, S>, parsedValues: List<Any>): ExecutionResult {
         return context.execute(parsedValues[0] as A, parsedValues[1] as B, parsedValues[2] as C, parsedValues[3] as D,
             parsedValues[4] as E, parsedValues[5] as F, parsedValues[6] as G, parsedValues[7] as H,
             parsedValues[8] as I)
     }
 }
 
-internal class Signature10<S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any>(
-    val execute: ExecutionContextImpl<S>.(A, B, C, D, E, F, G, H, I, J) -> ExecutionResult,
-    elements: Tuple10<SignatureConstraint<S, Any>,
-            SignatureConstraint.NonTerminating<S, A>,
-            SignatureConstraint.NonTerminating<S, B>,
-            SignatureConstraint.NonTerminating<S, C>,
-            SignatureConstraint.NonTerminating<S, D>,
-            SignatureConstraint.NonTerminating<S, E>,
-            SignatureConstraint.NonTerminating<S, F>,
-            SignatureConstraint.NonTerminating<S, G>,
-            SignatureConstraint.NonTerminating<S, H>,
-            SignatureConstraint.NonTerminating<S, I>,
-            SignatureConstraint.Terminating<S, J>>,
-): Signature<S>(elements) {
-    override fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult {
+internal class Signature10<O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any>(
+    val execute: ExecutionContextImpl<O, S>.(A, B, C, D, E, F, G, H, I, J) -> ExecutionResult,
+    elements: Tuple10<SignatureConstraint<O, S, Any>,
+            SignatureConstraint.NonTerminating<O, S, A>,
+            SignatureConstraint.NonTerminating<O, S, B>,
+            SignatureConstraint.NonTerminating<O, S, C>,
+            SignatureConstraint.NonTerminating<O, S, D>,
+            SignatureConstraint.NonTerminating<O, S, E>,
+            SignatureConstraint.NonTerminating<O, S, F>,
+            SignatureConstraint.NonTerminating<O, S, G>,
+            SignatureConstraint.NonTerminating<O, S, H>,
+            SignatureConstraint.NonTerminating<O, S, I>,
+            SignatureConstraint.Terminating<O, S, J>>,
+): Signature<O, S>(elements) {
+    override fun executeParsed(context: ExecutionContextImpl<O, S>, parsedValues: List<Any>): ExecutionResult {
         return context.execute(parsedValues[0] as A, parsedValues[1] as B, parsedValues[2] as C, parsedValues[3] as D,
             parsedValues[4] as E, parsedValues[5] as F, parsedValues[6] as G, parsedValues[7] as H,
             parsedValues[8] as I, parsedValues[9] as J)
     }
 }
 
-internal class Signature11<S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any,
+internal class Signature11<O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any,
         K : Any>(
-    val execute: ExecutionContextImpl<S>.(A, B, C, D, E, F, G, H, I, J, K) -> ExecutionResult,
-    elements: Tuple11<SignatureConstraint<S, Any>,
-            SignatureConstraint.NonTerminating<S, A>,
-            SignatureConstraint.NonTerminating<S, B>,
-            SignatureConstraint.NonTerminating<S, C>,
-            SignatureConstraint.NonTerminating<S, D>,
-            SignatureConstraint.NonTerminating<S, E>,
-            SignatureConstraint.NonTerminating<S, F>,
-            SignatureConstraint.NonTerminating<S, G>,
-            SignatureConstraint.NonTerminating<S, H>,
-            SignatureConstraint.NonTerminating<S, I>,
-            SignatureConstraint.NonTerminating<S, J>,
-            SignatureConstraint.Terminating<S, K>>,
-): Signature<S>(elements) {
-    override fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult {
+    val execute: ExecutionContextImpl<O, S>.(A, B, C, D, E, F, G, H, I, J, K) -> ExecutionResult,
+    elements: Tuple11<SignatureConstraint<O, S, Any>,
+            SignatureConstraint.NonTerminating<O, S, A>,
+            SignatureConstraint.NonTerminating<O, S, B>,
+            SignatureConstraint.NonTerminating<O, S, C>,
+            SignatureConstraint.NonTerminating<O, S, D>,
+            SignatureConstraint.NonTerminating<O, S, E>,
+            SignatureConstraint.NonTerminating<O, S, F>,
+            SignatureConstraint.NonTerminating<O, S, G>,
+            SignatureConstraint.NonTerminating<O, S, H>,
+            SignatureConstraint.NonTerminating<O, S, I>,
+            SignatureConstraint.NonTerminating<O, S, J>,
+            SignatureConstraint.Terminating<O, S, K>>,
+): Signature<O, S>(elements) {
+    override fun executeParsed(context: ExecutionContextImpl<O, S>, parsedValues: List<Any>): ExecutionResult {
         return context.execute(parsedValues[0] as A, parsedValues[1] as B, parsedValues[2] as C, parsedValues[3] as D,
             parsedValues[4] as E, parsedValues[5] as F, parsedValues[6] as G, parsedValues[7] as H,
             parsedValues[8] as I, parsedValues[9] as J, parsedValues[10] as K)
     }
 }
 
-internal class Signature12<S : SenderContext, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any,
+internal class Signature12<O, S : SenderContext<O>, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any,
         K : Any, L : Any>(
-    val execute: ExecutionContextImpl<S>.(A, B, C, D, E, F, G, H, I, J, K, L) -> ExecutionResult,
-    elements: Tuple12<SignatureConstraint<S, Any>,
-            SignatureConstraint.NonTerminating<S, A>,
-            SignatureConstraint.NonTerminating<S, B>,
-            SignatureConstraint.NonTerminating<S, C>,
-            SignatureConstraint.NonTerminating<S, D>,
-            SignatureConstraint.NonTerminating<S, E>,
-            SignatureConstraint.NonTerminating<S, F>,
-            SignatureConstraint.NonTerminating<S, G>,
-            SignatureConstraint.NonTerminating<S, H>,
-            SignatureConstraint.NonTerminating<S, I>,
-            SignatureConstraint.NonTerminating<S, J>,
-            SignatureConstraint.NonTerminating<S, K>,
-            SignatureConstraint.Terminating<S, L>>,
-): Signature<S>(elements) {
-    override fun executeParsed(context: ExecutionContextImpl<S>, parsedValues: List<Any>): ExecutionResult {
+    val execute: ExecutionContextImpl<O, S>.(A, B, C, D, E, F, G, H, I, J, K, L) -> ExecutionResult,
+    elements: Tuple12<SignatureConstraint<O, S, Any>,
+            SignatureConstraint.NonTerminating<O, S, A>,
+            SignatureConstraint.NonTerminating<O, S, B>,
+            SignatureConstraint.NonTerminating<O, S, C>,
+            SignatureConstraint.NonTerminating<O, S, D>,
+            SignatureConstraint.NonTerminating<O, S, E>,
+            SignatureConstraint.NonTerminating<O, S, F>,
+            SignatureConstraint.NonTerminating<O, S, G>,
+            SignatureConstraint.NonTerminating<O, S, H>,
+            SignatureConstraint.NonTerminating<O, S, I>,
+            SignatureConstraint.NonTerminating<O, S, J>,
+            SignatureConstraint.NonTerminating<O, S, K>,
+            SignatureConstraint.Terminating<O, S, L>>,
+): Signature<O, S>(elements) {
+    override fun executeParsed(context: ExecutionContextImpl<O, S>, parsedValues: List<Any>): ExecutionResult {
         return context.execute(parsedValues[0] as A, parsedValues[1] as B, parsedValues[2] as C, parsedValues[3] as D,
             parsedValues[4] as E, parsedValues[5] as F, parsedValues[6] as G, parsedValues[7] as H,
             parsedValues[8] as I, parsedValues[9] as J, parsedValues[10] as K, parsedValues[11] as L)
