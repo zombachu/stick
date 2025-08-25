@@ -7,6 +7,7 @@ import com.zombachu.stick.impl.SenderScope
 // TODO: Shouldn't extend platformcontext
 interface ExecutionContext<S : SenderContext, O> : SenderScope<S, O> {
     val sender: O
+    val senderContext: S
     val label: String
     val args: List<String>
 
@@ -16,7 +17,7 @@ interface ExecutionContext<S : SenderContext, O> : SenderScope<S, O> {
 
     companion object {
         operator fun <S : SenderContext, O> invoke(senderContext: S, label: String, args: List<String>, structure: Structure<S, O>): ExecutionContext<S, O> {
-            return ExecutionContextImpl(label, args, senderContext, structure, parent = null)
+            return ExecutionContextImpl(senderContext, label, args, structure, parent = null)
         }
     }
 }

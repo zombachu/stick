@@ -1,7 +1,6 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.Aliasable
-import com.zombachu.stick.Command
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.structure.command
@@ -21,7 +20,7 @@ import com.zombachu.stick.structure.valueFlag
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
-class WarpCommand : Command<BukkitContext, CommandSender> {
+class WarpCommand : BukkitCommand<CommandSender> {
 
     private val warpParameterId = id<String>("warp")
 
@@ -101,7 +100,7 @@ class WarpCommand : Command<BukkitContext, CommandSender> {
     }
 }
 
-class WarpInfoCommand(): Command<BukkitContext, CommandSender> {
+class WarpInfoCommand(): BukkitCommand<CommandSender> {
 
     override val structure = mcpSender {
         command(
@@ -133,7 +132,7 @@ class WarpInfoCommand(): Command<BukkitContext, CommandSender> {
     }
 }
 
-class SomePlayerCommand(): Command<BukkitContext, Player> {
+class SomePlayerCommand(): BukkitCommand<Player> {
     override val structure =
         command("hey")(stringParameter(id("hi")))
 }

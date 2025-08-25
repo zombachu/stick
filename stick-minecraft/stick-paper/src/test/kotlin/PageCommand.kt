@@ -1,6 +1,5 @@
 package com.zombachu.stick.paper
 
-import com.zombachu.stick.Command
 import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.GroupResult
@@ -32,7 +31,7 @@ import com.zombachu.stick.structure.valueFlag
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
-class PageCommand: Command<BukkitContext, CommandSender> {
+class PageCommand: BukkitCommand<CommandSender> {
 
     val pageId = id<Int>("page")
 
@@ -93,7 +92,7 @@ class McpRequiredStringParameter(id: TypedIdentifier<String>) : StringParameter<
 fun <O> SenderScope<BukkitContext, O>.mcpRequiredStringParameter(id: TypedIdentifier<String>): StructureElement<BukkitContext, MinecraftProfile, StringParameter<BukkitContext, MinecraftProfile>> =
     { McpRequiredStringParameter(id) }
 
-class TestFlag(): Command<BukkitContext, CommandSender> {
+class TestFlag(): BukkitCommand<CommandSender> {
 
     override val structure =
         require(permission("syn.hi")) {
@@ -123,7 +122,7 @@ class TestFlag(): Command<BukkitContext, CommandSender> {
     }
 }
 
-class SomeClass : Command<BukkitContext, CommandSender> {
+class SomeClass : BukkitCommand<CommandSender> {
 
     override val structure: StructureElement<BukkitContext, CommandSender, Structure<BukkitContext, CommandSender>>
         get() = TODO("Not yet implemented")
@@ -194,7 +193,7 @@ class PlayerRequiredUnknownInt(name: String) : Parameter.UnknownSize<BukkitConte
     }
 }
 
-class OrangeCommand : Command<BukkitContext, CommandSender> {
+class OrangeCommand : BukkitCommand<CommandSender> {
     override val structure: StructureElement<BukkitContext, CommandSender, Structure<BukkitContext, CommandSender>> =
         command("orange", requirement = permission("syn.orange"))(
             requireIs(Player::class) {

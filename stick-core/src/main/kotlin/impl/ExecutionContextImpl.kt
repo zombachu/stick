@@ -12,9 +12,9 @@ import com.zombachu.stick.transformSender
 import com.zombachu.stick.valueOrPropagateError
 
 internal class ExecutionContextImpl<S : SenderContext, O>(
+    override val senderContext: S,
     override val label: String,
     override val args: List<String>,
-    private val senderContext: S, // TODO: Remove
     private val structure: Structure<S, O>,
     parent: ExecutionContextImpl<*, *>?,
 ) : ExecutionContext<S, O> {
@@ -55,9 +55,9 @@ internal class ExecutionContextImpl<S : SenderContext, O>(
 
     fun <O2 : Any> forSender(transform: (O) -> O2): ExecutionContextImpl<S, O2> {
         return ExecutionContextImpl(
+            this.senderContext.transformSender(transform),
             this.label,
             this.args,
-            this.senderContext.transformSender(transform),
             this.structure as Structure<S, O2>, // TODO: Handle safer
             parent = this,
         ).also {

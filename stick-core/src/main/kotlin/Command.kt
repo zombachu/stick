@@ -6,4 +6,5 @@ import com.zombachu.stick.impl.StructureElement
 
 interface Command<S : SenderContext, O> : SenderScope<S, O> {
     val structure: StructureElement<S, O, Structure<S, O>>
+    fun createSenderContext(sender: Any): S
 }

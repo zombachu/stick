@@ -16,6 +16,7 @@ class PlayerParameter<O : Any>(
 
     context(senderContext: BukkitContext, executionContext: ExecutionContext<BukkitContext, O>)
     override fun parse(arg0: String): Result<out Player> {
+        senderContext.server.onlinePlayers
         TODO("Not yet implemented")
     }
 }

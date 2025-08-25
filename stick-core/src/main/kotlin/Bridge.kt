@@ -12,9 +12,9 @@ abstract class Bridge<S : SenderContext, O : Any>(
     val platformSenderClass: KClass<O>,
     val parsingFailureHandler: ParsingFailureHandler<S, O>,
 ) {
-    protected abstract fun registerStructure(structure: Structure<S, O>)
+    protected abstract fun registerCommand(structure: Structure<S, O>, createSenderContext: (O) -> S)
 
-    inline fun <reified O2 : O> register(command: Command<S, O2>) {
+    inline fun <S2 : S, reified O2 : O> register(command: Command<S2, O2>) {
         @Suppress("UNCHECKED_CAST")
         internalRegister(
             O2::class,
@@ -25,9 +25,9 @@ abstract class Bridge<S : SenderContext, O : Any>(
     }
 
     @PublishedApi
-    internal fun <O2 : O> internalRegister(
+    internal fun <S2 : S, O2 : O> internalRegister(
         commandSenderClass: KClass<O2>,
-        command: Command<S, O2>,
+        command: Command<S2, O2>,
         isSenderRequiredType: (O) -> Boolean,
         castSender: (O) -> O2,
     ) {
@@ -38,17 +38,17 @@ abstract class Bridge<S : SenderContext, O : Any>(
                 (command as Command<S, O>).structure
             } else {
                 with(emptyContext) {
+                    // TODO: Handle safer
                     requireAs(
                         castSender,
-                        // TODO: Handle safer
                         requirement(SenderValidationResult.failSenderType()) { isSenderRequiredType(it.sender as O) },
                     ) {
-                        command.structure
+                        command.structure as StructureElement<S, O2, Structure<S, O2>>
                     }
                 }
             }
 
         val structure = structureElement(emptyContext)
-        registerStructure(structure)
+        registerCommand(structure, command::createSenderContext)
     }
 }
