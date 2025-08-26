@@ -4,11 +4,7 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.SenderScope
 
-interface Invocation<E : Environment, S> : SenderScope<E, S> {
-    // TODO: Remove
-    val sender: S
-    val env: E
-
+interface Invocation<E : Environment, S> : SenderScope<E, S>, ValidationContext<E, S> {
     val label: String
     val args: List<String>
 
@@ -17,8 +13,8 @@ interface Invocation<E : Environment, S> : SenderScope<E, S> {
     fun getSyntax(): String
 
     companion object {
-        operator fun <E : Environment, S> invoke(env: E, label: String, args: List<String>, structure: Structure<E, S>): Invocation<E, S> {
-            return InvocationImpl(env, label, args, structure, parent = null)
+        operator fun <E : Environment, S> invoke(sender: S, env: E, label: String, args: List<String>, structure: Structure<E, S>): Invocation<E, S> {
+            return InvocationImpl(sender, env, label, args, structure, parent = null)
         }
     }
 }

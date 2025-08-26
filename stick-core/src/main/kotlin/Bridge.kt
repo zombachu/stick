@@ -12,7 +12,7 @@ abstract class Bridge<E : Environment, S : Any>(
     val platformSenderClass: KClass<S>,
     val parsingFailureHandler: ParsingFailureHandler<E, S>,
 ) {
-    protected abstract fun registerCommand(structure: Structure<E, S>, createEnvironment: (S) -> E)
+    protected abstract fun registerCommand(structure: Structure<E, S>, createEnvironment: () -> E)
 
     inline fun <E2 : E, reified S2 : S> register(command: Command<E2, S2>) {
         @Suppress("UNCHECKED_CAST")
@@ -38,11 +38,11 @@ abstract class Bridge<E : Environment, S : Any>(
                 (command as Command<E, S>).structure
             } else {
                 with(emptyContext) {
-                    // TODO: Handle safer
                     requireAs(
                         castSender,
-                        requirement(SenderValidationResult.failSenderType()) { isSenderRequiredType(it.sender as S) },
+                        requirement(SenderValidationResult.failSenderType()) { isSenderRequiredType(it.sender) },
                     ) {
+                        // TODO: Handle safer
                         command.structure as StructureElement<E, S2, Structure<E, S2>>
                     }
                 }

@@ -1,10 +1,10 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.Command
+import com.zombachu.stick.Environment
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.Result
-import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.impl.SenderScope
@@ -22,8 +22,8 @@ class CustomCommand : Command<CustomBukkitEnvironment, CommandSender> {
         scopedTranslatedStringParameter(id("yo")),
     )
 
-    override fun createEnvironment(sender: Any): CustomBukkitEnvironment {
-        return CustomBukkitEnvironment(sender)
+    override fun createEnvironment(): CustomBukkitEnvironment {
+        return CustomBukkitEnvironment()
     }
 }
 
@@ -39,8 +39,8 @@ class UncustomCommand : Command<BukkitEnvironment, CommandSender> {
 //        scopedTranslatedStringParameter(id("yo")),
     )
 
-    override fun createEnvironment(sender: Any): CustomBukkitEnvironment {
-        return CustomBukkitEnvironment(sender)
+    override fun createEnvironment(): CustomBukkitEnvironment {
+        return CustomBukkitEnvironment()
     }
 }
 
@@ -50,7 +50,7 @@ private fun Invocation<BukkitEnvironment, CommandSender>.doOtherThing(string: St
 }
 
 
-class CustomBukkitEnvironment(sender: Any) : BukkitEnvironmentImpl(sender) {
+class CustomBukkitEnvironment() : BukkitEnvironmentImpl() {
     fun translateMessage(string: String): String {
         TODO()
     }
@@ -75,9 +75,9 @@ class TranslatedStringParameter<S : Any>(
     description: String
 ) : StringParameter<CustomBukkitEnvironment, S>(id, description) {
 
-    context(env: CustomBukkitEnvironment, inv: Invocation<CustomBukkitEnvironment, S>)
+    context(inv: Invocation<CustomBukkitEnvironment, S>)
     override fun parse(arg0: String): Result<out String> {
-        val translated = env.translateMessage(arg0)
+        val translated = inv.env.translateMessage(arg0)
         return super.parse(translated)
     }
 }

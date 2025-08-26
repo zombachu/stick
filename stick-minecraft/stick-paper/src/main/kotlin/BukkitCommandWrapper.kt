@@ -11,7 +11,7 @@ import org.bukkit.plugin.Plugin
 
 class BukkitCommandWrapper(
     val structure: Structure<BukkitEnvironment, CommandSender>,
-    val createEnvironment: (CommandSender) -> BukkitEnvironment,
+    val createEnvironment: () -> BukkitEnvironment,
     val parsingFailureHandler: ParsingFailureHandler<BukkitEnvironment, CommandSender>,
 ) : org.bukkit.command.Command(
     structure.label,
@@ -22,8 +22,8 @@ class BukkitCommandWrapper(
 
     override fun execute(sender: CommandSender, label: String, args: Array<String>): Boolean {
         val args = args.toMutableList()
-        val env = createEnvironment(sender)
-        val inv = Invocation(env, label, args, structure)
+        val env = createEnvironment()
+        val inv = Invocation(sender, env, label, args, structure)
         args.addFirst(label)
 
         context(env, inv) {

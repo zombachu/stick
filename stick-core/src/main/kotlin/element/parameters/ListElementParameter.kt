@@ -1,11 +1,11 @@
 package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.ContextualValue
+import com.zombachu.stick.Environment
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
-import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.propagateError
@@ -17,7 +17,7 @@ open class ListElementParameter<E : Environment, S, T : Any>(
     val onEmpty: Invocation<E, S>.() -> ExecutionResult,
 ) : Parameter.Size1<E, S, T>(id, description) {
 
-    context(env: E, inv: Invocation<E, S>)
+    context(inv: Invocation<E, S>)
     override fun parse(arg0: String): Result<out T> {
         val list = list(inv)
         if (list.isEmpty()) {

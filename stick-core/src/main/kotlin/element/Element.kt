@@ -1,11 +1,12 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.Aliasable
+import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.Result
-import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.Size
 
 sealed interface Element<E : Environment, S, out T> {
@@ -17,10 +18,10 @@ sealed interface SyntaxElement<E : Environment, S, out T : Any> : Element<E, S, 
     val id: TypedIdentifier<out T>
     val description: String
 
-    context(env: E, inv: Invocation<E, S>)
+    context(inv: Invocation<E, S>)
     fun parse(args: List<String>): Result<out T>
 
-    context(env: E)
+    context(validationContext: ValidationContext<E, S>)
     fun getSyntax(): String
 }
 
@@ -31,7 +32,7 @@ sealed interface SignatureConstraint<E : Environment, S, out T> : Element<E, S, 
 
 sealed interface Groupable<E : Environment, S, T : Any> : SyntaxElement<E, S, T> {
 
-    context(env: E)
+    context(validationContext: ValidationContext<E, S>)
     fun getGroupedSyntax(): String = id.name
 }
 

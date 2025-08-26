@@ -1,17 +1,18 @@
 package com.zombachu.stick.impl
 
+import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
-import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.SyntaxElement
-import com.zombachu.stick.transformSender
 import com.zombachu.stick.valueOrPropagateError
 
 internal class InvocationImpl<E : Environment, S>(
+    override val sender: S,
     override val env: E,
     override val label: String,
     override val args: List<String>,
@@ -25,9 +26,6 @@ internal class InvocationImpl<E : Environment, S>(
     private var unparsed: MutableList<String> = mutableListOf<String>().asReversed()
     private var parsed: MutableMap<TypedIdentifier<*>, Any> = mutableMapOf()
 
-    @Suppress("UNCHECKED_CAST")
-    override val sender: S
-        get() = env.sender as S
 
     override fun <T : Any> get(id: TypedIdentifier<T>): T {
         @Suppress("UNCHECKED_CAST")
@@ -53,9 +51,10 @@ internal class InvocationImpl<E : Environment, S>(
         }
     }
 
-    fun <S2 : Any> forSender(transform: (S) -> S2): InvocationImpl<E, S2> {
+    override fun <S2 : Any> forSender(transform: (S) -> S2): InvocationImpl<E, S2> {
         return InvocationImpl(
-            this.env.transformSender(transform),
+            transform(this.sender),
+            this.env,
             this.label,
             this.args,
             this.structure as Structure<E, S2>, // TODO: Handle safer
@@ -79,7 +78,7 @@ internal class InvocationImpl<E : Environment, S>(
         }
     }
 
-    context(env: E)
+    context(validationContext: ValidationContext<E, S>)
     internal fun processSyntaxElement(
         element: SyntaxElement<E, S, Any>,
     ): Result<out Any> {

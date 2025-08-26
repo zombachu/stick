@@ -15,19 +15,13 @@ interface BukkitEnvironment : Environment {
     val server: Server
 }
 
-open class BukkitEnvironmentImpl(override val sender: Any) : BukkitEnvironment {
-
-    override fun forSender(sender: Any): Environment {
-        TODO("Copy deps")
-        return BukkitEnvironmentImpl(sender)
-    }
-
+open class BukkitEnvironmentImpl() : BukkitEnvironment {
     override val server: Server = Bukkit.getServer()
 }
 
 interface BukkitCommand<S : Any> : Command<BukkitEnvironment, S> {
-    override fun createEnvironment(sender: Any): BukkitEnvironment {
-        return BukkitEnvironmentImpl(sender)
+    override fun createEnvironment(): BukkitEnvironment {
+        return BukkitEnvironmentImpl()
     }
 }
 
@@ -45,7 +39,7 @@ class BukkitCommandBridge(
 
     override fun registerCommand(
         structure: Structure<BukkitEnvironment, CommandSender>,
-        createEnvironment: (CommandSender) -> BukkitEnvironment,
+        createEnvironment: () -> BukkitEnvironment,
     ) {
         commandMap.register(fallbackPrefix, BukkitCommandWrapper(structure, createEnvironment, parsingFailureHandler))
     }

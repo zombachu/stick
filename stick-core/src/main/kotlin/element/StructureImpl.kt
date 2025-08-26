@@ -1,12 +1,13 @@
 package com.zombachu.stick.element
 
+import com.zombachu.stick.Environment
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
-import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
@@ -24,7 +25,7 @@ internal open class StructureImpl<E : Environment, S>(
     override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Literal
 
-    context(env: E, inv: Invocation<E, S>)
+    context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): Result<out Unit> {
         val peeked = (inv as InvocationImpl<E, S>).peek(Size.Companion(1))
         if (peeked !is PeekingResult.Success) {
@@ -42,7 +43,7 @@ internal open class StructureImpl<E : Environment, S>(
         return ExecutionResult.success()
     }
 
-    context(env: E)
+    context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String {
         val signatureSyntax = signature.getSyntax()
         return if (signatureSyntax.isEmpty()) {
@@ -52,6 +53,6 @@ internal open class StructureImpl<E : Environment, S>(
         }
     }
 
-    context(env: E)
+    context(validationContext: ValidationContext<E, S>)
     override fun validateSender(): Result<Unit> = requirement.validateSender()
 }

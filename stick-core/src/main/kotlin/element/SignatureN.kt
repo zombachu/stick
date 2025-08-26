@@ -2,9 +2,9 @@
 
 package com.zombachu.stick.element
 
+import com.zombachu.stick.Environment
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.Environment
 import com.zombachu.stick.impl.Tuple0
 import com.zombachu.stick.impl.Tuple1
 import com.zombachu.stick.impl.Tuple10

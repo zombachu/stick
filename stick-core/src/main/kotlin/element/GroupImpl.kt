@@ -1,11 +1,12 @@
 package com.zombachu.stick.element
 
+import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
-import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.isSuccess
@@ -27,7 +28,7 @@ internal class GroupImpl<E : Environment, S>(
     override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Default
 
-    context(env: E, inv: Invocation<E, S>)
+    context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): Result<out GroupResult<*>> {
         for (element in prioritizedElements) {
             // Ignore elements unable to be accessed by the sender
@@ -50,7 +51,7 @@ internal class GroupImpl<E : Environment, S>(
         return ParsingResult.failSyntax(inv.getSyntax())
     }
 
-    context(env: E)
+    context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String {
         val elementSyntax = elements.filter { it.validateSender().isSuccess() }.map { it.getGroupedSyntax() }
         return "<${elementSyntax.joinToString("|")}>"

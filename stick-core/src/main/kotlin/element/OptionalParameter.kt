@@ -1,9 +1,10 @@
 package com.zombachu.stick.element
 
+import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
-import com.zombachu.stick.Environment
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.impl.ValidatedDefault
 import com.zombachu.stick.propagateError
@@ -13,7 +14,7 @@ internal class OptionalParameter<E : Environment, S, T : Any>(
     val parameter: Parameter<E, S, T>
 ) : Parameter.UnknownSize<E, S, T>(Size.Deferred, parameter.id, parameter.description) {
 
-    context(env: E, inv: Invocation<E, S>)
+    context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): Result<out T> {
         if (args.isEmpty()) {
             validatedDefault.validateSender().propagateError<T> { return it }
@@ -26,6 +27,6 @@ internal class OptionalParameter<E : Environment, S, T : Any>(
         return parameter.parse(args)
     }
 
-    context(env: E)
+    context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String = "[${id.name}]"
 }

@@ -2,11 +2,12 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ContextualValue
+import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
-import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.Size
 
 internal open class FlagImpl<E : Environment, S, T : Any>(
@@ -19,12 +20,12 @@ internal open class FlagImpl<E : Environment, S, T : Any>(
     override val id: TypedIdentifier<out T> = flagParameter.id
     override val description: String = flagParameter.description
 
-    context(env: E, inv: Invocation<E, S>)
+    context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): Result<out T> {
         return flagParameter.parse(args)
     }
 
-    context(env: E)
+    context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String = flagParameter.getSyntax()
 }
 
@@ -45,7 +46,7 @@ internal sealed class FlagParameter<E : Environment, S, T : Any>(
         description: String,
     ) : FlagParameter<E, S, T>(Size.Companion(1), id, aliases, description) {
 
-        context(env: E, inv: Invocation<E, S>)
+        context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): Result<out T> {
             if (matches(args[0].lowercase())) {
                 return ParsingResult.success(inv.presentValue())
@@ -53,7 +54,7 @@ internal sealed class FlagParameter<E : Environment, S, T : Any>(
             return ParsingResult.failTypeInternal()
         }
 
-        context(env: E)
+        context(validationContext: ValidationContext<E, S>)
         override fun getSyntax(): String = "[$label]"
     }
 
@@ -64,7 +65,7 @@ internal sealed class FlagParameter<E : Environment, S, T : Any>(
         description: String,
     ) : FlagParameter<E, S, T>(Size.Companion(1) + valueElement.size, id, aliases, description) {
 
-        context(env: E, inv: Invocation<E, S>)
+        context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): Result<out T> {
             if (matches(args[0].lowercase())) {
                 return valueElement.parse(args.subList(1, args.size))
@@ -72,7 +73,7 @@ internal sealed class FlagParameter<E : Environment, S, T : Any>(
             return ParsingResult.failTypeInternal()
         }
 
-        context(env: E)
+        context(validationContext: ValidationContext<E, S>)
         override fun getSyntax(): String = "[$label ${valueElement.getSyntax()}]"
     }
 }

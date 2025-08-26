@@ -145,7 +145,7 @@ class SomeClass : BukkitCommand<CommandSender> {
         )
 
         val test = object : Parameter.Size1<BukkitEnvironment, CommandSender, Boolean>(id(""), "") {
-            context(env: BukkitEnvironment, inv: Invocation<BukkitEnvironment, CommandSender>)
+            context(inv: Invocation<BukkitEnvironment, CommandSender>)
             override fun parse(arg0: String): Result<out Boolean> {
                 TODO("Not yet implemented")
             }
@@ -187,7 +187,7 @@ class McpRequiredIntParameter(id: TypedIdentifier<Int>) : IntParameter<BukkitEnv
 
 class PlayerRequiredUnknownInt(name: String) : Parameter.UnknownSize<BukkitEnvironment, Player, Int>(Size.Unbounded,
     id(""), "") {
-    context(env: BukkitEnvironment, inv: Invocation<BukkitEnvironment, Player>)
+    context(inv: Invocation<BukkitEnvironment, Player>)
     override fun parse(args: List<String>): Result<out Int> {
         TODO("Not yet implemented")
     }

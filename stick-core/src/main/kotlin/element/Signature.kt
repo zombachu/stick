@@ -2,11 +2,12 @@
 
 package com.zombachu.stick.element
 
+import com.zombachu.stick.Environment
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
-import com.zombachu.stick.Environment
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.handle
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Tuple
@@ -31,13 +32,13 @@ internal sealed class Signature<E : Environment, S>(
 
     protected abstract fun executeParsed(context: Invocation<E, S>, parsedValues: List<Any>): ExecutionResult
 
-    context(env: E, inv: InvocationImpl<E, S>)
+    context(inv: InvocationImpl<E, S>)
     fun execute(): Result<*> {
         val value = parse().valueOrPropagateError { it: Result<List<Any>> -> return it }
         return executeParsed(inv, value)
     }
 
-    context(env: E)
+    context(validationContext: ValidationContext<E, S>)
     fun getSyntax(): String {
         var linearSyntax: List<String> = linearElements
             .map { it.element }
@@ -66,21 +67,21 @@ internal sealed class Signature<E : Environment, S>(
         return syntax.joinToString(" ")
     }
 
-    context(env: E)
+    context(validationContext: ValidationContext<E, S>)
     private fun processSyntaxElement(
-        context: InvocationImpl<E, S>,
+        inv: InvocationImpl<E, S>,
         values: MutableList<Any>,
         element: SyntaxElement<E, S, Any>,
         index: Int
     ): Result<out Any> {
-        val processResult = context.processSyntaxElement(element)
+        val processResult = inv.processSyntaxElement(element)
         if (processResult.isSuccess()) {
             values[index] = processResult.value
         }
         return processResult
     }
 
-    context(env: E, context: InvocationImpl<E, S>)
+    context(inv: InvocationImpl<E, S>)
     private fun parse(): Result<List<Any>> {
         val values: MutableList<Any> = MutableList(flags.size + linearElements.size) {}
 
@@ -93,7 +94,7 @@ internal sealed class Signature<E : Environment, S>(
 
             // First check if it's a helper as helpers don't need to consume any args
             if (element.isHelper()) {
-                values[indexedElement.index] = element.value(context)
+                values[indexedElement.index] = element.value(inv)
                 parameterIndex++
                 continue
             }
@@ -107,7 +108,7 @@ internal sealed class Signature<E : Environment, S>(
                 // Ignore flags unable to be accessed by the sender
                 flag.validateSender().propagateError<List<Any>> { continue }
 
-                processSyntaxElement(context, values, flag, indexedFlag.index).propagateError {
+                processSyntaxElement(inv, values, flag, indexedFlag.index).propagateError {
                     if (it is ParsingResult.TypeNotMatchedError) {
                         // Ignore type errors (flag didn't match)
                         continue
@@ -121,7 +122,7 @@ internal sealed class Signature<E : Environment, S>(
             }
 
             // Parse with the element as a syntax element
-            processSyntaxElement(context, values, element, indexedElement.index).propagateError { return it }
+            processSyntaxElement(inv, values, element, indexedElement.index).propagateError { return it }
             parameterIndex++
         }
 
@@ -130,8 +131,8 @@ internal sealed class Signature<E : Environment, S>(
             val flag = indexedFlag.element
 
             val default = flag.validateSender().handle(
-                onSuccess = { flag.default(context) },
-                onFailure = { (flag as ValidatedFlag<E, S, *, *>).invalidDefault(context) }
+                onSuccess = { flag.default(inv) },
+                onFailure = { (flag as ValidatedFlag<E, S, *, *>).invalidDefault(inv) }
             )
             values[indexedFlag.index] = default
         }
