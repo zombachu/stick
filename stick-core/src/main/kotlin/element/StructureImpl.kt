@@ -1,13 +1,13 @@
 package com.zombachu.stick.element
 
-import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ExecutionResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
-import com.zombachu.stick.impl.ExecutionContextImpl
+import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.propagateError
@@ -24,16 +24,16 @@ internal open class StructureImpl<S : SenderContext, O>(
     override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Literal
 
-    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    context(senderContext: S, invocation: Invocation<S, O>)
     override fun parse(args: List<String>): Result<out Unit> {
-        val peeked = (executionContext as ExecutionContextImpl<S, O>).peek(Size.Companion(1))
+        val peeked = (invocation as InvocationImpl<S, O>).peek(Size.Companion(1))
         if (peeked !is PeekingResult.Success) {
-            return ParsingResult.failTypeSyntax(executionContext.getSyntax())
+            return ParsingResult.failTypeSyntax(invocation.getSyntax())
         }
 
         val label = peeked.value.first().lowercase()
         if (!matches(label)) {
-            return ParsingResult.failTypeSyntax(executionContext.getSyntax())
+            return ParsingResult.failTypeSyntax(invocation.getSyntax())
         }
         peeked.consume()
 

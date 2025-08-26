@@ -1,6 +1,6 @@
 package com.zombachu.stick.element.parameters
 
-import com.zombachu.stick.ExecutionContext
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.SenderContext
@@ -15,7 +15,7 @@ open class StringParameter<S : SenderContext, O>(
 
     override val type: ElementType = ElementType.Passthrough
 
-    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    context(senderContext: S, invocation: Invocation<S, O>)
     override fun parse(arg0: String): Result<out String> {
         return ParsingResult.success(arg0)
     }

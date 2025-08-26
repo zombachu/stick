@@ -2,7 +2,7 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ContextualValue
-import com.zombachu.stick.ExecutionContext
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.SenderContext
@@ -19,7 +19,7 @@ internal open class FlagImpl<S : SenderContext, O, T : Any>(
     override val id: TypedIdentifier<out T> = flagParameter.id
     override val description: String = flagParameter.description
 
-    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    context(senderContext: S, invocation: Invocation<S, O>)
     override fun parse(args: List<String>): Result<out T> {
         return flagParameter.parse(args)
     }
@@ -45,10 +45,10 @@ internal sealed class FlagParameter<S : SenderContext, O, T : Any>(
         description: String,
     ) : FlagParameter<S, O, T>(Size.Companion(1), id, aliases, description) {
 
-        context(senderContext: S, executionContext: ExecutionContext<S, O>)
+        context(senderContext: S, invocation: Invocation<S, O>)
         override fun parse(args: List<String>): Result<out T> {
             if (matches(args[0].lowercase())) {
-                return ParsingResult.success(executionContext.presentValue())
+                return ParsingResult.success(invocation.presentValue())
             }
             return ParsingResult.failTypeInternal()
         }
@@ -64,7 +64,7 @@ internal sealed class FlagParameter<S : SenderContext, O, T : Any>(
         description: String,
     ) : FlagParameter<S, O, T>(Size.Companion(1) + valueElement.size, id, aliases, description) {
 
-        context(senderContext: S, executionContext: ExecutionContext<S, O>)
+        context(senderContext: S, invocation: Invocation<S, O>)
         override fun parse(args: List<String>): Result<out T> {
             if (matches(args[0].lowercase())) {
                 return valueElement.parse(args.subList(1, args.size))

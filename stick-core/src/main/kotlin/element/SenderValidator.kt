@@ -1,12 +1,12 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.ContextualValue
-import com.zombachu.stick.ExecutionContext
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.Result
 import com.zombachu.stick.SenderContext
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TypedIdentifier
-import com.zombachu.stick.impl.ExecutionContextImpl
+import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.transformSender
@@ -37,9 +37,9 @@ internal class ValidatedParameterImpl<S : SenderContext, O : Any, O2 : Any, T : 
     override val id: TypedIdentifier<out T> = parameter.id
     override val description: String = parameter.description
 
-    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    context(senderContext: S, invocation: Invocation<S, O>)
     override fun parse(args: List<String>): Result<out T> {
-        val newExecutionContext = (executionContext as ExecutionContextImpl<S, O>).forSender(transform)
+        val newExecutionContext = (invocation as InvocationImpl<S, O>).forSender(transform)
         context(newExecutionContext) {
             return parameter.parse(args)
         }
@@ -64,9 +64,9 @@ internal class ValidatedFlag<S : SenderContext, O, O2 : Any, T : Any>(
     val transform: (O) -> O2,
 ) : FlagImpl<S, O, T>((flag as FlagImpl<S, O2, T>).default as ContextualValue<S, O, T>, flag.flagParameter as FlagParameter<S, O, T>), SenderValidator<S, O> { // TODO: Handle casts better
 
-    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    context(senderContext: S, invocation: Invocation<S, O>)
     override fun parse(args: List<String>): Result<out T> {
-        val newExecutionContext = (executionContext as ExecutionContextImpl<S, O>).forSender(transform)
+        val newExecutionContext = (invocation as InvocationImpl<S, O>).forSender(transform)
         context(newExecutionContext) {
             return flag.parse(args)
         }
@@ -91,9 +91,9 @@ internal class ValidatedCommand<S : SenderContext, O, O2 : Any>(
     override val size: Size = command.size
     override val type: ElementType = command.type
 
-    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    context(senderContext: S, invocation: Invocation<S, O>)
     override fun parse(args: List<String>): Result<out Unit> {
-        val newExecutionContext = (executionContext as ExecutionContextImpl<S, O>).forSender(transform)
+        val newExecutionContext = (invocation as InvocationImpl<S, O>).forSender(transform)
         context(newExecutionContext) {
             return command.parse(args)
         }

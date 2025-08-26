@@ -1,6 +1,6 @@
 package com.zombachu.stick.element.parameters
 
-import com.zombachu.stick.ExecutionContext
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.SenderContext
@@ -17,7 +17,7 @@ open class EnumParameter<S : SenderContext, O, T : Enum<T>>(
 
     override val type: ElementType = ElementType.Literal
 
-    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    context(senderContext: S, invocation: Invocation<S, O>)
     override fun parse(arg0: String): Result<out T> {
         val enumValue = primaryValues[arg0] ?: aliasedValues[arg0] ?: return ParsingResult.failLiteral(primaryValues.keys.toList(), arg0)
         return ParsingResult.success(enumValue)

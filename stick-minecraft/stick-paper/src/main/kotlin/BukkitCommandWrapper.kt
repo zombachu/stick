@@ -1,6 +1,6 @@
 package com.zombachu.stick.paper
 
-import com.zombachu.stick.ExecutionContext
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.ParsingFailureHandler
 import com.zombachu.stick.isSuccess
@@ -23,13 +23,13 @@ class BukkitCommandWrapper(
     override fun execute(sender: CommandSender, label: String, args: Array<String>): Boolean {
         val args = args.toMutableList()
         val senderContext = createSenderContext(sender)
-        val executionContext = ExecutionContext(senderContext, label, args, structure)
+        val invocation = Invocation(senderContext, label, args, structure)
         args.addFirst(label)
 
-        context(senderContext, executionContext) {
+        context(senderContext, invocation) {
             val result = structure.parse(args)
             if (!result.isSuccess()) {
-                parsingFailureHandler.onFailure(executionContext, result)
+                parsingFailureHandler.onFailure(invocation, result)
             }
         }
         return true

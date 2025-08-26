@@ -1,8 +1,8 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.Aliasable
-import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ExecutionResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.structure.command
 import com.zombachu.stick.structure.defaultSender
 import com.zombachu.stick.structure.enumParameter
@@ -49,7 +49,7 @@ class WarpCommand : BukkitCommand<CommandSender> {
                 requireIs(
                     Player::class,
                     permission("syn.warp.tp")) {
-                    command<BukkitContext, Player>(
+                    command(
                         name = "tp",
                         aliases = setOf("teleport"),
                         description = "Teleports you to a warp. If you have access to multiple warps with the same name, " +
@@ -58,7 +58,7 @@ class WarpCommand : BukkitCommand<CommandSender> {
                         ::teleport,
                         helper(warpParameterId),
                         flag("raw"),
-                        optionally<BukkitContext, Player, Player>(
+                        optionally(
                             defaultSender(),
                             parameter = playerParameter(
                                 "player",
@@ -94,7 +94,7 @@ class WarpCommand : BukkitCommand<CommandSender> {
             ),
         )
 
-    fun teleport(context: ExecutionContext<BukkitContext, Player>, warp: String, isRaw: Boolean, player: Player): ExecutionResult {
+    fun teleport(context: Invocation<BukkitContext, Player>, warp: String, isRaw: Boolean, player: Player): ExecutionResult {
         val warp: String = context.get(warpParameterId)
         return ExecutionResult.success()
     }
@@ -127,7 +127,7 @@ class WarpInfoCommand(): BukkitCommand<CommandSender> {
         )
     }
 
-    fun doSomething(context: ExecutionContext<BukkitContext, MinecraftProfile>, wgFlag: String, weather: WeatherEnum, playerRequiredInt: Int): ExecutionResult {
+    fun doSomething(context: Invocation<BukkitContext, MinecraftProfile>, wgFlag: String, weather: WeatherEnum, playerRequiredInt: Int): ExecutionResult {
         return ExecutionResult.success()
     }
 }

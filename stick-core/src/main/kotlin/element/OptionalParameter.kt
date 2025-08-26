@@ -1,6 +1,6 @@
 package com.zombachu.stick.element
 
-import com.zombachu.stick.ExecutionContext
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.SenderContext
@@ -13,15 +13,15 @@ internal class OptionalParameter<S : SenderContext, O, T : Any>(
     val parameter: Parameter<S, O, T>
 ) : Parameter.UnknownSize<S, O, T>(Size.Deferred, parameter.id, parameter.description) {
 
-    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    context(senderContext: S, invocation: Invocation<S, O>)
     override fun parse(args: List<String>): Result<out T> {
         if (args.isEmpty()) {
             validatedDefault.validateSender().propagateError<T> { return it }
-            return ParsingResult.success(validatedDefault.value(executionContext))
+            return ParsingResult.success(validatedDefault.value(invocation))
         }
 
         if (!parameter.size.matches(args.size)) {
-            return ParsingResult.failSyntax(executionContext.getSyntax())
+            return ParsingResult.failSyntax(invocation.getSyntax())
         }
         return parameter.parse(args)
     }

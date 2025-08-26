@@ -1,6 +1,6 @@
 package com.zombachu.stick.impl
 
-import com.zombachu.stick.ExecutionContext
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
@@ -11,15 +11,15 @@ import com.zombachu.stick.element.SyntaxElement
 import com.zombachu.stick.transformSender
 import com.zombachu.stick.valueOrPropagateError
 
-internal class ExecutionContextImpl<S : SenderContext, O>(
+internal class InvocationImpl<S : SenderContext, O>(
     override val senderContext: S,
     override val label: String,
     override val args: List<String>,
     private val structure: Structure<S, O>,
-    parent: ExecutionContextImpl<*, *>?,
-) : ExecutionContext<S, O> {
+    parent: InvocationImpl<*, *>?,
+) : Invocation<S, O> {
 
-    private val root: ExecutionContextImpl<*, *> = parent?.root ?: this
+    private val root: InvocationImpl<*, *> = parent?.root ?: this
 
     // Use a reversed view of a list to optimize removal of args in order
     private var unparsed: MutableList<String> = mutableListOf<String>().asReversed()
@@ -53,8 +53,8 @@ internal class ExecutionContextImpl<S : SenderContext, O>(
         }
     }
 
-    fun <O2 : Any> forSender(transform: (O) -> O2): ExecutionContextImpl<S, O2> {
-        return ExecutionContextImpl(
+    fun <O2 : Any> forSender(transform: (O) -> O2): InvocationImpl<S, O2> {
+        return InvocationImpl(
             this.senderContext.transformSender(transform),
             this.label,
             this.args,

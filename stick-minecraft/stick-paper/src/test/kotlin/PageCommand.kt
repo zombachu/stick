@@ -1,8 +1,8 @@
 package com.zombachu.stick.paper
 
-import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.GroupResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Flag
@@ -69,7 +69,7 @@ class PageCommand: BukkitCommand<CommandSender> {
             )
         }
 
-    fun goToPage(context: ExecutionContext<BukkitContext, Player>, flagValue: String, intElement: Int, result: GroupResult<*>): ExecutionResult {
+    fun goToPage(context: Invocation<BukkitContext, Player>, flagValue: String, intElement: Int, result: GroupResult<*>): ExecutionResult {
         result.on(id<String>("direction")) {
 
         }
@@ -79,7 +79,7 @@ class PageCommand: BukkitCommand<CommandSender> {
         return ExecutionResult.success()
     }
 
-    fun playerRequiredSubCommand(context: ExecutionContext<BukkitContext, Player>, string: String): ExecutionResult {
+    fun playerRequiredSubCommand(context: Invocation<BukkitContext, Player>, string: String): ExecutionResult {
         return ExecutionResult.success()
     }
 }
@@ -115,7 +115,7 @@ class TestFlag(): BukkitCommand<CommandSender> {
             )
         }
 
-    fun execute(context: ExecutionContext<BukkitContext, CommandSender>, f: String, ints: List<Int>): ExecutionResult {
+    fun execute(context: Invocation<BukkitContext, CommandSender>, f: String, ints: List<Int>): ExecutionResult {
         val id2: String by TypedIdentifier("hello", Int::class)
 
         return ExecutionResult.success()
@@ -145,7 +145,7 @@ class SomeClass : BukkitCommand<CommandSender> {
         )
 
         val test = object : Parameter.Size1<BukkitContext, CommandSender, Boolean>(id(""), "") {
-            context(senderContext: BukkitContext, executionContext: ExecutionContext<BukkitContext, CommandSender>)
+            context(senderContext: BukkitContext, invocation: Invocation<BukkitContext, CommandSender>)
             override fun parse(arg0: String): Result<out Boolean> {
                 TODO("Not yet implemented")
             }
@@ -187,7 +187,7 @@ class McpRequiredIntParameter(id: TypedIdentifier<Int>) : IntParameter<BukkitCon
 
 class PlayerRequiredUnknownInt(name: String) : Parameter.UnknownSize<BukkitContext, Player, Int>(Size.Unbounded,
     id(""), "") {
-    context(senderContext: BukkitContext, executionContext: ExecutionContext<BukkitContext, Player>)
+    context(senderContext: BukkitContext, invocation: Invocation<BukkitContext, Player>)
     override fun parse(args: List<String>): Result<out Int> {
         TODO("Not yet implemented")
     }

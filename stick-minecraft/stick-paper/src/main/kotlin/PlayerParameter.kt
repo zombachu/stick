@@ -1,6 +1,6 @@
 package com.zombachu.stick.paper
 
-import com.zombachu.stick.ExecutionContext
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
@@ -14,7 +14,7 @@ class PlayerParameter<O : Any>(
     description: String,
 ) : Parameter.Size1<BukkitContext, O, Player>(id, description) {
 
-    context(senderContext: BukkitContext, executionContext: ExecutionContext<BukkitContext, O>)
+    context(senderContext: BukkitContext, invocation: Invocation<BukkitContext, O>)
     override fun parse(arg0: String): Result<out Player> {
         senderContext.server.onlinePlayers
         TODO("Not yet implemented")

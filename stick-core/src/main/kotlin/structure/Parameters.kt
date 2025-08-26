@@ -2,8 +2,8 @@ package com.zombachu.stick.structure
 
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ContextualValue
-import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.ExecutionResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
@@ -235,7 +235,7 @@ fun <S : SenderContext, O, T : Any> SenderScope<S, O>.listParameter(
 fun <S : SenderContext, O, T : Any> SenderScope<S, O>.listElementParameter(
     id: TypedIdentifier<T>,
     list: ContextualValue<S, O, List<T>>,
-    onEmpty: ExecutionContext<S, O>.() -> ExecutionResult,
+    onEmpty: Invocation<S, O>.() -> ExecutionResult,
     description: String = "",
 ): StructureElement<S, O, ListElementParameter<S, O, T>> = {
     ListElementParameter(id, description, list, onEmpty)
@@ -243,6 +243,6 @@ fun <S : SenderContext, O, T : Any> SenderScope<S, O>.listElementParameter(
 inline fun <S : SenderContext, O, reified T : Any> SenderScope<S, O>.listElementParameter(
     name: String,
     noinline list: ContextualValue<S, O, List<T>>,
-    noinline onEmpty: ExecutionContext<S, O>.() -> ExecutionResult,
+    noinline onEmpty: Invocation<S, O>.() -> ExecutionResult,
     description: String = "",
 ): StructureElement<S, O, ListElementParameter<S, O, T>> = listElementParameter(id(name), list, onEmpty, description)

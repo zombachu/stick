@@ -1,12 +1,12 @@
 package com.zombachu.stick.element
 
-import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.GroupResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
-import com.zombachu.stick.impl.ExecutionContextImpl
+import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
@@ -27,13 +27,13 @@ internal class GroupImpl<S : SenderContext, O>(
     override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Default
 
-    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    context(senderContext: S, invocation: Invocation<S, O>)
     override fun parse(args: List<String>): Result<out GroupResult<*>> {
         for (element in prioritizedElements) {
             // Ignore elements unable to be accessed by the sender
             element.validateSender().propagateError<GroupResult<*>> { continue }
 
-            val value = (executionContext as ExecutionContextImpl<S, O>).processSyntaxElement(element).valueOrPropagateError {
+            val value = (invocation as InvocationImpl<S, O>).processSyntaxElement(element).valueOrPropagateError {
                 if (it is ParsingResult.TypeNotMatchedError) {
                     // Ignore type errors (element didn't match)
                     continue
@@ -47,7 +47,7 @@ internal class GroupImpl<S : SenderContext, O>(
         }
 
         // No elements could be matched, fail syntax
-        return ParsingResult.failSyntax(executionContext.getSyntax())
+        return ParsingResult.failSyntax(invocation.getSyntax())
     }
 
     context(senderContext: S)

@@ -1,6 +1,6 @@
 package com.zombachu.stick.element.parameters
 
-import com.zombachu.stick.ExecutionContext
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.SenderContext
@@ -14,7 +14,7 @@ open class ListParameter<S : SenderContext, O, T : Any>(
     val parameter: Size1<S, O, T>,
 ) : Parameter.Size1<S, O, List<T>>(id, description) {
 
-    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    context(senderContext: S, invocation: Invocation<S, O>)
     override fun parse(arg0: String): Result<out List<T>> {
         val args = arg0.split(",")
         val parsedValues = args.map { arg ->

@@ -1,8 +1,8 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.Aliasable
-import com.zombachu.stick.ExecutionContext
 import com.zombachu.stick.GroupResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.Result
 import com.zombachu.stick.SenderContext
 import com.zombachu.stick.TypedIdentifier
@@ -17,7 +17,7 @@ sealed interface SyntaxElement<S : SenderContext, O, out T : Any> : Element<S, O
     val id: TypedIdentifier<out T>
     val description: String
 
-    context(senderContext: S, executionContext: ExecutionContext<S, O>)
+    context(senderContext: S, invocation: Invocation<S, O>)
     fun parse(args: List<String>): Result<out T>
 
     context(senderContext: S)
