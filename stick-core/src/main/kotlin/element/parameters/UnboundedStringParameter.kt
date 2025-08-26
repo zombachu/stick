@@ -9,14 +9,14 @@ import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.impl.Size
 
-open class UnboundedStringParameter<S : Environment, O>(
+open class UnboundedStringParameter<E : Environment, O>(
     id: TypedIdentifier<String>,
     description: String,
-) : Parameter.UnknownSize<S, O, String>(Size.Unbounded, id, description) {
+) : Parameter.UnknownSize<E, O, String>(Size.Unbounded, id, description) {
 
     override val type: ElementType = ElementType.Passthrough
 
-    context(env: S, inv: Invocation<S, O>)
+    context(env: E, inv: Invocation<E, O>)
     override fun parse(args: List<String>): Result<out String> {
         return ParsingResult.success(args.joinToString(" "))
     }

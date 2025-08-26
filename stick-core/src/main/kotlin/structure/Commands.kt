@@ -7,12 +7,12 @@ import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.StructureScope
 import com.zombachu.stick.lowercase
 
-fun <S : Environment, O> Command<S, O>.command(
+fun <E : Environment, O> Command<E, O>.command(
     name: String,
     aliases: Set<String> = setOf(),
-    requirement: Requirement<S, O> = requirement { SenderValidationResult.success() },
+    requirement: Requirement<E, O> = requirement { SenderValidationResult.success() },
     description: String = "",
-): StructureScope<S, O> {
+): StructureScope<E, O> {
     return StructureScope(
         name.lowercase(),
         aliases.lowercase(),
@@ -22,12 +22,12 @@ fun <S : Environment, O> Command<S, O>.command(
     )
 }
 
-fun <S : Environment, O> StructureScope<S, O>.command(
+fun <E : Environment, O> StructureScope<E, O>.command(
     name: String,
     aliases: Set<String> = setOf(),
-    requirement: Requirement<S, O> = requirement { SenderValidationResult.success() },
+    requirement: Requirement<E, O> = requirement { SenderValidationResult.success() },
     description: String = "",
-): StructureScope<S, O> {
+): StructureScope<E, O> {
     return StructureScope(
         name.lowercase(),
         aliases.lowercase(),

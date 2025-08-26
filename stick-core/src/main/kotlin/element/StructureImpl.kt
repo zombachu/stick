@@ -12,21 +12,21 @@ import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.propagateError
 
-internal open class StructureImpl<S : Environment, O>(
+internal open class StructureImpl<E : Environment, O>(
     override val id: TypedIdentifier<out Unit>,
     override val aliases: Set<String>,
     override val description: String,
-    internal val requirement: Requirement<S, O>,
-    internal val signature: Signature<S, O>,
-) : Structure<S, O>, SenderValidator<S, O> {
+    internal val requirement: Requirement<E, O>,
+    internal val signature: Signature<E, O>,
+) : Structure<E, O>, SenderValidator<E, O> {
 
     override val label by id
     override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Literal
 
-    context(env: S, inv: Invocation<S, O>)
+    context(env: E, inv: Invocation<E, O>)
     override fun parse(args: List<String>): Result<out Unit> {
-        val peeked = (inv as InvocationImpl<S, O>).peek(Size.Companion(1))
+        val peeked = (inv as InvocationImpl<E, O>).peek(Size.Companion(1))
         if (peeked !is PeekingResult.Success) {
             return ParsingResult.failTypeSyntax(inv.getSyntax())
         }
@@ -42,7 +42,7 @@ internal open class StructureImpl<S : Environment, O>(
         return ExecutionResult.success()
     }
 
-    context(env: S)
+    context(env: E)
     override fun getSyntax(): String {
         val signatureSyntax = signature.getSyntax()
         return if (signatureSyntax.isEmpty()) {
@@ -52,6 +52,6 @@ internal open class StructureImpl<S : Environment, O>(
         }
     }
 
-    context(env: S)
+    context(env: E)
     override fun validateSender(): Result<Unit> = requirement.validateSender()
 }

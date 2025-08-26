@@ -11,13 +11,13 @@ import com.zombachu.stick.element.SyntaxElement
 import com.zombachu.stick.transformSender
 import com.zombachu.stick.valueOrPropagateError
 
-internal class InvocationImpl<S : Environment, O>(
-    override val env: S,
+internal class InvocationImpl<E : Environment, O>(
+    override val env: E,
     override val label: String,
     override val args: List<String>,
-    private val structure: Structure<S, O>,
+    private val structure: Structure<E, O>,
     parent: InvocationImpl<*, *>?,
-) : Invocation<S, O> {
+) : Invocation<E, O> {
 
     private val root: InvocationImpl<*, *> = parent?.root ?: this
 
@@ -53,12 +53,12 @@ internal class InvocationImpl<S : Environment, O>(
         }
     }
 
-    fun <O2 : Any> forSender(transform: (O) -> O2): InvocationImpl<S, O2> {
+    fun <O2 : Any> forSender(transform: (O) -> O2): InvocationImpl<E, O2> {
         return InvocationImpl(
             this.env.transformSender(transform),
             this.label,
             this.args,
-            this.structure as Structure<S, O2>, // TODO: Handle safer
+            this.structure as Structure<E, O2>, // TODO: Handle safer
             parent = this,
         ).also {
             it.unparsed = this.unparsed
@@ -79,9 +79,9 @@ internal class InvocationImpl<S : Environment, O>(
         }
     }
 
-    context(env: S)
+    context(env: E)
     internal fun processSyntaxElement(
-        element: SyntaxElement<S, O, Any>,
+        element: SyntaxElement<E, O, Any>,
     ): Result<out Any> {
         val peeked = peek(element.size)
         if (peeked !is PeekingResult.Success) {

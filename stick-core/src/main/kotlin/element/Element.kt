@@ -8,35 +8,35 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.impl.Size
 
-sealed interface Element<S : Environment, O, out T> {
+sealed interface Element<E : Environment, O, out T> {
     val size: Size
     val type: ElementType
 }
 
-sealed interface SyntaxElement<S : Environment, O, out T : Any> : Element<S, O, T> {
+sealed interface SyntaxElement<E : Environment, O, out T : Any> : Element<E, O, T> {
     val id: TypedIdentifier<out T>
     val description: String
 
-    context(env: S, inv: Invocation<S, O>)
+    context(env: E, inv: Invocation<E, O>)
     fun parse(args: List<String>): Result<out T>
 
-    context(env: S)
+    context(env: E)
     fun getSyntax(): String
 }
 
-sealed interface SignatureConstraint<S : Environment, O, out T> : Element<S, O, T> {
-    sealed interface NonTerminating<S : Environment, O, out T> : SignatureConstraint<S, O, T>, Terminating<S, O, T>
-    sealed interface Terminating<S : Environment, O, out T> : SignatureConstraint<S, O, T>
+sealed interface SignatureConstraint<E : Environment, O, out T> : Element<E, O, T> {
+    sealed interface NonTerminating<E : Environment, O, out T> : SignatureConstraint<E, O, T>, Terminating<E, O, T>
+    sealed interface Terminating<E : Environment, O, out T> : SignatureConstraint<E, O, T>
 }
 
-sealed interface Groupable<S : Environment, O, T : Any> : SyntaxElement<S, O, T> {
+sealed interface Groupable<E : Environment, O, T : Any> : SyntaxElement<E, O, T> {
 
-    context(env: S)
+    context(env: E)
     fun getGroupedSyntax(): String = id.name
 }
 
-sealed interface Helper<S : Environment, O, T : Any> : SignatureConstraint.NonTerminating<S, O, T>
-sealed interface Flag<S : Environment, O, T : Any> : SyntaxElement<S, O, T>, SignatureConstraint.NonTerminating<S, O, T>
-sealed interface Group<S : Environment, O> : SyntaxElement<S, O, GroupResult<*>>, SignatureConstraint.Terminating<S, O, GroupResult<*>>
-sealed interface Structure<S : Environment, O> : Groupable<S, O, Unit>, SignatureConstraint.Terminating<S, O, Unit>, Aliasable
-sealed interface ValidatedParameter<S : Environment, O, T : Any> : Groupable<S, O, T>
+sealed interface Helper<E : Environment, O, T : Any> : SignatureConstraint.NonTerminating<E, O, T>
+sealed interface Flag<E : Environment, O, T : Any> : SyntaxElement<E, O, T>, SignatureConstraint.NonTerminating<E, O, T>
+sealed interface Group<E : Environment, O> : SyntaxElement<E, O, GroupResult<*>>, SignatureConstraint.Terminating<E, O, GroupResult<*>>
+sealed interface Structure<E : Environment, O> : Groupable<E, O, Unit>, SignatureConstraint.Terminating<E, O, Unit>, Aliasable
+sealed interface ValidatedParameter<E : Environment, O, T : Any> : Groupable<E, O, T>

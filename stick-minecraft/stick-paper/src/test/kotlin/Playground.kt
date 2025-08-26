@@ -48,37 +48,37 @@ class Playground {
 
 
 
-//    class Sign<S, A, B, C, D, E>: Sign.Sign1<S, A>, Sign.Sign2<S, B>, Sign.Sign3<S, C>, Sign.Sign4<S, D>, Sign.Sign5<S, E> {
-//        override var elementA: Element<S, A>? = null
-//        override var elementB: Element<S, B>? = null
-//        override var elementC: Element<S, C>? = null
-//        override var elementD: Element<S, D>? = null
-//        override var elementE: Element<S, E>? = null
+//    class Sign<E, A, B, C, D, E>: Sign.Sign1<E, A>, Sign.Sign2<E, B>, Sign.Sign3<E, C>, Sign.Sign4<E, D>, Sign.Sign5<E, E> {
+//        override var elementA: Element<E, A>? = null
+//        override var elementB: Element<E, B>? = null
+//        override var elementC: Element<E, C>? = null
+//        override var elementD: Element<E, D>? = null
+//        override var elementE: Element<E, E>? = null
 //
-//        interface Sign1<S, A> {
-//            var elementA: Element<S, A>?
+//        interface Sign1<E, A> {
+//            var elementA: Element<E, A>?
 //        }
 //
-//        interface Sign2<S, B> {
-//            var elementB: Element<S, B>?
+//        interface Sign2<E, B> {
+//            var elementB: Element<E, B>?
 //        }
 //
-//        interface Sign3<S, C> {
-//            var elementC: Element<S, C>?
+//        interface Sign3<E, C> {
+//            var elementC: Element<E, C>?
 //        }
 //
-//        interface Sign4<S, D> {
-//            var elementD: Element<S, D>?
+//        interface Sign4<E, D> {
+//            var elementD: Element<E, D>?
 //        }
 //
-//        interface Sign5<S, E> {
-//            var elementE: Element<S, E>?
+//        interface Sign5<E, E> {
+//            var elementE: Element<E, E>?
 //        }
 //
 ////        @OptIn(ExperimentalContracts::class)
-////        fun intParam(element: IntParameter<S>) {
+////        fun intParam(element: IntParameter<E>) {
 ////            contract {
-////                returns() implies (this@Sign is Sign1<S, Int>)
+////                returns() implies (this@Sign is Sign1<E, Int>)
 ////            }
 ////            elementA = element
 ////        }
@@ -127,42 +127,42 @@ class Playground {
 
 }
 
-typealias StructureElemeno<S, O, T> = StructureScopeo<S, O>.() -> T
+typealias StructureElemeno<E, O, T> = StructureScopeo<E, O>.() -> T
 
 class P2 {
 
-    interface SenderScopeo<S : Contexto<O>, O : Any>
-    class StructureScopeo<S : Contexto<O>, O : Any> : SenderScopeo<S, O> {
-        fun <S2 : Contexto<O2>, O2 : Any> forSender(): StructureScopeo<S2, O2> {
+    interface SenderScopeo<E : Contexto<O>, O : Any>
+    class StructureScopeo<E : Contexto<O>, O : Any> : SenderScopeo<E, O> {
+        fun <E2 : Contexto<O2>, O2 : Any> forSender(): StructureScopeo<E2, O2> {
             TODO()
         }
     }
 
-    class Requiremento<S : Contexto<O>, O : Any> constructor(validate: (env: S) -> Result<Unit>)
+    class Requiremento<E : Contexto<O>, O : Any> constructor(validate: (env: E) -> Result<Unit>)
 
-    open class Parametero<S : Contexto<O>, O : Any, T : Any>()
+    open class Parametero<E : Contexto<O>, O : Any, T : Any>()
 
-    interface ValidatedParametero<S : Contexto<O>, O : Any, T : Any>
-    class ValidatedParameterImplo<S : Contexto<O>, O : Any, S2 : Contexto<O2>, O2 : Any, T : Any>(
-        val parameter: Parametero<S2, O2, T>,
-        val requirement: Requiremento<S, O>,
+    interface ValidatedParametero<E : Contexto<O>, O : Any, T : Any>
+    class ValidatedParameterImplo<E : Contexto<O>, O : Any, E2 : Contexto<O2>, O2 : Any, T : Any>(
+        val parameter: Parametero<E2, O2, T>,
+        val requirement: Requiremento<E, O>,
         val transform: (O) -> O2,
-    ) : ValidatedParametero<S, O, T> {
+    ) : ValidatedParametero<E, O, T> {
     }
 
     open class Contexto<O : Any>(val sender: O)
     class BukContext<O : Any>(sender: O) : Contexto<O>(sender)
 
-    class StringParametero<S : Contexto<O>, O : Any>(
+    class StringParametero<E : Contexto<O>, O : Any>(
         id: TypedIdentifier<String>,
         description: String,
-    ) : Parametero<S, O, String>()
+    ) : Parametero<E, O, String>()
 
     @JvmInline
-    value class Clazz<S : Contexto<*>>(val s: Byte = 0)
+    value class Clazz<E : Contexto<*>>(val s: Byte = 0)
 
-    fun <S2 : Contexto<*>> extractor(): Clazz<S2> {
-        return Clazz<S2>()
+    fun <E2 : Contexto<*>> extractor(): Clazz<E2> {
+        return Clazz<E2>()
     }
 
     class OCommand : SenderScopeo<Contexto<CommandSender>, CommandSender> {
@@ -179,29 +179,29 @@ class P2 {
 }
 
 
-fun <S : P2.BukContext<O>, O : Any> P2.SenderScopeo<S, O>.requiredSubtypeStringParametero(
+fun <E : P2.BukContext<O>, O : Any> P2.SenderScopeo<E, O>.requiredSubtypeStringParametero(
     id: TypedIdentifier<String>,
     description: String = "",
-): StructureElemeno<S, O, P2.StringParametero<S, O>> = {
+): StructureElemeno<E, O, P2.StringParametero<E, O>> = {
     P2.StringParametero(id, description)
 }
 
 
-fun <S : Contexto<O>, O : Any> P2.SenderScopeo<S, O>.stringParametero(
+fun <E : Contexto<O>, O : Any> P2.SenderScopeo<E, O>.stringParametero(
     id: TypedIdentifier<String>,
     description: String = "",
-): StructureElemeno<S, O, P2.StringParametero<S, O>> = {
+): StructureElemeno<E, O, P2.StringParametero<E, O>> = {
     P2.StringParametero(id, description)
 }
 
 
-inline fun <S : Contexto<O>, O : Any, S2 : Contexto<O2>, reified O2 : O, T : Any> P2.SenderScopeo<S, O>.testingRequireIs(
-    contextType: P2.Clazz<S2>,
+inline fun <E : Contexto<O>, O : Any, E2 : Contexto<O2>, reified O2 : O, T : Any> P2.SenderScopeo<E, O>.testingRequireIs(
+    contextType: P2.Clazz<E2>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    noinline parameter: StructureElemeno<S2, O2, StructureElemeno<S2, O2, Parametero<S2, O2, T>>>,
-): StructureElemeno<S, O, ValidatedParametero<S, O, T>> = {
-    val scope: StructureScopeo<S2, O2> = this.forSender()
-    ValidatedParameterImplo<S, O, S2, O2, T>(
+    noinline parameter: StructureElemeno<E2, O2, StructureElemeno<E2, O2, Parametero<E2, O2, T>>>,
+): StructureElemeno<E, O, ValidatedParametero<E, O, T>> = {
+    val scope: StructureScopeo<E2, O2> = this.forSender()
+    ValidatedParameterImplo<E, O, E2, O2, T>(
         parameter(scope)(scope),
         Requiremento {
             if (it.sender is O2) {

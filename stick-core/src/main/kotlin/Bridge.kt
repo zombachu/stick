@@ -8,13 +8,13 @@ import com.zombachu.stick.structure.requireAs
 import com.zombachu.stick.structure.requirement
 import kotlin.reflect.KClass
 
-abstract class Bridge<S : Environment, O : Any>(
+abstract class Bridge<E : Environment, O : Any>(
     val platformSenderClass: KClass<O>,
-    val parsingFailureHandler: ParsingFailureHandler<S, O>,
+    val parsingFailureHandler: ParsingFailureHandler<E, O>,
 ) {
-    protected abstract fun registerCommand(structure: Structure<S, O>, createEnvironment: (O) -> S)
+    protected abstract fun registerCommand(structure: Structure<E, O>, createEnvironment: (O) -> E)
 
-    inline fun <S2 : S, reified O2 : O> register(command: Command<S2, O2>) {
+    inline fun <E2 : E, reified O2 : O> register(command: Command<E2, O2>) {
         @Suppress("UNCHECKED_CAST")
         internalRegister(
             O2::class,
@@ -25,17 +25,17 @@ abstract class Bridge<S : Environment, O : Any>(
     }
 
     @PublishedApi
-    internal fun <S2 : S, O2 : O> internalRegister(
+    internal fun <E2 : E, O2 : O> internalRegister(
         commandSenderClass: KClass<O2>,
-        command: Command<S2, O2>,
+        command: Command<E2, O2>,
         isSenderRequiredType: (O) -> Boolean,
         castSender: (O) -> O2,
     ) {
-        val emptyContext = StructureScope.empty<S, O>()
-        val structureElement: StructureElement<S, O, Structure<S, O>> =
+        val emptyContext = StructureScope.empty<E, O>()
+        val structureElement: StructureElement<E, O, Structure<E, O>> =
             if (commandSenderClass == platformSenderClass) {
                 @Suppress("UNCHECKED_CAST")
-                (command as Command<S, O>).structure
+                (command as Command<E, O>).structure
             } else {
                 with(emptyContext) {
                     // TODO: Handle safer
@@ -43,7 +43,7 @@ abstract class Bridge<S : Environment, O : Any>(
                         castSender,
                         requirement(SenderValidationResult.failSenderType()) { isSenderRequiredType(it.sender as O) },
                     ) {
-                        command.structure as StructureElement<S, O2, Structure<S, O2>>
+                        command.structure as StructureElement<E, O2, Structure<E, O2>>
                     }
                 }
             }

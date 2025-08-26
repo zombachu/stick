@@ -56,10 +56,10 @@ class CustomBukkitEnvironment(sender: Any) : BukkitEnvironmentImpl(sender) {
     }
 }
 
-fun <S : Environment, O : Any> SenderScope<S, O>.translatedStringParameter(
+fun <E : Environment, O : Any> SenderScope<E, O>.translatedStringParameter(
     id: TypedIdentifier<String>,
     description: String = "",
-): StructureElement<S, O, TranslatedStringParameter<O>> = {
+): StructureElement<E, O, TranslatedStringParameter<O>> = {
     TranslatedStringParameter(id, description)
 }
 

@@ -8,14 +8,14 @@ import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
 
-open class StringParameter<S : Environment, O>(
+open class StringParameter<E : Environment, O>(
     id: TypedIdentifier<String>,
     description: String,
-) : Parameter.Size1<S, O, String>(id, description) {
+) : Parameter.Size1<E, O, String>(id, description) {
 
     override val type: ElementType = ElementType.Passthrough
 
-    context(env: S, inv: Invocation<S, O>)
+    context(env: E, inv: Invocation<E, O>)
     override fun parse(arg0: String): Result<out String> {
         return ParsingResult.success(arg0)
     }

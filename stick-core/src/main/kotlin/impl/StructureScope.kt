@@ -6,19 +6,19 @@ import com.zombachu.stick.element.Signature
 import com.zombachu.stick.element.StructureImpl
 import com.zombachu.stick.structure.id
 
-typealias StructureElement<S, O, T> = StructureScope<S, O>.() -> T
+typealias StructureElement<E, O, T> = StructureScope<E, O>.() -> T
 
-class StructureScope<S : Environment, O>(
+class StructureScope<E : Environment, O>(
     val name: String,
     val aliases: Set<String>,
     val description: String,
     val parent: StructureScope<*, *>?,
-    internal val requirement: Requirement<S, O>,
-): SenderScope<S, O> {
+    internal val requirement: Requirement<E, O>,
+): SenderScope<E, O> {
 
     private val root: StructureScope<*, *> = parent?.root ?: this
 
-    internal fun <S2 : Environment, O2> forSender(): StructureScope<S2, O2> {
+    internal fun <E2 : Environment, O2> forSender(): StructureScope<E2, O2> {
         return StructureScope(
             this.name,
             this.aliases,
@@ -29,7 +29,7 @@ class StructureScope<S : Environment, O>(
         )
     }
 
-    internal fun build(signature: Signature<S, O>): StructureImpl<S, O> {
+    internal fun build(signature: Signature<E, O>): StructureImpl<E, O> {
         return StructureImpl(
             id(this.name),
             this.aliases,
@@ -40,7 +40,7 @@ class StructureScope<S : Environment, O>(
     }
 
     companion object {
-        fun <S : Environment, O> empty(): StructureScope<S, O> = StructureScope(
+        fun <E : Environment, O> empty(): StructureScope<E, O> = StructureScope(
             name = "",
             aliases = setOf(),
             description = "",

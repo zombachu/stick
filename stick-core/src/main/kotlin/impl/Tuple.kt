@@ -28,19 +28,19 @@ class Tuple6<T, A:T, B:T, C:T, D:T, E:T, F:T>(val a: A, val b: B, val c: C, val 
 class Tuple7<T, A:T, B:T, C:T, D:T, E:T, F:T, G:T>(val a: A, val b: B, val c: C, val d: D, val e: E, val f: F, val g: G): Tuple<T> {
     override fun toList(): List<T> = listOf(a, b, c, d, e, f, g)
 }
-class Tuple8<T, A:T, B:T, C:T, D:T, E:T, F:T, G:T, S:T>(val a: A, val b: B, val c: C, val d: D, val e: E, val f: F, val g: G, val h: S): Tuple<T> {
+class Tuple8<T, A:T, B:T, C:T, D:T, E:T, F:T, G:T, H:T>(val a: A, val b: B, val c: C, val d: D, val e: E, val f: F, val g: G, val h: H): Tuple<T> {
     override fun toList(): List<T> = listOf(a, b, c, d, e, f, g, h)
 }
-class Tuple9<T, A:T, B:T, C:T, D:T, E:T, F:T, G:T, S:T, I:T>(val a: A, val b: B, val c: C, val d: D, val e: E, val f: F, val g: G, val h: S, val i: I): Tuple<T> {
+class Tuple9<T, A:T, B:T, C:T, D:T, E:T, F:T, G:T, H:T, I:T>(val a: A, val b: B, val c: C, val d: D, val e: E, val f: F, val g: G, val h: H, val i: I): Tuple<T> {
     override fun toList(): List<T> = listOf(a, b, c, d, e, f, g, h, i)
 }
-class Tuple10<T, A:T, B:T, C:T, D:T, E:T, F:T, G:T, S:T, I:T, J:T>(val a: A, val b: B, val c: C, val d: D, val e: E, val f: F, val g: G, val h: S, val i: I, val j: J): Tuple<T> {
+class Tuple10<T, A:T, B:T, C:T, D:T, E:T, F:T, G:T, H:T, I:T, J:T>(val a: A, val b: B, val c: C, val d: D, val e: E, val f: F, val g: G, val h: H, val i: I, val j: J): Tuple<T> {
     override fun toList(): List<T> = listOf(a, b, c, d, e, f, g, h, i, j)
 }
-class Tuple11<T, A:T, B:T, C:T, D:T, E:T, F:T, G:T, S:T, I:T, J:T, K:T>(val a: A, val b: B, val c: C, val d: D, val e: E, val f: F, val g: G, val h: S, val i: I, val j: J, val k: K): Tuple<T> {
+class Tuple11<T, A:T, B:T, C:T, D:T, E:T, F:T, G:T, H:T, I:T, J:T, K:T>(val a: A, val b: B, val c: C, val d: D, val e: E, val f: F, val g: G, val h: H, val i: I, val j: J, val k: K): Tuple<T> {
     override fun toList(): List<T> = listOf(a, b, c, d, e, f, g, h, i, j, k)
 }
-class Tuple12<T, A:T, B:T, C:T, D:T, E:T, F:T, G:T, S:T, I:T, J:T, K:T, L:T>(val a: A, val b: B, val c: C, val d: D, val e: E, val f: F, val g: G, val h: S, val i: I, val j: J, val k: K, val l: L): Tuple<T> {
+class Tuple12<T, A:T, B:T, C:T, D:T, E:T, F:T, G:T, H:T, I:T, J:T, K:T, L:T>(val a: A, val b: B, val c: C, val d: D, val e: E, val f: F, val g: G, val h: H, val i: I, val j: J, val k: K, val l: L): Tuple<T> {
     override fun toList(): List<T> = listOf(a, b, c, d, e, f, g, h, i, j, k, l)
 }
 

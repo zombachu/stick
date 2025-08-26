@@ -4,7 +4,7 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.StructureElement
 
-interface Command<S : Environment, O> : SenderScope<S, O> {
-    val structure: StructureElement<S, O, Structure<S, O>>
-    fun createEnvironment(sender: Any): S
+interface Command<E : Environment, O> : SenderScope<E, O> {
+    val structure: StructureElement<E, O, Structure<E, O>>
+    fun createEnvironment(sender: Any): E
 }

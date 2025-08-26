@@ -21,13 +21,13 @@ import kotlin.reflect.KClass
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireAs")
-fun <O : Any, O2 : Any, S : Environment, T : Any> SenderScope<S, O>.requireAs(
+fun <O : Any, O2 : Any, E : Environment, T : Any> SenderScope<E, O>.requireAs(
     transform: (O) -> O2,
-    requirement: Requirement<S, O> = requirement { SenderValidationResult.success() },
+    requirement: Requirement<E, O> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    parameter: StructureElement<S, O2, StructureElement<S, O2, Parameter<S, O2, T>>>,
-): StructureElement<S, O, ValidatedParameter<S, O, T>> = {
-    val scope: StructureScope<S, O2> = this.forSender()
+    parameter: StructureElement<E, O2, StructureElement<E, O2, Parameter<E, O2, T>>>,
+): StructureElement<E, O, ValidatedParameter<E, O, T>> = {
+    val scope: StructureScope<E, O2> = this.forSender()
     ValidatedParameterImpl(
         parameter(scope)(scope),
         requirement,
@@ -36,14 +36,14 @@ fun <O : Any, O2 : Any, S : Environment, T : Any> SenderScope<S, O>.requireAs(
 }
 
 @OverloadResolutionByLambdaReturnType
-fun <S : Environment, O : Any, O2 : Any, T : Any> SenderScope<S, O>.requireAs(
+fun <E : Environment, O : Any, O2 : Any, T : Any> SenderScope<E, O>.requireAs(
     transform: (O) -> O2,
-    invalidDefault: ContextualValue<S, O, T>,
-    requirement: Requirement<S, O> = requirement { SenderValidationResult.success() },
+    invalidDefault: ContextualValue<E, O, T>,
+    requirement: Requirement<E, O> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    flag: StructureElement<S, O2, StructureElement<S, O2, Flag<S, O2, T>>>,
-): StructureElement<S, O, Flag<S, O, T>> = {
-    val scope: StructureScope<S, O2> = this.forSender()
+    flag: StructureElement<E, O2, StructureElement<E, O2, Flag<E, O2, T>>>,
+): StructureElement<E, O, Flag<E, O, T>> = {
+    val scope: StructureScope<E, O2> = this.forSender()
     ValidatedFlag(
         flag(scope)(scope),
         requirement,
@@ -54,13 +54,13 @@ fun <S : Environment, O : Any, O2 : Any, T : Any> SenderScope<S, O>.requireAs(
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireAsCommand")
-fun <S : Environment, O : Any, O2 : Any> SenderScope<S, O>.requireAs(
+fun <E : Environment, O : Any, O2 : Any> SenderScope<E, O>.requireAs(
     transform: (O) -> O2,
-    requirement: Requirement<S, O> = requirement { SenderValidationResult.success() },
+    requirement: Requirement<E, O> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    command: StructureElement<S, O2, StructureElement<S, O2, Structure<S, O2>>>,
-): StructureElement<S, O, Structure<S, O>> = {
-    val scope: StructureScope<S, O2> = this.forSender()
+    command: StructureElement<E, O2, StructureElement<E, O2, Structure<E, O2>>>,
+): StructureElement<E, O, Structure<E, O>> = {
+    val scope: StructureScope<E, O2> = this.forSender()
     ValidatedCommand(
         command(scope)(scope),
         requirement,
@@ -70,12 +70,12 @@ fun <S : Environment, O : Any, O2 : Any> SenderScope<S, O>.requireAs(
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireIs")
-inline fun <S : Environment, O : Any, reified O2 : O, T : Any> SenderScope<S, O>.requireIs(
+inline fun <E : Environment, O : Any, reified O2 : O, T : Any> SenderScope<E, O>.requireIs(
     senderType: KClass<O2>,
-    requirement: Requirement<S, O> = requirement { SenderValidationResult.success() },
+    requirement: Requirement<E, O> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    noinline parameter: StructureElement<S, O2, StructureElement<S, O2, Parameter<S, O2, T>>>,
-): StructureElement<S, O, ValidatedParameter<S, O, T>> =
+    noinline parameter: StructureElement<E, O2, StructureElement<E, O2, Parameter<E, O2, T>>>,
+): StructureElement<E, O, ValidatedParameter<E, O, T>> =
     requireAs(
         { it as O2 },
         requirement + requirement(SenderValidationResult.failSenderType()) { it.sender is O2 },
@@ -83,13 +83,13 @@ inline fun <S : Environment, O : Any, reified O2 : O, T : Any> SenderScope<S, O>
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <S : Environment, O : Any, reified O2 : O, T : Any> SenderScope<S, O>.requireIs(
+inline fun <E : Environment, O : Any, reified O2 : O, T : Any> SenderScope<E, O>.requireIs(
     senderType: KClass<O2>,
-    noinline invalidDefault: ContextualValue<S, O, T>,
-    requirement: Requirement<S, O> = requirement { SenderValidationResult.success() },
+    noinline invalidDefault: ContextualValue<E, O, T>,
+    requirement: Requirement<E, O> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    noinline flag: StructureElement<S, O2, StructureElement<S, O2, Flag<S, O2, T>>>,
-): StructureElement<S, O, Flag<S, O, T>> =
+    noinline flag: StructureElement<E, O2, StructureElement<E, O2, Flag<E, O2, T>>>,
+): StructureElement<E, O, Flag<E, O, T>> =
     requireAs(
         { it as O2 },
         invalidDefault,
@@ -98,13 +98,13 @@ inline fun <S : Environment, O : Any, reified O2 : O, T : Any> SenderScope<S, O>
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <S : Environment, O : Any, reified O2 : O, T : Any> SenderScope<S, O>.requireIs(
+inline fun <E : Environment, O : Any, reified O2 : O, T : Any> SenderScope<E, O>.requireIs(
     senderType: KClass<O2>,
     invalidDefault: T,
-    requirement: Requirement<S, O> = requirement { SenderValidationResult.success() },
+    requirement: Requirement<E, O> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    noinline flag: StructureElement<S, O2, StructureElement<S, O2, Flag<S, O2, T>>>,
-): StructureElement<S, O, Flag<S, O, T>> =
+    noinline flag: StructureElement<E, O2, StructureElement<E, O2, Flag<E, O2, T>>>,
+): StructureElement<E, O, Flag<E, O, T>> =
     requireAs(
         { it as O2 },
         { invalidDefault },
@@ -114,12 +114,12 @@ inline fun <S : Environment, O : Any, reified O2 : O, T : Any> SenderScope<S, O>
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireIsCommand")
-inline fun <S : Environment, O : Any, reified O2 : O> SenderScope<S, O>.requireIs(
+inline fun <E : Environment, O : Any, reified O2 : O> SenderScope<E, O>.requireIs(
     senderType: KClass<O2>,
-    requirement: Requirement<S, O> = requirement { SenderValidationResult.success() },
+    requirement: Requirement<E, O> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    noinline command: StructureElement<S, O2, StructureElement<S, O2, Structure<S, O2>>>,
-): StructureElement<S, O, Structure<S, O>> =
+    noinline command: StructureElement<E, O2, StructureElement<E, O2, Structure<E, O2>>>,
+): StructureElement<E, O, Structure<E, O>> =
     requireAs(
         { it as O2 },
         requirement + requirement(SenderValidationResult.failSenderType()) { it.sender is O2 },
@@ -128,36 +128,36 @@ inline fun <S : Environment, O : Any, reified O2 : O> SenderScope<S, O>.requireI
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("require")
-fun <S : Environment, O : Any, T : Any> SenderScope<S, O>.require(
-    requirement: Requirement<S, O>,
+fun <E : Environment, O : Any, T : Any> SenderScope<E, O>.require(
+    requirement: Requirement<E, O>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    parameter: StructureElement<S, O, StructureElement<S, O, Parameter<S, O, T>>>,
-): StructureElement<S, O, ValidatedParameter<S, O, T>> =
+    parameter: StructureElement<E, O, StructureElement<E, O, Parameter<E, O, T>>>,
+): StructureElement<E, O, ValidatedParameter<E, O, T>> =
     requireAs({ it }, requirement, parameter)
 
 @OverloadResolutionByLambdaReturnType
-fun <S : Environment, O : Any, T : Any> SenderScope<S, O>.require(
-    invalidDefault: ContextualValue<S, O, T>,
-    requirement: Requirement<S, O> = requirement { SenderValidationResult.success() },
+fun <E : Environment, O : Any, T : Any> SenderScope<E, O>.require(
+    invalidDefault: ContextualValue<E, O, T>,
+    requirement: Requirement<E, O> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    flag: StructureElement<S, O, StructureElement<S, O, Flag<S, O, T>>>,
-): StructureElement<S, O, Flag<S, O, T>> =
+    flag: StructureElement<E, O, StructureElement<E, O, Flag<E, O, T>>>,
+): StructureElement<E, O, Flag<E, O, T>> =
     requireAs({ it }, invalidDefault, requirement, flag)
 
 @OverloadResolutionByLambdaReturnType
-fun <S : Environment, O : Any, T : Any> SenderScope<S, O>.require(
+fun <E : Environment, O : Any, T : Any> SenderScope<E, O>.require(
     invalidDefault: T,
-    requirement: Requirement<S, O> = requirement { SenderValidationResult.success() },
+    requirement: Requirement<E, O> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    flag: StructureElement<S, O, StructureElement<S, O, Flag<S, O, T>>>,
-): StructureElement<S, O, Flag<S, O, T>> =
+    flag: StructureElement<E, O, StructureElement<E, O, Flag<E, O, T>>>,
+): StructureElement<E, O, Flag<E, O, T>> =
     requireAs({ it }, { invalidDefault }, requirement, flag)
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireCommand")
-fun <S : Environment, O : Any> SenderScope<S, O>.require(
-    requirement: Requirement<S, O> = requirement { SenderValidationResult.success() },
+fun <E : Environment, O : Any> SenderScope<E, O>.require(
+    requirement: Requirement<E, O> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    command: StructureElement<S, O, StructureElement<S, O, Structure<S, O>>>,
-): StructureElement<S, O, Structure<S, O>> =
+    command: StructureElement<E, O, StructureElement<E, O, Structure<E, O>>>,
+): StructureElement<E, O, Structure<E, O>> =
     requireAs({ it }, requirement, command)
