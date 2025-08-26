@@ -6,7 +6,7 @@ import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
-import com.zombachu.stick.SenderContext
+import com.zombachu.stick.Environment
 import com.zombachu.stick.handle
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Tuple
@@ -16,7 +16,7 @@ import com.zombachu.stick.valueOrPropagateError
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-internal sealed class Signature<S : SenderContext, O>(
+internal sealed class Signature<S : Environment, O>(
     elements: Tuple<SignatureConstraint<S, O, Any>>
 ) {
     private val flags: List<IndexedElement<S, O, FlagImpl<S, O, Any>>>
@@ -31,13 +31,13 @@ internal sealed class Signature<S : SenderContext, O>(
 
     protected abstract fun executeParsed(context: Invocation<S, O>, parsedValues: List<Any>): ExecutionResult
 
-    context(senderContext: S, executionContext: InvocationImpl<S, O>)
+    context(env: S, inv: InvocationImpl<S, O>)
     fun execute(): Result<*> {
         val value = parse().valueOrPropagateError { it: Result<List<Any>> -> return it }
-        return executeParsed(executionContext, value)
+        return executeParsed(inv, value)
     }
 
-    context(senderContext: S)
+    context(env: S)
     fun getSyntax(): String {
         var linearSyntax: List<String> = linearElements
             .map { it.element }
@@ -66,7 +66,7 @@ internal sealed class Signature<S : SenderContext, O>(
         return syntax.joinToString(" ")
     }
 
-    context(senderContext: S)
+    context(env: S)
     private fun processSyntaxElement(
         context: InvocationImpl<S, O>,
         values: MutableList<Any>,
@@ -80,7 +80,7 @@ internal sealed class Signature<S : SenderContext, O>(
         return processResult
     }
 
-    context(senderContext: S, context: InvocationImpl<S, O>)
+    context(env: S, context: InvocationImpl<S, O>)
     private fun parse(): Result<List<Any>> {
         val values: MutableList<Any> = MutableList(flags.size + linearElements.size) {}
 
@@ -147,7 +147,7 @@ internal sealed class Signature<S : SenderContext, O>(
         return this is HelperImpl<S, O, Any>
     }
 
-    data class IndexedElement<S : SenderContext, O, out E : Element<S, O, *>>(
+    data class IndexedElement<S : Environment, O, out E : Element<S, O, *>>(
         val index: Int,
         val element: E
     )

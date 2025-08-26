@@ -138,7 +138,7 @@ class P2 {
         }
     }
 
-    class Requiremento<S : Contexto<O>, O : Any> constructor(validate: (senderContext: S) -> Result<Unit>)
+    class Requiremento<S : Contexto<O>, O : Any> constructor(validate: (env: S) -> Result<Unit>)
 
     open class Parametero<S : Contexto<O>, O : Any, T : Any>()
 

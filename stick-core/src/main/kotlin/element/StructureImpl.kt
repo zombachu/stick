@@ -5,14 +5,14 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
-import com.zombachu.stick.SenderContext
+import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.propagateError
 
-internal open class StructureImpl<S : SenderContext, O>(
+internal open class StructureImpl<S : Environment, O>(
     override val id: TypedIdentifier<out Unit>,
     override val aliases: Set<String>,
     override val description: String,
@@ -24,16 +24,16 @@ internal open class StructureImpl<S : SenderContext, O>(
     override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Literal
 
-    context(senderContext: S, invocation: Invocation<S, O>)
+    context(env: S, inv: Invocation<S, O>)
     override fun parse(args: List<String>): Result<out Unit> {
-        val peeked = (invocation as InvocationImpl<S, O>).peek(Size.Companion(1))
+        val peeked = (inv as InvocationImpl<S, O>).peek(Size.Companion(1))
         if (peeked !is PeekingResult.Success) {
-            return ParsingResult.failTypeSyntax(invocation.getSyntax())
+            return ParsingResult.failTypeSyntax(inv.getSyntax())
         }
 
         val label = peeked.value.first().lowercase()
         if (!matches(label)) {
-            return ParsingResult.failTypeSyntax(invocation.getSyntax())
+            return ParsingResult.failTypeSyntax(inv.getSyntax())
         }
         peeked.consume()
 
@@ -42,7 +42,7 @@ internal open class StructureImpl<S : SenderContext, O>(
         return ExecutionResult.success()
     }
 
-    context(senderContext: S)
+    context(env: S)
     override fun getSyntax(): String {
         val signatureSyntax = signature.getSyntax()
         return if (signatureSyntax.isEmpty()) {
@@ -52,6 +52,6 @@ internal open class StructureImpl<S : SenderContext, O>(
         }
     }
 
-    context(senderContext: S)
+    context(env: S)
     override fun validateSender(): Result<Unit> = requirement.validateSender()
 }

@@ -4,7 +4,7 @@ import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
-import com.zombachu.stick.SenderContext
+import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Size
@@ -12,7 +12,7 @@ import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 
-internal class GroupImpl<S : SenderContext, O>(
+internal class GroupImpl<S : Environment, O>(
     override val id: TypedIdentifier<GroupResult<*>>,
     override val description: String,
     private val elements: List<Groupable<S, O, *>>,
@@ -27,13 +27,13 @@ internal class GroupImpl<S : SenderContext, O>(
     override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Default
 
-    context(senderContext: S, invocation: Invocation<S, O>)
+    context(env: S, inv: Invocation<S, O>)
     override fun parse(args: List<String>): Result<out GroupResult<*>> {
         for (element in prioritizedElements) {
             // Ignore elements unable to be accessed by the sender
             element.validateSender().propagateError<GroupResult<*>> { continue }
 
-            val value = (invocation as InvocationImpl<S, O>).processSyntaxElement(element).valueOrPropagateError {
+            val value = (inv as InvocationImpl<S, O>).processSyntaxElement(element).valueOrPropagateError {
                 if (it is ParsingResult.TypeNotMatchedError) {
                     // Ignore type errors (element didn't match)
                     continue
@@ -47,10 +47,10 @@ internal class GroupImpl<S : SenderContext, O>(
         }
 
         // No elements could be matched, fail syntax
-        return ParsingResult.failSyntax(invocation.getSyntax())
+        return ParsingResult.failSyntax(inv.getSyntax())
     }
 
-    context(senderContext: S)
+    context(env: S)
     override fun getSyntax(): String {
         val elementSyntax = elements.filter { it.validateSender().isSuccess() }.map { it.getGroupedSyntax() }
         return "<${elementSyntax.joinToString("|")}>"

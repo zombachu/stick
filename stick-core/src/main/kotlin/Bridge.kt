@@ -8,11 +8,11 @@ import com.zombachu.stick.structure.requireAs
 import com.zombachu.stick.structure.requirement
 import kotlin.reflect.KClass
 
-abstract class Bridge<S : SenderContext, O : Any>(
+abstract class Bridge<S : Environment, O : Any>(
     val platformSenderClass: KClass<O>,
     val parsingFailureHandler: ParsingFailureHandler<S, O>,
 ) {
-    protected abstract fun registerCommand(structure: Structure<S, O>, createSenderContext: (O) -> S)
+    protected abstract fun registerCommand(structure: Structure<S, O>, createEnvironment: (O) -> S)
 
     inline fun <S2 : S, reified O2 : O> register(command: Command<S2, O2>) {
         @Suppress("UNCHECKED_CAST")
@@ -49,6 +49,6 @@ abstract class Bridge<S : SenderContext, O : Any>(
             }
 
         val structure = structureElement(emptyContext)
-        registerCommand(structure, command::createSenderContext)
+        registerCommand(structure, command::createEnvironment)
     }
 }

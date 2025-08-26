@@ -5,23 +5,23 @@ import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
-import com.zombachu.stick.SenderContext
+import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.propagateError
 
-open class ListElementParameter<S : SenderContext, O, T : Any>(
+open class ListElementParameter<S : Environment, O, T : Any>(
     id: TypedIdentifier<T>,
     description: String,
     val list: ContextualValue<S, O, List<T>>,
     val onEmpty: Invocation<S, O>.() -> ExecutionResult,
 ) : Parameter.Size1<S, O, T>(id, description) {
 
-    context(senderContext: S, invocation: Invocation<S, O>)
+    context(env: S, inv: Invocation<S, O>)
     override fun parse(arg0: String): Result<out T> {
-        val list = list(invocation)
+        val list = list(inv)
         if (list.isEmpty()) {
-            onEmpty(invocation).propagateError { return it }
+            onEmpty(inv).propagateError { return it }
             return ParsingResult.failHandled()
         }
 

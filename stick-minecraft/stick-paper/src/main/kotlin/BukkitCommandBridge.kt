@@ -2,7 +2,7 @@ package com.zombachu.stick.paper
 
 import com.zombachu.stick.Bridge
 import com.zombachu.stick.Command
-import com.zombachu.stick.SenderContext
+import com.zombachu.stick.Environment
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.ParsingFailureHandler
 import org.bukkit.Bukkit
@@ -11,42 +11,42 @@ import org.bukkit.command.CommandMap
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.Plugin
 
-interface BukkitContext : SenderContext {
+interface BukkitEnvironment : Environment {
     val server: Server
 }
 
-open class BukkitContextImpl(override val sender: Any) : BukkitContext {
+open class BukkitEnvironmentImpl(override val sender: Any) : BukkitEnvironment {
 
-    override fun forSender(sender: Any): SenderContext {
+    override fun forSender(sender: Any): Environment {
         TODO("Copy deps")
-        return BukkitContextImpl(sender)
+        return BukkitEnvironmentImpl(sender)
     }
 
     override val server: Server = Bukkit.getServer()
 }
 
-interface BukkitCommand<O : Any> : Command<BukkitContext, O> {
-    override fun createSenderContext(sender: Any): BukkitContext {
-        return BukkitContextImpl(sender)
+interface BukkitCommand<O : Any> : Command<BukkitEnvironment, O> {
+    override fun createEnvironment(sender: Any): BukkitEnvironment {
+        return BukkitEnvironmentImpl(sender)
     }
 }
 
 class BukkitCommandBridge(
     val fallbackPrefix: String,
-    parsingFailureHandler: ParsingFailureHandler<BukkitContext, CommandSender> = BukkitParsingFailureHandler()
-) : Bridge<BukkitContext, CommandSender>(CommandSender::class, parsingFailureHandler) {
+    parsingFailureHandler: ParsingFailureHandler<BukkitEnvironment, CommandSender> = BukkitParsingFailureHandler()
+) : Bridge<BukkitEnvironment, CommandSender>(CommandSender::class, parsingFailureHandler) {
 
     constructor(
         plugin: Plugin,
-        parsingFailureHandler: ParsingFailureHandler<BukkitContext, CommandSender> = BukkitParsingFailureHandler()
+        parsingFailureHandler: ParsingFailureHandler<BukkitEnvironment, CommandSender> = BukkitParsingFailureHandler()
     ) : this(plugin.name.lowercase(), parsingFailureHandler)
 
     private val commandMap: CommandMap = Bukkit.getServer().commandMap
 
     override fun registerCommand(
-        structure: Structure<BukkitContext, CommandSender>,
-        createSenderContext: (CommandSender) -> BukkitContext,
+        structure: Structure<BukkitEnvironment, CommandSender>,
+        createEnvironment: (CommandSender) -> BukkitEnvironment,
     ) {
-        commandMap.register(fallbackPrefix, BukkitCommandWrapper(structure, createSenderContext, parsingFailureHandler))
+        commandMap.register(fallbackPrefix, BukkitCommandWrapper(structure, createEnvironment, parsingFailureHandler))
     }
 }

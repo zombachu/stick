@@ -4,12 +4,12 @@ import com.zombachu.stick.Aliasable
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
-import com.zombachu.stick.SenderContext
+import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
 
-open class LiteralParameter<S : SenderContext, O>(
+open class LiteralParameter<S : Environment, O>(
     id: TypedIdentifier<String>,
     override val aliases: Set<String>,
     description: String,
@@ -18,7 +18,7 @@ open class LiteralParameter<S : SenderContext, O>(
     override val label by id
     override val type: ElementType = ElementType.Literal
 
-    context(senderContext: S, invocation: Invocation<S, O>)
+    context(env: S, inv: Invocation<S, O>)
     override fun parse(arg0: String): Result<out String> {
         if (!matches(arg0.lowercase())) {
             return ParsingResult.failLiteral(listOf(label), arg0)

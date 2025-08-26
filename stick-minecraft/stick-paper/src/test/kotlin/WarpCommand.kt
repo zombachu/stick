@@ -68,7 +68,7 @@ class WarpCommand : BukkitCommand<CommandSender> {
                     )
                 },
                 WarpInfoCommand().structure,
-                requireAs<BukkitContext, CommandSender, MinecraftProfile>(
+                requireAs<BukkitEnvironment, CommandSender, MinecraftProfile>(
                     { PlayerUtil.getProfile(it as Player) },
                     requirement { it.sender is Player },
                 ) {
@@ -94,7 +94,7 @@ class WarpCommand : BukkitCommand<CommandSender> {
             ),
         )
 
-    fun teleport(context: Invocation<BukkitContext, Player>, warp: String, isRaw: Boolean, player: Player): ExecutionResult {
+    fun teleport(context: Invocation<BukkitEnvironment, Player>, warp: String, isRaw: Boolean, player: Player): ExecutionResult {
         val warp: String = context.get(warpParameterId)
         return ExecutionResult.success()
     }
@@ -127,7 +127,7 @@ class WarpInfoCommand(): BukkitCommand<CommandSender> {
         )
     }
 
-    fun doSomething(context: Invocation<BukkitContext, MinecraftProfile>, wgFlag: String, weather: WeatherEnum, playerRequiredInt: Int): ExecutionResult {
+    fun doSomething(context: Invocation<BukkitEnvironment, MinecraftProfile>, wgFlag: String, weather: WeatherEnum, playerRequiredInt: Int): ExecutionResult {
         return ExecutionResult.success()
     }
 }

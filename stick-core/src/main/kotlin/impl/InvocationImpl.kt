@@ -4,15 +4,15 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
-import com.zombachu.stick.SenderContext
+import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.SyntaxElement
 import com.zombachu.stick.transformSender
 import com.zombachu.stick.valueOrPropagateError
 
-internal class InvocationImpl<S : SenderContext, O>(
-    override val senderContext: S,
+internal class InvocationImpl<S : Environment, O>(
+    override val env: S,
     override val label: String,
     override val args: List<String>,
     private val structure: Structure<S, O>,
@@ -27,7 +27,7 @@ internal class InvocationImpl<S : SenderContext, O>(
 
     @Suppress("UNCHECKED_CAST")
     override val sender: O
-        get() = senderContext.sender as O
+        get() = env.sender as O
 
     override fun <T : Any> get(id: TypedIdentifier<T>): T {
         @Suppress("UNCHECKED_CAST")
@@ -48,14 +48,14 @@ internal class InvocationImpl<S : SenderContext, O>(
     }
 
     private fun getSyntaxForSender(): String {
-        context(this.senderContext) {
+        context(this.env) {
             return structure.getSyntax()
         }
     }
 
     fun <O2 : Any> forSender(transform: (O) -> O2): InvocationImpl<S, O2> {
         return InvocationImpl(
-            this.senderContext.transformSender(transform),
+            this.env.transformSender(transform),
             this.label,
             this.args,
             this.structure as Structure<S, O2>, // TODO: Handle safer
@@ -79,7 +79,7 @@ internal class InvocationImpl<S : SenderContext, O>(
         }
     }
 
-    context(senderContext: S)
+    context(env: S)
     internal fun processSyntaxElement(
         element: SyntaxElement<S, O, Any>,
     ): Result<out Any> {

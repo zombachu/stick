@@ -3,12 +3,12 @@ package com.zombachu.stick.element.parameters
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
-import com.zombachu.stick.SenderContext
+import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
 
-open class EnumParameter<S : SenderContext, O, T : Enum<T>>(
+open class EnumParameter<S : Environment, O, T : Enum<T>>(
     id: TypedIdentifier<T>,
     description: String,
     val primaryValues: Map<String, T>,
@@ -17,12 +17,12 @@ open class EnumParameter<S : SenderContext, O, T : Enum<T>>(
 
     override val type: ElementType = ElementType.Literal
 
-    context(senderContext: S, invocation: Invocation<S, O>)
+    context(env: S, inv: Invocation<S, O>)
     override fun parse(arg0: String): Result<out T> {
         val enumValue = primaryValues[arg0] ?: aliasedValues[arg0] ?: return ParsingResult.failLiteral(primaryValues.keys.toList(), arg0)
         return ParsingResult.success(enumValue)
     }
 
-    context(senderContext: S)
+    context(env: S)
     override fun getSyntax(): String = "<${primaryValues.keys.joinToString("|")}>"
 }

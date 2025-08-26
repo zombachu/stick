@@ -10,9 +10,9 @@ import org.bukkit.command.PluginIdentifiableCommand
 import org.bukkit.plugin.Plugin
 
 class BukkitCommandWrapper(
-    val structure: Structure<BukkitContext, CommandSender>,
-    val createSenderContext: (CommandSender) -> BukkitContext,
-    val parsingFailureHandler: ParsingFailureHandler<BukkitContext, CommandSender>,
+    val structure: Structure<BukkitEnvironment, CommandSender>,
+    val createEnvironment: (CommandSender) -> BukkitEnvironment,
+    val parsingFailureHandler: ParsingFailureHandler<BukkitEnvironment, CommandSender>,
 ) : org.bukkit.command.Command(
     structure.label,
     structure.description,
@@ -22,14 +22,14 @@ class BukkitCommandWrapper(
 
     override fun execute(sender: CommandSender, label: String, args: Array<String>): Boolean {
         val args = args.toMutableList()
-        val senderContext = createSenderContext(sender)
-        val invocation = Invocation(senderContext, label, args, structure)
+        val env = createEnvironment(sender)
+        val inv = Invocation(env, label, args, structure)
         args.addFirst(label)
 
-        context(senderContext, invocation) {
+        context(env, inv) {
             val result = structure.parse(args)
             if (!result.isSuccess()) {
-                parsingFailureHandler.onFailure(invocation, result)
+                parsingFailureHandler.onFailure(inv, result)
             }
         }
         return true
