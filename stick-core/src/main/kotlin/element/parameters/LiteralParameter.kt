@@ -9,16 +9,16 @@ import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
 
-open class LiteralParameter<E : Environment, O>(
+open class LiteralParameter<E : Environment, S>(
     id: TypedIdentifier<String>,
     override val aliases: Set<String>,
     description: String,
-) : Parameter.Size1<E, O, String>(id, description), Aliasable {
+) : Parameter.Size1<E, S, String>(id, description), Aliasable {
 
     override val label by id
     override val type: ElementType = ElementType.Literal
 
-    context(env: E, inv: Invocation<E, O>)
+    context(env: E, inv: Invocation<E, S>)
     override fun parse(arg0: String): Result<out String> {
         if (!matches(arg0.lowercase())) {
             return ParsingResult.failLiteral(listOf(label), arg0)

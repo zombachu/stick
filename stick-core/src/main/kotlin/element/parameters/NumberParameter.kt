@@ -7,16 +7,16 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 
-open class NumberParameter<E : Environment, O, T>(
+open class NumberParameter<E : Environment, S, T>(
     id: TypedIdentifier<T>,
     description: String,
     val toOrNull: String.() -> T?,
     val min: T,
     val max: T,
     val errorType: String,
-) : Parameter.Size1<E, O, T>(id, description) where T : Number, T : Comparable<T> {
+) : Parameter.Size1<E, S, T>(id, description) where T : Number, T : Comparable<T> {
 
-    context(env: E, inv: Invocation<E, O>)
+    context(env: E, inv: Invocation<E, S>)
     override fun parse(arg0: String): Result<out T> {
         val number = arg0.toOrNull() ?: return ParsingResult.failType(errorType, arg0)
 
@@ -29,44 +29,44 @@ open class NumberParameter<E : Environment, O, T>(
     }
 }
 
-open class ByteParameter<E : Environment, O>(
+open class ByteParameter<E : Environment, S>(
     id: TypedIdentifier<Byte>,
     description: String,
     min: Byte,
     max: Byte,
-) : NumberParameter<E, O, Byte>(id, description, String::toByteOrNull, min, max, "byte")
+) : NumberParameter<E, S, Byte>(id, description, String::toByteOrNull, min, max, "byte")
 
-open class ShortParameter<E : Environment, O>(
+open class ShortParameter<E : Environment, S>(
     id: TypedIdentifier<Short>,
     description: String,
     min: Short,
     max: Short,
-) : NumberParameter<E, O, Short>(id, description, String::toShortOrNull, min, max, "short")
+) : NumberParameter<E, S, Short>(id, description, String::toShortOrNull, min, max, "short")
 
-open class IntParameter<E : Environment, O>(
+open class IntParameter<E : Environment, S>(
     id: TypedIdentifier<Int>,
     description: String,
     min: Int,
     max: Int,
-) : NumberParameter<E, O, Int>(id, description, String::toIntOrNull, min, max, "integer")
+) : NumberParameter<E, S, Int>(id, description, String::toIntOrNull, min, max, "integer")
 
-open class LongParameter<E : Environment, O>(
+open class LongParameter<E : Environment, S>(
     id: TypedIdentifier<Long>,
     description: String,
     min: Long,
     max: Long,
-) : NumberParameter<E, O, Long>(id, description, String::toLongOrNull, min, max, "long")
+) : NumberParameter<E, S, Long>(id, description, String::toLongOrNull, min, max, "long")
 
-open class FloatParameter<E : Environment, O>(
+open class FloatParameter<E : Environment, S>(
     id: TypedIdentifier<Float>,
     description: String,
     min: Float,
     max: Float,
-) : NumberParameter<E, O, Float>(id, description, String::toFloatOrNull, min, max, "float")
+) : NumberParameter<E, S, Float>(id, description, String::toFloatOrNull, min, max, "float")
 
-open class DoubleParameter<E : Environment, O>(
+open class DoubleParameter<E : Environment, S>(
     id: TypedIdentifier<Double>,
     description: String,
     min: Double,
     max: Double,
-) : NumberParameter<E, O, Double>(id, description, String::toDoubleOrNull, min, max, "double")
+) : NumberParameter<E, S, Double>(id, description, String::toDoubleOrNull, min, max, "double")

@@ -1,3 +1,3 @@
 package com.zombachu.stick
 
-typealias ContextualValue<E, O, T> = Invocation<E, O>.() -> T
+typealias ContextualValue<E, S, T> = Invocation<E, S>.() -> T

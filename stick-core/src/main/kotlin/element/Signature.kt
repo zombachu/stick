@@ -16,22 +16,22 @@ import com.zombachu.stick.valueOrPropagateError
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-internal sealed class Signature<E : Environment, O>(
-    elements: Tuple<SignatureConstraint<E, O, Any>>
+internal sealed class Signature<E : Environment, S>(
+    elements: Tuple<SignatureConstraint<E, S, Any>>
 ) {
-    private val flags: List<IndexedElement<E, O, FlagImpl<E, O, Any>>>
-    private val linearElements: List<IndexedElement<E, O, Element<E, O, Any>>>
+    private val flags: List<IndexedElement<E, S, FlagImpl<E, S, Any>>>
+    private val linearElements: List<IndexedElement<E, S, Element<E, S, Any>>>
 
     init {
         val partitioned = elements.toList().mapIndexed { i, e -> IndexedElement(i, e) }.partition { it.element is FlagImpl }
         @Suppress("UNCHECKED_CAST")
-        flags = partitioned.first as List<IndexedElement<E, O, FlagImpl<E, O, Any>>>
+        flags = partitioned.first as List<IndexedElement<E, S, FlagImpl<E, S, Any>>>
         linearElements = partitioned.second
     }
 
-    protected abstract fun executeParsed(context: Invocation<E, O>, parsedValues: List<Any>): ExecutionResult
+    protected abstract fun executeParsed(context: Invocation<E, S>, parsedValues: List<Any>): ExecutionResult
 
-    context(env: E, inv: InvocationImpl<E, O>)
+    context(env: E, inv: InvocationImpl<E, S>)
     fun execute(): Result<*> {
         val value = parse().valueOrPropagateError { it: Result<List<Any>> -> return it }
         return executeParsed(inv, value)
@@ -41,7 +41,7 @@ internal sealed class Signature<E : Environment, O>(
     fun getSyntax(): String {
         var linearSyntax: List<String> = linearElements
             .map { it.element }
-            .filterIsInstance<SyntaxElement<E, O, *>>()
+            .filterIsInstance<SyntaxElement<E, S, *>>()
             .filter { it.validateSender().isSuccess() }
             .map { it.getSyntax() }
         val flagSyntax: List<String> = flags
@@ -68,9 +68,9 @@ internal sealed class Signature<E : Environment, O>(
 
     context(env: E)
     private fun processSyntaxElement(
-        context: InvocationImpl<E, O>,
+        context: InvocationImpl<E, S>,
         values: MutableList<Any>,
-        element: SyntaxElement<E, O, Any>,
+        element: SyntaxElement<E, S, Any>,
         index: Int
     ): Result<out Any> {
         val processResult = context.processSyntaxElement(element)
@@ -80,7 +80,7 @@ internal sealed class Signature<E : Environment, O>(
         return processResult
     }
 
-    context(env: E, context: InvocationImpl<E, O>)
+    context(env: E, context: InvocationImpl<E, S>)
     private fun parse(): Result<List<Any>> {
         val values: MutableList<Any> = MutableList(flags.size + linearElements.size) {}
 
@@ -102,7 +102,7 @@ internal sealed class Signature<E : Environment, O>(
             val flagsIt = unprocessedFlags.iterator()
             while (flagsIt.hasNext()) {
                 val indexedFlag = flagsIt.next()
-                val flag: FlagImpl<E, O, Any> = indexedFlag.element
+                val flag: FlagImpl<E, S, Any> = indexedFlag.element
 
                 // Ignore flags unable to be accessed by the sender
                 flag.validateSender().propagateError<List<Any>> { continue }
@@ -131,7 +131,7 @@ internal sealed class Signature<E : Environment, O>(
 
             val default = flag.validateSender().handle(
                 onSuccess = { flag.default(context) },
-                onFailure = { (flag as ValidatedFlag<E, O, *, *>).invalidDefault(context) }
+                onFailure = { (flag as ValidatedFlag<E, S, *, *>).invalidDefault(context) }
             )
             values[indexedFlag.index] = default
         }
@@ -139,15 +139,15 @@ internal sealed class Signature<E : Environment, O>(
         return ParsingResult.success(values)
     }
 
-    private fun Element<E, O, Any>.isHelper(): Boolean {
+    private fun Element<E, S, Any>.isHelper(): Boolean {
         contract {
-            returns(true) implies (this@isHelper is HelperImpl<E, O, Any>)
-            returns(false) implies (this@isHelper is SyntaxElement<E, O, Any>)
+            returns(true) implies (this@isHelper is HelperImpl<E, S, Any>)
+            returns(false) implies (this@isHelper is SyntaxElement<E, S, Any>)
         }
-        return this is HelperImpl<E, O, Any>
+        return this is HelperImpl<E, S, Any>
     }
 
-    data class IndexedElement<E : Environment, O, out L : Element<E, O, *>>(
+    data class IndexedElement<E : Environment, S, out L : Element<E, S, *>>(
         val index: Int,
         val element: L
     )

@@ -127,36 +127,36 @@ class Playground {
 
 }
 
-typealias StructureElemeno<E, O, T> = StructureScopeo<E, O>.() -> T
+typealias StructureElemeno<E, S, T> = StructureScopeo<E, S>.() -> T
 
 class P2 {
 
-    interface SenderScopeo<E : Contexto<O>, O : Any>
-    class StructureScopeo<E : Contexto<O>, O : Any> : SenderScopeo<E, O> {
-        fun <E2 : Contexto<O2>, O2 : Any> forSender(): StructureScopeo<E2, O2> {
+    interface SenderScopeo<E : Contexto<S>, S : Any>
+    class StructureScopeo<E : Contexto<S>, S : Any> : SenderScopeo<E, S> {
+        fun <E2 : Contexto<S2>, S2 : Any> forSender(): StructureScopeo<E2, S2> {
             TODO()
         }
     }
 
-    class Requiremento<E : Contexto<O>, O : Any> constructor(validate: (env: E) -> Result<Unit>)
+    class Requiremento<E : Contexto<S>, S : Any> constructor(validate: (env: E) -> Result<Unit>)
 
-    open class Parametero<E : Contexto<O>, O : Any, T : Any>()
+    open class Parametero<E : Contexto<S>, S : Any, T : Any>()
 
-    interface ValidatedParametero<E : Contexto<O>, O : Any, T : Any>
-    class ValidatedParameterImplo<E : Contexto<O>, O : Any, E2 : Contexto<O2>, O2 : Any, T : Any>(
-        val parameter: Parametero<E2, O2, T>,
-        val requirement: Requiremento<E, O>,
-        val transform: (O) -> O2,
-    ) : ValidatedParametero<E, O, T> {
+    interface ValidatedParametero<E : Contexto<S>, S : Any, T : Any>
+    class ValidatedParameterImplo<E : Contexto<S>, S : Any, E2 : Contexto<S2>, S2 : Any, T : Any>(
+        val parameter: Parametero<E2, S2, T>,
+        val requirement: Requiremento<E, S>,
+        val transform: (S) -> S2,
+    ) : ValidatedParametero<E, S, T> {
     }
 
-    open class Contexto<O : Any>(val sender: O)
-    class BukContext<O : Any>(sender: O) : Contexto<O>(sender)
+    open class Contexto<S : Any>(val sender: S)
+    class BukContext<S : Any>(sender: S) : Contexto<S>(sender)
 
-    class StringParametero<E : Contexto<O>, O : Any>(
+    class StringParametero<E : Contexto<S>, S : Any>(
         id: TypedIdentifier<String>,
         description: String,
-    ) : Parametero<E, O, String>()
+    ) : Parametero<E, S, String>()
 
     @JvmInline
     value class Clazz<E : Contexto<*>>(val s: Byte = 0)
@@ -179,37 +179,37 @@ class P2 {
 }
 
 
-fun <E : P2.BukContext<O>, O : Any> P2.SenderScopeo<E, O>.requiredSubtypeStringParametero(
+fun <E : P2.BukContext<S>, S : Any> P2.SenderScopeo<E, S>.requiredSubtypeStringParametero(
     id: TypedIdentifier<String>,
     description: String = "",
-): StructureElemeno<E, O, P2.StringParametero<E, O>> = {
+): StructureElemeno<E, S, P2.StringParametero<E, S>> = {
     P2.StringParametero(id, description)
 }
 
 
-fun <E : Contexto<O>, O : Any> P2.SenderScopeo<E, O>.stringParametero(
+fun <E : Contexto<S>, S : Any> P2.SenderScopeo<E, S>.stringParametero(
     id: TypedIdentifier<String>,
     description: String = "",
-): StructureElemeno<E, O, P2.StringParametero<E, O>> = {
+): StructureElemeno<E, S, P2.StringParametero<E, S>> = {
     P2.StringParametero(id, description)
 }
 
 
-inline fun <E : Contexto<O>, O : Any, E2 : Contexto<O2>, reified O2 : O, T : Any> P2.SenderScopeo<E, O>.testingRequireIs(
+inline fun <E : Contexto<S>, S : Any, E2 : Contexto<S2>, reified S2 : S, T : Any> P2.SenderScopeo<E, S>.testingRequireIs(
     contextType: P2.Clazz<E2>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    noinline parameter: StructureElemeno<E2, O2, StructureElemeno<E2, O2, Parametero<E2, O2, T>>>,
-): StructureElemeno<E, O, ValidatedParametero<E, O, T>> = {
-    val scope: StructureScopeo<E2, O2> = this.forSender()
-    ValidatedParameterImplo<E, O, E2, O2, T>(
+    noinline parameter: StructureElemeno<E2, S2, StructureElemeno<E2, S2, Parametero<E2, S2, T>>>,
+): StructureElemeno<E, S, ValidatedParametero<E, S, T>> = {
+    val scope: StructureScopeo<E2, S2> = this.forSender()
+    ValidatedParameterImplo<E, S, E2, S2, T>(
         parameter(scope)(scope),
         Requiremento {
-            if (it.sender is O2) {
+            if (it.sender is S2) {
                 SenderValidationResult.success()
             } else {
                 SenderValidationResult.failSenderType()
             }
         },
-        { it as O2 },
+        { it as S2 },
     )
 }

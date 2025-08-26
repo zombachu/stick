@@ -11,13 +11,13 @@ import com.zombachu.stick.element.SyntaxElement
 import com.zombachu.stick.transformSender
 import com.zombachu.stick.valueOrPropagateError
 
-internal class InvocationImpl<E : Environment, O>(
+internal class InvocationImpl<E : Environment, S>(
     override val env: E,
     override val label: String,
     override val args: List<String>,
-    private val structure: Structure<E, O>,
+    private val structure: Structure<E, S>,
     parent: InvocationImpl<*, *>?,
-) : Invocation<E, O> {
+) : Invocation<E, S> {
 
     private val root: InvocationImpl<*, *> = parent?.root ?: this
 
@@ -26,8 +26,8 @@ internal class InvocationImpl<E : Environment, O>(
     private var parsed: MutableMap<TypedIdentifier<*>, Any> = mutableMapOf()
 
     @Suppress("UNCHECKED_CAST")
-    override val sender: O
-        get() = env.sender as O
+    override val sender: S
+        get() = env.sender as S
 
     override fun <T : Any> get(id: TypedIdentifier<T>): T {
         @Suppress("UNCHECKED_CAST")
@@ -53,12 +53,12 @@ internal class InvocationImpl<E : Environment, O>(
         }
     }
 
-    fun <O2 : Any> forSender(transform: (O) -> O2): InvocationImpl<E, O2> {
+    fun <S2 : Any> forSender(transform: (S) -> S2): InvocationImpl<E, S2> {
         return InvocationImpl(
             this.env.transformSender(transform),
             this.label,
             this.args,
-            this.structure as Structure<E, O2>, // TODO: Handle safer
+            this.structure as Structure<E, S2>, // TODO: Handle safer
             parent = this,
         ).also {
             it.unparsed = this.unparsed
@@ -81,7 +81,7 @@ internal class InvocationImpl<E : Environment, O>(
 
     context(env: E)
     internal fun processSyntaxElement(
-        element: SyntaxElement<E, O, Any>,
+        element: SyntaxElement<E, S, Any>,
     ): Result<out Any> {
         val peeked = peek(element.size)
         if (peeked !is PeekingResult.Success) {

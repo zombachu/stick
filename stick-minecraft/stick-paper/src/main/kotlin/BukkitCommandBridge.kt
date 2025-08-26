@@ -25,7 +25,7 @@ open class BukkitEnvironmentImpl(override val sender: Any) : BukkitEnvironment {
     override val server: Server = Bukkit.getServer()
 }
 
-interface BukkitCommand<O : Any> : Command<BukkitEnvironment, O> {
+interface BukkitCommand<S : Any> : Command<BukkitEnvironment, S> {
     override fun createEnvironment(sender: Any): BukkitEnvironment {
         return BukkitEnvironmentImpl(sender)
     }

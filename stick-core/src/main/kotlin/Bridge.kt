@@ -8,42 +8,42 @@ import com.zombachu.stick.structure.requireAs
 import com.zombachu.stick.structure.requirement
 import kotlin.reflect.KClass
 
-abstract class Bridge<E : Environment, O : Any>(
-    val platformSenderClass: KClass<O>,
-    val parsingFailureHandler: ParsingFailureHandler<E, O>,
+abstract class Bridge<E : Environment, S : Any>(
+    val platformSenderClass: KClass<S>,
+    val parsingFailureHandler: ParsingFailureHandler<E, S>,
 ) {
-    protected abstract fun registerCommand(structure: Structure<E, O>, createEnvironment: (O) -> E)
+    protected abstract fun registerCommand(structure: Structure<E, S>, createEnvironment: (S) -> E)
 
-    inline fun <E2 : E, reified O2 : O> register(command: Command<E2, O2>) {
+    inline fun <E2 : E, reified S2 : S> register(command: Command<E2, S2>) {
         @Suppress("UNCHECKED_CAST")
         internalRegister(
-            O2::class,
+            S2::class,
             command,
-            { it is O2 },
-            { it as O2 }
+            { it is S2 },
+            { it as S2 }
         )
     }
 
     @PublishedApi
-    internal fun <E2 : E, O2 : O> internalRegister(
-        commandSenderClass: KClass<O2>,
-        command: Command<E2, O2>,
-        isSenderRequiredType: (O) -> Boolean,
-        castSender: (O) -> O2,
+    internal fun <E2 : E, S2 : S> internalRegister(
+        commandSenderClass: KClass<S2>,
+        command: Command<E2, S2>,
+        isSenderRequiredType: (S) -> Boolean,
+        castSender: (S) -> S2,
     ) {
-        val emptyContext = StructureScope.empty<E, O>()
-        val structureElement: StructureElement<E, O, Structure<E, O>> =
+        val emptyContext = StructureScope.empty<E, S>()
+        val structureElement: StructureElement<E, S, Structure<E, S>> =
             if (commandSenderClass == platformSenderClass) {
                 @Suppress("UNCHECKED_CAST")
-                (command as Command<E, O>).structure
+                (command as Command<E, S>).structure
             } else {
                 with(emptyContext) {
                     // TODO: Handle safer
                     requireAs(
                         castSender,
-                        requirement(SenderValidationResult.failSenderType()) { isSenderRequiredType(it.sender as O) },
+                        requirement(SenderValidationResult.failSenderType()) { isSenderRequiredType(it.sender as S) },
                     ) {
-                        command.structure as StructureElement<E, O2, Structure<E, O2>>
+                        command.structure as StructureElement<E, S2, Structure<E, S2>>
                     }
                 }
             }

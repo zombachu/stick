@@ -9,17 +9,17 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.impl.Size
 
-internal open class FlagImpl<E : Environment, O, T : Any>(
-    val default: ContextualValue<E, O, T>,
-    val flagParameter: FlagParameter<E, O, T>,
-): Flag<E, O, T> {
+internal open class FlagImpl<E : Environment, S, T : Any>(
+    val default: ContextualValue<E, S, T>,
+    val flagParameter: FlagParameter<E, S, T>,
+): Flag<E, S, T> {
 
     override val size: Size = flagParameter.size
     override val type: ElementType = ElementType.Flag
     override val id: TypedIdentifier<out T> = flagParameter.id
     override val description: String = flagParameter.description
 
-    context(env: E, inv: Invocation<E, O>)
+    context(env: E, inv: Invocation<E, S>)
     override fun parse(args: List<String>): Result<out T> {
         return flagParameter.parse(args)
     }
@@ -28,24 +28,24 @@ internal open class FlagImpl<E : Environment, O, T : Any>(
     override fun getSyntax(): String = flagParameter.getSyntax()
 }
 
-internal sealed class FlagParameter<E : Environment, O, T : Any>(
+internal sealed class FlagParameter<E : Environment, S, T : Any>(
     size: Size.Fixed,
     id: TypedIdentifier<T>,
     aliases: Set<String>,
     description: String,
-) : Parameter.FixedSize<E, O, T>(size, id, description), Aliasable {
+) : Parameter.FixedSize<E, S, T>(size, id, description), Aliasable {
 
     override val label: String = "-${id.name}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
 
-    internal class PresenceFlagParameter<E : Environment, O, T : Any>(
+    internal class PresenceFlagParameter<E : Environment, S, T : Any>(
         id: TypedIdentifier<T>,
-        val presentValue: ContextualValue<E, O, T>,
+        val presentValue: ContextualValue<E, S, T>,
         aliases: Set<String>,
         description: String,
-    ) : FlagParameter<E, O, T>(Size.Companion(1), id, aliases, description) {
+    ) : FlagParameter<E, S, T>(Size.Companion(1), id, aliases, description) {
 
-        context(env: E, inv: Invocation<E, O>)
+        context(env: E, inv: Invocation<E, S>)
         override fun parse(args: List<String>): Result<out T> {
             if (matches(args[0].lowercase())) {
                 return ParsingResult.success(inv.presentValue())
@@ -57,14 +57,14 @@ internal sealed class FlagParameter<E : Environment, O, T : Any>(
         override fun getSyntax(): String = "[$label]"
     }
 
-    internal class ValueFlagParameter<E : Environment, O, T : Any>(
+    internal class ValueFlagParameter<E : Environment, S, T : Any>(
         id: TypedIdentifier<T>,
-        val valueElement: FixedSize<E, O, T>,
+        val valueElement: FixedSize<E, S, T>,
         aliases: Set<String>,
         description: String,
-    ) : FlagParameter<E, O, T>(Size.Companion(1) + valueElement.size, id, aliases, description) {
+    ) : FlagParameter<E, S, T>(Size.Companion(1) + valueElement.size, id, aliases, description) {
 
-        context(env: E, inv: Invocation<E, O>)
+        context(env: E, inv: Invocation<E, S>)
         override fun parse(args: List<String>): Result<out T> {
             if (matches(args[0].lowercase())) {
                 return valueElement.parse(args.subList(1, args.size))

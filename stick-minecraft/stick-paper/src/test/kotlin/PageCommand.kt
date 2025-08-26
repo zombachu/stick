@@ -85,11 +85,11 @@ class PageCommand: BukkitCommand<CommandSender> {
 }
 
 class PlayerRequiredStringParameter(id: TypedIdentifier<String>) : StringParameter<BukkitEnvironment, Player>(id, "")
-fun <O> SenderScope<BukkitEnvironment, O>.playerRequiredStringParameter(id: TypedIdentifier<String>): StructureElement<BukkitEnvironment, Player, StringParameter<BukkitEnvironment, Player>> =
+fun <S> SenderScope<BukkitEnvironment, S>.playerRequiredStringParameter(id: TypedIdentifier<String>): StructureElement<BukkitEnvironment, Player, StringParameter<BukkitEnvironment, Player>> =
     { PlayerRequiredStringParameter(id) }
 
 class McpRequiredStringParameter(id: TypedIdentifier<String>) : StringParameter<BukkitEnvironment, MinecraftProfile>(id, "")
-fun <O> SenderScope<BukkitEnvironment, O>.mcpRequiredStringParameter(id: TypedIdentifier<String>): StructureElement<BukkitEnvironment, MinecraftProfile, StringParameter<BukkitEnvironment, MinecraftProfile>> =
+fun <S> SenderScope<BukkitEnvironment, S>.mcpRequiredStringParameter(id: TypedIdentifier<String>): StructureElement<BukkitEnvironment, MinecraftProfile, StringParameter<BukkitEnvironment, MinecraftProfile>> =
     { McpRequiredStringParameter(id) }
 
 class TestFlag(): BukkitCommand<CommandSender> {
@@ -204,9 +204,9 @@ class OrangeCommand : BukkitCommand<CommandSender> {
         )
 }
 
-fun <O : Any> SenderScope<BukkitEnvironment, O>.mcpSender(
+fun <S : Any> SenderScope<BukkitEnvironment, S>.mcpSender(
     command: StructureElement<BukkitEnvironment, MinecraftProfile, StructureElement<BukkitEnvironment, MinecraftProfile, Structure<BukkitEnvironment, MinecraftProfile>>>,
-): StructureElement<BukkitEnvironment, O, Structure<BukkitEnvironment, O>> = requireAs<BukkitEnvironment, O, MinecraftProfile>(
+): StructureElement<BukkitEnvironment, S, Structure<BukkitEnvironment, S>> = requireAs<BukkitEnvironment, S, MinecraftProfile>(
     { PlayerUtil.getProfile(it as Player) },
     command = command,
 )

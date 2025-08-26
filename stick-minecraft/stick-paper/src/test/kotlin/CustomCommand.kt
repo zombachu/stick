@@ -56,26 +56,26 @@ class CustomBukkitEnvironment(sender: Any) : BukkitEnvironmentImpl(sender) {
     }
 }
 
-fun <E : Environment, O : Any> SenderScope<E, O>.translatedStringParameter(
+fun <E : Environment, S : Any> SenderScope<E, S>.translatedStringParameter(
     id: TypedIdentifier<String>,
     description: String = "",
-): StructureElement<E, O, TranslatedStringParameter<O>> = {
+): StructureElement<E, S, TranslatedStringParameter<S>> = {
     TranslatedStringParameter(id, description)
 }
 
-fun <O : Any> SenderScope<CustomBukkitEnvironment, O>.scopedTranslatedStringParameter(
+fun <S : Any> SenderScope<CustomBukkitEnvironment, S>.scopedTranslatedStringParameter(
     id: TypedIdentifier<String>,
     description: String = "",
-): StructureElement<CustomBukkitEnvironment, O, TranslatedStringParameter<O>> = {
+): StructureElement<CustomBukkitEnvironment, S, TranslatedStringParameter<S>> = {
     TranslatedStringParameter(id, description)
 }
 
-class TranslatedStringParameter<O : Any>(
+class TranslatedStringParameter<S : Any>(
     id: TypedIdentifier<String>,
     description: String
-) : StringParameter<CustomBukkitEnvironment, O>(id, description) {
+) : StringParameter<CustomBukkitEnvironment, S>(id, description) {
 
-    context(env: CustomBukkitEnvironment, inv: Invocation<CustomBukkitEnvironment, O>)
+    context(env: CustomBukkitEnvironment, inv: Invocation<CustomBukkitEnvironment, S>)
     override fun parse(arg0: String): Result<out String> {
         val translated = env.translateMessage(arg0)
         return super.parse(translated)

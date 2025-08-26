@@ -9,11 +9,11 @@ import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
 
-fun <E : Environment, O> SenderScope<E, O>.group(
-    vararg elements: StructureElement<E, O, Groupable<E, O, *>>,
+fun <E : Environment, S> SenderScope<E, S>.group(
+    vararg elements: StructureElement<E, S, Groupable<E, S, *>>,
     description: String = "",
-): StructureElement<E, O, Group<E, O>> = {
-    val groupScope = StructureScope<E, O>(
+): StructureElement<E, S, Group<E, S>> = {
+    val groupScope = StructureScope<E, S>(
         name = "${this.name}_group",
         aliases = setOf(),
         description = "",
