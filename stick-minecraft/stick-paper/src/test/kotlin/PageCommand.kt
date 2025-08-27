@@ -116,7 +116,7 @@ class TestFlag(): BukkitCommand<CommandSender> {
         }
 
     fun execute(context: Invocation<BukkitEnvironment, CommandSender>, f: String, ints: List<Int>): ExecutionResult {
-        val id2: String by TypedIdentifier("hello", Int::class)
+        val id2: String by id<Int>("hello")
 
         return ExecutionResult.success()
     }
