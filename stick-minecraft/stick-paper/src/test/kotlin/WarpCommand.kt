@@ -55,7 +55,6 @@ class WarpCommand : BukkitCommand<CommandSender> {
                         description = "Teleports you to a warp. If you have access to multiple warps with the same name, " +
                                 "you will need to provide the full owner#warp name of the warp.",
                     )(
-                        ::teleport,
                         helper(warpParameterId),
                         flag("raw"),
                         optionally(
@@ -65,6 +64,7 @@ class WarpCommand : BukkitCommand<CommandSender> {
                                 description = "The player to warp",
                             ),
                         ),
+                        ::teleport,
                     )
                 },
                 WarpInfoCommand().structure,
@@ -108,7 +108,6 @@ class WarpInfoCommand(): BukkitCommand<CommandSender> {
             aliases = setOf("i"),
             description = "Displays information about a warp.",
         )(
-            ::doSomething,
             valueFlag(
                 id("wg"),
                 default = "",
@@ -124,11 +123,9 @@ class WarpInfoCommand(): BukkitCommand<CommandSender> {
                 default = 5,
                 parameter = { McpRequiredIntParameter(id("mcpRequired")) }
             ),
-        )
-    }
-
-    fun doSomething(context: Invocation<BukkitEnvironment, MinecraftProfile>, wgFlag: String, weather: WeatherEnum, playerRequiredInt: Int): ExecutionResult {
-        return ExecutionResult.success()
+        ) { wgFlag: String, weather: WeatherEnum, playerRequiredInt: Int ->
+            ExecutionResult.success()
+        }
     }
 }
 

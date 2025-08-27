@@ -20,7 +20,6 @@ import org.bukkit.command.CommandSender
 class CustomCommand : Command<CustomBukkitEnvironment, CommandSender> {
     override val structure =
         command("hi")(
-            Invocation<CustomBukkitEnvironment, CommandSender>::doSomething,
             translatedStringParameter(id("shouldntcompileifbukkitenv")),
             scopedTranslatedStringParameter(id("yo")),
             valueFlag(
@@ -32,6 +31,7 @@ class CustomCommand : Command<CustomBukkitEnvironment, CommandSender> {
                 ),
                 stringParameter(id("worldgroup"))
             ),
+            Invocation<CustomBukkitEnvironment, CommandSender>::doSomething,
         )
 }
 
@@ -43,9 +43,9 @@ private fun Invocation<CustomBukkitEnvironment, CommandSender>.doSomething(strin
 class UncustomCommand : Command<BukkitEnvironment, CommandSender> {
     override val structure =
         command("hi")(
-            Invocation<BukkitEnvironment, CommandSender>::doOtherThing,
             stringParameter(id("shouldntcompile")),
 //        scopedTranslatedStringParameter(id("yo")),
+            Invocation<BukkitEnvironment, CommandSender>::doOtherThing,
         )
 }
 

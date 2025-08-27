@@ -40,7 +40,6 @@ class PageCommand: BukkitCommand<CommandSender> {
             command(
                 name = "page",
             )(
-                execute = ::goToPage,
                 valueFlag(
                     id("wg"),
                     default = { "huh" },
@@ -65,7 +64,8 @@ class PageCommand: BukkitCommand<CommandSender> {
                     intParameter(
                         pageId,
                     ),
-                )
+                ),
+                execute = ::goToPage,
             )
         }
 
@@ -97,7 +97,6 @@ class TestFlag(): BukkitCommand<CommandSender> {
     override val structure =
         require(permission("syn.hi")) {
             command("hi")(
-                ::execute,
                 requireIs(
                     Player::class,
                     invalidDefault = "him"
@@ -111,7 +110,8 @@ class TestFlag(): BukkitCommand<CommandSender> {
                 listParameter(
                     id("ints"),
                     parameter = intParameter("int")
-                )
+                ),
+                ::execute,
             )
         }
 
