@@ -5,15 +5,16 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.ParsingFailureHandler
 import com.zombachu.stick.isSuccess
 import org.bukkit.Location
+import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.PluginIdentifiableCommand
 import org.bukkit.plugin.Plugin
 
-class BukkitCommandWrapper(
-    val structure: Structure<BukkitEnvironment, CommandSender>,
-    val createEnvironment: () -> BukkitEnvironment,
-    val parsingFailureHandler: ParsingFailureHandler<BukkitEnvironment, CommandSender>,
-) : org.bukkit.command.Command(
+class BukkitCommandWrapper<E : BukkitEnvironment>(
+    val env: E,
+    val parsingFailureHandler: ParsingFailureHandler<E, CommandSender>,
+    val structure: Structure<E, CommandSender>,
+) : Command(
     structure.label,
     structure.description,
     "/${structure.label}",
@@ -22,8 +23,7 @@ class BukkitCommandWrapper(
 
     override fun execute(sender: CommandSender, label: String, args: Array<String>): Boolean {
         val args = args.toMutableList()
-        val env = createEnvironment()
-        val inv = Invocation(sender, env, label, args, structure)
+        val inv: Invocation<E, CommandSender> = Invocation(sender, env, label, args, structure)
         args.addFirst(label)
 
         context(env, inv) {

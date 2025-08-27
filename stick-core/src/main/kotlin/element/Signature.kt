@@ -67,9 +67,8 @@ internal sealed class Signature<E : Environment, S>(
         return syntax.joinToString(" ")
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: InvocationImpl<E, S>)
     private fun processSyntaxElement(
-        inv: InvocationImpl<E, S>,
         values: MutableList<Any>,
         element: SyntaxElement<E, S, Any>,
         index: Int
@@ -108,7 +107,7 @@ internal sealed class Signature<E : Environment, S>(
                 // Ignore flags unable to be accessed by the sender
                 flag.validateSender().propagateError<List<Any>> { continue }
 
-                processSyntaxElement(inv, values, flag, indexedFlag.index).propagateError {
+                processSyntaxElement(values, flag, indexedFlag.index).propagateError {
                     if (it is ParsingResult.TypeNotMatchedError) {
                         // Ignore type errors (flag didn't match)
                         continue
@@ -122,7 +121,7 @@ internal sealed class Signature<E : Environment, S>(
             }
 
             // Parse with the element as a syntax element
-            processSyntaxElement(inv, values, element, indexedElement.index).propagateError { return it }
+            processSyntaxElement(values, element, indexedElement.index).propagateError { return it }
             parameterIndex++
         }
 

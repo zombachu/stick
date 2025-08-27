@@ -6,11 +6,11 @@ import com.zombachu.stick.feedback.ParsingFailureHandler
 import org.bukkit.command.CommandSender
 
 class BukkitParsingFailureHandler : ParsingFailureHandler<BukkitEnvironment, CommandSender> {
-    override fun onFailure(context: Invocation<BukkitEnvironment, CommandSender>, result: Result.Failure<*>) {
+    override fun onFailure(inv: Invocation<BukkitEnvironment, CommandSender>, result: Result.Failure<*>) {
         val message = result.feedback().format()
         if (message.isEmpty()) {
             return
         }
-        context.sender.sendMessage(message)
+        inv.sender.sendMessage(message)
     }
 }

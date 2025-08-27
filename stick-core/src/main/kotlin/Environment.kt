@@ -1,5 +1,3 @@
 package com.zombachu.stick
 
-interface Environment {
-
-}
+interface Environment

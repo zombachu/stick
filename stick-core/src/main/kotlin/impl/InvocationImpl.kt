@@ -6,7 +6,6 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.SyntaxElement
 import com.zombachu.stick.valueOrPropagateError
@@ -25,7 +24,6 @@ internal class InvocationImpl<E : Environment, S>(
     // Use a reversed view of a list to optimize removal of args in order
     private var unparsed: MutableList<String> = mutableListOf<String>().asReversed()
     private var parsed: MutableMap<TypedIdentifier<*>, Any> = mutableMapOf()
-
 
     override fun <T : Any> get(id: TypedIdentifier<T>): T {
         @Suppress("UNCHECKED_CAST")
@@ -78,7 +76,6 @@ internal class InvocationImpl<E : Environment, S>(
         }
     }
 
-    context(validationContext: ValidationContext<E, S>)
     internal fun processSyntaxElement(
         element: SyntaxElement<E, S, Any>,
     ): Result<out Any> {

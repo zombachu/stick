@@ -19,28 +19,20 @@ open class BukkitEnvironmentImpl() : BukkitEnvironment {
     override val server: Server = Bukkit.getServer()
 }
 
-interface BukkitCommand<S : Any> : Command<BukkitEnvironment, S> {
-    override fun createEnvironment(): BukkitEnvironment {
-        return BukkitEnvironmentImpl()
-    }
-}
+interface BukkitCommand<S : Any> : Command<BukkitEnvironment, S>
 
 class BukkitCommandBridge(
     val fallbackPrefix: String,
-    parsingFailureHandler: ParsingFailureHandler<BukkitEnvironment, CommandSender> = BukkitParsingFailureHandler()
-) : Bridge<BukkitEnvironment, CommandSender>(CommandSender::class, parsingFailureHandler) {
+) : Bridge<BukkitEnvironment, CommandSender>(CommandSender::class) {
 
-    constructor(
-        plugin: Plugin,
-        parsingFailureHandler: ParsingFailureHandler<BukkitEnvironment, CommandSender> = BukkitParsingFailureHandler()
-    ) : this(plugin.name.lowercase(), parsingFailureHandler)
+    constructor(plugin: Plugin) : this(plugin.name.lowercase())
 
     private val commandMap: CommandMap = Bukkit.getServer().commandMap
 
-    override fun registerCommand(
-        structure: Structure<BukkitEnvironment, CommandSender>,
-        createEnvironment: () -> BukkitEnvironment,
+    context(env: E, parsingFailureHandler: ParsingFailureHandler<E, CommandSender>)
+    override fun <E : BukkitEnvironment> registerCommand(
+        structure: Structure<E, CommandSender>
     ) {
-        commandMap.register(fallbackPrefix, BukkitCommandWrapper(structure, createEnvironment, parsingFailureHandler))
+        commandMap.register(fallbackPrefix, BukkitCommandWrapper(env, parsingFailureHandler, structure))
     }
 }

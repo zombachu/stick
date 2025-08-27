@@ -7,6 +7,7 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.parameters.StringParameter
+import com.zombachu.stick.feedback.ParsingFailureHandler
 import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.structure.command
@@ -21,10 +22,6 @@ class CustomCommand : Command<CustomBukkitEnvironment, CommandSender> {
         translatedStringParameter(id("shouldntcompile")),
         scopedTranslatedStringParameter(id("yo")),
     )
-
-    override fun createEnvironment(): CustomBukkitEnvironment {
-        return CustomBukkitEnvironment()
-    }
 }
 
 private fun Invocation<CustomBukkitEnvironment, CommandSender>.doSomething(string: String, secondString: String): ExecutionResult {
@@ -38,10 +35,6 @@ class UncustomCommand : Command<BukkitEnvironment, CommandSender> {
         stringParameter(id("shouldntcompile")),
 //        scopedTranslatedStringParameter(id("yo")),
     )
-
-    override fun createEnvironment(): CustomBukkitEnvironment {
-        return CustomBukkitEnvironment()
-    }
 }
 
 private fun Invocation<BukkitEnvironment, CommandSender>.doOtherThing(string: String): ExecutionResult {
@@ -53,6 +46,19 @@ private fun Invocation<BukkitEnvironment, CommandSender>.doOtherThing(string: St
 class CustomBukkitEnvironment() : BukkitEnvironmentImpl() {
     fun translateMessage(string: String): String {
         TODO()
+    }
+}
+
+class CustomParsingFailureHandler : ParsingFailureHandler<CustomBukkitEnvironment, CommandSender> {
+    override fun onFailure(
+        inv: Invocation<CustomBukkitEnvironment, CommandSender>,
+        result: Result.Failure<*>,
+    ) {
+        val message = result.feedback().format()
+        if (message.isEmpty()) {
+            return
+        }
+        inv.sender.sendMessage(inv.env.translateMessage(message))
     }
 }
 

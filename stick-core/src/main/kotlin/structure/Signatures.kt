@@ -2,9 +2,9 @@
 
 package com.zombachu.stick.structure
 
+import com.zombachu.stick.Environment
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.Environment
 import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Signature1
 import com.zombachu.stick.element.Signature10

@@ -2,9 +2,9 @@ package com.zombachu.stick.structure
 
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ContextualValue
+import com.zombachu.stick.Environment
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.Environment
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.parameters.BooleanParameter

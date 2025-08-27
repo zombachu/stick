@@ -10,10 +10,11 @@ import kotlin.reflect.KClass
 
 abstract class Bridge<E : Environment, S : Any>(
     val platformSenderClass: KClass<S>,
-    val parsingFailureHandler: ParsingFailureHandler<E, S>,
 ) {
-    protected abstract fun registerCommand(structure: Structure<E, S>, createEnvironment: () -> E)
+    context(env: E2, parsingFailureHandler: ParsingFailureHandler<E2, S>)
+    protected abstract fun <E2 : E> registerCommand(structure: Structure<E2, S>)
 
+    context(env: E2, parsingFailureHandler: ParsingFailureHandler<out E2, S>)
     inline fun <E2 : E, reified S2 : S> register(command: Command<E2, S2>) {
         @Suppress("UNCHECKED_CAST")
         internalRegister(
@@ -25,17 +26,18 @@ abstract class Bridge<E : Environment, S : Any>(
     }
 
     @PublishedApi
+    context(env: E2, parsingFailureHandler: ParsingFailureHandler<out E2, S>)
     internal fun <E2 : E, S2 : S> internalRegister(
         commandSenderClass: KClass<S2>,
         command: Command<E2, S2>,
         isSenderRequiredType: (S) -> Boolean,
         castSender: (S) -> S2,
     ) {
-        val emptyContext = StructureScope.empty<E, S>()
-        val structureElement: StructureElement<E, S, Structure<E, S>> =
+        val emptyContext: StructureScope<E2, S> = StructureScope.empty()
+        val structureElement: StructureElement<E2, S, Structure<E2, S>> =
             if (commandSenderClass == platformSenderClass) {
                 @Suppress("UNCHECKED_CAST")
-                (command as Command<E, S>).structure
+                (command as Command<E2, S>).structure
             } else {
                 with(emptyContext) {
                     requireAs(
@@ -43,12 +45,15 @@ abstract class Bridge<E : Environment, S : Any>(
                         requirement(SenderValidationResult.failSenderType()) { isSenderRequiredType(it.sender) },
                     ) {
                         // TODO: Handle safer
-                        command.structure as StructureElement<E, S2, Structure<E, S2>>
+                        command.structure as StructureElement<E2, S2, Structure<E2, S2>>
                     }
                 }
             }
 
-        val structure = structureElement(emptyContext)
-        registerCommand(structure, command::createEnvironment)
+        val structure: Structure<E2, S> = structureElement(emptyContext)
+        // TODO: Handle safer
+        with(parsingFailureHandler as ParsingFailureHandler<E2, S>) {
+            registerCommand(structure)
+        }
     }
 }
