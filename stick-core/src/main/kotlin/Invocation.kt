@@ -2,9 +2,8 @@ package com.zombachu.stick
 
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.impl.InvocationImpl
-import com.zombachu.stick.impl.SenderScope
 
-interface Invocation<E : Environment, S> : SenderScope<E, S>, ValidationContext<E, S> {
+interface Invocation<E : Environment, S> : ValidationContext<E, S> {
     val label: String
     val args: List<String>
 

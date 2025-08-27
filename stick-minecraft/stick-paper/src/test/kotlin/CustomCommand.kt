@@ -14,27 +14,39 @@ import com.zombachu.stick.structure.command
 import com.zombachu.stick.structure.id
 import com.zombachu.stick.structure.invoke
 import com.zombachu.stick.structure.stringParameter
+import com.zombachu.stick.structure.valueFlag
 import org.bukkit.command.CommandSender
 
 class CustomCommand : Command<CustomBukkitEnvironment, CommandSender> {
-    override val structure = command("hi")(
-        Invocation<CustomBukkitEnvironment, CommandSender>::doSomething,
-        translatedStringParameter(id("shouldntcompile")),
-        scopedTranslatedStringParameter(id("yo")),
-    )
+    override val structure =
+        command("hi")(
+            Invocation<CustomBukkitEnvironment, CommandSender>::doSomething,
+            translatedStringParameter(id("shouldntcompileifbukkitenv")),
+            scopedTranslatedStringParameter(id("yo")),
+            valueFlag(
+                id("wg"),
+                default = permissionedValue(
+                    permission = "syn.secretwgs",
+                    default = "secretworld",
+                    fallback = "lobby"
+                ),
+                stringParameter(id("worldgroup"))
+            ),
+        )
 }
 
-private fun Invocation<CustomBukkitEnvironment, CommandSender>.doSomething(string: String, secondString: String): ExecutionResult {
+private fun Invocation<CustomBukkitEnvironment, CommandSender>.doSomething(string: String, secondString: String, flagValue: String): ExecutionResult {
     this.sender.sendMessage(string)
     return ExecutionResult.success()
 }
 
 class UncustomCommand : Command<BukkitEnvironment, CommandSender> {
-    override val structure = command("hi")(
-        Invocation<BukkitEnvironment, CommandSender>::doOtherThing,
-        stringParameter(id("shouldntcompile")),
+    override val structure =
+        command("hi")(
+            Invocation<BukkitEnvironment, CommandSender>::doOtherThing,
+            stringParameter(id("shouldntcompile")),
 //        scopedTranslatedStringParameter(id("yo")),
-    )
+        )
 }
 
 private fun Invocation<BukkitEnvironment, CommandSender>.doOtherThing(string: String): ExecutionResult {

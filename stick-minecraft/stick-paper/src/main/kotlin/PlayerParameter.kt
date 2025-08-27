@@ -21,16 +21,16 @@ class PlayerParameter<S : Any>(
     }
 }
 
-fun <S : Any> SenderScope<BukkitEnvironment, S>.playerParameter(
+fun <E : BukkitEnvironment, S : Any> SenderScope<E, S>.playerParameter(
     id: TypedIdentifier<Player>,
     description: String = "",
-): StructureElement<BukkitEnvironment, S, PlayerParameter<S>> = {
+): StructureElement<E, S, PlayerParameter<S>> = {
     PlayerParameter(
         id,
         description,
     )
 }
-fun <S : Any> SenderScope<BukkitEnvironment, S>.playerParameter(
+fun <E : BukkitEnvironment, S : Any> SenderScope<E, S>.playerParameter(
     name: String,
     description: String = "",
-): StructureElement<BukkitEnvironment, S, PlayerParameter<S>> = playerParameter(id(name), description)
+): StructureElement<E, S, PlayerParameter<S>> = playerParameter(id(name), description)
