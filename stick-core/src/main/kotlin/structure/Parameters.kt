@@ -10,6 +10,7 @@ import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.parameters.BooleanParameter
 import com.zombachu.stick.element.parameters.ByteParameter
 import com.zombachu.stick.element.parameters.DoubleParameter
+import com.zombachu.stick.element.parameters.EnumEntry
 import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.element.parameters.FloatParameter
 import com.zombachu.stick.element.parameters.IntParameter
@@ -207,6 +208,31 @@ inline fun <E : Environment, S, reified T> SenderScope<E, S>.enumParameter(
     description: String = "",
 ): StructureElement<E, S, EnumParameter<E, S, T>> where T : Enum<T>, T : Aliasable =
     enumParameter(id(name), enum, description)
+
+
+@JvmName("customEnumParameter")
+inline fun <E : Environment, S, reified T : Enum<T>> SenderScope<E, S>.enumParameter(
+    id: TypedIdentifier<T>,
+    entries: List<EnumEntry<T>>,
+    description: String = "",
+): StructureElement<E, S, EnumParameter<E, S, T>> = {
+    EnumParameter(
+        id,
+        description,
+        entries.associate { Pair(it.label.lowercase(), it.enumValue) },
+        entries
+            .flatMap { e -> e.aliases.lowercase()
+                .map { n -> Pair(n, e.enumValue) } }
+            .toMap(),
+    )
+}
+@JvmName("customEnumParameterNamed")
+inline fun <E : Environment, S, reified T : Enum<T>> SenderScope<E, S>.enumParameter(
+    name: String,
+    entries: List<EnumEntry<T>>,
+    description: String = "",
+): StructureElement<E, S, EnumParameter<E, S, T>>  =
+    enumParameter(id(name), entries, description)
 
 fun <E : Environment, S> SenderScope<E, S>.uuidParameter(
     id: TypedIdentifier<UUID>,
