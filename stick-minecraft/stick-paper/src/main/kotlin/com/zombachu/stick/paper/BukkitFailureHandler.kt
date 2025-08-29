@@ -2,10 +2,10 @@ package com.zombachu.stick.paper
 
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.Result
-import com.zombachu.stick.feedback.ParsingFailureHandler
+import com.zombachu.stick.feedback.FailureHandler
 import org.bukkit.command.CommandSender
 
-class BukkitParsingFailureHandler : ParsingFailureHandler<BukkitEnvironment, CommandSender> {
+class BukkitFailureHandler : FailureHandler<BukkitEnvironment, CommandSender> {
     override fun onFailure(inv: Invocation<BukkitEnvironment, CommandSender>, result: Result.Failure<*>) {
         val message = result.feedback().format()
         if (message.isEmpty()) {

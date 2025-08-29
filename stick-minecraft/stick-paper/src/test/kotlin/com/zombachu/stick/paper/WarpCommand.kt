@@ -3,6 +3,9 @@ package com.zombachu.stick.paper
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.paper.structure.permission
+import com.zombachu.stick.paper.structure.permissionedValue
+import com.zombachu.stick.paper.structure.playerParameter
 import com.zombachu.stick.structure.command
 import com.zombachu.stick.structure.defaultSender
 import com.zombachu.stick.structure.enumParameter

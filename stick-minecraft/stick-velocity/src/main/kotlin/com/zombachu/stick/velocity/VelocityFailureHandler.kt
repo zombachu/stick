@@ -3,10 +3,10 @@ package com.zombachu.stick.velocity
 import com.velocitypowered.api.command.CommandSource
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.Result
-import com.zombachu.stick.feedback.ParsingFailureHandler
+import com.zombachu.stick.feedback.FailureHandler
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 
-class VelocityParsingFailureHandler : ParsingFailureHandler<VelocityEnvironment, CommandSource> {
+class VelocityFailureHandler : FailureHandler<VelocityEnvironment, CommandSource> {
 
     private val textComponentSerializer: PlainTextComponentSerializer = PlainTextComponentSerializer.plainText()
 

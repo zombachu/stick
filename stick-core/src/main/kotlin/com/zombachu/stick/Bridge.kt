@@ -1,7 +1,7 @@
 package com.zombachu.stick
 
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.feedback.ParsingFailureHandler
+import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
 import com.zombachu.stick.structure.requireAs
@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
 
 class BridgeScope<E : Environment, S : Any>(@PublishedApi internal val bridge: Bridge<E, S>) {
 
-    context(env: E2, parsingFailureHandler: ParsingFailureHandler<out E2, S>)
+    context(env: E2, failureHandler: FailureHandler<out E2, S>)
     inline fun <E2 : E, reified S2 : S> register(command: Command<E2, S2>) {
         @Suppress("UNCHECKED_CAST")
         bridge.internalRegister(
@@ -31,22 +31,22 @@ abstract class Bridge<E : Environment, S : Any>(
     @OptIn(ExperimentalContracts::class)
     fun <E2 : E> withContext(
         env: E2,
-        parsingFailureHandler: ParsingFailureHandler<out E2, S>,
-        block: context(E2, ParsingFailureHandler<out E2, S>) BridgeScope<E, S>.() -> Unit,
+        failureHandler: FailureHandler<out E2, S>,
+        block: context(E2, FailureHandler<out E2, S>) BridgeScope<E, S>.() -> Unit,
     ) {
         contract {
             callsInPlace(block, InvocationKind.AT_MOST_ONCE)
         }
 
         with(BridgeScope(this)) {
-            context(env, parsingFailureHandler) {
+            context(env, failureHandler) {
                 block()
             }
         }
     }
 
     @PublishedApi
-    context(env: E2, parsingFailureHandler: ParsingFailureHandler<out E2, S>)
+    context(env: E2, failureHandler: FailureHandler<out E2, S>)
     internal fun <E2 : E, S2 : S> internalRegister(
         commandSenderClass: KClass<S2>,
         command: Command<E2, S2>,
@@ -71,11 +71,11 @@ abstract class Bridge<E : Environment, S : Any>(
 
         val structure: Structure<E2, S> = structureElement(emptyContext)
         @Suppress("UNCHECKED_CAST")
-        with(parsingFailureHandler as ParsingFailureHandler<E2, S>) {
+        with(failureHandler as FailureHandler<E2, S>) {
             registerCommand(structure)
         }
     }
 
-    context(env: E2, parsingFailureHandler: ParsingFailureHandler<E2, S>)
+    context(env: E2, failureHandler: FailureHandler<E2, S>)
     protected abstract fun <E2 : E> registerCommand(structure: Structure<E2, S>)
 }

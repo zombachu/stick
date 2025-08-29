@@ -14,6 +14,7 @@ import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.impl.StructureElement
+import com.zombachu.stick.paper.structure.permission
 import com.zombachu.stick.structure.command
 import com.zombachu.stick.structure.flag
 import com.zombachu.stick.structure.group

@@ -1,7 +1,7 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.feedback.ParsingFailureHandler
+import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.impl.CommandWrapper
 import org.bukkit.Location
 import org.bukkit.command.Command
@@ -11,7 +11,7 @@ import org.bukkit.plugin.Plugin
 
 class BukkitCommandWrapper<E : BukkitEnvironment>(
     override val env: E,
-    override val parsingFailureHandler: ParsingFailureHandler<E, CommandSender>,
+    override val failureHandler: FailureHandler<E, CommandSender>,
     override val structure: Structure<E, CommandSender>,
 ) : Command(
     structure.label,

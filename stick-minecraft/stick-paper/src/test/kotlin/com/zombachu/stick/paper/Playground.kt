@@ -53,14 +53,14 @@ fun main() {
 class Playground {
 
     fun test() {
-        val bridge = BukkitCommandBridge(fakePlugin)
+        val bridge = BukkitCommandBridge()
 
-        bridge.withContext(BukkitEnvironmentImpl(), BukkitParsingFailureHandler()) {
+        bridge.withContext(BukkitEnvironmentImpl(fakePlugin), BukkitFailureHandler()) {
             register(WarpCommand())
             register(PageCommand())
         }
 
-        bridge.withContext(CustomBukkitEnvironment(), CustomParsingFailureHandler()) {
+        bridge.withContext(CustomBukkitEnvironment(), CustomFailureHandler()) {
             register(CustomCommand())
             register(PageCommand())
         }

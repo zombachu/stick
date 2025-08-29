@@ -4,7 +4,7 @@ import com.zombachu.stick.Bridge
 import com.zombachu.stick.Command
 import com.zombachu.stick.Environment
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.feedback.ParsingFailureHandler
+import com.zombachu.stick.feedback.FailureHandler
 import org.bukkit.Bukkit
 import org.bukkit.Server
 import org.bukkit.command.CommandMap
@@ -28,11 +28,11 @@ class BukkitCommandBridge : Bridge<BukkitEnvironment, CommandSender>(CommandSend
 
     private val commandMap: CommandMap = Bukkit.getServer().commandMap
 
-    context(env: E, parsingFailureHandler: ParsingFailureHandler<E, CommandSender>)
+    context(env: E, failureHandler: FailureHandler<E, CommandSender>)
     override fun <E : BukkitEnvironment> registerCommand(
         structure: Structure<E, CommandSender>
     ) {
         val fallbackPrefix = env.plugin.name.lowercase()
-        commandMap.register(fallbackPrefix, BukkitCommandWrapper(env, parsingFailureHandler, structure))
+        commandMap.register(fallbackPrefix, BukkitCommandWrapper(env, failureHandler, structure))
     }
 }

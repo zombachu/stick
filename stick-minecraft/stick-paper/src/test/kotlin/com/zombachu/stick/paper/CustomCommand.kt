@@ -7,9 +7,10 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.parameters.StringParameter
-import com.zombachu.stick.feedback.ParsingFailureHandler
+import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.StructureElement
+import com.zombachu.stick.paper.structure.permissionedValue
 import com.zombachu.stick.structure.command
 import com.zombachu.stick.structure.id
 import com.zombachu.stick.structure.invoke
@@ -55,13 +56,13 @@ private fun Invocation<BukkitEnvironment, CommandSender>.doOtherThing(string: St
 }
 
 
-class CustomBukkitEnvironment : BukkitEnvironmentImpl() {
+class CustomBukkitEnvironment : BukkitEnvironmentImpl(fakePlugin) {
     fun translateMessage(string: String): String {
         TODO()
     }
 }
 
-class CustomParsingFailureHandler : ParsingFailureHandler<CustomBukkitEnvironment, CommandSender> {
+class CustomFailureHandler : FailureHandler<CustomBukkitEnvironment, CommandSender> {
     override fun onFailure(
         inv: Invocation<CustomBukkitEnvironment, CommandSender>,
         result: Result.Failure<*>,
