@@ -1,9 +1,8 @@
 package com.zombachu.stick.paper
 
-import com.zombachu.stick.Invocation
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.ParsingFailureHandler
-import com.zombachu.stick.isSuccess
+import com.zombachu.stick.impl.CommandWrapper
 import org.bukkit.Location
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
@@ -11,28 +10,18 @@ import org.bukkit.command.PluginIdentifiableCommand
 import org.bukkit.plugin.Plugin
 
 class BukkitCommandWrapper<E : BukkitEnvironment>(
-    private val env: E,
-    private val parsingFailureHandler: ParsingFailureHandler<E, CommandSender>,
-    private val plugin: Plugin,
-    private val structure: Structure<E, CommandSender>,
+    override val env: E,
+    override val parsingFailureHandler: ParsingFailureHandler<E, CommandSender>,
+    override val structure: Structure<E, CommandSender>,
 ) : Command(
     structure.label,
     structure.description,
     "/${structure.label}",
     structure.aliases.toList()
-), PluginIdentifiableCommand {
+), PluginIdentifiableCommand, CommandWrapper<E, CommandSender> {
 
     override fun execute(sender: CommandSender, label: String, args: Array<String>): Boolean {
-        val args = args.toMutableList()
-        val inv: Invocation<E, CommandSender> = Invocation(sender, env, label, args, structure)
-        args.addFirst(label)
-
-        context(env, inv) {
-            val result = structure.parse(args)
-            if (!result.isSuccess()) {
-                parsingFailureHandler.onFailure(inv, result)
-            }
-        }
+        execute(sender, mutableListOf(label, *args))
         return true
     }
 
@@ -57,5 +46,5 @@ class BukkitCommandWrapper<E : BukkitEnvironment>(
         TODO("Not yet implemented")
     }
 
-    override fun getPlugin(): Plugin = plugin
+    override fun getPlugin(): Plugin = env.plugin
 }

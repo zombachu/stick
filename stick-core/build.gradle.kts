@@ -9,7 +9,12 @@ plugins {
 dependencies {
     testImplementation(kotlin("test"))
 }
+
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.compilerOptions {
+    freeCompilerArgs.set(listOf("-Xcontext-parameters"))
+}
+val compileTestKotlin: KotlinCompile by tasks
+compileTestKotlin.compilerOptions {
     freeCompilerArgs.set(listOf("-Xcontext-parameters"))
 }

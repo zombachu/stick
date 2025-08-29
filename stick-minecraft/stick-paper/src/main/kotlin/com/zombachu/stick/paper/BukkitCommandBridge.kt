@@ -13,18 +13,18 @@ import org.bukkit.plugin.Plugin
 
 interface BukkitEnvironment : Environment {
     val server: Server
+    val plugin: Plugin
 }
 
-open class BukkitEnvironmentImpl : BukkitEnvironment {
+open class BukkitEnvironmentImpl(
+    override val plugin: Plugin
+) : BukkitEnvironment {
     override val server: Server = Bukkit.getServer()
 }
 
 interface BukkitCommand<S : Any> : Command<BukkitEnvironment, S>
 
-class BukkitCommandBridge(
-    val plugin: Plugin,
-    val fallbackPrefix: String = plugin.name.lowercase(),
-) : Bridge<BukkitEnvironment, CommandSender>(CommandSender::class) {
+class BukkitCommandBridge : Bridge<BukkitEnvironment, CommandSender>(CommandSender::class) {
 
     private val commandMap: CommandMap = Bukkit.getServer().commandMap
 
@@ -32,6 +32,7 @@ class BukkitCommandBridge(
     override fun <E : BukkitEnvironment> registerCommand(
         structure: Structure<E, CommandSender>
     ) {
-        commandMap.register(fallbackPrefix, BukkitCommandWrapper(env, parsingFailureHandler, plugin, structure))
+        val fallbackPrefix = env.plugin.name.lowercase()
+        commandMap.register(fallbackPrefix, BukkitCommandWrapper(env, parsingFailureHandler, structure))
     }
 }
