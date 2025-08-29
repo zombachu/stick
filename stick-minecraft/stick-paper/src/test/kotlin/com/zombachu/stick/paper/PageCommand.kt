@@ -92,7 +92,7 @@ class McpRequiredStringParameter(id: TypedIdentifier<String>) : StringParameter<
 fun <S> SenderScope<BukkitEnvironment, S>.mcpRequiredStringParameter(id: TypedIdentifier<String>): StructureElement<BukkitEnvironment, MinecraftProfile, StringParameter<BukkitEnvironment, MinecraftProfile>> =
     { McpRequiredStringParameter(id) }
 
-class TestFlag(): BukkitCommand<CommandSender> {
+class TestFlag: BukkitCommand<CommandSender> {
 
     override val structure =
         require(permission("syn.hi")) {
@@ -217,9 +217,9 @@ fun <T : Any> SenderScope<BukkitEnvironment, CommandSender>.playerSender(
 ): StructureElement<BukkitEnvironment, CommandSender, Groupable<BukkitEnvironment, CommandSender, T>> =
     requireIs<BukkitEnvironment, CommandSender, Player, T>(Player::class, parameter = element)
 
-class MinecraftProfile()
+class MinecraftProfile
 
-class PlayerUtil() {
+class PlayerUtil {
     companion object {
         fun getProfile(player: Player) : MinecraftProfile {
             return null as MinecraftProfile

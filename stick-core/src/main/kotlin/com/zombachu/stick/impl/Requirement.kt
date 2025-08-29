@@ -7,7 +7,9 @@ import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.SenderValidator
 import com.zombachu.stick.propagateError
 
-class Requirement<E : Environment, S> internal constructor(validate: (env: ValidationContext<E, S>) -> Result<Unit>) : SenderValidator<E, S> {
+class Requirement<E : Environment, S> internal constructor(
+    validate: (env: ValidationContext<E, S>) -> Result<Unit>
+) : SenderValidator<E, S> {
 
     private val validations: MutableList<(env: ValidationContext<E, S>) -> Result<Unit>> = mutableListOf(validate)
 

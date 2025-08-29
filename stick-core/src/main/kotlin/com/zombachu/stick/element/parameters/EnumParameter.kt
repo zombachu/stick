@@ -23,7 +23,9 @@ open class EnumParameter<E : Environment, S, T : Enum<T>>(
 
     context(inv: Invocation<E, S>)
     override fun parse(arg0: String): Result<T> {
-        val enumValue = primaryValues[arg0] ?: aliasedValues[arg0] ?: return ParsingResult.failLiteral(primaryValues.keys.toList(), arg0)
+        val enumValue = primaryValues[arg0]
+            ?: aliasedValues[arg0]
+            ?: return ParsingResult.failLiteral(primaryValues.keys.toList(), arg0)
         return ParsingResult.success(enumValue)
     }
 

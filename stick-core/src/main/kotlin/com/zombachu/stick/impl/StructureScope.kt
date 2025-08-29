@@ -24,7 +24,7 @@ class StructureScope<E : Environment, S>(
             this.aliases,
             this.description,
             this.parent,
-            // To get to this point they must have already passed the previous requirement so should be safe to set to true
+            // They must have already passed the previous requirement so should be safe to set to true
             requirement = Requirement { SenderValidationResult.success() }
         )
     }

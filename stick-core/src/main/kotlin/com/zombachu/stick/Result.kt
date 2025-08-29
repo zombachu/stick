@@ -78,7 +78,7 @@ sealed interface SenderValidationResult: Result<Unit> {
         override val value: Unit = Unit
     }
 
-    interface Failure : SenderValidationResult, Result.Failure<Unit> {}
+    interface Failure : SenderValidationResult, Result.Failure<Unit>
     class InvalidSenderError internal constructor(override val feedback: () -> Feedback0): Failure
     class InvalidSenderTypeError internal constructor(override val feedback: () -> Feedback0): Failure
 

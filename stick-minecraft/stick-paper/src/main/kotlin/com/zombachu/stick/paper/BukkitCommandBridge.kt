@@ -15,7 +15,7 @@ interface BukkitEnvironment : Environment {
     val server: Server
 }
 
-open class BukkitEnvironmentImpl() : BukkitEnvironment {
+open class BukkitEnvironmentImpl : BukkitEnvironment {
     override val server: Server = Bukkit.getServer()
 }
 

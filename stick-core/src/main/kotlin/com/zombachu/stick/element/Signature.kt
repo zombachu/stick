@@ -24,7 +24,9 @@ internal sealed class Signature<E : Environment, S>(
     private val linearElements: List<IndexedElement<E, S, Element<E, S, Any>>>
 
     init {
-        val partitioned = elements.toList().mapIndexed { i, e -> IndexedElement(i, e) }.partition { it.element is FlagImpl }
+        val partitioned = elements.toList()
+            .mapIndexed { i, e -> IndexedElement(i, e) }
+            .partition { it.element is FlagImpl }
         @Suppress("UNCHECKED_CAST")
         flags = partitioned.first as List<IndexedElement<E, S, FlagImpl<E, S, Any>>>
         linearElements = partitioned.second
@@ -34,7 +36,7 @@ internal sealed class Signature<E : Environment, S>(
 
     context(inv: InvocationImpl<E, S>)
     fun execute(): Result<*> {
-        val value = parse().valueOrPropagateError { it: Result<List<Any>> -> return it }
+        val value = parse().valueOrPropagateError<List<Any>, List<Any>> { return it }
         return executeParsed(inv, value)
     }
 

@@ -160,15 +160,14 @@ class P2 {
 
     class Requiremento<E : Contexto<S>, S : Any> constructor(validate: (env: E) -> Result<Unit>)
 
-    open class Parametero<E : Contexto<S>, S : Any, T : Any>()
+    open class Parametero<E : Contexto<S>, S : Any, T : Any>
 
     interface ValidatedParametero<E : Contexto<S>, S : Any, T : Any>
     class ValidatedParameterImplo<E : Contexto<S>, S : Any, E2 : Contexto<S2>, S2 : Any, T : Any>(
         val parameter: Parametero<E2, S2, T>,
         val requirement: Requiremento<E, S>,
         val transform: (S) -> S2,
-    ) : ValidatedParametero<E, S, T> {
-    }
+    ) : ValidatedParametero<E, S, T>
 
     open class Contexto<S : Any>(val sender: S)
     class BukContext<S : Any>(sender: S) : Contexto<S>(sender)

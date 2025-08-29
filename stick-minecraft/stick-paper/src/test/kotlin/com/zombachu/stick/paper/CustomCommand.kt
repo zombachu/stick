@@ -55,7 +55,7 @@ private fun Invocation<BukkitEnvironment, CommandSender>.doOtherThing(string: St
 }
 
 
-class CustomBukkitEnvironment() : BukkitEnvironmentImpl() {
+class CustomBukkitEnvironment : BukkitEnvironmentImpl() {
     fun translateMessage(string: String): String {
         TODO()
     }

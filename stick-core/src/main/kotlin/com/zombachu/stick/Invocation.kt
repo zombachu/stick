@@ -12,7 +12,8 @@ interface Invocation<E : Environment, S> : ValidationContext<E, S> {
     fun getSyntax(): String
 
     companion object {
-        operator fun <E : Environment, S> invoke(sender: S, env: E, label: String, args: List<String>, structure: Structure<E, S>): Invocation<E, S> {
+        operator fun <E : Environment, S> invoke(sender: S, env: E, label: String, args: List<String>,
+                                                 structure: Structure<E, S>): Invocation<E, S> {
             return InvocationImpl(sender, env, label, args, structure, parent = null)
         }
     }

@@ -100,7 +100,7 @@ class WarpCommand : BukkitCommand<CommandSender> {
     }
 }
 
-class WarpInfoCommand(): BukkitCommand<CommandSender> {
+class WarpInfoCommand: BukkitCommand<CommandSender> {
 
     override val structure = mcpSender {
         command(
@@ -129,7 +129,7 @@ class WarpInfoCommand(): BukkitCommand<CommandSender> {
     }
 }
 
-class SomePlayerCommand(): BukkitCommand<Player> {
+class SomePlayerCommand: BukkitCommand<Player> {
     override val structure =
         command("hey")(stringParameter(id("hi")))
 }
