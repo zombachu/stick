@@ -55,18 +55,14 @@ class Playground {
     fun test() {
         val bridge = BukkitCommandBridge(fakePlugin)
 
-        val bukkitEnv = BukkitEnvironmentImpl()
-        val bukkitParsingFailureHandler = BukkitParsingFailureHandler()
-        context(bukkitEnv, bukkitParsingFailureHandler) {
-            bridge.register(WarpCommand())
-            bridge.register(PageCommand())
+        bridge.withContext(BukkitEnvironmentImpl(), BukkitParsingFailureHandler()) {
+            register(WarpCommand())
+            register(PageCommand())
         }
 
-        val customEnv = CustomBukkitEnvironment()
-        val customParsingFailureHandler = CustomParsingFailureHandler()
-        context(customEnv, customParsingFailureHandler) {
-            bridge.register(CustomCommand())
-            bridge.register(PageCommand())
+        bridge.withContext(CustomBukkitEnvironment(), CustomParsingFailureHandler()) {
+            register(CustomCommand())
+            register(PageCommand())
         }
     }
 
