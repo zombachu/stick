@@ -19,7 +19,7 @@ open class LiteralParameter<E : Environment, S>(
     override val type: ElementType = ElementType.Literal
 
     context(inv: Invocation<E, S>)
-    override fun parse(arg0: String): Result<out String> {
+    override fun parse(arg0: String): Result<String> {
         if (!matches(arg0.lowercase())) {
             return ParsingResult.failLiteral(listOf(label), arg0)
         }

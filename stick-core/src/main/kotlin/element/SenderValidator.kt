@@ -17,7 +17,7 @@ internal interface SenderValidator<E : Environment, S> {
 }
 
 context(validationContext: ValidationContext<E, S>)
-internal fun <E : Environment, S> SyntaxElement<E, S, Any>.validateSender(): Result<Unit> {
+internal fun <E : Environment, S, T : Any> SyntaxElement<E, S, T>.validateSender(): Result<Unit> {
     return if (this !is SenderValidator<*, *>) {
         SenderValidationResult.success()
     } else {
@@ -34,12 +34,12 @@ internal class ValidatedParameterImpl<E : Environment, S : Any, S2 : Any, T : An
 
     override val size: Size = parameter.size
     override val type: ElementType = parameter.type
-    override val id: TypedIdentifier<out T> = parameter.id
+    override val id: TypedIdentifier<T> = parameter.id
     override val description: String = parameter.description
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): Result<out T> {
-        val newInvocation = (inv as InvocationImpl<E, S>).forSender(transform)
+    override fun parse(args: List<String>): Result<T> {
+        val newInvocation = (inv as InvocationImpl).forSender(transform)
         context(newInvocation) {
             return parameter.parse(args)
         }
@@ -62,13 +62,33 @@ internal class ValidatedFlag<E : Environment, S, S2 : Any, T : Any>(
     val requirement: Requirement<E, S>,
     val invalidDefault: ContextualValue<E, S, T>,
     val transform: (S) -> S2,
-) : FlagImpl<E, S, T>((flag as FlagImpl<E, S2, T>).default as ContextualValue<E, S, T>, flag.flagParameter as FlagParameter<E, S, T>), SenderValidator<E, S> { // TODO: Handle casts better
+) : FlagImpl<E, S, T>(
+    { placeholderValue() },
+    FlagParameter.PresenceFlagParameter(flag.id, { placeholderValue() }, setOf(), ""),
+), SenderValidator<E, S> {
+
+    override val default: ContextualValue<E, S, T> = {
+        val newInvocation = (this as InvocationImpl).forSender(transform)
+        (flag as FlagImpl).default(newInvocation)
+    }
+
+    override val size: Size = flag.size
+    override val id: TypedIdentifier<T> = flag.id
+    override val description: String = flag.description
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): Result<out T> {
-        val newInvocation = (inv as InvocationImpl<E, S>).forSender(transform)
+    override fun parse(args: List<String>): Result<T> {
+        val newInvocation = (inv as InvocationImpl).forSender(transform)
         context(newInvocation) {
             return flag.parse(args)
+        }
+    }
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun getSyntax(): String {
+        val newValidationContext = validationContext.forSender(transform)
+        context(newValidationContext) {
+            return flag.getSyntax()
         }
     }
 
@@ -85,17 +105,34 @@ internal class ValidatedCommand<E : Environment, S, S2 : Any>(
     command.aliases,
     command.description,
     requirement,
-    (command as StructureImpl<E, S>).signature, // TODO: Handle properly
+    // ValidatedCommand forwards to signature of base command
+    Signature0(),
 ) {
-
-    override val size: Size = command.size
-    override val type: ElementType = command.type
-
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): Result<out Unit> {
-        val newInvocation = (inv as InvocationImpl<E, S>).forSender(transform)
+    override fun parse(args: List<String>): Result<Unit> {
+        val newInvocation = (inv as InvocationImpl).forSender(transform)
         context(newInvocation) {
             return command.parse(args)
         }
     }
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun getSyntax(): String {
+        val newValidationContext = validationContext.forSender(transform)
+        context(newValidationContext) {
+            return command.getSyntax()
+        }
+    }
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun validateSender(): Result<Unit> {
+        val newValidationContext = validationContext.forSender(transform)
+        context(newValidationContext) {
+            return command.validateSender()
+        }
+    }
+}
+
+private fun placeholderValue(): Nothing {
+    throw NotImplementedError("This shouldn't be called")
 }

@@ -132,13 +132,11 @@ inline fun <T, T2> Result<T>.valueOrPropagateError(onFailure: (Failure<T2>) -> N
 
 fun <T> Result<T>.isSuccess(): Boolean {
     contract {
-        returns(true) implies (this@isSuccess is Success<T>)
-        returns(false) implies (this@isSuccess is Failure<T>)
+        returns(true) implies (this@isSuccess is Success)
+        returns(false) implies (this@isSuccess is Failure)
     }
-    return this is Success<T>
+    return this is Success
 }
 
-fun <T2> Failure<*>.unsafeCast(): Failure<T2> {
-    // TODO: Handle safer
-    return this as Failure<T2>
-}
+@Suppress("UNCHECKED_CAST")
+fun <T2> Failure<*>.unsafeCast(): Failure<T2> = this as Failure<T2>

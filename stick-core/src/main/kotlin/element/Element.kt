@@ -9,25 +9,25 @@ import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.Size
 
-sealed interface Element<E : Environment, S, out T> {
+sealed interface Element<E : Environment, S, T : Any> {
     val size: Size
     val type: ElementType
 }
 
-sealed interface SyntaxElement<E : Environment, S, out T : Any> : Element<E, S, T> {
-    val id: TypedIdentifier<out T>
+sealed interface SyntaxElement<E : Environment, S, T : Any> : Element<E, S, T> {
+    val id: TypedIdentifier<T>
     val description: String
 
     context(inv: Invocation<E, S>)
-    fun parse(args: List<String>): Result<out T>
+    fun parse(args: List<String>): Result<T>
 
     context(validationContext: ValidationContext<E, S>)
     fun getSyntax(): String
 }
 
-sealed interface SignatureConstraint<E : Environment, S, out T> : Element<E, S, T> {
-    sealed interface NonTerminating<E : Environment, S, out T> : SignatureConstraint<E, S, T>, Terminating<E, S, T>
-    sealed interface Terminating<E : Environment, S, out T> : SignatureConstraint<E, S, T>
+sealed interface SignatureConstraint<E : Environment, S, T : Any> : Element<E, S, T> {
+    sealed interface NonTerminating<E : Environment, S, T : Any> : SignatureConstraint<E, S, T>, Terminating<E, S, T>
+    sealed interface Terminating<E : Environment, S, T : Any> : SignatureConstraint<E, S, T>
 }
 
 sealed interface Groupable<E : Environment, S, T : Any> : SyntaxElement<E, S, T> {

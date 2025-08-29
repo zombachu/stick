@@ -44,14 +44,13 @@ abstract class Bridge<E : Environment, S : Any>(
                         castSender,
                         requirement(SenderValidationResult.failSenderType()) { isSenderRequiredType(it.sender) },
                     ) {
-                        // TODO: Handle safer
-                        command.structure as StructureElement<E2, S2, Structure<E2, S2>>
+                        command.structure
                     }
                 }
             }
 
         val structure: Structure<E2, S> = structureElement(emptyContext)
-        // TODO: Handle safer
+        @Suppress("UNCHECKED_CAST")
         with(parsingFailureHandler as ParsingFailureHandler<E2, S>) {
             registerCommand(structure)
         }

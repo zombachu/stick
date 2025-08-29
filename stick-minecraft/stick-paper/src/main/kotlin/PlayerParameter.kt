@@ -15,7 +15,7 @@ class PlayerParameter<S : Any>(
 ) : Parameter.Size1<BukkitEnvironment, S, Player>(id, description) {
 
     context(inv: Invocation<BukkitEnvironment, S>)
-    override fun parse(arg0: String): Result<out Player> {
+    override fun parse(arg0: String): Result<Player> {
         inv.env.server.onlinePlayers
         TODO("Not yet implemented")
     }

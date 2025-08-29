@@ -18,7 +18,7 @@ open class ListElementParameter<E : Environment, S, T : Any>(
 ) : Parameter.Size1<E, S, T>(id, description) {
 
     context(inv: Invocation<E, S>)
-    override fun parse(arg0: String): Result<out T> {
+    override fun parse(arg0: String): Result<T> {
         val list = list(inv)
         if (list.isEmpty()) {
             onEmpty(inv).propagateError { return it }

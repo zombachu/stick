@@ -14,7 +14,7 @@ import com.zombachu.stick.impl.Size
 import com.zombachu.stick.propagateError
 
 internal open class StructureImpl<E : Environment, S>(
-    override val id: TypedIdentifier<out Unit>,
+    override val id: TypedIdentifier<Unit>,
     override val aliases: Set<String>,
     override val description: String,
     internal val requirement: Requirement<E, S>,
@@ -26,8 +26,8 @@ internal open class StructureImpl<E : Environment, S>(
     override val type: ElementType = ElementType.Literal
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): Result<out Unit> {
-        val peeked = (inv as InvocationImpl<E, S>).peek(Size.Companion(1))
+    override fun parse(args: List<String>): Result<Unit> {
+        val peeked = (inv as InvocationImpl).peek(Size.Companion(1))
         if (peeked !is PeekingResult.Success) {
             return ParsingResult.failTypeSyntax(inv.getSyntax())
         }

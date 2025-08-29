@@ -20,7 +20,6 @@ fun <E : Environment, S, T : Any> SenderScope<E, S>.defaultValidated(
 
 inline fun <E : Environment, S : Any, reified S2 : S> SenderScope<E, S>.defaultSender(): ValidatedDefault<E, S, S2> {
     // TODO: Tell player it's not optional for them
-    // TODO: Handle safer
     return defaultValidated({ sender as S2 }, requirement() { it.sender is S2 })
 }
 

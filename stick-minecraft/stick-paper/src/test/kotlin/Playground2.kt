@@ -16,6 +16,10 @@ fun noLambdaLogMessage(
     secondParam: Boolean,
 ) {}
 
+fun basicLogMessage(
+    f: (Logger, String) -> Unit,
+) {}
+
 fun main() {
 //    logMessage(::info, false)
     noLambdaLogMessage(::noContextInfo, false)
@@ -26,4 +30,6 @@ fun main() {
     }
 
     logMessage(::noContextInfo)
+
+//    basicLogMessage(::info)
 }

@@ -16,7 +16,7 @@ import com.zombachu.stick.valueOrPropagateError
 internal class GroupImpl<E : Environment, S>(
     override val id: TypedIdentifier<GroupResult<*>>,
     override val description: String,
-    private val elements: List<Groupable<E, S, *>>,
+    private val elements: List<Groupable<E, S, Any>>,
 ) : Group<E, S> {
 
     private val prioritizedElements: List<SyntaxElement<E, S, Any>> = elements.sortedWith(
@@ -29,12 +29,12 @@ internal class GroupImpl<E : Environment, S>(
     override val type: ElementType = ElementType.Default
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): Result<out GroupResult<*>> {
+    override fun parse(args: List<String>): Result<GroupResult<*>> {
         for (element in prioritizedElements) {
             // Ignore elements unable to be accessed by the sender
             element.validateSender().propagateError<GroupResult<*>> { continue }
 
-            val value = (inv as InvocationImpl<E, S>).processSyntaxElement(element).valueOrPropagateError {
+            val value = (inv as InvocationImpl).processSyntaxElement(element).valueOrPropagateError {
                 if (it is ParsingResult.TypeNotMatchedError) {
                     // Ignore type errors (element didn't match)
                     continue

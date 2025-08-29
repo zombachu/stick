@@ -15,7 +15,7 @@ open class ListParameter<E : Environment, S, T : Any>(
 ) : Parameter.Size1<E, S, List<T>>(id, description) {
 
     context(inv: Invocation<E, S>)
-    override fun parse(arg0: String): Result<out List<T>> {
+    override fun parse(arg0: String): Result<List<T>> {
         val args = arg0.split(",")
         val parsedValues = args.map { arg ->
             parameter.parse(arg).valueOrPropagateError { return it }

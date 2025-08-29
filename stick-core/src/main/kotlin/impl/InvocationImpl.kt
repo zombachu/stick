@@ -5,12 +5,16 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Result
+import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TypedIdentifier
+import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Structure
+import com.zombachu.stick.element.StructureImpl
 import com.zombachu.stick.element.SyntaxElement
+import com.zombachu.stick.structure.id
 import com.zombachu.stick.valueOrPropagateError
 
-internal class InvocationImpl<E : Environment, S>(
+internal open class InvocationImpl<E : Environment, S>(
     override val sender: S,
     override val env: E,
     override val label: String,
@@ -22,8 +26,8 @@ internal class InvocationImpl<E : Environment, S>(
     private val root: InvocationImpl<*, *> = parent?.root ?: this
 
     // Use a reversed view of a list to optimize removal of args in order
-    private var unparsed: MutableList<String> = mutableListOf<String>().asReversed()
-    private var parsed: MutableMap<TypedIdentifier<*>, Any> = mutableMapOf()
+    internal open var unparsed: MutableList<String> = mutableListOf<String>().asReversed()
+    internal open var parsed: MutableMap<TypedIdentifier<*>, Any> = mutableMapOf()
 
     override fun <T : Any> get(id: TypedIdentifier<T>): T {
         @Suppress("UNCHECKED_CAST")
@@ -43,24 +47,14 @@ internal class InvocationImpl<E : Environment, S>(
         return "/${root.getSyntaxForSender()}"
     }
 
-    private fun getSyntaxForSender(): String {
+    internal open fun getSyntaxForSender(): String {
         context(this.env) {
             return structure.getSyntax()
         }
     }
 
     override fun <S2 : Any> forSender(transform: (S) -> S2): InvocationImpl<E, S2> {
-        return InvocationImpl(
-            transform(this.sender),
-            this.env,
-            this.label,
-            this.args,
-            this.structure as Structure<E, S2>, // TODO: Handle safer
-            parent = this,
-        ).also {
-            it.unparsed = this.unparsed
-            it.parsed = this.parsed
-        }
+        return TransformedInvocationImpl(this, transform)
     }
 
     internal fun peek(size: Size): PeekingResult {
@@ -94,5 +88,25 @@ internal class InvocationImpl<E : Environment, S>(
 
     internal fun <T : Any> put(id: TypedIdentifier<out T>, parsedValue: T) {
         parsed[id] = parsedValue
+    }
+}
+
+private class TransformedInvocationImpl<E : Environment, S, S2>(
+    val invocation: InvocationImpl<E, S>,
+    transform: (S) -> S2,
+) : InvocationImpl<E, S2>(
+    transform(invocation.sender),
+    invocation.env,
+    invocation.label,
+    invocation.args,
+    // TransformedInvocationImpl forwards to structure of base invocation
+    StructureImpl(id(""), setOf(), "", Requirement { SenderValidationResult.success() }, Signature0()),
+    parent = invocation,
+) {
+    override var unparsed: MutableList<String> = invocation.unparsed
+    override var parsed: MutableMap<TypedIdentifier<*>, Any> = invocation.parsed
+
+    override fun getSyntaxForSender(): String {
+        return invocation.getSyntaxForSender()
     }
 }

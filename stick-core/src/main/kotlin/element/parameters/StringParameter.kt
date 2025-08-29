@@ -16,7 +16,7 @@ open class StringParameter<E : Environment, S>(
     override val type: ElementType = ElementType.Passthrough
 
     context(inv: Invocation<E, S>)
-    override fun parse(arg0: String): Result<out String> {
+    override fun parse(arg0: String): Result<String> {
         return ParsingResult.success(arg0)
     }
 }

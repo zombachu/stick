@@ -14,7 +14,7 @@ open class UUIDParameter<E : Environment, S>(
 ) : Parameter.Size1<E, S, UUID>(id, description) {
 
     context(inv: Invocation<E, S>)
-    override fun parse(arg0: String): Result<out UUID> {
+    override fun parse(arg0: String): Result<UUID> {
         try {
             val uuid = UUID.fromString(arg0)
             return ParsingResult.success(uuid)

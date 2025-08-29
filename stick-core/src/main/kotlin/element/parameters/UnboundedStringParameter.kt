@@ -17,7 +17,7 @@ open class UnboundedStringParameter<E : Environment, S>(
     override val type: ElementType = ElementType.Passthrough
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): Result<out String> {
+    override fun parse(args: List<String>): Result<String> {
         return ParsingResult.success(args.joinToString(" "))
     }
 }

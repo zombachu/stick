@@ -15,7 +15,7 @@ internal class OptionalParameter<E : Environment, S, T : Any>(
 ) : Parameter.UnknownSize<E, S, T>(Size.Deferred, parameter.id, parameter.description) {
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): Result<out T> {
+    override fun parse(args: List<String>): Result<T> {
         if (args.isEmpty()) {
             validatedDefault.validateSender().propagateError<T> { return it }
             return ParsingResult.success(validatedDefault.value(inv))

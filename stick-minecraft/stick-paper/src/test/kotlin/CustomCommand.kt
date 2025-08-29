@@ -94,7 +94,7 @@ class TranslatedStringParameter<S : Any>(
 ) : StringParameter<CustomBukkitEnvironment, S>(id, description) {
 
     context(inv: Invocation<CustomBukkitEnvironment, S>)
-    override fun parse(arg0: String): Result<out String> {
+    override fun parse(arg0: String): Result<String> {
         val translated = inv.env.translateMessage(arg0)
         return super.parse(translated)
     }

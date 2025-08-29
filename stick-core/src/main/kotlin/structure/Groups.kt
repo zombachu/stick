@@ -10,7 +10,7 @@ import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
 
 fun <E : Environment, S> SenderScope<E, S>.group(
-    vararg elements: StructureElement<E, S, Groupable<E, S, *>>,
+    vararg elements: StructureElement<E, S, Groupable<E, S, out Any>>,
     description: String = "",
 ): StructureElement<E, S, Group<E, S>> = {
     val groupScope = StructureScope<E, S>(
@@ -23,6 +23,9 @@ fun <E : Environment, S> SenderScope<E, S>.group(
     GroupImpl(
         id(groupScope.name),
         description,
-        elements.map { it.invoke(groupScope) }.toList(),
+        elements.map {
+            @Suppress("UNCHECKED_CAST")
+            it.invoke(groupScope) as Groupable<E, S, Any>
+        }.toList(),
     )
 }

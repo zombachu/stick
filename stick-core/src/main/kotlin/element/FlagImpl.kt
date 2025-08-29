@@ -11,17 +11,17 @@ import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.Size
 
 internal open class FlagImpl<E : Environment, S, T : Any>(
-    val default: ContextualValue<E, S, T>,
+    open val default: ContextualValue<E, S, T>,
     val flagParameter: FlagParameter<E, S, T>,
 ): Flag<E, S, T> {
 
     override val size: Size = flagParameter.size
     override val type: ElementType = ElementType.Flag
-    override val id: TypedIdentifier<out T> = flagParameter.id
+    override val id: TypedIdentifier<T> = flagParameter.id
     override val description: String = flagParameter.description
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): Result<out T> {
+    override fun parse(args: List<String>): Result<T> {
         return flagParameter.parse(args)
     }
 
@@ -47,7 +47,7 @@ internal sealed class FlagParameter<E : Environment, S, T : Any>(
     ) : FlagParameter<E, S, T>(Size.Companion(1), id, aliases, description) {
 
         context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): Result<out T> {
+        override fun parse(args: List<String>): Result<T> {
             if (matches(args[0].lowercase())) {
                 return ParsingResult.success(inv.presentValue())
             }
@@ -66,7 +66,7 @@ internal sealed class FlagParameter<E : Environment, S, T : Any>(
     ) : FlagParameter<E, S, T>(Size.Companion(1) + valueElement.size, id, aliases, description) {
 
         context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): Result<out T> {
+        override fun parse(args: List<String>): Result<T> {
             if (matches(args[0].lowercase())) {
                 return valueElement.parse(args.subList(1, args.size))
             }
