@@ -72,7 +72,7 @@ internal sealed class Signature<E : Environment, S>(
         values: MutableList<Any>,
         element: SyntaxElement<E, S, Any>,
         index: Int
-    ): Result<out Any> {
+    ): Result<Any> {
         val processResult = inv.processSyntaxElement(element)
         if (processResult.isSuccess()) {
             values[index] = processResult.value

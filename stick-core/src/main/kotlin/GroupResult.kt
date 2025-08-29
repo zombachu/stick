@@ -1,7 +1,7 @@
 package com.zombachu.stick
 
 data class GroupResult<T : Any>(
-    val id: TypedIdentifier<out T>,
+    val id: TypedIdentifier<T>,
     val value: T,
 ) {
     inline fun <T2 : Any> on(id: TypedIdentifier<T2>, onValue: (T2) -> Unit) {

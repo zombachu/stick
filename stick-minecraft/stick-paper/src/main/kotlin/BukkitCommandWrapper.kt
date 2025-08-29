@@ -38,17 +38,17 @@ class BukkitCommandWrapper<E : BukkitEnvironment>(
     override fun tabComplete(
         sender: CommandSender,
         alias: String,
-        args: Array<out String>?,
-    ): List<String?> {
+        args: Array<String>,
+    ): List<String> {
         TODO("Not yet implemented")
     }
 
     override fun tabComplete(
         sender: CommandSender,
         alias: String,
-        args: Array<out String>?,
+        args: Array<String>,
         location: Location?,
-    ): List<String?> {
+    ): List<String> {
         TODO("Not yet implemented")
     }
 

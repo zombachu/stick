@@ -72,7 +72,7 @@ internal open class InvocationImpl<E : Environment, S>(
 
     internal fun processSyntaxElement(
         element: SyntaxElement<E, S, Any>,
-    ): Result<out Any> {
+    ): Result<Any> {
         val peeked = peek(element.size)
         if (peeked !is PeekingResult.Success) {
             return ParsingResult.failSyntax(getSyntax())
@@ -86,7 +86,7 @@ internal open class InvocationImpl<E : Environment, S>(
         }
     }
 
-    internal fun <T : Any> put(id: TypedIdentifier<out T>, parsedValue: T) {
+    internal fun <T : Any> put(id: TypedIdentifier<T>, parsedValue: T) {
         parsed[id] = parsedValue
     }
 }
