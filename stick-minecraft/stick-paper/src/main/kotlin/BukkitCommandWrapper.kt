@@ -11,9 +11,10 @@ import org.bukkit.command.PluginIdentifiableCommand
 import org.bukkit.plugin.Plugin
 
 class BukkitCommandWrapper<E : BukkitEnvironment>(
-    val env: E,
-    val parsingFailureHandler: ParsingFailureHandler<E, CommandSender>,
-    val structure: Structure<E, CommandSender>,
+    private val env: E,
+    private val parsingFailureHandler: ParsingFailureHandler<E, CommandSender>,
+    private val plugin: Plugin,
+    private val structure: Structure<E, CommandSender>,
 ) : Command(
     structure.label,
     structure.description,
@@ -56,7 +57,5 @@ class BukkitCommandWrapper<E : BukkitEnvironment>(
         TODO("Not yet implemented")
     }
 
-    override fun getPlugin(): Plugin {
-        TODO("Not yet implemented")
-    }
+    override fun getPlugin(): Plugin = plugin
 }

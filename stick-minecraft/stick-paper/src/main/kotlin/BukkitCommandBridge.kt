@@ -22,10 +22,9 @@ open class BukkitEnvironmentImpl() : BukkitEnvironment {
 interface BukkitCommand<S : Any> : Command<BukkitEnvironment, S>
 
 class BukkitCommandBridge(
-    val fallbackPrefix: String,
+    val plugin: Plugin,
+    val fallbackPrefix: String = plugin.name.lowercase(),
 ) : Bridge<BukkitEnvironment, CommandSender>(CommandSender::class) {
-
-    constructor(plugin: Plugin) : this(plugin.name.lowercase())
 
     private val commandMap: CommandMap = Bukkit.getServer().commandMap
 
@@ -33,6 +32,6 @@ class BukkitCommandBridge(
     override fun <E : BukkitEnvironment> registerCommand(
         structure: Structure<E, CommandSender>
     ) {
-        commandMap.register(fallbackPrefix, BukkitCommandWrapper(env, parsingFailureHandler, structure))
+        commandMap.register(fallbackPrefix, BukkitCommandWrapper(env, parsingFailureHandler, plugin, structure))
     }
 }

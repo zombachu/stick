@@ -6,23 +6,43 @@ import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
 import com.zombachu.stick.structure.requireAs
 import com.zombachu.stick.structure.requirement
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
-abstract class Bridge<E : Environment, S : Any>(
-    val platformSenderClass: KClass<S>,
-) {
-    context(env: E2, parsingFailureHandler: ParsingFailureHandler<E2, S>)
-    protected abstract fun <E2 : E> registerCommand(structure: Structure<E2, S>)
+class BridgeScope<E : Environment, S : Any>(@PublishedApi internal val bridge: Bridge<E, S>) {
 
     context(env: E2, parsingFailureHandler: ParsingFailureHandler<out E2, S>)
     inline fun <E2 : E, reified S2 : S> register(command: Command<E2, S2>) {
         @Suppress("UNCHECKED_CAST")
-        internalRegister(
+        bridge.internalRegister(
             S2::class,
             command,
             { it is S2 },
             { it as S2 }
         )
+    }
+}
+
+abstract class Bridge<E : Environment, S : Any>(
+    val platformSenderClass: KClass<S>,
+) {
+    @OptIn(ExperimentalContracts::class)
+    fun <E2 : E> withContext(
+        env: E2,
+        parsingFailureHandler: ParsingFailureHandler<out E2, S>,
+        block: context(E2, ParsingFailureHandler<out E2, S>) BridgeScope<E, S>.() -> Unit,
+    ) {
+        contract {
+            callsInPlace(block, InvocationKind.AT_MOST_ONCE)
+        }
+
+        with(BridgeScope(this)) {
+            context(env, parsingFailureHandler) {
+                block()
+            }
+        }
     }
 
     @PublishedApi
@@ -55,4 +75,7 @@ abstract class Bridge<E : Environment, S : Any>(
             registerCommand(structure)
         }
     }
+
+    context(env: E2, parsingFailureHandler: ParsingFailureHandler<E2, S>)
+    protected abstract fun <E2 : E> registerCommand(structure: Structure<E2, S>)
 }

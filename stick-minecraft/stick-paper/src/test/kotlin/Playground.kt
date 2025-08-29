@@ -5,8 +5,21 @@ import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.paper.P2.*
 import com.zombachu.stick.structure.id
+import io.papermc.paper.plugin.configuration.PluginMeta
+import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager
+import org.bukkit.Server
+import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
+import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.entity.Player
+import org.bukkit.generator.BiomeProvider
+import org.bukkit.generator.ChunkGenerator
+import org.bukkit.plugin.Plugin
+import org.bukkit.plugin.PluginDescriptionFile
+import org.bukkit.plugin.PluginLoader
+import java.io.File
+import java.io.InputStream
+import java.util.logging.Logger
 import kotlin.experimental.ExperimentalTypeInference
 
 typealias FruitScope = Fruit.() -> Int
@@ -40,7 +53,7 @@ fun main() {
 class Playground {
 
     fun test() {
-        val bridge = BukkitCommandBridge("synergy")
+        val bridge = BukkitCommandBridge(fakePlugin)
 
         val bukkitEnv = BukkitEnvironmentImpl()
         val bukkitParsingFailureHandler = BukkitParsingFailureHandler()
@@ -223,4 +236,71 @@ inline fun <E : Contexto<S>, S : Any, E2 : Contexto<S2>, reified S2 : S, T : Any
         },
         { it as S2 },
     )
+}
+
+
+val fakePlugin: Plugin = object : Plugin {
+    override fun getDataFolder(): File { TODO() }
+
+    override fun getDescription(): PluginDescriptionFile { TODO() }
+
+    override fun getPluginMeta(): PluginMeta { TODO() }
+
+    override fun getConfig(): FileConfiguration { TODO() }
+
+    override fun getResource(filename: String): InputStream? { TODO() }
+
+    override fun saveConfig() { TODO() }
+
+    override fun saveDefaultConfig() { TODO() }
+
+    override fun saveResource(resourcePath: String, replace: Boolean) { TODO() }
+
+    override fun reloadConfig() { TODO() }
+
+    override fun getPluginLoader(): PluginLoader { TODO() }
+
+    override fun getServer(): Server { TODO() }
+
+    override fun isEnabled(): Boolean { TODO() }
+
+    override fun onDisable() { TODO() }
+
+    override fun onLoad() { TODO() }
+
+    override fun onEnable() { TODO() }
+
+    override fun isNaggable(): Boolean { TODO() }
+
+    override fun setNaggable(canNag: Boolean) { TODO() }
+
+    override fun getDefaultWorldGenerator(
+        worldName: String,
+        id: String?,
+    ): ChunkGenerator? { TODO() }
+
+    override fun getDefaultBiomeProvider(
+        worldName: String,
+        id: String?,
+    ): BiomeProvider? { TODO() }
+
+    override fun getLogger(): Logger { TODO() }
+
+    override fun getName(): String { TODO() }
+
+    override fun getLifecycleManager(): LifecycleEventManager<Plugin> { TODO() }
+
+    override fun onTabComplete(
+        sender: CommandSender,
+        command: Command,
+        label: String,
+        args: Array<out String>?,
+    ): List<String?>? { TODO() }
+
+    override fun onCommand(
+        sender: CommandSender,
+        command: Command,
+        label: String,
+        args: Array<out String>?,
+    ): Boolean { TODO() }
 }
