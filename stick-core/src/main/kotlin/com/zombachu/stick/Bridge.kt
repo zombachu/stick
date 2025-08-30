@@ -42,7 +42,7 @@ abstract class Bridge<E : Environment, S : Any>(
     val platformSenderClass: KClass<S>,
 ) {
     @OptIn(ExperimentalContracts::class)
-    fun <E2 : E> withContext(
+    inline fun <E2 : E> withContext(
         env: E2,
         failureHandler: FailureHandler<E2, S>,
         block: context(E2, FailureHandler<E2, S>) BridgeScope<E, S>.() -> Unit,

@@ -55,7 +55,7 @@ class Playground {
     fun test() {
         val bridge = BukkitCommandBridge()
 
-        bridge.withContext(BukkitEnvironmentImpl(fakePlugin), BukkitFailureHandler()) {
+        bridge.withContext(BasicBukkitEnvironment(fakePlugin), BasicBukkitFailureHandler()) {
             register(WarpCommand())
             register(PageCommand())
         }

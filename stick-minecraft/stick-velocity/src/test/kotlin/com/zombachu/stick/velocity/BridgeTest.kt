@@ -25,8 +25,8 @@ import java.util.*
 class BridgeTest {
 
     fun test() {
-        val env = VelocityEnvironmentImpl(fakeProxyServer)
-        val failureHandler = VelocityFailureHandler()
+        val env = BasicVelocityEnvironment(fakeProxyServer)
+        val failureHandler = BasicVelocityFailureHandler()
         VelocityCommandBridge(Any(), fakeProxyServer).withContext(env, failureHandler) {
             register {
                 command("hi")(

@@ -1,28 +1,11 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.Bridge
-import com.zombachu.stick.Command
-import com.zombachu.stick.Environment
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
 import org.bukkit.Bukkit
-import org.bukkit.Server
 import org.bukkit.command.CommandMap
 import org.bukkit.command.CommandSender
-import org.bukkit.plugin.Plugin
-
-interface BukkitEnvironment : Environment {
-    val server: Server
-    val plugin: Plugin
-}
-
-open class BukkitEnvironmentImpl(
-    override val plugin: Plugin
-) : BukkitEnvironment {
-    override val server: Server = Bukkit.getServer()
-}
-
-interface BukkitCommand<S : Any> : Command<BukkitEnvironment, S>
 
 class BukkitCommandBridge : Bridge<BukkitEnvironment, CommandSender>(CommandSender::class) {
 

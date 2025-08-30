@@ -6,10 +6,10 @@ import com.zombachu.stick.Result
 import com.zombachu.stick.feedback.FailureHandler
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 
-class VelocityFailureHandler : FailureHandler<VelocityEnvironment, CommandSource> {
+interface VelocityFailureHandler<E : VelocityEnvironment> : FailureHandler<E, CommandSource>
 
+open class BasicVelocityFailureHandler : VelocityFailureHandler<VelocityEnvironment> {
     private val textComponentSerializer: PlainTextComponentSerializer = PlainTextComponentSerializer.plainText()
-
     override fun onFailure(inv: Invocation<VelocityEnvironment, CommandSource>, result: Result.Failure<*>) {
         val message = result.feedback().format()
         if (message.isEmpty()) {
