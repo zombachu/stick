@@ -11,7 +11,7 @@ import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 
-internal interface SenderValidator<E : Environment, S> {
+interface SenderValidator<E : Environment, S> {
     context(validationContext: ValidationContext<E, S>)
     fun validateSender(): Result<Unit>
 }

@@ -19,7 +19,7 @@ internal open class StructureImpl<E : Environment, S>(
     override val description: String,
     internal val requirement: Requirement<E, S>,
     internal val signature: Signature<E, S>,
-) : Structure<E, S>, SenderValidator<E, S> {
+) : Structure<E, S>  {
 
     override val label by id
     override val size: Size = Size.Deferred
