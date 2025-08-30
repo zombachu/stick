@@ -11,7 +11,7 @@ import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parameters.StringParameter
-import com.zombachu.stick.impl.SenderScope
+import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.paper.structure.permission
@@ -86,11 +86,11 @@ class PageCommand: BukkitCommand<CommandSender> {
 }
 
 class PlayerRequiredStringParameter(id: TypedIdentifier<String>) : StringParameter<BukkitEnvironment, Player>(id, "")
-fun <S> SenderScope<BukkitEnvironment, S>.playerRequiredStringParameter(id: TypedIdentifier<String>): StructureElement<BukkitEnvironment, Player, StringParameter<BukkitEnvironment, Player>> =
+fun <S> BuilderScope<BukkitEnvironment, S>.playerRequiredStringParameter(id: TypedIdentifier<String>): StructureElement<BukkitEnvironment, Player, StringParameter<BukkitEnvironment, Player>> =
     { PlayerRequiredStringParameter(id) }
 
 class McpRequiredStringParameter(id: TypedIdentifier<String>) : StringParameter<BukkitEnvironment, MinecraftProfile>(id, "")
-fun <S> SenderScope<BukkitEnvironment, S>.mcpRequiredStringParameter(id: TypedIdentifier<String>): StructureElement<BukkitEnvironment, MinecraftProfile, StringParameter<BukkitEnvironment, MinecraftProfile>> =
+fun <S> BuilderScope<BukkitEnvironment, S>.mcpRequiredStringParameter(id: TypedIdentifier<String>): StructureElement<BukkitEnvironment, MinecraftProfile, StringParameter<BukkitEnvironment, MinecraftProfile>> =
     { McpRequiredStringParameter(id) }
 
 class TestFlag: BukkitCommand<CommandSender> {
@@ -156,7 +156,7 @@ class SomeClass : BukkitCommand<CommandSender> {
             id("raw")
         )
 
-        object : SenderScope<BukkitEnvironment, Player> { }.playerRequiredStringParameter<Player>(
+        object : BuilderScope<BukkitEnvironment, Player> { }.playerRequiredStringParameter<Player>(
             id("worldgroup")
         )
 
@@ -205,14 +205,14 @@ class OrangeCommand : BukkitCommand<CommandSender> {
         )
 }
 
-fun <S : Any> SenderScope<BukkitEnvironment, S>.mcpSender(
+fun <S : Any> BuilderScope<BukkitEnvironment, S>.mcpSender(
     command: StructureElement<BukkitEnvironment, MinecraftProfile, StructureElement<BukkitEnvironment, MinecraftProfile, Structure<BukkitEnvironment, MinecraftProfile>>>,
 ): StructureElement<BukkitEnvironment, S, Structure<BukkitEnvironment, S>> = requireAs<BukkitEnvironment, S, MinecraftProfile>(
     { PlayerUtil.getProfile(it as Player) },
     command = command,
 )
 
-fun <T : Any> SenderScope<BukkitEnvironment, CommandSender>.playerSender(
+fun <T : Any> BuilderScope<BukkitEnvironment, CommandSender>.playerSender(
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     element: StructureElement<BukkitEnvironment, Player, StructureElement<BukkitEnvironment, Player, Parameter<BukkitEnvironment, Player, T>>>,
 ): StructureElement<BukkitEnvironment, CommandSender, Groupable<BukkitEnvironment, CommandSender, T>> =

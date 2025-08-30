@@ -8,7 +8,7 @@ import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.feedback.FailureHandler
-import com.zombachu.stick.impl.SenderScope
+import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.paper.structure.permissionedValue
 import com.zombachu.stick.structure.command
@@ -75,14 +75,14 @@ class CustomFailureHandler : FailureHandler<CustomBukkitEnvironment, CommandSend
     }
 }
 
-fun <E : Environment, S : Any> SenderScope<E, S>.translatedStringParameter(
+fun <E : Environment, S : Any> BuilderScope<E, S>.translatedStringParameter(
     id: TypedIdentifier<String>,
     description: String = "",
 ): StructureElement<E, S, TranslatedStringParameter<S>> = {
     TranslatedStringParameter(id, description)
 }
 
-fun <S : Any> SenderScope<CustomBukkitEnvironment, S>.scopedTranslatedStringParameter(
+fun <S : Any> BuilderScope<CustomBukkitEnvironment, S>.scopedTranslatedStringParameter(
     id: TypedIdentifier<String>,
     description: String = "",
 ): StructureElement<CustomBukkitEnvironment, S, TranslatedStringParameter<S>> = {

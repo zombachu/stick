@@ -5,11 +5,11 @@ import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.element.Group
 import com.zombachu.stick.element.GroupImpl
 import com.zombachu.stick.element.Groupable
-import com.zombachu.stick.impl.SenderScope
+import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
 
-fun <E : Environment, S> SenderScope<E, S>.group(
+fun <E : Environment, S> BuilderScope<E, S>.group(
     vararg elements: StructureElement<E, S, Groupable<E, S, out Any>>,
     description: String = "",
 ): StructureElement<E, S, Group<E, S>> = {

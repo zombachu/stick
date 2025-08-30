@@ -14,7 +14,7 @@ class StructureScope<E : Environment, S>(
     val description: String,
     val parent: StructureScope<*, *>?,
     internal val requirement: Requirement<E, S>,
-): SenderScope<E, S> {
+): BuilderScope<E, S> {
 
     private val root: StructureScope<*, *> = parent?.root ?: this
 

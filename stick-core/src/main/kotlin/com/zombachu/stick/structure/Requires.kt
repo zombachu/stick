@@ -12,8 +12,8 @@ import com.zombachu.stick.element.ValidatedCommand
 import com.zombachu.stick.element.ValidatedFlag
 import com.zombachu.stick.element.ValidatedParameter
 import com.zombachu.stick.element.ValidatedParameterImpl
+import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.Requirement
-import com.zombachu.stick.impl.SenderScope
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
 import kotlin.experimental.ExperimentalTypeInference
@@ -21,7 +21,7 @@ import kotlin.reflect.KClass
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireAs")
-fun <S : Any, S2 : Any, E : Environment, T : Any> SenderScope<E, S>.requireAs(
+fun <S : Any, S2 : Any, E : Environment, T : Any> BuilderScope<E, S>.requireAs(
     transform: (S) -> S2,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
@@ -36,7 +36,7 @@ fun <S : Any, S2 : Any, E : Environment, T : Any> SenderScope<E, S>.requireAs(
 }
 
 @OverloadResolutionByLambdaReturnType
-fun <E : Environment, S : Any, S2 : Any, T : Any> SenderScope<E, S>.requireAs(
+fun <E : Environment, S : Any, S2 : Any, T : Any> BuilderScope<E, S>.requireAs(
     transform: (S) -> S2,
     invalidDefault: ContextualValue<E, S, T>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
@@ -54,7 +54,7 @@ fun <E : Environment, S : Any, S2 : Any, T : Any> SenderScope<E, S>.requireAs(
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireAsCommand")
-fun <E : Environment, S : Any, S2 : Any> SenderScope<E, S>.requireAs(
+fun <E : Environment, S : Any, S2 : Any> BuilderScope<E, S>.requireAs(
     transform: (S) -> S2,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
@@ -70,7 +70,7 @@ fun <E : Environment, S : Any, S2 : Any> SenderScope<E, S>.requireAs(
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireIs")
-inline fun <E : Environment, S : Any, reified S2 : S, T : Any> SenderScope<E, S>.requireIs(
+inline fun <E : Environment, S : Any, reified S2 : S, T : Any> BuilderScope<E, S>.requireIs(
     senderType: KClass<S2>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
@@ -83,7 +83,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T : Any> SenderScope<E, S>
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T : Any> SenderScope<E, S>.requireIs(
+inline fun <E : Environment, S : Any, reified S2 : S, T : Any> BuilderScope<E, S>.requireIs(
     senderType: KClass<S2>,
     noinline invalidDefault: ContextualValue<E, S, T>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
@@ -98,7 +98,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T : Any> SenderScope<E, S>
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T : Any> SenderScope<E, S>.requireIs(
+inline fun <E : Environment, S : Any, reified S2 : S, T : Any> BuilderScope<E, S>.requireIs(
     senderType: KClass<S2>,
     invalidDefault: T,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
@@ -114,7 +114,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T : Any> SenderScope<E, S>
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireIsCommand")
-inline fun <E : Environment, S : Any, reified S2 : S> SenderScope<E, S>.requireIs(
+inline fun <E : Environment, S : Any, reified S2 : S> BuilderScope<E, S>.requireIs(
     senderType: KClass<S2>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
@@ -128,7 +128,7 @@ inline fun <E : Environment, S : Any, reified S2 : S> SenderScope<E, S>.requireI
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("require")
-fun <E : Environment, S : Any, T : Any> SenderScope<E, S>.require(
+fun <E : Environment, S : Any, T : Any> BuilderScope<E, S>.require(
     requirement: Requirement<E, S>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     parameter: StructureElement<E, S, StructureElement<E, S, Parameter<E, S, T>>>,
@@ -136,7 +136,7 @@ fun <E : Environment, S : Any, T : Any> SenderScope<E, S>.require(
     requireAs({ it }, requirement, parameter)
 
 @OverloadResolutionByLambdaReturnType
-fun <E : Environment, S : Any, T : Any> SenderScope<E, S>.require(
+fun <E : Environment, S : Any, T : Any> BuilderScope<E, S>.require(
     invalidDefault: ContextualValue<E, S, T>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
@@ -145,7 +145,7 @@ fun <E : Environment, S : Any, T : Any> SenderScope<E, S>.require(
     requireAs({ it }, invalidDefault, requirement, flag)
 
 @OverloadResolutionByLambdaReturnType
-fun <E : Environment, S : Any, T : Any> SenderScope<E, S>.require(
+fun <E : Environment, S : Any, T : Any> BuilderScope<E, S>.require(
     invalidDefault: T,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
@@ -155,7 +155,7 @@ fun <E : Environment, S : Any, T : Any> SenderScope<E, S>.require(
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireCommand")
-fun <E : Environment, S : Any> SenderScope<E, S>.require(
+fun <E : Environment, S : Any> BuilderScope<E, S>.require(
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     command: StructureElement<E, S, StructureElement<E, S, Structure<E, S>>>,
