@@ -12,10 +12,7 @@ fun <E : BukkitEnvironment, S : Any> BuilderScope<E, S>.playerParameter(
     id: TypedIdentifier<Player>,
     description: String = "",
 ): StructureElement<E, S, PlayerParameter<S>> = {
-    PlayerParameter(
-        id,
-        description,
-    )
+    PlayerParameter(id, description)
 }
 fun <E : BukkitEnvironment, S : Any> BuilderScope<E, S>.playerParameter(
     name: String,
