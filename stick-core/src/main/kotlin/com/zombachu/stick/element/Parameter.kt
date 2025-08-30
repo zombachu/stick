@@ -5,6 +5,8 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.impl.InvocationImpl
+import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 
 sealed class Parameter<E : Environment, S, T : Any>(
@@ -120,4 +122,35 @@ sealed class Parameter<E : Environment, S, T : Any>(
         id: TypedIdentifier<T>,
         description: String,
     ) : Parameter<E, S, T>(size, id, description), SignatureConstraint.Terminating<E, S, T>
+}
+
+internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T : Any>(
+    val base: Parameter<E, S2, T>,
+    val transform: (S) -> S2,
+    val requirement: Requirement<E, S>,
+) : ValidatedParameter<E, S, T>, SenderValidator<E, S> {
+
+    override val size: Size = base.size
+    override val type: ElementType = base.type
+    override val id: TypedIdentifier<T> = base.id
+    override val description: String = base.description
+
+    context(inv: Invocation<E, S>)
+    override fun parse(args: List<String>): Result<T> {
+        val transformedInvocation = (inv as InvocationImpl).forSender(transform)
+        context(transformedInvocation) {
+            return base.parse(args)
+        }
+    }
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun getSyntax(): String {
+        val transformedValidationContext = validationContext.forSender(transform)
+        context(transformedValidationContext) {
+            return base.getSyntax()
+        }
+    }
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun validateSender(): Result<Unit> = requirement.validateSender()
 }

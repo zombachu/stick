@@ -8,10 +8,10 @@ import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.element.Flag
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.element.ValidatedCommand
-import com.zombachu.stick.element.ValidatedFlag
+import com.zombachu.stick.element.TransformedFlag
+import com.zombachu.stick.element.TransformedParameter
+import com.zombachu.stick.element.TransformedStructure
 import com.zombachu.stick.element.ValidatedParameter
-import com.zombachu.stick.element.ValidatedParameterImpl
 import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.StructureElement
@@ -28,10 +28,10 @@ fun <S : Any, S2 : Any, E : Environment, T : Any> BuilderScope<E, S>.requireAs(
     parameter: StructureElement<E, S2, StructureElement<E, S2, Parameter<E, S2, T>>>,
 ): StructureElement<E, S, ValidatedParameter<E, S, T>> = {
     val scope: StructureScope<E, S2> = this.forSender()
-    ValidatedParameterImpl(
+    TransformedParameter(
         parameter(scope)(scope),
-        requirement,
         transform,
+        requirement,
     )
 }
 
@@ -44,11 +44,11 @@ fun <E : Environment, S : Any, S2 : Any, T : Any> BuilderScope<E, S>.requireAs(
     flag: StructureElement<E, S2, StructureElement<E, S2, Flag<E, S2, T>>>,
 ): StructureElement<E, S, Flag<E, S, T>> = {
     val scope: StructureScope<E, S2> = this.forSender()
-    ValidatedFlag(
+    TransformedFlag(
         flag(scope)(scope),
+        transform,
         requirement,
         invalidDefault,
-        transform,
     )
 }
 
@@ -61,10 +61,10 @@ fun <E : Environment, S : Any, S2 : Any> BuilderScope<E, S>.requireAs(
     command: StructureElement<E, S2, StructureElement<E, S2, Structure<E, S2>>>,
 ): StructureElement<E, S, Structure<E, S>> = {
     val scope: StructureScope<E, S2> = this.forSender()
-    ValidatedCommand(
+    TransformedStructure(
         command(scope)(scope),
-        requirement,
         transform,
+        requirement,
     )
 }
 

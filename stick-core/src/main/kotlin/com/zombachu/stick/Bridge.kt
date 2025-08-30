@@ -10,64 +10,17 @@ import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
 import com.zombachu.stick.structure.requireAs
 import com.zombachu.stick.structure.requirement
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 import kotlin.reflect.KClass
-
-@PublishedApi
-internal interface Registrar<E : Environment, S : Any> {
-    context(env: E2, failureHandler: FailureHandler<E2, S>)
-    fun <E2 : E, S2 : Any> internalRegister(
-        commandSenderClass: KClass<S2>,
-        command: Command<E2, S2>,
-        isSenderRequiredType: (S) -> Boolean,
-        castSender: (S) -> S2,
-    )
-}
-
-class BridgeScope<E : Environment, S : Any>
-@PublishedApi internal constructor(
-    @PublishedApi internal val bridge: Registrar<E, S>
-) {
-
-    context(env: E2, failureHandler: FailureHandler<E2, S>)
-    inline fun <E2 : E, reified S2 : S> register(command: Command<E2, S2>) {
-        bridge.internalRegister(
-            S2::class,
-            command,
-            { it is S2 },
-            { it as S2 }
-        )
-    }
-
-    context(env: E2, failureHandler: FailureHandler<E2, S>)
-    inline fun <E2 : E, reified S2 : S> register(
-        block: CommandScope<E2, S2>.() -> StructureElement<E2, S2, Structure<E2, S2>>
-    ) {
-        val commandScope = object : CommandScope<E2, S2> { }
-        val structure = block(commandScope)
-        val command = object : Command<E2, S2> {
-            override val structure: StructureElement<E2, S2, Structure<E2, S2>> = structure
-        }
-        register(command)
-    }
-}
 
 abstract class Bridge<in E : Environment, S : Any>(
     val platformSenderClass: KClass<S>,
-) : Registrar<@UnsafeVariance E, S> {
+) : CommandRegistrar<@UnsafeVariance E, S> {
 
-    @OptIn(ExperimentalContracts::class)
-    inline fun <E2 : E, S2 : Any> withContext(
+    fun <E2 : E, S2 : Any> withContext(
         env: E2,
         failureHandler: FailureHandler<E2, S2>,
         block: context(E2, FailureHandler<E2, S2>) BridgeScope<@UnsafeVariance E, S>.() -> Unit,
     ) {
-        contract {
-            callsInPlace(block, InvocationKind.AT_MOST_ONCE)
-        }
-
         with(BridgeScope(this)) {
             context(env, failureHandler) {
                 block()
@@ -75,39 +28,29 @@ abstract class Bridge<in E : Environment, S : Any>(
         }
     }
 
-    @OptIn(ExperimentalContracts::class)
-    inline fun <E2 : E, S2 : Any> withContext(
+    fun <E2 : E, S2 : Any> withContext(
         env: E2,
         failureHandler: FailureHandler<E2, S2>,
-        noinline transform: (S) -> S2,
-        noinline validate: (validationContext: ValidationContext<E2, S>) -> Result<Unit>,
+        transform: (S) -> S2,
+        validate: (validationContext: ValidationContext<E2, S>) -> Result<Unit>,
         block: context(E2, FailureHandler<E2, S2>) BridgeScope<E2, S2>.() -> Unit,
     ) {
-        contract {
-            callsInPlace(block, InvocationKind.AT_MOST_ONCE)
-        }
-
-        val newBridge = TransformedBridge(transform, Requirement(validate), this)
-        with(BridgeScope(newBridge)) {
+        val transformedBridge = TransformedBridge(this, transform, Requirement(validate))
+        with(BridgeScope(transformedBridge)) {
             context(env, failureHandler) {
                 block()
             }
         }
     }
 
-    @OptIn(ExperimentalContracts::class)
-    inline fun <E2 : E, S2 : Any> withContext(
+    fun <E2 : E, S2 : Any> withContext(
         env: E2,
         failureHandler: FailureHandler<E2, S2>,
-        noinline transform: (S) -> S2,
+        transform: (S) -> S2,
         failureResult: Result<Unit>,
-        noinline validate: (validationContext: ValidationContext<E2, S>) -> Boolean,
+        validate: (validationContext: ValidationContext<E2, S>) -> Boolean,
         block: context(E2, FailureHandler<E2, S2>) BridgeScope<E2, S2>.() -> Unit,
     ) {
-        contract {
-            callsInPlace(block, InvocationKind.AT_MOST_ONCE)
-        }
-
         withContext(
             env,
             failureHandler,
@@ -148,12 +91,51 @@ abstract class Bridge<in E : Environment, S : Any>(
     protected abstract fun <E2 : E> registerCommand(structure: Structure<E2, S>)
 }
 
+class BridgeScope<E : Environment, S : Any>
+@PublishedApi internal constructor(
+    @PublishedApi internal val bridge: CommandRegistrar<E, S>
+) {
+
+    context(env: E2, failureHandler: FailureHandler<E2, S>)
+    inline fun <E2 : E, reified S2 : S> register(command: Command<E2, S2>) {
+        bridge.internalRegister(
+            S2::class,
+            command,
+            { it is S2 },
+            { it as S2 }
+        )
+    }
+
+    context(env: E2, failureHandler: FailureHandler<E2, S>)
+    inline fun <E2 : E, reified S2 : S> register(
+        block: CommandScope<E2, S2>.() -> StructureElement<E2, S2, Structure<E2, S2>>
+    ) {
+        val commandScope = object : CommandScope<E2, S2> { }
+        val structure = block(commandScope)
+        val command = object : Command<E2, S2> {
+            override val structure: StructureElement<E2, S2, Structure<E2, S2>> = structure
+        }
+        register(command)
+    }
+}
+
+@PublishedApi
+internal interface CommandRegistrar<E : Environment, S : Any> {
+    context(env: E2, failureHandler: FailureHandler<E2, S>)
+    fun <E2 : E, S2 : Any> internalRegister(
+        commandSenderClass: KClass<S2>,
+        command: Command<E2, S2>,
+        isSenderRequiredType: (S) -> Boolean,
+        castSender: (S) -> S2,
+    )
+}
+
 @PublishedApi
 internal class TransformedBridge<E : Environment, S0 : Any, S : Any>(
+    val base: Bridge<E, S0>,
     val transform: (S0) -> S,
     val requirement: Requirement<E, S0>,
-    val bridge: Bridge<E, S0>,
-) : Registrar<E, S>, SenderValidator<E, S0> {
+) : CommandRegistrar<E, S>, SenderValidator<E, S0> {
 
     context(env: E2, failureHandler: FailureHandler<E2, S>)
     override fun <E2 : E, S2 : Any> internalRegister(
@@ -162,9 +144,9 @@ internal class TransformedBridge<E : Environment, S0 : Any, S : Any>(
         isSenderRequiredType: (S) -> Boolean,
         castSender: (S) -> S2,
     ) {
-        val newFailureHandler = TransformedFailureHandler(failureHandler, transform)
-        context(newFailureHandler) {
-            bridge.internalRegister(
+        val transformedFailureHandler = TransformedFailureHandler(failureHandler, transform)
+        context(transformedFailureHandler) {
+            base.internalRegister(
                 commandSenderClass,
                 command,
                 {

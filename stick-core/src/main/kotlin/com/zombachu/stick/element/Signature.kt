@@ -133,7 +133,7 @@ internal sealed class Signature<E : Environment, S>(
 
             val default = flag.validateSender().handle(
                 onSuccess = { flag.default(inv) },
-                onFailure = { (flag as ValidatedFlag<E, S, *, *>).invalidDefault(inv) }
+                onFailure = { (flag as TransformedFlag<E, S, *, *>).invalidDefault(inv) }
             )
             values[indexedFlag.index] = default
         }

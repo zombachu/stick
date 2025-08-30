@@ -10,12 +10,12 @@ interface FailureHandler<out E : Environment, S> {
 }
 
 internal class TransformedFailureHandler<out E : Environment, S, S2 : Any>(
-    val failureHandler: FailureHandler<E, S2>,
+    val base: FailureHandler<E, S2>,
     val transform: (S) -> S2
 ) : FailureHandler<E, S> {
 
     override fun onFailure(inv: Invocation<@UnsafeVariance E, S>, result: Result.Failure<*>) {
-        val newInvocation = (inv as InvocationImpl).forSender(transform)
-        failureHandler.onFailure(newInvocation, result)
+        val transformedInvocation = (inv as InvocationImpl).forSender(transform)
+        base.onFailure(transformedInvocation, result)
     }
 }

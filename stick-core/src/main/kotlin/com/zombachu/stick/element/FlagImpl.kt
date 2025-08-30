@@ -8,6 +8,8 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.impl.InvocationImpl
+import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 
 internal open class FlagImpl<E : Environment, S, T : Any>(
@@ -76,4 +78,43 @@ internal sealed class FlagParameter<E : Environment, S, T : Any>(
         context(validationContext: ValidationContext<E, S>)
         override fun getSyntax(): String = "[$label ${valueElement.getSyntax()}]"
     }
+}
+
+internal class TransformedFlag<E : Environment, S, S2 : Any, T : Any>(
+    val base: Flag<E, S2, T>,
+    val transform: (S) -> S2,
+    val requirement: Requirement<E, S>,
+    val invalidDefault: ContextualValue<E, S, T>,
+) : FlagImpl<E, S, T>(
+    { unusedValue() },
+    FlagParameter.PresenceFlagParameter(base.id, { unusedValue() }, setOf(), ""),
+), SenderValidator<E, S> {
+
+    override val default: ContextualValue<E, S, T> = {
+        val transformedInvocation = (this as InvocationImpl).forSender(transform)
+        (base as FlagImpl).default(transformedInvocation)
+    }
+
+    override val size: Size = base.size
+    override val id: TypedIdentifier<T> = base.id
+    override val description: String = base.description
+
+    context(inv: Invocation<E, S>)
+    override fun parse(args: List<String>): Result<T> {
+        val transformedInvocation = (inv as InvocationImpl).forSender(transform)
+        context(transformedInvocation) {
+            return base.parse(args)
+        }
+    }
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun getSyntax(): String {
+        val transformedValidationContext = validationContext.forSender(transform)
+        context(transformedValidationContext) {
+            return base.getSyntax()
+        }
+    }
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun validateSender(): Result<Unit> = requirement.validateSender()
 }

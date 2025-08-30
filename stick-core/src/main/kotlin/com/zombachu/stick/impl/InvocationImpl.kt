@@ -92,21 +92,21 @@ internal open class InvocationImpl<E : Environment, S>(
 }
 
 private class TransformedInvocationImpl<E : Environment, S, S2>(
-    val invocation: InvocationImpl<E, S>,
+    val base: InvocationImpl<E, S>,
     transform: (S) -> S2,
 ) : InvocationImpl<E, S2>(
-    transform(invocation.sender),
-    invocation.env,
-    invocation.label,
-    invocation.args,
+    transform(base.sender),
+    base.env,
+    base.label,
+    base.args,
     // TransformedInvocationImpl forwards to structure of base invocation
     StructureImpl(id(""), setOf(), "", Requirement { SenderValidationResult.success() }, Signature0()),
-    parent = invocation,
+    parent = base,
 ) {
-    override var unparsed: MutableList<String> = invocation.unparsed
-    override var parsed: MutableMap<TypedIdentifier<*>, Any> = invocation.parsed
+    override var unparsed: MutableList<String> = base.unparsed
+    override var parsed: MutableMap<TypedIdentifier<*>, Any> = base.parsed
 
     override fun getSyntaxForSender(): String {
-        return invocation.getSyntaxForSender()
+        return base.getSyntaxForSender()
     }
 }
