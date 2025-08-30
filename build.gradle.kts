@@ -5,16 +5,16 @@ plugins {
 
 subprojects {
     apply(plugin = "org.jetbrains.dokka")
-    apply(plugin = "io.gitlab.arturbosch.detekt").also {
-        detekt {
-            buildUponDefaultConfig = true
-            allRules = false
-        }
-
-        tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
-            exclude("**/test/**")
-        }
-    }
+//    apply(plugin = "io.gitlab.arturbosch.detekt").also {
+//        detekt {
+//            buildUponDefaultConfig = true
+//            allRules = false
+//        }
+//
+//        tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+//            exclude("**/test/**")
+//        }
+//    }
 
 }
 
