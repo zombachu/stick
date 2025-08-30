@@ -19,6 +19,7 @@ dependencies {
     compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
 
     testImplementation(kotlin("test"))
+    testImplementation("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
 }
 
 val compileKotlin: KotlinCompile by tasks

@@ -2,6 +2,7 @@ package com.zombachu.stick
 
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
+import com.zombachu.stick.impl.CommandScope
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
 import com.zombachu.stick.structure.requireAs
@@ -22,6 +23,18 @@ class BridgeScope<E : Environment, S : Any>(@PublishedApi internal val bridge: B
             { it is S2 },
             { it as S2 }
         )
+    }
+
+    context(env: E2, failureHandler: FailureHandler<out E2, S>)
+    inline fun <E2 : E, reified S2 : S> register(
+        block: CommandScope<E2, S2>.() -> StructureElement<E2, S2, Structure<E2, S2>>
+    ) {
+        val commandScope = object : CommandScope<E2, S2> { }
+        val structure = block(commandScope)
+        val command = object : Command<E2, S2> {
+            override val structure: StructureElement<E2, S2, Structure<E2, S2>> = structure
+        }
+        register(command)
     }
 }
 
