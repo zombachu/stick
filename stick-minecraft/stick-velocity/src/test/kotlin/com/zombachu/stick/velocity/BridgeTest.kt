@@ -62,10 +62,8 @@ class BridgeTest {
 
 
 class WrapperFailureHandler : FailureHandler<VelocityEnvironment, SourceWrapper> {
-    override fun onFailure(
-        inv: Invocation<VelocityEnvironment, SourceWrapper>,
-        failure: Result.Failure<*>,
-    ) {
+    context(inv: Invocation<VelocityEnvironment, SourceWrapper>)
+    override fun onFailure(failure: Result.Failure<*>) {
         TODO("Not yet implemented")
     }
 }
