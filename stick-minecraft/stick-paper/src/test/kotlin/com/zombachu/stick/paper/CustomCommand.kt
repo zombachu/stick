@@ -67,7 +67,7 @@ class CustomFailureHandler : FailureHandler<CustomBukkitEnvironment, CommandSend
         inv: Invocation<CustomBukkitEnvironment, CommandSender>,
         failure: Result.Failure<*>,
     ) {
-        val message = failure.feedback().format()
+        val message = failure.feedback.format()
         if (message.isEmpty()) {
             return
         }

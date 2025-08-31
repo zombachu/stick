@@ -8,6 +8,7 @@ import com.zombachu.stick.feedback.Feedback0
 import com.zombachu.stick.feedback.Feedback1
 import com.zombachu.stick.feedback.Feedback2
 import com.zombachu.stick.feedback.Feedback3
+import com.zombachu.stick.feedback.PreformattedFeedback2
 import com.zombachu.stick.impl.Array2
 import com.zombachu.stick.impl.Tuple
 import kotlin.contracts.ExperimentalContracts
@@ -22,25 +23,25 @@ sealed interface Result<T> {
     sealed interface InternalFailure<T> : Result<T>
 
     sealed interface Failure<T> : InternalFailure<T> {
-        val feedback: () -> Feedback<out Tuple<String>>
+        val feedback: Feedback<out Tuple<String>>
     }
 }
 
 sealed interface ParsingResult<T> : Result<T> {
     class Success<T> internal constructor(override val value: T) : ParsingResult<T>, Result.Success<T>
 
-//    class UnknownError<T> internal constructor(override val feedback: () -> Feedback0) : ParsingResult<T>, Result.Failure<T>
+//    class UnknownError<T> internal constructor(override val feedback: Feedback0) : ParsingResult<T>, Result.Failure<T>
 
     class HandledError<T> internal constructor() : ParsingResult<T>, Result.InternalFailure<T>
 
     class TypeNotMatchedInternal<T> internal constructor() : ParsingResult<T>, Result.InternalFailure<T>
-    class TypeNotMatchedError<T> internal constructor(override val feedback: () -> Feedback2) : ParsingResult<T>, Result.Failure<T>
-    class TypeNotMatchedSyntaxError<T> internal constructor(override val feedback: () -> Feedback1) : ParsingResult<T>, Result.Failure<T>
-    class LiteralNotMatchedError<T> internal constructor(override val feedback: () -> Feedback2) : ParsingResult<T>, Result.Failure<T>
+    class TypeNotMatchedError<T> internal constructor(override val feedback: Feedback2) : ParsingResult<T>, Result.Failure<T>
+    class TypeNotMatchedSyntaxError<T> internal constructor(override val feedback: Feedback1) : ParsingResult<T>, Result.Failure<T>
+    class LiteralNotMatchedError<T> internal constructor(override val feedback: PreformattedFeedback2) : ParsingResult<T>, Result.Failure<T>
 
-    class InvalidSyntaxError<T> internal constructor(override val feedback: () -> Feedback1) : ParsingResult<T>, Result.Failure<T>
+    class InvalidSyntaxError<T> internal constructor(override val feedback: Feedback1) : ParsingResult<T>, Result.Failure<T>
 
-    class OutOfRangeError<T> internal constructor(override val feedback: () -> Feedback3) : ParsingResult<T>, Result.Failure<T>
+    class OutOfRangeError<T> internal constructor(override val feedback: Feedback3) : ParsingResult<T>, Result.Failure<T>
 
     interface CustomError<T> : ParsingResult<T>, Result.Failure<T>
 
@@ -49,23 +50,21 @@ sealed interface ParsingResult<T> : Result<T> {
 //        fun <T> failUnknown(): ParsingResult<T> = UnknownError { ErrorMessages.Unknown }
         fun <T> failHandled(): ParsingResult<T> = HandledError()
         internal fun <T> failTypeInternal(): ParsingResult<T> = TypeNotMatchedInternal()
-        fun <T> failType(type: String, arg: String): ParsingResult<T> = TypeNotMatchedError { ErrorMessages.NotAType.with(type, arg) }
-        fun <T> failTypeSyntax(syntax: String): ParsingResult<T> = TypeNotMatchedSyntaxError { ErrorMessages.InvalidSyntax.with(syntax) }
-        fun <T> failLiteral(valid: List<String>, arg: String): ParsingResult<T> = LiteralNotMatchedError { ErrorMessages.InvalidLiteral.with(Array2(valid.joinToString(","), arg), valid) }
-        fun <T> failSyntax(syntax: String): ParsingResult<T> = InvalidSyntaxError { ErrorMessages.InvalidSyntax.with(syntax) }
-        fun <T> failRange(min: String, max: String, arg: String): ParsingResult<T> = OutOfRangeError { ErrorMessages.OutOfRange.with(min, max, arg) }
+        fun <T> failType(type: String, arg: String): ParsingResult<T> = TypeNotMatchedError(ErrorMessages.NotAType.with(type, arg))
+        fun <T> failTypeSyntax(syntax: String): ParsingResult<T> = TypeNotMatchedSyntaxError(ErrorMessages.InvalidSyntax.with(syntax))
+        fun <T> failLiteral(valid: List<String>, arg: String): ParsingResult<T> = LiteralNotMatchedError(ErrorMessages.InvalidLiteral.with(Array2(valid.joinToString(", "), arg), valid))
+        fun <T> failSyntax(syntax: String): ParsingResult<T> = InvalidSyntaxError(ErrorMessages.InvalidSyntax.with(syntax))
+        fun <T> failRange(min: String, max: String, arg: String): ParsingResult<T> = OutOfRangeError(ErrorMessages.OutOfRange.with(min, max, arg))
     }
 }
 
 sealed interface ExecutionResult : Result<Unit> {
-    class Success internal constructor() : ExecutionResult, Result.Success<Unit> {
-        override val value: Unit = Unit
-    }
+    class Success internal constructor() : ExecutionResult, Result.Success<Unit> { override val value: Unit = Unit }
     class Failure internal constructor() : ExecutionResult, Result.InternalFailure<Unit>
 
     companion object {
         fun success(): ExecutionResult = Success()
-        fun error(feedback: Feedback<*> = ErrorMessages.Empty): ExecutionResult = Failure()
+        fun error(): ExecutionResult = Failure()
     }
 }
 
@@ -74,13 +73,13 @@ sealed interface SenderValidationResult: Result<Unit> {
         override val value: Unit = Unit
     }
 
-    class InvalidSenderError internal constructor(override val feedback: () -> Feedback0): SenderValidationResult, Result.Failure<Unit>
-    class InvalidSenderTypeError internal constructor(override val feedback: () -> Feedback0): SenderValidationResult, Result.Failure<Unit>
+    class InvalidSenderError internal constructor(override val feedback: Feedback0): SenderValidationResult, Result.Failure<Unit>
+    class InvalidSenderTypeError internal constructor(override val feedback: Feedback0): SenderValidationResult, Result.Failure<Unit>
 
     companion object {
         fun success(): SenderValidationResult = Success()
-        fun failSender(): SenderValidationResult = InvalidSenderError { ErrorMessages.InvalidSender }
-        fun failSenderType(): SenderValidationResult = InvalidSenderTypeError { ErrorMessages.InvalidSenderType }
+        fun failSender(): SenderValidationResult = InvalidSenderError(ErrorMessages.InvalidSender)
+        fun failSenderType(): SenderValidationResult = InvalidSenderTypeError(ErrorMessages.InvalidSenderType)
     }
 }
 

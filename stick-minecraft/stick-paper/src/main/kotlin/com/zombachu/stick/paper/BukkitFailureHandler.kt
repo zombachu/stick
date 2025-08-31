@@ -9,7 +9,7 @@ interface BukkitFailureHandler<E : BukkitEnvironment> : FailureHandler<E, Comman
 
 open class BasicBukkitFailureHandler : BukkitFailureHandler<BukkitEnvironment> {
     override fun onFailure(inv: Invocation<BukkitEnvironment, CommandSender>, failure: Result.Failure<*>) {
-        val message = failure.feedback().format()
+        val message = failure.feedback.format()
         if (message.isEmpty()) {
             return
         }
