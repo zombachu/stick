@@ -8,8 +8,8 @@ import org.bukkit.command.CommandSender
 interface BukkitFailureHandler<E : BukkitEnvironment> : FailureHandler<E, CommandSender>
 
 open class BasicBukkitFailureHandler : BukkitFailureHandler<BukkitEnvironment> {
-    override fun onFailure(inv: Invocation<BukkitEnvironment, CommandSender>, result: Result.Failure<*>) {
-        val message = result.feedback().format()
+    override fun onFailure(inv: Invocation<BukkitEnvironment, CommandSender>, failure: Result.Failure<*>) {
+        val message = failure.feedback().format()
         if (message.isEmpty()) {
             return
         }

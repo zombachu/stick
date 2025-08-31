@@ -8,7 +8,7 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.ValidationContext
-import com.zombachu.stick.handle
+import com.zombachu.stick.handleInternal
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Tuple
 import com.zombachu.stick.isSuccess
@@ -131,7 +131,7 @@ internal sealed class Signature<E : Environment, S>(
         for (indexedFlag in unprocessedFlags) {
             val flag = indexedFlag.element
 
-            val default = flag.validateSender().handle(
+            val default = flag.validateSender().handleInternal(
                 onSuccess = { flag.default(inv) },
                 onFailure = { (flag as TransformedFlag<E, S, *, *>).invalidDefault(inv) }
             )

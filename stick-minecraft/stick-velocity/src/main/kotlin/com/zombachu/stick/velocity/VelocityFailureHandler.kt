@@ -10,8 +10,8 @@ interface VelocityFailureHandler<E : VelocityEnvironment> : FailureHandler<E, Co
 
 open class BasicVelocityFailureHandler : VelocityFailureHandler<VelocityEnvironment> {
     private val textComponentSerializer: PlainTextComponentSerializer = PlainTextComponentSerializer.plainText()
-    override fun onFailure(inv: Invocation<VelocityEnvironment, CommandSource>, result: Result.Failure<*>) {
-        val message = result.feedback().format()
+    override fun onFailure(inv: Invocation<VelocityEnvironment, CommandSource>, failure: Result.Failure<*>) {
+        val message = failure.feedback().format()
         if (message.isEmpty()) {
             return
         }

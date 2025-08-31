@@ -65,9 +65,9 @@ class CustomBukkitEnvironment : BasicBukkitEnvironment(fakePlugin) {
 class CustomFailureHandler : FailureHandler<CustomBukkitEnvironment, CommandSender> {
     override fun onFailure(
         inv: Invocation<CustomBukkitEnvironment, CommandSender>,
-        result: Result.Failure<*>,
+        failure: Result.Failure<*>,
     ) {
-        val message = result.feedback().format()
+        val message = failure.feedback().format()
         if (message.isEmpty()) {
             return
         }
