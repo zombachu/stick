@@ -18,7 +18,7 @@ internal class OptionalParameter<E : Environment, S, T : Any>(
     override fun parse(args: List<String>): Result<T> {
         if (args.isEmpty()) {
             validatedDefault.validateSender().propagateError<T> { return it }
-            return ParsingResult.success(validatedDefault.value(inv))
+            return validatedDefault.value(inv)
         }
 
         if (!parameter.size.matches(args.size)) {

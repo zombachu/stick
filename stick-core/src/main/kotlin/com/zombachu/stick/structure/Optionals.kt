@@ -2,6 +2,7 @@ package com.zombachu.stick.structure
 
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
+import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.Parameter
@@ -20,7 +21,7 @@ fun <E : Environment, S, T : Any> BuilderScope<E, S>.defaultValidated(
 
 inline fun <E : Environment, S : Any, reified S2 : S> BuilderScope<E, S>.defaultSender(): ValidatedDefault<E, S, S2> {
     // TODO: Tell player it's not optional for them
-    return defaultValidated({ sender as S2 }, requirement() { it.sender is S2 })
+    return defaultValidated({ ParsingResult.success(sender as S2) }, requirement() { it.sender is S2 })
 }
 
 fun <E : Environment, S, T : Any> BuilderScope<E, S>.optionally(
@@ -34,4 +35,4 @@ fun <E : Environment, S, T : Any> BuilderScope<E, S>.optionally(
     default: T,
     parameter: StructureElement<E, S, Parameter<E, S, T>>,
 ): StructureElement<E, S, SignatureConstraint.Terminating<E, S, T>> =
-    optionally(defaultValidated({ default }), parameter)
+    optionally(defaultValidated({ ParsingResult.success(default) }), parameter)

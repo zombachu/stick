@@ -2,6 +2,7 @@ package com.zombachu.stick.structure
 
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
+import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Helper
 import com.zombachu.stick.element.HelperImpl
@@ -17,4 +18,4 @@ fun <E : Environment, S, T : Any> BuilderScope<E, S>.helper(
 fun <E : Environment, S, T : Any> BuilderScope<E, S>.helper(
     id: TypedIdentifier<T>,
 ): StructureElement<E, S, Helper<E, S, T>> =
-    helper { get(id) }
+    helper { ParsingResult.success(get(id)) }

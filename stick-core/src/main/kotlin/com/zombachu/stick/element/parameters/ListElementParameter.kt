@@ -9,6 +9,7 @@ import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.propagateError
+import com.zombachu.stick.valueOrPropagateError
 
 open class ListElementParameter<E : Environment, S, T : Any>(
     id: TypedIdentifier<T>,
@@ -19,7 +20,7 @@ open class ListElementParameter<E : Environment, S, T : Any>(
 
     context(inv: Invocation<E, S>)
     override fun parse(arg0: String): Result<T> {
-        val list = list(inv)
+        val list = list(inv).valueOrPropagateError { return it }
         if (list.isEmpty()) {
             onEmpty(inv).propagateError { return it }
             return ParsingResult.failHandled()

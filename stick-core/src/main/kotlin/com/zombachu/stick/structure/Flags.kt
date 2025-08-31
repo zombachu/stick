@@ -2,6 +2,7 @@ package com.zombachu.stick.structure
 
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
+import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Flag
 import com.zombachu.stick.element.FlagImpl
@@ -17,8 +18,8 @@ fun <E : Environment, S> BuilderScope<E, S>.flag(
     description: String = "",
 ): StructureElement<E, S, Flag<E, S, Boolean>> = {
     FlagImpl(
-        { false },
-        FlagParameter.PresenceFlagParameter(id, { true }, aliases.lowercase(), description)
+        { ParsingResult.success(false) },
+        FlagParameter.PresenceFlagParameter(id, { ParsingResult.success(true) }, aliases.lowercase(), description)
     )
 }
 fun <E : Environment, S> BuilderScope<E, S>.flag(
@@ -74,7 +75,7 @@ fun <E : Environment, S, T : Any> BuilderScope<E, S>.valueFlag(
     aliases: Set<String> = setOf(),
     description: String = "",
 ): StructureElement<E, S, Flag<E, S, T>> =
-    valueFlag(id, { default }, parameter, aliases.lowercase(), description)
+    valueFlag(id, { ParsingResult.success(default) }, parameter, aliases.lowercase(), description)
 inline fun <E : Environment, S, reified T : Any> BuilderScope<E, S>.valueFlag(
     name: String,
     default: T,

@@ -3,6 +3,7 @@ package com.zombachu.stick.paper
 import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Flag
@@ -43,7 +44,7 @@ class PageCommand: BukkitCommand<CommandSender> {
             )(
                 valueFlag(
                     id("wg"),
-                    default = { "huh" },
+                    default = { ParsingResult.success("huh") },
                     stringParameter(
                         id("worldgroup")
                     ),
@@ -51,7 +52,7 @@ class PageCommand: BukkitCommand<CommandSender> {
                 listElementParameter(
                     id("intElement"),
                     list = {
-                        listOf(1, 2, 3)
+                        ParsingResult.success(listOf(1, 2, 3))
                     },
                     onEmpty = {
                         sender.sendMessage("No pages")

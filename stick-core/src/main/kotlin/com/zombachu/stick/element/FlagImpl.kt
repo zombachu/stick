@@ -51,7 +51,7 @@ internal sealed class FlagParameter<E : Environment, S, T : Any>(
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): Result<T> {
             if (matches(args[0].lowercase())) {
-                return ParsingResult.success(inv.presentValue())
+                return inv.presentValue()
             }
             return ParsingResult.failTypeInternal()
         }

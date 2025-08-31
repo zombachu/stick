@@ -4,6 +4,7 @@ package com.zombachu.stick.structure
 
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
+import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.element.Flag
 import com.zombachu.stick.element.Parameter
@@ -107,7 +108,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T : Any> BuilderScope<E, S
 ): StructureElement<E, S, Flag<E, S, T>> =
     requireAs(
         { it as S2 },
-        { invalidDefault },
+        { ParsingResult.success(invalidDefault) },
         requirement + requirement(SenderValidationResult.failSenderType()) { it.sender is S2 },
         flag
     )
@@ -151,7 +152,7 @@ fun <E : Environment, S : Any, T : Any> BuilderScope<E, S>.require(
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     flag: StructureElement<E, S, StructureElement<E, S, Flag<E, S, T>>>,
 ): StructureElement<E, S, Flag<E, S, T>> =
-    requireAs({ it }, { invalidDefault }, requirement, flag)
+    requireAs({ it }, { ParsingResult.success(invalidDefault) }, requirement, flag)
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireCommand")
