@@ -8,7 +8,7 @@ import com.zombachu.stick.feedback.Feedback0
 import com.zombachu.stick.feedback.Feedback1
 import com.zombachu.stick.feedback.Feedback2
 import com.zombachu.stick.feedback.Feedback3
-import com.zombachu.stick.feedback.PreformattedFeedback2
+import com.zombachu.stick.feedback.PreformattedFeedback
 import com.zombachu.stick.impl.Array2
 import com.zombachu.stick.impl.Tuple
 import kotlin.contracts.ExperimentalContracts
@@ -37,7 +37,7 @@ sealed interface ParsingResult<T> : Result<T> {
     class TypeNotMatchedInternal<T> internal constructor() : ParsingResult<T>, Result.InternalFailure<T>
     class TypeNotMatchedError<T> internal constructor(override val feedback: Feedback2) : ParsingResult<T>, Result.Failure<T>
     class TypeNotMatchedSyntaxError<T> internal constructor(override val feedback: Feedback1) : ParsingResult<T>, Result.Failure<T>
-    class LiteralNotMatchedError<T> internal constructor(override val feedback: PreformattedFeedback2) : ParsingResult<T>, Result.Failure<T>
+    class LiteralNotMatchedError<T> internal constructor(override val feedback: PreformattedFeedback<Array2<String>>) : ParsingResult<T>, Result.Failure<T>
 
     class InvalidSyntaxError<T> internal constructor(override val feedback: Feedback1) : ParsingResult<T>, Result.Failure<T>
 

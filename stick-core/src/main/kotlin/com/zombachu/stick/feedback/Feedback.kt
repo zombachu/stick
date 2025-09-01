@@ -52,19 +52,6 @@ class PreformattedFeedback<N : Array<String>>(
     args: N,
     val extra: List<String>,
 ) : Feedback<N>(defaultText, args)
-typealias PreformattedFeedback0 = PreformattedFeedback<Array0<String>>
-typealias PreformattedFeedback1 = PreformattedFeedback<Array1<String>>
-typealias PreformattedFeedback2 = PreformattedFeedback<Array2<String>>
-typealias PreformattedFeedback3 = PreformattedFeedback<Array3<String>>
-typealias PreformattedFeedback4 = PreformattedFeedback<Array4<String>>
-typealias PreformattedFeedback5 = PreformattedFeedback<Array5<String>>
-typealias PreformattedFeedback6 = PreformattedFeedback<Array6<String>>
-typealias PreformattedFeedback7 = PreformattedFeedback<Array7<String>>
-typealias PreformattedFeedback8 = PreformattedFeedback<Array8<String>>
-typealias PreformattedFeedback9 = PreformattedFeedback<Array9<String>>
-typealias PreformattedFeedback10 = PreformattedFeedback<Array10<String>>
-typealias PreformattedFeedback11 = PreformattedFeedback<Array11<String>>
-typealias PreformattedFeedback12 = PreformattedFeedback<Array12<String>>
 
 sealed class FeedbackMessage<N : Array<String>>(val text: String)
 class FeedbackMessage0(defaultMessage: String) : FeedbackMessage<Array0<String>>(defaultMessage) {
