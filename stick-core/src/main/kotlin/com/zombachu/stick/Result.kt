@@ -105,7 +105,7 @@ internal inline fun <T, R> Result<T>.handleInternal(
     return if (isSuccess()) onSuccess(this) else onFailure(this)
 }
 
-inline fun <T2> Result<*>.propagateError(onFailure: (Result.Failure<T2>) -> Nothing) {
+inline fun <T2> Result<*>.propagateError(onFailure: (Result.InternalFailure<T2>) -> Nothing) {
     contract {
         callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
     }
@@ -116,7 +116,7 @@ inline fun <T2> Result<*>.propagateError(onFailure: (Result.Failure<T2>) -> Noth
     onFailure(unsafeCast())
 }
 
-inline fun <T, T2> Result<T>.valueOrPropagateError(onFailure: (Result.Failure<T2>) -> Nothing): T {
+inline fun <T, T2> Result<T>.valueOrPropagateError(onFailure: (Result.InternalFailure<T2>) -> Nothing): T {
     contract {
         callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
     }
@@ -136,4 +136,4 @@ fun <T> Result<T>.isSuccess(): Boolean {
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <T2> Result.InternalFailure<*>.unsafeCast(): Result.Failure<T2> = this as Result.Failure<T2>
+fun <T2> Result.InternalFailure<*>.unsafeCast(): Result.InternalFailure<T2> = this as Result.InternalFailure<T2>
