@@ -12,7 +12,7 @@ interface CommandWrapper<E : Environment, S> {
     val structure: Structure<E, S>
 
     fun execute(sender: S, fullArgs: List<String>) {
-        val inv = Invocation(sender, env, fullArgs.first(), fullArgs.subList(1, fullArgs.size), structure)
+        val inv = Invocation(sender, env, fullArgs.first(), fullArgs, structure)
         context(env, inv) {
             val result = structure.parse(fullArgs)
             // Ignore InternalFailures

@@ -25,8 +25,7 @@ internal open class InvocationImpl<E : Environment, S>(
 
     private val root: InvocationImpl<*, *> = parent?.root ?: this
 
-    // Use a reversed view of a list to optimize removal of args in order
-    internal open var unparsed: MutableList<String> = args.toMutableList().asReversed()
+    internal open var unparsed: MutableList<String> = args.toMutableList()
     internal open var parsed: MutableMap<TypedIdentifier<*>, Any> = mutableMapOf()
 
     override fun <T : Any> get(id: TypedIdentifier<T>): T {
