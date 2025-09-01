@@ -1,10 +1,10 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.Aliasable
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.Size
@@ -19,7 +19,7 @@ sealed interface SyntaxElement<E : Environment, S, T : Any> : Element<E, S, T> {
     val description: String
 
     context(inv: Invocation<E, S>)
-    fun parse(args: List<String>): Result<T>
+    fun parse(args: List<String>): CommandResult<T>
 
     context(validationContext: ValidationContext<E, S>)
     fun getSyntax(): String

@@ -1,8 +1,8 @@
 package com.zombachu.stick.impl
 
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.Result
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
 
@@ -16,7 +16,7 @@ interface CommandWrapper<E : Environment, S> {
         context(env, inv) {
             val result = structure.parse(fullArgs)
             // Ignore InternalFailures
-            if (result is Result.Failure) {
+            if (result is CommandResult.Failure) {
                 failureHandler.onFailure(result)
             }
         }

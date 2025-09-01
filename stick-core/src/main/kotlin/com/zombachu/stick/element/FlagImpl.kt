@@ -1,11 +1,11 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.Aliasable
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.InvocationImpl
@@ -23,7 +23,7 @@ internal open class FlagImpl<E : Environment, S, T : Any>(
     override val description: String = flagParameter.description
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): Result<T> {
+    override fun parse(args: List<String>): CommandResult<T> {
         return flagParameter.parse(args)
     }
 
@@ -49,7 +49,7 @@ internal sealed class FlagParameter<E : Environment, S, T : Any>(
     ) : FlagParameter<E, S, T>(Size(1), id, aliases, description) {
 
         context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): Result<T> {
+        override fun parse(args: List<String>): CommandResult<T> {
             if (matches(args[0].lowercase())) {
                 return inv.presentValue()
             }
@@ -68,7 +68,7 @@ internal sealed class FlagParameter<E : Environment, S, T : Any>(
     ) : FlagParameter<E, S, T>(Size(1) + valueElement.size, id, aliases, description) {
 
         context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): Result<T> {
+        override fun parse(args: List<String>): CommandResult<T> {
             if (matches(args[0].lowercase())) {
                 return valueElement.parse(args.subList(1, args.size))
             }
@@ -100,7 +100,7 @@ internal class TransformedFlag<E : Environment, S, S2 : Any, T : Any>(
     override val description: String = base.description
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): Result<T> {
+    override fun parse(args: List<String>): CommandResult<T> {
         val transformedInvocation = (inv as InvocationImpl).forSender(transform)
         context(transformedInvocation) {
             return base.parse(args)
@@ -116,5 +116,5 @@ internal class TransformedFlag<E : Environment, S, S2 : Any, T : Any>(
     }
 
     context(validationContext: ValidationContext<E, S>)
-    override fun validateSender(): Result<Unit> = requirement.validateSender()
+    override fun validateSender(): CommandResult<Unit> = requirement.validateSender()
 }

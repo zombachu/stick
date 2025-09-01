@@ -1,10 +1,9 @@
 package com.zombachu.stick.paper
 
-import com.zombachu.stick.ExecutionResult
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Flag
 import com.zombachu.stick.element.Groupable
@@ -56,7 +55,6 @@ class PageCommand: BukkitCommand<CommandSender> {
                     },
                     onEmpty = {
                         sender.sendMessage("No pages")
-                        ExecutionResult.success()
                     }
                 ),
                 group(
@@ -71,18 +69,15 @@ class PageCommand: BukkitCommand<CommandSender> {
             )
         }
 
-    fun goToPage(context: Invocation<BukkitEnvironment, Player>, flagValue: String, intElement: Int, result: GroupResult<*>): ExecutionResult {
+    fun goToPage(context: Invocation<BukkitEnvironment, Player>, flagValue: String, intElement: Int, result: GroupResult<*>) {
         result.on(id<String>("direction")) {
 
         }
         result.on(pageId) {
-            return ExecutionResult.success()
         }
-        return ExecutionResult.success()
     }
 
-    fun playerRequiredSubCommand(context: Invocation<BukkitEnvironment, Player>, string: String): ExecutionResult {
-        return ExecutionResult.success()
+    fun playerRequiredSubCommand(context: Invocation<BukkitEnvironment, Player>, string: String) {
     }
 }
 
@@ -117,10 +112,8 @@ class TestFlag: BukkitCommand<CommandSender> {
             )
         }
 
-    fun execute(context: Invocation<BukkitEnvironment, CommandSender>, f: String, ints: List<Int>): ExecutionResult {
+    fun execute(context: Invocation<BukkitEnvironment, CommandSender>, f: String, ints: List<Int>) {
         val id2: String by id<Int>("hello")
-
-        return ExecutionResult.success()
     }
 }
 
@@ -148,7 +141,7 @@ class SomeClass : BukkitCommand<CommandSender> {
 
         val test = object : Parameter.Size1<BukkitEnvironment, CommandSender, Boolean>(id(""), "") {
             context(inv: Invocation<BukkitEnvironment, CommandSender>)
-            override fun parse(arg0: String): Result<Boolean> {
+            override fun parse(arg0: String): CommandResult<Boolean> {
                 TODO("Not yet implemented")
             }
         }
@@ -190,7 +183,7 @@ class McpRequiredIntParameter(id: TypedIdentifier<Int>) : IntParameter<BukkitEnv
 class PlayerRequiredUnknownInt(name: String) : Parameter.UnknownSize<BukkitEnvironment, Player, Int>(Size.Unbounded,
     id(""), "") {
     context(inv: Invocation<BukkitEnvironment, Player>)
-    override fun parse(args: List<String>): Result<Int> {
+    override fun parse(args: List<String>): CommandResult<Int> {
         TODO("Not yet implemented")
     }
 }

@@ -1,11 +1,10 @@
 package com.zombachu.stick.element
 
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
-import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.InvocationImpl
@@ -26,7 +25,7 @@ internal open class StructureImpl<E : Environment, S>(
     override val type: ElementType = ElementType.Literal
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): Result<Unit> {
+    override fun parse(args: List<String>): CommandResult<Unit> {
         val peeked = (inv as InvocationImpl).peek(Size(1))
         if (peeked !is PeekingResult.Success) {
             return ParsingResult.failTypeSyntax(inv.getSyntax())
@@ -38,7 +37,7 @@ internal open class StructureImpl<E : Environment, S>(
         peeked.consume()
         validateSender().propagateError { return it }
         signature.execute().propagateError { return it }
-        return ExecutionResult.success()
+        return ParsingResult.success(Unit)
     }
 
     context(validationContext: ValidationContext<E, S>)
@@ -52,7 +51,7 @@ internal open class StructureImpl<E : Environment, S>(
     }
 
     context(validationContext: ValidationContext<E, S>)
-    override fun validateSender(): Result<Unit> = requirement.validateSender()
+    override fun validateSender(): CommandResult<Unit> = requirement.validateSender()
 }
 
 internal class TransformedStructure<E : Environment, S, S2 : Any>(
@@ -67,7 +66,7 @@ internal class TransformedStructure<E : Environment, S, S2 : Any>(
     Signature0(), // TransformedCommand forwards to signature of base command
 ) {
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): Result<Unit> {
+    override fun parse(args: List<String>): CommandResult<Unit> {
         val transformedInvocation = (inv as InvocationImpl).forSender(transform)
         context(transformedInvocation) {
             return base.parse(args)
@@ -83,7 +82,7 @@ internal class TransformedStructure<E : Environment, S, S2 : Any>(
     }
 
     context(validationContext: ValidationContext<E, S>)
-    override fun validateSender(): Result<Unit> {
+    override fun validateSender(): CommandResult<Unit> {
         val transformedValidationContext = validationContext.forSender(transform)
         context(transformedValidationContext) {
             return base.validateSender()

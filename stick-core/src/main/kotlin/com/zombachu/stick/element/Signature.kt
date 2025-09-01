@@ -2,11 +2,10 @@
 
 package com.zombachu.stick.element
 
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.Result
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.handleInternal
 import com.zombachu.stick.impl.InvocationImpl
@@ -32,12 +31,13 @@ internal sealed class Signature<E : Environment, S>(
         linearElements = partitioned.second
     }
 
-    protected abstract fun executeParsed(context: Invocation<E, S>, parsedValues: List<Any>): ExecutionResult
+    protected abstract fun executeParsed(context: Invocation<E, S>, parsedValues: List<Any>)
 
     context(inv: InvocationImpl<E, S>)
-    fun execute(): Result<*> {
+    fun execute(): CommandResult<*> {
         val value = parse().valueOrPropagateError<List<Any>, List<Any>> { return it }
-        return executeParsed(inv, value)
+        executeParsed(inv, value)
+        return ParsingResult.success(Unit)
     }
 
     context(validationContext: ValidationContext<E, S>)
@@ -74,7 +74,7 @@ internal sealed class Signature<E : Environment, S>(
         values: MutableList<Any>,
         element: SyntaxElement<E, S, Any>,
         index: Int
-    ): Result<Any> {
+    ): CommandResult<Any> {
         val processResult = inv.processSyntaxElement(element)
         if (processResult.isSuccess()) {
             values[index] = processResult.value
@@ -83,7 +83,7 @@ internal sealed class Signature<E : Environment, S>(
     }
 
     context(inv: InvocationImpl<E, S>)
-    private fun parse(): Result<List<Any>> {
+    private fun parse(): CommandResult<List<Any>> {
         val values: MutableList<Any> = MutableList(flags.size + linearElements.size) {}
 
         val unprocessedFlags = flags.toMutableList()

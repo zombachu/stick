@@ -15,10 +15,9 @@ import com.velocitypowered.api.proxy.server.ServerInfo
 import com.velocitypowered.api.scheduler.Scheduler
 import com.velocitypowered.api.util.ProxyVersion
 import com.zombachu.stick.Command
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.Result
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.structure.command
@@ -41,7 +40,6 @@ class BridgeTest {
                     stringParameter("message")
                 ) { message ->
                     sender.sendMessage(PlainTextComponentSerializer.plainText().deserialize(message))
-                    ExecutionResult.success()
                 }
             }
         }
@@ -63,7 +61,7 @@ class BridgeTest {
 
 class WrapperFailureHandler : FailureHandler<VelocityEnvironment, SourceWrapper> {
     context(inv: Invocation<VelocityEnvironment, SourceWrapper>)
-    override fun onFailure(failure: Result.Failure<*>) {
+    override fun onFailure(failure: CommandResult.Failure<*>) {
         TODO("Not yet implemented")
     }
 }

@@ -3,7 +3,6 @@ package com.zombachu.stick.structure
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
-import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
@@ -20,8 +19,8 @@ import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.LongParameter
 import com.zombachu.stick.element.parameters.ShortParameter
 import com.zombachu.stick.element.parameters.StringParameter
-import com.zombachu.stick.element.parameters.UUIDParameter
 import com.zombachu.stick.element.parameters.TextParameter
+import com.zombachu.stick.element.parameters.UUIDParameter
 import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.lowercase
@@ -261,7 +260,7 @@ fun <E : Environment, S, T : Any> BuilderScope<E, S>.listParameter(
 fun <E : Environment, S, T : Any> BuilderScope<E, S>.listElementParameter(
     id: TypedIdentifier<T>,
     list: ContextualValue<E, S, List<T>>,
-    onEmpty: Invocation<E, S>.() -> ExecutionResult,
+    onEmpty: Invocation<E, S>.() -> Unit,
     description: String = "",
 ): StructureElement<E, S, ListElementParameter<E, S, T>> = {
     ListElementParameter(id, description, list, onEmpty)
@@ -269,6 +268,6 @@ fun <E : Environment, S, T : Any> BuilderScope<E, S>.listElementParameter(
 inline fun <E : Environment, S, reified T : Any> BuilderScope<E, S>.listElementParameter(
     name: String,
     noinline list: ContextualValue<E, S, List<T>>,
-    noinline onEmpty: Invocation<E, S>.() -> ExecutionResult,
+    noinline onEmpty: Invocation<E, S>.() -> Unit,
     description: String = "",
 ): StructureElement<E, S, ListElementParameter<E, S, T>> = listElementParameter(id(name), list, onEmpty, description)

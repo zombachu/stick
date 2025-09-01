@@ -1,10 +1,10 @@
 package com.zombachu.stick.element
 
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.InvocationImpl
@@ -29,7 +29,7 @@ internal class GroupImpl<E : Environment, S>(
     override val type: ElementType = ElementType.Default
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): Result<GroupResult<*>> {
+    override fun parse(args: List<String>): CommandResult<GroupResult<*>> {
         for (element in prioritizedElements) {
             // Ignore elements unable to be accessed by the sender
             element.validateSender().propagateError<GroupResult<*>> { continue }

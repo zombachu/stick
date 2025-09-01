@@ -32,7 +32,7 @@ abstract class Bridge<in E : Environment, S : Any>(
         env: E2,
         failureHandler: FailureHandler<E2, S2>,
         transform: (S) -> S2,
-        validate: (validationContext: ValidationContext<E2, S>) -> Result<Unit>,
+        validate: (validationContext: ValidationContext<E2, S>) -> CommandResult<Unit>,
         block: context(E2, FailureHandler<E2, S2>) BridgeScope<E2, S2>.() -> Unit,
     ) {
         val transformedBridge = TransformedBridge(this, transform, Requirement(validate))
@@ -47,7 +47,7 @@ abstract class Bridge<in E : Environment, S : Any>(
         env: E2,
         failureHandler: FailureHandler<E2, S2>,
         transform: (S) -> S2,
-        failureResult: Result<Unit>,
+        failureResult: CommandResult<Unit>,
         validate: (validationContext: ValidationContext<E2, S>) -> Boolean,
         block: context(E2, FailureHandler<E2, S2>) BridgeScope<E2, S2>.() -> Unit,
     ) {
@@ -161,7 +161,7 @@ internal class TransformedBridge<E : Environment, S0 : Any, S : Any>(
     }
 
     context(validationContext: ValidationContext<E, S0>)
-    override fun validateSender(): Result<Unit> {
+    override fun validateSender(): CommandResult<Unit> {
         return requirement.validateSender()
     }
 }

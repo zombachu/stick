@@ -1,10 +1,10 @@
 package com.zombachu.stick.impl
 
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
-import com.zombachu.stick.Result
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Signature0
@@ -71,7 +71,7 @@ internal open class InvocationImpl<E : Environment, S>(
 
     internal fun processSyntaxElement(
         element: SyntaxElement<E, S, Any>,
-    ): Result<Any> {
+    ): CommandResult<Any> {
         val peeked = peek(element.size)
         if (peeked !is PeekingResult.Success) {
             return ParsingResult.failSyntax(getSyntax())

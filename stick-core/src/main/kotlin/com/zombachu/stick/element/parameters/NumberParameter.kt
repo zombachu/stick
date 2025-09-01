@@ -1,9 +1,9 @@
 package com.zombachu.stick.element.parameters
 
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 
@@ -17,7 +17,7 @@ open class NumberParameter<E : Environment, S, T>(
 ) : Parameter.Size1<E, S, T>(id, description) where T : Number, T : Comparable<T> {
 
     context(inv: Invocation<E, S>)
-    override fun parse(arg0: String): Result<T> {
+    override fun parse(arg0: String): CommandResult<T> {
         val number = arg0.toOrNull() ?: return ParsingResult.failType(errorType, arg0)
 
         // If the given number is not in the valid range then give the sender an error

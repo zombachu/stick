@@ -1,8 +1,8 @@
 package com.zombachu.stick.element
 
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.InvocationImpl
@@ -29,92 +29,92 @@ sealed class Parameter<E : Environment, S, T : Any>(
         FixedSize<E, S, T>(Size(1), id, description) {
 
         context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): Result<T> {
+        override fun parse(args: List<String>): CommandResult<T> {
             return parse(args[0])
         }
 
         context(inv: Invocation<E, S>)
-        abstract fun parse(arg0: String): Result<T>
+        abstract fun parse(arg0: String): CommandResult<T>
     }
     abstract class Size2<E : Environment, S, T : Any>(id: TypedIdentifier<T>, description: String) :
         FixedSize<E, S, T>(Size(2), id, description) {
 
         context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): Result<T> {
+        override fun parse(args: List<String>): CommandResult<T> {
             return parse(args[0], args[1])
         }
 
         context(inv: Invocation<E, S>)
-        abstract fun parse(arg0: String, arg1: String): Result<T>
+        abstract fun parse(arg0: String, arg1: String): CommandResult<T>
     }
     abstract class Size3<E : Environment, S, T : Any>(id: TypedIdentifier<T>, description: String) :
         FixedSize<E, S, T>(Size(3), id, description) {
 
         context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): Result<T> {
+        override fun parse(args: List<String>): CommandResult<T> {
             return parse(args[0], args[1], args[2])
         }
 
         context(inv: Invocation<E, S>)
-        abstract fun parse(arg0: String, arg1: String, arg2: String): Result<T>
+        abstract fun parse(arg0: String, arg1: String, arg2: String): CommandResult<T>
     }
     abstract class Size4<E : Environment, S, T : Any>(id: TypedIdentifier<T>, description: String) :
         FixedSize<E, S, T>(Size(4), id, description) {
 
         context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): Result<T> {
+        override fun parse(args: List<String>): CommandResult<T> {
             return parse(args[0], args[1], args[2], args[3])
         }
 
         context(inv: Invocation<E, S>)
-        abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String): Result<T>
+        abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String): CommandResult<T>
     }
     abstract class Size5<E : Environment, S, T : Any>(id: TypedIdentifier<T>, description: String) :
         FixedSize<E, S, T>(Size(5), id, description) {
 
         context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): Result<T> {
+        override fun parse(args: List<String>): CommandResult<T> {
             return parse(args[0], args[1], args[2], args[3], args[4])
         }
 
         context(inv: Invocation<E, S>)
-        abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String): Result<T>
+        abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String): CommandResult<T>
     }
     abstract class Size6<E : Environment, S, T : Any>(id: TypedIdentifier<T>, description: String) :
         FixedSize<E, S, T>(Size(6), id, description) {
 
         context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): Result<T> {
+        override fun parse(args: List<String>): CommandResult<T> {
             return parse(args[0], args[1], args[2], args[3], args[4], args[5])
         }
 
         context(inv: Invocation<E, S>)
         abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String,
-                           arg5: String): Result<T>
+                           arg5: String): CommandResult<T>
     }
     abstract class Size7<E : Environment, S, T : Any>(id: TypedIdentifier<T>, description: String) :
         FixedSize<E, S, T>(Size(7), id, description) {
 
         context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): Result<T> {
+        override fun parse(args: List<String>): CommandResult<T> {
             return parse(args[0], args[1], args[2], args[3], args[4], args[5], args[6])
         }
 
         context(inv: Invocation<E, S>)
         abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String, arg5: String,
-                           arg6: String): Result<T>
+                           arg6: String): CommandResult<T>
     }
     abstract class Size8<E : Environment, S, T : Any>(id: TypedIdentifier<T>, description: String) :
         FixedSize<E, S, T>(Size(8), id, description) {
 
         context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): Result<T> {
+        override fun parse(args: List<String>): CommandResult<T> {
             return parse(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7])
         }
 
         context(inv: Invocation<E, S>)
         abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String, arg5: String,
-                           arg6: String, arg7: String): Result<T>
+                           arg6: String, arg7: String): CommandResult<T>
     }
 
     abstract class UnknownSize<E : Environment, S, T : Any>(
@@ -136,7 +136,7 @@ internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T : Any>
     override val description: String = base.description
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): Result<T> {
+    override fun parse(args: List<String>): CommandResult<T> {
         val transformedInvocation = (inv as InvocationImpl).forSender(transform)
         context(transformedInvocation) {
             return base.parse(args)
@@ -152,5 +152,5 @@ internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T : Any>
     }
 
     context(validationContext: ValidationContext<E, S>)
-    override fun validateSender(): Result<Unit> = requirement.validateSender()
+    override fun validateSender(): CommandResult<Unit> = requirement.validateSender()
 }

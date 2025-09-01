@@ -1,7 +1,6 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.Aliasable
-import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.paper.structure.permission
 import com.zombachu.stick.paper.structure.permissionedValue
@@ -97,9 +96,8 @@ class WarpCommand : BukkitCommand<CommandSender> {
             ),
         )
 
-    fun teleport(context: Invocation<BukkitEnvironment, Player>, warp: String, isRaw: Boolean, player: Player): ExecutionResult {
+    fun teleport(context: Invocation<BukkitEnvironment, Player>, warp: String, isRaw: Boolean, player: Player) {
         val warp: String = context.get(warpParameterId)
-        return ExecutionResult.success()
     }
 }
 
@@ -127,7 +125,6 @@ class WarpInfoCommand: BukkitCommand<CommandSender> {
                 parameter = { McpRequiredIntParameter(id("mcpRequired")) }
             ),
         ) { wgFlag: String, weather: WeatherEnum, playerRequiredInt: Int ->
-            ExecutionResult.success()
         }
     }
 }

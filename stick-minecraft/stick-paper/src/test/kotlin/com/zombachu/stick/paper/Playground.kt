@@ -1,6 +1,6 @@
 package com.zombachu.stick.paper
 
-import com.zombachu.stick.Result
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.paper.P2.*
@@ -158,7 +158,7 @@ class P2 {
         }
     }
 
-    class Requiremento<E : Contexto<S>, S : Any> constructor(validate: (env: E) -> Result<Unit>)
+    class Requiremento<E : Contexto<S>, S : Any> constructor(validate: (env: E) -> CommandResult<Unit>)
 
     open class Parametero<E : Contexto<S>, S : Any, T : Any>
 

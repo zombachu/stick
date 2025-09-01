@@ -1,9 +1,9 @@
 package com.zombachu.stick.element
 
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.Result
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.impl.ValidatedDefault
@@ -15,7 +15,7 @@ internal class OptionalParameter<E : Environment, S, T : Any>(
 ) : Parameter.UnknownSize<E, S, T>(Size.Deferred, parameter.id, parameter.description) {
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): Result<T> {
+    override fun parse(args: List<String>): CommandResult<T> {
         if (args.isEmpty()) {
             validatedDefault.validateSender().propagateError<T> { return it }
             return validatedDefault.value(inv)

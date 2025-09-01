@@ -1,10 +1,9 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.Command
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.ExecutionResult
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.Result
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.feedback.FailureHandler
@@ -36,9 +35,8 @@ class CustomCommand : Command<CustomBukkitEnvironment, CommandSender> {
         )
 }
 
-private fun Invocation<CustomBukkitEnvironment, CommandSender>.doSomething(string: String, secondString: String, flagValue: String): ExecutionResult {
+private fun Invocation<CustomBukkitEnvironment, CommandSender>.doSomething(string: String, secondString: String, flagValue: String) {
     this.sender.sendMessage(string)
-    return ExecutionResult.success()
 }
 
 class UncustomCommand : Command<BukkitEnvironment, CommandSender> {
@@ -50,9 +48,8 @@ class UncustomCommand : Command<BukkitEnvironment, CommandSender> {
         )
 }
 
-private fun Invocation<BukkitEnvironment, CommandSender>.doOtherThing(string: String): ExecutionResult {
+private fun Invocation<BukkitEnvironment, CommandSender>.doOtherThing(string: String) {
     this.sender.sendMessage(string)
-    return ExecutionResult.success()
 }
 
 
@@ -64,7 +61,7 @@ class CustomBukkitEnvironment : BasicBukkitEnvironment(fakePlugin) {
 
 class CustomFailureHandler : FailureHandler<CustomBukkitEnvironment, CommandSender> {
     context(inv: Invocation<CustomBukkitEnvironment, CommandSender>)
-    override fun onFailure(failure: Result.Failure<*>) {
+    override fun onFailure(failure: CommandResult.Failure<*>) {
         val message = failure.feedback.format()
         if (message.isEmpty()) { return }
         inv.sender.sendMessage(inv.env.translateMessage(message))
@@ -91,7 +88,7 @@ class TranslatedStringParameter<S : Any>(
 ) : StringParameter<CustomBukkitEnvironment, S>(id, description) {
 
     context(inv: Invocation<CustomBukkitEnvironment, S>)
-    override fun parse(arg0: String): Result<String> {
+    override fun parse(arg0: String): CommandResult<String> {
         val translated = inv.env.translateMessage(arg0)
         return super.parse(translated)
     }
