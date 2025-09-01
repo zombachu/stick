@@ -26,7 +26,7 @@ sealed class Parameter<E : Environment, S, T : Any>(
         description: String,
     ) : Parameter<E, S, T>(size, id, description), SignatureConstraint.NonTerminating<E, S, T>
     abstract class Size1<E : Environment, S, T : Any>(id: TypedIdentifier<T>, description: String) :
-        FixedSize<E, S, T>(Size.Companion(1), id, description) {
+        FixedSize<E, S, T>(Size(1), id, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): Result<T> {
@@ -37,7 +37,7 @@ sealed class Parameter<E : Environment, S, T : Any>(
         abstract fun parse(arg0: String): Result<T>
     }
     abstract class Size2<E : Environment, S, T : Any>(id: TypedIdentifier<T>, description: String) :
-        FixedSize<E, S, T>(Size.Companion(2), id, description) {
+        FixedSize<E, S, T>(Size(2), id, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): Result<T> {
@@ -48,7 +48,7 @@ sealed class Parameter<E : Environment, S, T : Any>(
         abstract fun parse(arg0: String, arg1: String): Result<T>
     }
     abstract class Size3<E : Environment, S, T : Any>(id: TypedIdentifier<T>, description: String) :
-        FixedSize<E, S, T>(Size.Companion(3), id, description) {
+        FixedSize<E, S, T>(Size(3), id, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): Result<T> {
@@ -59,7 +59,7 @@ sealed class Parameter<E : Environment, S, T : Any>(
         abstract fun parse(arg0: String, arg1: String, arg2: String): Result<T>
     }
     abstract class Size4<E : Environment, S, T : Any>(id: TypedIdentifier<T>, description: String) :
-        FixedSize<E, S, T>(Size.Companion(4), id, description) {
+        FixedSize<E, S, T>(Size(4), id, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): Result<T> {
@@ -70,7 +70,7 @@ sealed class Parameter<E : Environment, S, T : Any>(
         abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String): Result<T>
     }
     abstract class Size5<E : Environment, S, T : Any>(id: TypedIdentifier<T>, description: String) :
-        FixedSize<E, S, T>(Size.Companion(5), id, description) {
+        FixedSize<E, S, T>(Size(5), id, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): Result<T> {
@@ -81,7 +81,7 @@ sealed class Parameter<E : Environment, S, T : Any>(
         abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String): Result<T>
     }
     abstract class Size6<E : Environment, S, T : Any>(id: TypedIdentifier<T>, description: String) :
-        FixedSize<E, S, T>(Size.Companion(6), id, description) {
+        FixedSize<E, S, T>(Size(6), id, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): Result<T> {
@@ -93,7 +93,7 @@ sealed class Parameter<E : Environment, S, T : Any>(
                            arg5: String): Result<T>
     }
     abstract class Size7<E : Environment, S, T : Any>(id: TypedIdentifier<T>, description: String) :
-        FixedSize<E, S, T>(Size.Companion(7), id, description) {
+        FixedSize<E, S, T>(Size(7), id, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): Result<T> {
@@ -105,7 +105,7 @@ sealed class Parameter<E : Environment, S, T : Any>(
                            arg6: String): Result<T>
     }
     abstract class Size8<E : Environment, S, T : Any>(id: TypedIdentifier<T>, description: String) :
-        FixedSize<E, S, T>(Size.Companion(8), id, description) {
+        FixedSize<E, S, T>(Size(8), id, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): Result<T> {

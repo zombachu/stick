@@ -27,17 +27,15 @@ internal open class StructureImpl<E : Environment, S>(
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): Result<Unit> {
-        val peeked = (inv as InvocationImpl).peek(Size.Companion(1))
+        val peeked = (inv as InvocationImpl).peek(Size(1))
         if (peeked !is PeekingResult.Success) {
             return ParsingResult.failTypeSyntax(inv.getSyntax())
         }
-
         val label = peeked.value.first().lowercase()
         if (!matches(label)) {
             return ParsingResult.failTypeSyntax(inv.getSyntax())
         }
         peeked.consume()
-
         validateSender().propagateError { return it }
         signature.execute().propagateError { return it }
         return ExecutionResult.success()

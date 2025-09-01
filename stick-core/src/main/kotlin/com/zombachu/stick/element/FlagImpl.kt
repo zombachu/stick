@@ -46,7 +46,7 @@ internal sealed class FlagParameter<E : Environment, S, T : Any>(
         val presentValue: ContextualValue<E, S, T>,
         aliases: Set<String>,
         description: String,
-    ) : FlagParameter<E, S, T>(Size.Companion(1), id, aliases, description) {
+    ) : FlagParameter<E, S, T>(Size(1), id, aliases, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): Result<T> {
@@ -65,7 +65,7 @@ internal sealed class FlagParameter<E : Environment, S, T : Any>(
         val valueElement: FixedSize<E, S, T>,
         aliases: Set<String>,
         description: String,
-    ) : FlagParameter<E, S, T>(Size.Companion(1) + valueElement.size, id, aliases, description) {
+    ) : FlagParameter<E, S, T>(Size(1) + valueElement.size, id, aliases, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): Result<T> {
