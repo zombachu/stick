@@ -21,7 +21,7 @@ import com.zombachu.stick.element.parameters.LongParameter
 import com.zombachu.stick.element.parameters.ShortParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.element.parameters.UUIDParameter
-import com.zombachu.stick.element.parameters.UnboundedStringParameter
+import com.zombachu.stick.element.parameters.TextParameter
 import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.lowercase
@@ -154,16 +154,16 @@ fun <E : Environment, S> BuilderScope<E, S>.stringParameter(
     description: String = "",
 ): StructureElement<E, S, StringParameter<E, S>> = stringParameter(id(name), description)
 
-fun <E : Environment, S> BuilderScope<E, S>.unboundedStringParameter(
+fun <E : Environment, S> BuilderScope<E, S>.textParameter(
     id: TypedIdentifier<String>,
     description: String = "",
-): StructureElement<E, S, UnboundedStringParameter<E, S>> = {
-    UnboundedStringParameter(id, description)
+): StructureElement<E, S, TextParameter<E, S>> = {
+    TextParameter(id, description)
 }
-fun <E : Environment, S> BuilderScope<E, S>.unboundedStringParameter(
+fun <E : Environment, S> BuilderScope<E, S>.textParameter(
     name: String,
     description: String = "",
-): StructureElement<E, S, UnboundedStringParameter<E, S>> = unboundedStringParameter(id(name), description)
+): StructureElement<E, S, TextParameter<E, S>> = textParameter(id(name), description)
 
 @JvmName("enumParameter")
 inline fun <E : Environment, S, reified T : Enum<T>> BuilderScope<E, S>.enumParameter(
