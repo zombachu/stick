@@ -1,4 +1,4 @@
 # stick
-A modern, type-safe command framework for Kotlin
+Ok but this time the wheel is typed
 
 [KDoc](https://zombachu.github.io/stick-kdoc/)
