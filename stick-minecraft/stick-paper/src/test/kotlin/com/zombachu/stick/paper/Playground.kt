@@ -53,14 +53,14 @@ fun main() {
 class Playground {
 
     fun test() {
-        val bridge = BukkitCommandBridge()
+        val stick = BukkitStick(fakePlugin)
 
-        bridge.withContext(BasicBukkitEnvironment(fakePlugin), BasicBukkitFailureHandler()) {
+        stick.withContext {
             register(WarpCommand())
             register(PageCommand())
         }
 
-        bridge.withContext(CustomBukkitEnvironment(), CustomFailureHandler()) {
+        stick.withContext(CustomBukkitEnvironment(), CustomFailureHandler()) {
             register(CustomCommand())
             register(PageCommand())
         }
@@ -198,24 +198,24 @@ class P2 {
 }
 
 
-fun <E : P2.BukContext<S>, S : Any> P2.SenderScopeo<E, S>.requiredSubtypeStringParametero(
+fun <E : BukContext<S>, S : Any> SenderScopeo<E, S>.requiredSubtypeStringParametero(
     id: TypedIdentifier<String>,
     description: String = "",
-): StructureElemeno<E, S, P2.StringParametero<E, S>> = {
-    P2.StringParametero(id, description)
+): StructureElemeno<E, S, StringParametero<E, S>> = {
+    StringParametero(id, description)
 }
 
 
-fun <E : Contexto<S>, S : Any> P2.SenderScopeo<E, S>.stringParametero(
+fun <E : Contexto<S>, S : Any> SenderScopeo<E, S>.stringParametero(
     id: TypedIdentifier<String>,
     description: String = "",
-): StructureElemeno<E, S, P2.StringParametero<E, S>> = {
-    P2.StringParametero(id, description)
+): StructureElemeno<E, S, StringParametero<E, S>> = {
+    StringParametero(id, description)
 }
 
 
-inline fun <E : Contexto<S>, S : Any, E2 : Contexto<S2>, reified S2 : S, T : Any> P2.SenderScopeo<E, S>.testingRequireIs(
-    contextType: P2.Clazz<E2>,
+inline fun <E : Contexto<S>, S : Any, E2 : Contexto<S2>, reified S2 : S, T : Any> SenderScopeo<E, S>.testingRequireIs(
+    contextType: Clazz<E2>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline parameter: StructureElemeno<E2, S2, StructureElemeno<E2, S2, Parametero<E2, S2, T>>>,
 ): StructureElemeno<E, S, ValidatedParametero<E, S, T>> = {

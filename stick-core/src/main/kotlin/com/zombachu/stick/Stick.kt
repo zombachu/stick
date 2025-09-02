@@ -12,32 +12,52 @@ import com.zombachu.stick.structure.requireAs
 import com.zombachu.stick.structure.requirement
 import kotlin.reflect.KClass
 
-abstract class Bridge<in E : Environment, S : Any>(
+abstract class Stick<E : Environment, S : Any>(
     val platformSenderClass: KClass<S>,
-) : CommandRegistrar<@UnsafeVariance E, S> {
+    private val defaultEnvironment: Lazy<E>,
+    private val defaultFailureHandler: Lazy<FailureHandler<E, S>>,
+// todo: Z
+    ) : CommandRegistrar<E, S> {
 
-    fun <E2 : E, S2 : Any> withContext(
+    fun <E2 : E> withContext(
         env: E2,
-        failureHandler: FailureHandler<E2, S2>,
-        block: context(E2, FailureHandler<E2, S2>) BridgeScope<@UnsafeVariance E, S>.() -> Unit,
+        failureHandler: FailureHandler<in E2, S> = defaultFailureHandler.value,
+        block: context(E2, FailureHandler<E2, S>) StickScope<E2, S>.() -> Unit,
     ) {
-        with(BridgeScope(this)) {
-            context(env, failureHandler) {
+        val transformedStick: TransformedStick<E, E2, S, S> = TransformedStick(
+            this,
+            { it },
+            Requirement { SenderValidationResult.success() }
+        )
+        with(StickScope(transformedStick)) {
+            // TODO: Handle safer
+            context(env, failureHandler as FailureHandler<E2, S>) {
                 block()
             }
         }
     }
 
+    fun withContext(
+        failureHandler: FailureHandler<in E, S> = defaultFailureHandler.value,
+        block: context(E, FailureHandler<E, S>) StickScope<E, S>.() -> Unit,
+    ) = withContext(defaultEnvironment.value, failureHandler, block)
+
+
     fun <E2 : E, S2 : Any> withContext(
         env: E2,
-        failureHandler: FailureHandler<E2, S2>,
+        failureHandler: FailureHandler<in E2, S2>,
         transform: (S) -> S2,
         validate: (validationContext: ValidationContext<E2, S>) -> CommandResult<Unit>,
-        block: context(E2, FailureHandler<E2, S2>) BridgeScope<E2, S2>.() -> Unit,
+        block: context(E2, FailureHandler<E2, S2>) StickScope<E2, S2>.() -> Unit,
     ) {
-        val transformedBridge = TransformedBridge(this, transform, Requirement(validate))
-        with(BridgeScope(transformedBridge)) {
-            context(env, failureHandler) {
+        val transformedStick: TransformedStick<E, E2, S, S2> = TransformedStick(
+            this,
+            transform,
+            Requirement(validate)
+        )
+        with(StickScope(transformedStick)) {
+            // TODO: Handle safer
+            context(env, failureHandler as FailureHandler<E2, S2>) {
                 block()
             }
         }
@@ -45,11 +65,11 @@ abstract class Bridge<in E : Environment, S : Any>(
 
     fun <E2 : E, S2 : Any> withContext(
         env: E2,
-        failureHandler: FailureHandler<E2, S2>,
+        failureHandler: FailureHandler<in E2, S2>,
         transform: (S) -> S2,
         failureResult: CommandResult<Unit>,
         validate: (validationContext: ValidationContext<E2, S>) -> Boolean,
-        block: context(E2, FailureHandler<E2, S2>) BridgeScope<E2, S2>.() -> Unit,
+        block: context(E2, FailureHandler<E2, S2>) StickScope<E2, S2>.() -> Unit,
     ) {
         withContext(
             env,
@@ -60,18 +80,18 @@ abstract class Bridge<in E : Environment, S : Any>(
         )
     }
 
-    context(env: E2, failureHandler: FailureHandler<E2, S>)
-    override fun <E2 : E, S2 : Any> internalRegister(
+    context(env: E, failureHandler: FailureHandler<E, S>)
+    override fun <S2 : Any> internalRegister(
         commandSenderClass: KClass<S2>,
-        command: Command<E2, S2>,
+        command: Command<E, S2>,
         isSenderRequiredType: (S) -> Boolean,
         castSender: (S) -> S2,
     ) {
-        val emptyContext: StructureScope<E2, S> = StructureScope.empty()
-        val structureElement: StructureElement<E2, S, Structure<E2, S>> =
+        val emptyContext: StructureScope<E, S> = StructureScope.empty()
+        val structureElement: StructureElement<E, S, Structure<E, S>> =
             if (commandSenderClass == platformSenderClass) {
                 @Suppress("UNCHECKED_CAST")
-                (command as Command<E2, S>).structure
+                (command as Command<E, S>).structure
             } else {
                 with(emptyContext) {
                     requireAs(
@@ -83,7 +103,7 @@ abstract class Bridge<in E : Environment, S : Any>(
                 }
             }
 
-        val structure: Structure<E2, S> = structureElement(emptyContext)
+        val structure: Structure<E, S> = structureElement(emptyContext)
         registerCommand(structure)
     }
 
@@ -91,29 +111,29 @@ abstract class Bridge<in E : Environment, S : Any>(
     protected abstract fun <E2 : E> registerCommand(structure: Structure<E2, S>)
 }
 
-class BridgeScope<E : Environment, S : Any>
+class StickScope<E : Environment, S : Any>
 @PublishedApi internal constructor(
-    @PublishedApi internal val bridge: CommandRegistrar<E, S>
+    @PublishedApi internal val stick: CommandRegistrar<E, S>
 ) {
 
-    context(env: E2, failureHandler: FailureHandler<E2, S>)
-    inline fun <E2 : E, reified S2 : S> register(command: Command<E2, S2>) {
-        bridge.internalRegister(
+    context(env: E, failureHandler: FailureHandler<E, S>)
+    inline fun <reified S2 : S> register(command: Command<in E, S2>) {
+        stick.internalRegister(
             S2::class,
-            command,
+            command as Command<E, S2>, // TODO: Handle safer
             { it is S2 },
             { it as S2 }
         )
     }
 
-    context(env: E2, failureHandler: FailureHandler<E2, S>)
-    inline fun <E2 : E, reified S2 : S> register(
-        block: CommandScope<E2, S2>.() -> StructureElement<E2, S2, Structure<E2, S2>>
+    context(env: E, failureHandler: FailureHandler<E, S>)
+    inline fun <reified S2 : S> register(
+        block: CommandScope<E, S2>.() -> StructureElement<E, S2, Structure<E, S2>>
     ) {
-        val commandScope = object : CommandScope<E2, S2> { }
+        val commandScope = object : CommandScope<E, S2> { }
         val structure = block(commandScope)
-        val command = object : Command<E2, S2> {
-            override val structure: StructureElement<E2, S2, Structure<E2, S2>> = structure
+        val command = object : Command<E, S2> {
+            override val structure: StructureElement<E, S2, Structure<E, S2>> = structure
         }
         register(command)
     }
@@ -121,32 +141,33 @@ class BridgeScope<E : Environment, S : Any>
 
 @PublishedApi
 internal interface CommandRegistrar<E : Environment, S : Any> {
-    context(env: E2, failureHandler: FailureHandler<E2, S>)
-    fun <E2 : E, S2 : Any> internalRegister(
+    context(env: E, failureHandler: FailureHandler<E, S>)
+    fun <S2 : Any> internalRegister(
         commandSenderClass: KClass<S2>,
-        command: Command<E2, S2>,
+        command: Command<E, S2>,
         isSenderRequiredType: (S) -> Boolean,
         castSender: (S) -> S2,
     )
 }
 
 @PublishedApi
-internal class TransformedBridge<E : Environment, S0 : Any, S : Any>(
-    val base: Bridge<E, S0>,
+internal class TransformedStick<E0 : Environment, E : E0, S0 : Any, S : Any>(
+    val base: Stick<E0, S0>,
     val transform: (S0) -> S,
     val requirement: Requirement<E, S0>,
 ) : CommandRegistrar<E, S>, SenderValidator<E, S0> {
 
-    context(env: E2, failureHandler: FailureHandler<E2, S>)
-    override fun <E2 : E, S2 : Any> internalRegister(
+    context(env: E, failureHandler: FailureHandler<E, S>)
+    override fun <S2 : Any> internalRegister(
         commandSenderClass: KClass<S2>,
-        command: Command<E2, S2>,
+        command: Command<E, S2>,
         isSenderRequiredType: (S) -> Boolean,
         castSender: (S) -> S2,
     ) {
-        val transformedFailureHandler = TransformedFailureHandler(failureHandler, transform)
+        val transformedFailureHandler: FailureHandler<E, S0> = TransformedFailureHandler(failureHandler, transform)
         context(transformedFailureHandler) {
-            base.internalRegister(
+            // TODO: Handle safer
+            (base as Stick<E, S0>).internalRegister(
                 commandSenderClass,
                 command,
                 {

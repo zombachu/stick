@@ -19,7 +19,9 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.SenderValidationResult
+import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
+import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.structure.command
 import com.zombachu.stick.structure.invoke
 import com.zombachu.stick.structure.stringParameter
@@ -33,7 +35,7 @@ class BridgeTest {
     fun test() {
         val env = BasicVelocityEnvironment(fakeProxyServer)
         val failureHandler = BasicVelocityFailureHandler()
-        val bridge = VelocityCommandBridge(Any(), fakeProxyServer)
+        val bridge = VelocityStick(Any(), fakeProxyServer)
         bridge.withContext(env, failureHandler) {
             register {
                 command("hi")(
@@ -51,13 +53,15 @@ class BridgeTest {
             { SourceWrapper(it) },
             { SenderValidationResult.success() }
         ) {
+
             register(WrapperCommand())
             register(Wrapper2Command())
-//            register(WrapperDisjointCommand()) // Shouldn't compile
+            register(UnderCommand())
+//            register(WrongSenderCommand()) Shouldn't compile
+//            register(WrongEnvironmentCommand()) // Shouldn't compile
         }
     }
 }
-
 
 class WrapperFailureHandler : FailureHandler<VelocityEnvironment, SourceWrapper> {
     context(inv: Invocation<VelocityEnvironment, SourceWrapper>)
@@ -66,8 +70,8 @@ class WrapperFailureHandler : FailureHandler<VelocityEnvironment, SourceWrapper>
     }
 }
 
-class WrapperDisjointCommand : Command<DisjointEnvironment, SourceWrapper> {
-    override val structure = command("hi")(stringParameter("hey"))
+class WrongEnvironmentCommand : Command<DisjointEnvironment, SourceWrapper> {
+    override val structure: StructureElement<DisjointEnvironment, SourceWrapper, Structure<DisjointEnvironment, SourceWrapper>> = command("hi")(stringParameter("hey"))
 }
 
 class WrapperCommand : VelocityCommand<SourceWrapper> {
@@ -77,6 +81,15 @@ class WrapperCommand : VelocityCommand<SourceWrapper> {
 class Wrapper2Command : VelocityCommand<Source2Wrapper> {
     override val structure = command("hi")(stringParameter("hey"))
 }
+
+class UnderCommand : Command<Environment, SourceWrapper> {
+    override val structure = command("hi")(stringParameter("hey"))
+}
+
+class WrongSenderCommand : Command<VelocityEnvironment, Int> {
+    override val structure = command("hi")(stringParameter("hey"))
+}
+
 
 open class SourceWrapper(val source: CommandSource)
 

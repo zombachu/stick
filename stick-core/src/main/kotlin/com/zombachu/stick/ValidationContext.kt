@@ -2,7 +2,7 @@ package com.zombachu.stick
 
 import com.zombachu.stick.impl.ValidationContextImpl
 
-interface ValidationContext<E : Environment, S> : SenderContext<S> {
+interface ValidationContext<out E : Environment, S> : SenderContext<S> {
     val env: E
 
     fun <S2 : Any> forSender(transform: (S) -> S2): ValidationContext<E, S2>

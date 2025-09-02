@@ -5,7 +5,7 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.ValidationContext
 
-interface SenderValidator<E : Environment, S> {
+interface SenderValidator<in E : Environment, S> {
     context(validationContext: ValidationContext<E, S>)
     fun validateSender(): CommandResult<Unit>
 }

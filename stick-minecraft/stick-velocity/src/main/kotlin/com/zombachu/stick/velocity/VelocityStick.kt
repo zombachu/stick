@@ -3,14 +3,18 @@ package com.zombachu.stick.velocity
 import com.velocitypowered.api.command.CommandManager
 import com.velocitypowered.api.command.CommandSource
 import com.velocitypowered.api.proxy.ProxyServer
-import com.zombachu.stick.Bridge
+import com.zombachu.stick.Stick
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
 
-class VelocityCommandBridge(
+class VelocityStick(
     private val plugin: Any,
     proxy: ProxyServer,
-) : Bridge<VelocityEnvironment, CommandSource>(CommandSource::class) {
+) : Stick<VelocityEnvironment, CommandSource>(
+    CommandSource::class,
+    lazy(LazyThreadSafetyMode.NONE) { BasicVelocityEnvironment(proxy) },
+    lazy(LazyThreadSafetyMode.NONE) { BasicVelocityFailureHandler() }
+) {
 
     private val commandManager: CommandManager = proxy.commandManager
 
