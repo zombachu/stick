@@ -46,15 +46,15 @@ sealed interface ParsingResult<T> : CommandResult<T> {
     interface CustomError<T> : ParsingResult<T>, CommandResult.Failure<T>
 
     companion object {
-        fun <T> success(value: T): ParsingResult<T> = Success(value)
+        fun <T> success(value: T): Success<T> = Success(value)
 //        fun <T> failUnknown(): ParsingResult<T> = UnknownError { ErrorMessages.Unknown }
-        fun <T> failHandled(): ParsingResult<T> = HandledError()
-        internal fun <T> failTypeInternal(): ParsingResult<T> = TypeNotMatchedInternal()
-        fun <T> failType(type: String, arg: String): ParsingResult<T> = TypeNotMatchedError(ErrorMessages.NotAType.with(type, arg))
-        fun <T> failTypeSyntax(syntax: String): ParsingResult<T> = TypeNotMatchedSyntaxError(ErrorMessages.InvalidSyntax.with(syntax))
-        fun <T> failLiteral(valid: List<String>, arg: String): ParsingResult<T> = LiteralNotMatchedError(ErrorMessages.InvalidLiteral.with(Array2(valid.joinToString(", "), arg), valid))
-        fun <T> failSyntax(syntax: String): ParsingResult<T> = InvalidSyntaxError(ErrorMessages.InvalidSyntax.with(syntax))
-        fun <T> failRange(min: String, max: String, arg: String): ParsingResult<T> = OutOfRangeError(ErrorMessages.OutOfRange.with(min, max, arg))
+        fun <T> failHandled(): HandledError<T> = HandledError()
+        internal fun <T> failTypeInternal(): TypeNotMatchedInternal<T> = TypeNotMatchedInternal()
+        fun <T> failType(type: String, arg: String): TypeNotMatchedError<T> = TypeNotMatchedError(ErrorMessages.NotAType.with(type, arg))
+        fun <T> failTypeSyntax(syntax: String): TypeNotMatchedSyntaxError<T> = TypeNotMatchedSyntaxError(ErrorMessages.InvalidSyntax.with(syntax))
+        fun <T> failLiteral(valid: List<String>, arg: String): LiteralNotMatchedError<T> = LiteralNotMatchedError(ErrorMessages.InvalidLiteral.with(Array2(valid.joinToString(", "), arg), valid))
+        fun <T> failSyntax(syntax: String): InvalidSyntaxError<T> = InvalidSyntaxError(ErrorMessages.InvalidSyntax.with(syntax))
+        fun <T> failRange(min: String, max: String, arg: String): OutOfRangeError<T> = OutOfRangeError(ErrorMessages.OutOfRange.with(min, max, arg))
     }
 }
 
@@ -67,9 +67,9 @@ sealed interface SenderValidationResult: CommandResult<Unit> {
     class InvalidSenderTypeError internal constructor(override val feedback: Feedback0): SenderValidationResult, CommandResult.Failure<Unit>
 
     companion object {
-        fun success(): SenderValidationResult = Success()
-        fun failSender(): SenderValidationResult = InvalidSenderError(ErrorMessages.InvalidSender)
-        fun failSenderType(): SenderValidationResult = InvalidSenderTypeError(ErrorMessages.InvalidSenderType)
+        fun success(): Success = Success()
+        fun failSender(): InvalidSenderError = InvalidSenderError(ErrorMessages.InvalidSender)
+        fun failSenderType(): InvalidSenderTypeError = InvalidSenderTypeError(ErrorMessages.InvalidSenderType)
     }
 }
 
@@ -83,8 +83,8 @@ internal sealed interface PeekingResult : CommandResult<List<String>> {
     class InvalidSizeError internal constructor() : PeekingResult, CommandResult.InternalFailure<List<String>>
 
     companion object {
-        fun success(mutableArgs: MutableList<String>): PeekingResult = Success(mutableArgs)
-        fun failSize(): PeekingResult = InvalidSizeError()
+        fun success(mutableArgs: MutableList<String>): Success = Success(mutableArgs)
+        fun failSize(): InvalidSizeError = InvalidSizeError()
     }
 }
 

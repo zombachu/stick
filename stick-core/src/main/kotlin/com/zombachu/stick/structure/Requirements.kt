@@ -21,14 +21,14 @@ fun <E : Environment, S> BuilderScope<E, S>.requirement(
 @OverloadResolutionByLambdaReturnType
 @JvmName("requirementBoolean")
 fun <E : Environment, S> BuilderScope<E, S>.requirement(
-    failureResult: CommandResult<Unit> = SenderValidationResult.failSender(),
+    failureResult: () -> CommandResult.Failure<Unit> = SenderValidationResult::failSender,
     validate: (validationContext: ValidationContext<E, S>) -> Boolean,
 ): Requirement<E, S> {
     return Requirement {
         if (validate(it)) {
             SenderValidationResult.success()
         } else {
-            failureResult
+            failureResult()
         }
     }
 }

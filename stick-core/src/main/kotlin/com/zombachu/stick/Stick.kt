@@ -16,8 +16,7 @@ abstract class Stick<E : Environment, S : Any>(
     val platformSenderClass: KClass<S>,
     private val defaultEnvironment: Lazy<E>,
     private val defaultFailureHandler: Lazy<FailureHandler<E, S>>,
-// todo: Z
-    ) : CommandRegistrar<E, S> {
+) : CommandRegistrar<E, S> {
 
     fun <E2 : E> withContext(
         env: E2,
@@ -30,7 +29,7 @@ abstract class Stick<E : Environment, S : Any>(
             Requirement { SenderValidationResult.success() }
         )
         with(StickScope(transformedStick)) {
-            // TODO: Handle safer
+            @Suppress("UNCHECKED_CAST")
             context(env, failureHandler as FailureHandler<E2, S>) {
                 block()
             }
@@ -56,7 +55,7 @@ abstract class Stick<E : Environment, S : Any>(
             Requirement(validate)
         )
         with(StickScope(transformedStick)) {
-            // TODO: Handle safer
+            @Suppress("UNCHECKED_CAST")
             context(env, failureHandler as FailureHandler<E2, S2>) {
                 block()
             }
@@ -96,7 +95,7 @@ abstract class Stick<E : Environment, S : Any>(
                 with(emptyContext) {
                     requireAs(
                         castSender,
-                        requirement(SenderValidationResult.failSenderType()) { isSenderRequiredType(it.sender) },
+                        requirement(SenderValidationResult::failSenderType) { isSenderRequiredType(it.sender) },
                     ) {
                         command.structure
                     }
@@ -118,9 +117,10 @@ class StickScope<E : Environment, S : Any>
 
     context(env: E, failureHandler: FailureHandler<E, S>)
     inline fun <reified S2 : S> register(command: Command<in E, S2>) {
+        @Suppress("UNCHECKED_CAST")
         stick.internalRegister(
             S2::class,
-            command as Command<E, S2>, // TODO: Handle safer
+            command as Command<E, S2>,
             { it is S2 },
             { it as S2 }
         )
@@ -166,7 +166,7 @@ internal class TransformedStick<E0 : Environment, E : E0, S0 : Any, S : Any>(
     ) {
         val transformedFailureHandler: FailureHandler<E, S0> = TransformedFailureHandler(failureHandler, transform)
         context(transformedFailureHandler) {
-            // TODO: Handle safer
+            @Suppress("UNCHECKED_CAST")
             (base as Stick<E, S0>).internalRegister(
                 commandSenderClass,
                 command,

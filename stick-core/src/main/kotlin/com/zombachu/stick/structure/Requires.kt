@@ -79,7 +79,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T : Any> BuilderScope<E, S
 ): StructureElement<E, S, ValidatedParameter<E, S, T>> =
     requireAs(
         { it as S2 },
-        requirement + requirement(SenderValidationResult.failSenderType()) { it.sender is S2 },
+        requirement + requirement(SenderValidationResult::failSenderType) { it.sender is S2 },
         parameter
     )
 
@@ -94,7 +94,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T : Any> BuilderScope<E, S
     requireAs(
         { it as S2 },
         invalidDefault,
-        requirement + requirement(SenderValidationResult.failSenderType()) { it.sender is S2 },
+        requirement + requirement(SenderValidationResult::failSenderType) { it.sender is S2 },
         flag
     )
 
@@ -109,7 +109,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T : Any> BuilderScope<E, S
     requireAs(
         { it as S2 },
         { ParsingResult.success(invalidDefault) },
-        requirement + requirement(SenderValidationResult.failSenderType()) { it.sender is S2 },
+        requirement + requirement(SenderValidationResult::failSenderType) { it.sender is S2 },
         flag
     )
 
@@ -123,7 +123,7 @@ inline fun <E : Environment, S : Any, reified S2 : S> BuilderScope<E, S>.require
 ): StructureElement<E, S, Structure<E, S>> =
     requireAs(
         { it as S2 },
-        requirement + requirement(SenderValidationResult.failSenderType()) { it.sender is S2 },
+        requirement + requirement(SenderValidationResult::failSenderType) { it.sender is S2 },
         command
     )
 
