@@ -9,7 +9,7 @@ import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.valueOrPropagateError
 
-open class ListElementParameter<E : Environment, S, T : Any>(
+open class ListElementParameter<E : Environment, S, T>(
     id: TypedIdentifier<T>,
     description: String,
     val list: ContextualValue<E, S, List<T>>,

@@ -22,7 +22,7 @@ import kotlin.reflect.KClass
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireAs")
-fun <S : Any, S2 : Any, E : Environment, T : Any> BuilderScope<E, S>.requireAs(
+fun <S : Any, S2 : Any, E : Environment, T> BuilderScope<E, S>.requireAs(
     transform: (S) -> S2,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
@@ -37,7 +37,7 @@ fun <S : Any, S2 : Any, E : Environment, T : Any> BuilderScope<E, S>.requireAs(
 }
 
 @OverloadResolutionByLambdaReturnType
-fun <E : Environment, S : Any, S2 : Any, T : Any> BuilderScope<E, S>.requireAs(
+fun <E : Environment, S : Any, S2 : Any, T> BuilderScope<E, S>.requireAs(
     transform: (S) -> S2,
     invalidDefault: ContextualValue<E, S, T>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
@@ -71,7 +71,7 @@ fun <E : Environment, S : Any, S2 : Any> BuilderScope<E, S>.requireAs(
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireIs")
-inline fun <E : Environment, S : Any, reified S2 : S, T : Any> BuilderScope<E, S>.requireIs(
+inline fun <E : Environment, S : Any, reified S2 : S, T> BuilderScope<E, S>.requireIs(
     senderType: KClass<S2>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
@@ -84,7 +84,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T : Any> BuilderScope<E, S
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T : Any> BuilderScope<E, S>.requireIs(
+inline fun <E : Environment, S : Any, reified S2 : S, T> BuilderScope<E, S>.requireIs(
     senderType: KClass<S2>,
     noinline invalidDefault: ContextualValue<E, S, T>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
@@ -99,7 +99,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T : Any> BuilderScope<E, S
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T : Any> BuilderScope<E, S>.requireIs(
+inline fun <E : Environment, S : Any, reified S2 : S, T> BuilderScope<E, S>.requireIs(
     senderType: KClass<S2>,
     invalidDefault: T,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
@@ -129,7 +129,7 @@ inline fun <E : Environment, S : Any, reified S2 : S> BuilderScope<E, S>.require
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("require")
-fun <E : Environment, S : Any, T : Any> BuilderScope<E, S>.require(
+fun <E : Environment, S : Any, T> BuilderScope<E, S>.require(
     requirement: Requirement<E, S>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     parameter: StructureElement<E, S, StructureElement<E, S, Parameter<E, S, T>>>,
@@ -137,7 +137,7 @@ fun <E : Environment, S : Any, T : Any> BuilderScope<E, S>.require(
     requireAs({ it }, requirement, parameter)
 
 @OverloadResolutionByLambdaReturnType
-fun <E : Environment, S : Any, T : Any> BuilderScope<E, S>.require(
+fun <E : Environment, S : Any, T> BuilderScope<E, S>.require(
     invalidDefault: ContextualValue<E, S, T>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
@@ -146,7 +146,7 @@ fun <E : Environment, S : Any, T : Any> BuilderScope<E, S>.require(
     requireAs({ it }, invalidDefault, requirement, flag)
 
 @OverloadResolutionByLambdaReturnType
-fun <E : Environment, S : Any, T : Any> BuilderScope<E, S>.require(
+fun <E : Environment, S : Any, T> BuilderScope<E, S>.require(
     invalidDefault: T,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda

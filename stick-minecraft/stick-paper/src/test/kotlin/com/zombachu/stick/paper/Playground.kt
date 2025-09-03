@@ -160,10 +160,10 @@ class P2 {
 
     class Requiremento<E : Contexto<S>, S : Any> constructor(validate: (env: E) -> CommandResult<Unit>)
 
-    open class Parametero<E : Contexto<S>, S : Any, T : Any>
+    open class Parametero<E : Contexto<S>, S : Any, T>
 
-    interface ValidatedParametero<E : Contexto<S>, S : Any, T : Any>
-    class ValidatedParameterImplo<E : Contexto<S>, S : Any, E2 : Contexto<S2>, S2 : Any, T : Any>(
+    interface ValidatedParametero<E : Contexto<S>, S : Any, T>
+    class ValidatedParameterImplo<E : Contexto<S>, S : Any, E2 : Contexto<S2>, S2 : Any, T>(
         val parameter: Parametero<E2, S2, T>,
         val requirement: Requiremento<E, S>,
         val transform: (S) -> S2,
@@ -214,7 +214,7 @@ fun <E : Contexto<S>, S : Any> SenderScopeo<E, S>.stringParametero(
 }
 
 
-inline fun <E : Contexto<S>, S : Any, E2 : Contexto<S2>, reified S2 : S, T : Any> SenderScopeo<E, S>.testingRequireIs(
+inline fun <E : Contexto<S>, S : Any, E2 : Contexto<S2>, reified S2 : S, T> SenderScopeo<E, S>.testingRequireIs(
     contextType: Clazz<E2>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline parameter: StructureElemeno<E2, S2, StructureElemeno<E2, S2, Parametero<E2, S2, T>>>,

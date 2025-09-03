@@ -6,7 +6,7 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.SenderValidator
 
-class ValidatedDefault<E : Environment, S, T : Any>(
+class ValidatedDefault<E : Environment, S, T>(
     val value: ContextualValue<E, S, T>,
     val validate: context(ValidationContext<E, S>) () -> CommandResult<Unit>,
 ): SenderValidator<E, S> {

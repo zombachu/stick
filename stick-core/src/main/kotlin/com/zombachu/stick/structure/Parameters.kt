@@ -244,20 +244,20 @@ fun <E : Environment, S> BuilderScope<E, S>.uuidParameter(
     description: String = "",
 ): StructureElement<E, S, UUIDParameter<E, S>> = uuidParameter(id(name), description)
 
-fun <E : Environment, S, T : Any> BuilderScope<E, S>.listParameter(
+fun <E : Environment, S, T> BuilderScope<E, S>.listParameter(
     id: TypedIdentifier<List<T>>,
     parameter: StructureElement<E, S, Parameter.Size1<E, S, T>>,
     description: String = "",
 ): StructureElement<E, S, ListParameter<E, S, T>> = {
     ListParameter(id, description, parameter(this))
 }
-fun <E : Environment, S, T : Any> BuilderScope<E, S>.listParameter(
+fun <E : Environment, S, T> BuilderScope<E, S>.listParameter(
     name: String,
     parameter: StructureElement<E, S, Parameter.Size1<E, S, T>>,
     description: String = "",
 ): StructureElement<E, S, ListParameter<E, S, T>> = listParameter(id(name), parameter, description)
 
-fun <E : Environment, S, T : Any> BuilderScope<E, S>.listElementParameter(
+fun <E : Environment, S, T> BuilderScope<E, S>.listElementParameter(
     id: TypedIdentifier<T>,
     list: ContextualValue<E, S, List<T>>,
     onEmpty: Invocation<E, S>.() -> Unit,
@@ -265,7 +265,7 @@ fun <E : Environment, S, T : Any> BuilderScope<E, S>.listElementParameter(
 ): StructureElement<E, S, ListElementParameter<E, S, T>> = {
     ListElementParameter(id, description, list, onEmpty)
 }
-inline fun <E : Environment, S, reified T : Any> BuilderScope<E, S>.listElementParameter(
+inline fun <E : Environment, S, reified T> BuilderScope<E, S>.listElementParameter(
     name: String,
     noinline list: ContextualValue<E, S, List<T>>,
     noinline onEmpty: Invocation<E, S>.() -> Unit,

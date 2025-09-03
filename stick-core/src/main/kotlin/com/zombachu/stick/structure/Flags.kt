@@ -28,7 +28,7 @@ fun <E : Environment, S> BuilderScope<E, S>.flag(
     description: String = "",
 ): StructureElement<E, S, Flag<E, S, Boolean>> = flag(id(name), aliases, description)
 
-fun <E : Environment, S, T : Any> BuilderScope<E, S>.flag(
+fun <E : Environment, S, T> BuilderScope<E, S>.flag(
     id: TypedIdentifier<T>,
     default: ContextualValue<E, S, T>,
     presentValue: ContextualValue<E, S, T>,
@@ -40,7 +40,7 @@ fun <E : Environment, S, T : Any> BuilderScope<E, S>.flag(
         FlagParameter.PresenceFlagParameter(id, presentValue, aliases.lowercase(), description)
     )
 }
-inline fun <E : Environment, S, reified T : Any> BuilderScope<E, S>.flag(
+inline fun <E : Environment, S, reified T> BuilderScope<E, S>.flag(
     name: String,
     noinline default: ContextualValue<E, S, T>,
     noinline presentValue: ContextualValue<E, S, T>,
@@ -48,7 +48,7 @@ inline fun <E : Environment, S, reified T : Any> BuilderScope<E, S>.flag(
     description: String = "",
 ): StructureElement<E, S, Flag<E, S, T>> = flag(id(name), default, presentValue, aliases, description)
 
-fun <E : Environment, S, T : Any> BuilderScope<E, S>.valueFlag(
+fun <E : Environment, S, T> BuilderScope<E, S>.valueFlag(
     id: TypedIdentifier<T>,
     default: ContextualValue<E, S, T>,
     parameter: StructureElement<E, S, Parameter.FixedSize<E, S, T>>,
@@ -60,7 +60,7 @@ fun <E : Environment, S, T : Any> BuilderScope<E, S>.valueFlag(
         FlagParameter.ValueFlagParameter(id, parameter(this), aliases.lowercase(), description)
     )
 }
-inline fun <E : Environment, S, reified T : Any> BuilderScope<E, S>.valueFlag(
+inline fun <E : Environment, S, reified T> BuilderScope<E, S>.valueFlag(
     name: String,
     noinline default: ContextualValue<E, S, T>,
     noinline parameter: StructureElement<E, S, Parameter.FixedSize<E, S, T>>,
@@ -68,7 +68,7 @@ inline fun <E : Environment, S, reified T : Any> BuilderScope<E, S>.valueFlag(
     description: String = "",
 ): StructureElement<E, S, Flag<E, S, T>> = valueFlag(id(name), default, parameter, aliases, description)
 
-fun <E : Environment, S, T : Any> BuilderScope<E, S>.valueFlag(
+fun <E : Environment, S, T> BuilderScope<E, S>.valueFlag(
     id: TypedIdentifier<T>,
     default: T,
     parameter: StructureElement<E, S, Parameter.FixedSize<E, S, T>>,
@@ -76,7 +76,7 @@ fun <E : Environment, S, T : Any> BuilderScope<E, S>.valueFlag(
     description: String = "",
 ): StructureElement<E, S, Flag<E, S, T>> =
     valueFlag(id, { ParsingResult.success(default) }, parameter, aliases.lowercase(), description)
-inline fun <E : Environment, S, reified T : Any> BuilderScope<E, S>.valueFlag(
+inline fun <E : Environment, S, reified T> BuilderScope<E, S>.valueFlag(
     name: String,
     default: T,
     noinline parameter: StructureElement<E, S, Parameter.FixedSize<E, S, T>>,

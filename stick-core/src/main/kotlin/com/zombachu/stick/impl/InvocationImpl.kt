@@ -26,14 +26,14 @@ internal open class InvocationImpl<E : Environment, S>(
     private val root: InvocationImpl<*, *> = parent?.root ?: this
 
     internal open var unparsed: MutableList<String> = args.toMutableList()
-    internal open var parsed: MutableMap<TypedIdentifier<*>, Any> = mutableMapOf()
+    internal open var parsed: MutableMap<TypedIdentifier<*>, Any?> = mutableMapOf()
 
-    override fun <T : Any> get(id: TypedIdentifier<T>): T {
+    override fun <T> get(id: TypedIdentifier<T>): T {
         @Suppress("UNCHECKED_CAST")
         return parsed[id] as T
     }
 
-    override fun <T : Any> getOrPut(id: TypedIdentifier<T>, defaultValue: () -> T): T {
+    override fun <T> getOrPut(id: TypedIdentifier<T>, defaultValue: () -> T): T {
         if (parsed.containsKey(id)) {
             return get(id)
         }
@@ -85,7 +85,7 @@ internal open class InvocationImpl<E : Environment, S>(
         }
     }
 
-    internal fun <T : Any> put(id: TypedIdentifier<T>, parsedValue: T) {
+    private fun <T> put(id: TypedIdentifier<T>, parsedValue: T) {
         parsed[id] = parsedValue
     }
 }
@@ -103,7 +103,7 @@ private class TransformedInvocationImpl<E : Environment, S, S2>(
     parent = base,
 ) {
     override var unparsed: MutableList<String> = base.unparsed
-    override var parsed: MutableMap<TypedIdentifier<*>, Any> = base.parsed
+    override var parsed: MutableMap<TypedIdentifier<*>, Any?> = base.parsed
 
     override fun getSyntaxForSender(): String {
         return base.getSyntaxForSender()

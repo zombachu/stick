@@ -11,7 +11,7 @@ interface SenderValidator<in E : Environment, S> {
 }
 
 context(validationContext: ValidationContext<E, S>)
-internal fun <E : Environment, S, T : Any> SyntaxElement<E, S, T>.validateSender(): CommandResult<Unit> {
+internal fun <E : Environment, S, T> SyntaxElement<E, S, T>.validateSender(): CommandResult<Unit> {
     return if (this !is SenderValidator<*, *>) {
         SenderValidationResult.success()
     } else {

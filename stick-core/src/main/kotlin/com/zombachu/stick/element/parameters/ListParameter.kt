@@ -8,7 +8,7 @@ import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.valueOrPropagateError
 
-open class ListParameter<E : Environment, S, T : Any>(
+open class ListParameter<E : Environment, S, T>(
     id: TypedIdentifier<List<T>>,
     description: String,
     val parameter: Size1<E, S, T>,

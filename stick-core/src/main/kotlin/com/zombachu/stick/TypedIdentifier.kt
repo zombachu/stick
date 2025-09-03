@@ -1,17 +1,18 @@
 package com.zombachu.stick
 
-import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-sealed interface TypedIdentifier<T : Any> {
+sealed interface TypedIdentifier<T> {
     val name: String
-    val type: KClass<T>
+    val typeHashCode: Int
+    val nullable: Boolean
 
     operator fun getValue(thisRef: Any?, property: KProperty<*>): String = name
 }
 
 @PublishedApi
-internal class TypedIdentifierImpl<T : Any>(
+internal data class TypedIdentifierImpl<T>(
     override val name: String,
-    override val type: KClass<T>,
+    override val typeHashCode: Int,
+    override val nullable: Boolean,
 ) : TypedIdentifier<T>

@@ -12,7 +12,7 @@ import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 
-internal open class FlagImpl<E : Environment, S, T : Any>(
+internal open class FlagImpl<E : Environment, S, T>(
     open val default: ContextualValue<E, S, T>,
     val flagParameter: FlagParameter<E, S, T>,
 ): Flag<E, S, T> {
@@ -31,7 +31,7 @@ internal open class FlagImpl<E : Environment, S, T : Any>(
     override fun getSyntax(): String = flagParameter.getSyntax()
 }
 
-internal sealed class FlagParameter<E : Environment, S, T : Any>(
+internal sealed class FlagParameter<E : Environment, S, T>(
     size: Size.Fixed,
     id: TypedIdentifier<T>,
     aliases: Set<String>,
@@ -41,7 +41,7 @@ internal sealed class FlagParameter<E : Environment, S, T : Any>(
     override val label: String = "-${id.name}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
 
-    internal class PresenceFlagParameter<E : Environment, S, T : Any>(
+    internal class PresenceFlagParameter<E : Environment, S, T>(
         id: TypedIdentifier<T>,
         val presentValue: ContextualValue<E, S, T>,
         aliases: Set<String>,
@@ -60,7 +60,7 @@ internal sealed class FlagParameter<E : Environment, S, T : Any>(
         override fun getSyntax(): String = "[$label]"
     }
 
-    internal class ValueFlagParameter<E : Environment, S, T : Any>(
+    internal class ValueFlagParameter<E : Environment, S, T>(
         id: TypedIdentifier<T>,
         val valueElement: FixedSize<E, S, T>,
         aliases: Set<String>,
@@ -80,7 +80,7 @@ internal sealed class FlagParameter<E : Environment, S, T : Any>(
     }
 }
 
-internal class TransformedFlag<E : Environment, S, S2 : Any, T : Any>(
+internal class TransformedFlag<E : Environment, S, S2 : Any, T>(
     val base: Flag<E, S2, T>,
     val transform: (S) -> S2,
     val requirement: Requirement<E, S>,

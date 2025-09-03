@@ -7,8 +7,8 @@ interface Invocation<E : Environment, S> : ValidationContext<E, S> {
     val label: String
     val args: List<String>
 
-    fun <T : Any> get(id: TypedIdentifier<T>): T
-    fun <T : Any> getOrPut(id: TypedIdentifier<T>, defaultValue: () -> T): T
+    fun <T> get(id: TypedIdentifier<T>): T
+    fun <T> getOrPut(id: TypedIdentifier<T>, defaultValue: () -> T): T
     fun getSyntax(): String
 
     companion object {

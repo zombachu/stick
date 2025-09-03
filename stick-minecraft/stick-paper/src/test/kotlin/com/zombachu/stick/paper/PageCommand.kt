@@ -206,7 +206,7 @@ fun <S : Any> BuilderScope<BukkitEnvironment, S>.mcpSender(
     command = command,
 )
 
-fun <T : Any> BuilderScope<BukkitEnvironment, CommandSender>.playerSender(
+fun <T> BuilderScope<BukkitEnvironment, CommandSender>.playerSender(
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     element: StructureElement<BukkitEnvironment, Player, StructureElement<BukkitEnvironment, Player, Parameter<BukkitEnvironment, Player, T>>>,
 ): StructureElement<BukkitEnvironment, CommandSender, Groupable<BukkitEnvironment, CommandSender, T>> =

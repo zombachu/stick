@@ -12,7 +12,7 @@ import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.ValidatedDefault
 
-fun <E : Environment, S, T : Any> BuilderScope<E, S>.defaultValidated(
+fun <E : Environment, S, T> BuilderScope<E, S>.defaultValidated(
     value: ContextualValue<E, S, T>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
 ): ValidatedDefault<E, S, T> {
@@ -24,14 +24,14 @@ inline fun <E : Environment, S : Any, reified S2 : S> BuilderScope<E, S>.default
     return defaultValidated({ ParsingResult.success(sender as S2) }, requirement() { it.sender is S2 })
 }
 
-fun <E : Environment, S, T : Any> BuilderScope<E, S>.optionally(
+fun <E : Environment, S, T> BuilderScope<E, S>.optionally(
     validatedDefault: ValidatedDefault<E, S, T>,
     parameter: StructureElement<E, S, Parameter<E, S, T>>,
 ): StructureElement<E, S, SignatureConstraint.Terminating<E, S, T>> = {
     OptionalParameter(validatedDefault, parameter(this))
 }
 
-fun <E : Environment, S, T : Any> BuilderScope<E, S>.optionally(
+fun <E : Environment, S, T> BuilderScope<E, S>.optionally(
     default: T,
     parameter: StructureElement<E, S, Parameter<E, S, T>>,
 ): StructureElement<E, S, SignatureConstraint.Terminating<E, S, T>> =
