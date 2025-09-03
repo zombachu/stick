@@ -36,3 +36,10 @@ fun <E : Environment, S, T> BuilderScope<E, S>.optionally(
     parameter: StructureElement<E, S, Parameter<E, S, T>>,
 ): StructureElement<E, S, SignatureConstraint.Terminating<E, S, T>> =
     optionally(defaultValidated({ ParsingResult.success(default) }), parameter)
+
+fun <E : Environment, S, T> BuilderScope<E, S>.optionallyNullable(
+    parameter: StructureElement<E, S, Parameter<E, S, out T>>,
+): StructureElement<E, S, SignatureConstraint.Terminating<E, S, T?>> = {
+    @Suppress("UNCHECKED_CAST")
+    OptionalParameter(defaultValidated({ ParsingResult.success(null) }), parameter(this) as Parameter<E, S, T?>)
+}
