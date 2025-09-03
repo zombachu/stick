@@ -21,7 +21,7 @@ import com.zombachu.stick.impl.Tuple9
 
 internal class Signature0<E_ : Environment, S>(
     val execute: Invocation<E_, S>.() -> Unit,
-    elements: Tuple0<SignatureConstraint<E_, S, out Any>>,
+    elements: Tuple0<SignatureConstraint<E_, S, out Any?>>,
 ): Signature<E_, S>(elements as Tuple<SignatureConstraint<E_, S, Any>>) {
     internal constructor() : this({ }, Tuple0())
     override fun executeParsed(context: Invocation<E_, S>, parsedValues: List<Any>) {
@@ -29,9 +29,9 @@ internal class Signature0<E_ : Environment, S>(
     }
 }
 
-internal class Signature1<E_ : Environment, S, A : Any>(
+internal class Signature1<E_ : Environment, S, A>(
     val execute: Invocation<E_, S>.(A) -> Unit,
-    elements: Tuple1<SignatureConstraint<E_, S, out Any>,
+    elements: Tuple1<SignatureConstraint<E_, S, out Any?>,
             SignatureConstraint.Terminating<E_, S, A>>,
 ): Signature<E_, S>(elements as Tuple<SignatureConstraint<E_, S, Any>>) {
     override fun executeParsed(context: Invocation<E_, S>, parsedValues: List<Any>) {
@@ -39,9 +39,9 @@ internal class Signature1<E_ : Environment, S, A : Any>(
     }
 }
 
-internal class Signature2<E_ : Environment, S, A : Any, B : Any>(
+internal class Signature2<E_ : Environment, S, A, B>(
     val execute: Invocation<E_, S>.(A, B) -> Unit,
-    elements: Tuple2<SignatureConstraint<E_, S, out Any>,
+    elements: Tuple2<SignatureConstraint<E_, S, out Any?>,
             SignatureConstraint.NonTerminating<E_, S, A>,
             SignatureConstraint.Terminating<E_, S, B>>,
 ): Signature<E_, S>(elements as Tuple<SignatureConstraint<E_, S, Any>>) {
@@ -50,9 +50,9 @@ internal class Signature2<E_ : Environment, S, A : Any, B : Any>(
     }
 }
 
-internal class Signature3<E_ : Environment, S, A : Any, B : Any, C : Any>(
+internal class Signature3<E_ : Environment, S, A, B, C>(
     val execute: Invocation<E_, S>.(A, B, C) -> Unit,
-    elements: Tuple3<SignatureConstraint<E_, S, out Any>,
+    elements: Tuple3<SignatureConstraint<E_, S, out Any?>,
             SignatureConstraint.NonTerminating<E_, S, A>,
             SignatureConstraint.NonTerminating<E_, S, B>,
             SignatureConstraint.Terminating<E_, S, C>>,
@@ -62,9 +62,9 @@ internal class Signature3<E_ : Environment, S, A : Any, B : Any, C : Any>(
     }
 }
 
-internal class Signature4<E_ : Environment, S, A : Any, B : Any, C : Any, D : Any>(
+internal class Signature4<E_ : Environment, S, A, B, C, D>(
     val execute: Invocation<E_, S>.(A, B, C, D) -> Unit,
-    elements: Tuple4<SignatureConstraint<E_, S, out Any>,
+    elements: Tuple4<SignatureConstraint<E_, S, out Any?>,
             SignatureConstraint.NonTerminating<E_, S, A>,
             SignatureConstraint.NonTerminating<E_, S, B>,
             SignatureConstraint.NonTerminating<E_, S, C>,
@@ -75,9 +75,9 @@ internal class Signature4<E_ : Environment, S, A : Any, B : Any, C : Any, D : An
     }
 }
 
-internal class Signature5<E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any>(
+internal class Signature5<E_ : Environment, S, A, B, C, D, E>(
     val execute: Invocation<E_, S>.(A, B, C, D, E) -> Unit,
-    elements: Tuple5<SignatureConstraint<E_, S, out Any>,
+    elements: Tuple5<SignatureConstraint<E_, S, out Any?>,
             SignatureConstraint.NonTerminating<E_, S, A>,
             SignatureConstraint.NonTerminating<E_, S, B>,
             SignatureConstraint.NonTerminating<E_, S, C>,
@@ -90,9 +90,9 @@ internal class Signature5<E_ : Environment, S, A : Any, B : Any, C : Any, D : An
     }
 }
 
-internal class Signature6<E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any>(
+internal class Signature6<E_ : Environment, S, A, B, C, D, E, F>(
     val execute: Invocation<E_, S>.(A, B, C, D, E, F) -> Unit,
-    elements: Tuple6<SignatureConstraint<E_, S, out Any>,
+    elements: Tuple6<SignatureConstraint<E_, S, out Any?>,
             SignatureConstraint.NonTerminating<E_, S, A>,
             SignatureConstraint.NonTerminating<E_, S, B>,
             SignatureConstraint.NonTerminating<E_, S, C>,
@@ -106,9 +106,9 @@ internal class Signature6<E_ : Environment, S, A : Any, B : Any, C : Any, D : An
     }
 }
 
-internal class Signature7<E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any>(
+internal class Signature7<E_ : Environment, S, A, B, C, D, E, F, G>(
     val execute: Invocation<E_, S>.(A, B, C, D, E, F, G) -> Unit,
-    elements: Tuple7<SignatureConstraint<E_, S, out Any>,
+    elements: Tuple7<SignatureConstraint<E_, S, out Any?>,
             SignatureConstraint.NonTerminating<E_, S, A>,
             SignatureConstraint.NonTerminating<E_, S, B>,
             SignatureConstraint.NonTerminating<E_, S, C>,
@@ -123,9 +123,9 @@ internal class Signature7<E_ : Environment, S, A : Any, B : Any, C : Any, D : An
     }
 }
 
-internal class Signature8<E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any>(
+internal class Signature8<E_ : Environment, S, A, B, C, D, E, F, G, H>(
     val execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H) -> Unit,
-    elements: Tuple8<SignatureConstraint<E_, S, out Any>,
+    elements: Tuple8<SignatureConstraint<E_, S, out Any?>,
             SignatureConstraint.NonTerminating<E_, S, A>,
             SignatureConstraint.NonTerminating<E_, S, B>,
             SignatureConstraint.NonTerminating<E_, S, C>,
@@ -141,9 +141,9 @@ internal class Signature8<E_ : Environment, S, A : Any, B : Any, C : Any, D : An
     }
 }
 
-internal class Signature9<E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any>(
+internal class Signature9<E_ : Environment, S, A, B, C, D, E, F, G, H, I>(
     val execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H, I) -> Unit,
-    elements: Tuple9<SignatureConstraint<E_, S, out Any>,
+    elements: Tuple9<SignatureConstraint<E_, S, out Any?>,
             SignatureConstraint.NonTerminating<E_, S, A>,
             SignatureConstraint.NonTerminating<E_, S, B>,
             SignatureConstraint.NonTerminating<E_, S, C>,
@@ -161,9 +161,9 @@ internal class Signature9<E_ : Environment, S, A : Any, B : Any, C : Any, D : An
     }
 }
 
-internal class Signature10<E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any>(
+internal class Signature10<E_ : Environment, S, A, B, C, D, E, F, G, H, I, J>(
     val execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H, I, J) -> Unit,
-    elements: Tuple10<SignatureConstraint<E_, S, out Any>,
+    elements: Tuple10<SignatureConstraint<E_, S, out Any?>,
             SignatureConstraint.NonTerminating<E_, S, A>,
             SignatureConstraint.NonTerminating<E_, S, B>,
             SignatureConstraint.NonTerminating<E_, S, C>,
@@ -182,10 +182,9 @@ internal class Signature10<E_ : Environment, S, A : Any, B : Any, C : Any, D : A
     }
 }
 
-internal class Signature11<E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any,
-        K : Any>(
+internal class Signature11<E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K>(
     val execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H, I, J, K) -> Unit,
-    elements: Tuple11<SignatureConstraint<E_, S, out Any>,
+    elements: Tuple11<SignatureConstraint<E_, S, out Any?>,
             SignatureConstraint.NonTerminating<E_, S, A>,
             SignatureConstraint.NonTerminating<E_, S, B>,
             SignatureConstraint.NonTerminating<E_, S, C>,
@@ -205,10 +204,9 @@ internal class Signature11<E_ : Environment, S, A : Any, B : Any, C : Any, D : A
     }
 }
 
-internal class Signature12<E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any, J : Any,
-        K : Any, L : Any>(
+internal class Signature12<E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K, L>(
     val execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H, I, J, K, L) -> Unit,
-    elements: Tuple12<SignatureConstraint<E_, S, out Any>,
+    elements: Tuple12<SignatureConstraint<E_, S, out Any?>,
             SignatureConstraint.NonTerminating<E_, S, A>,
             SignatureConstraint.NonTerminating<E_, S, B>,
             SignatureConstraint.NonTerminating<E_, S, C>,

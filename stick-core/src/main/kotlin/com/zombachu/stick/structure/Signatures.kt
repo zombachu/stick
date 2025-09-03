@@ -39,14 +39,14 @@ operator fun <E_ : Environment, S> StructureScope<E_, S>.invoke(
     this@invoke.build(Signature0(execute, Tuple0()))
 }
 
-operator fun <E_ : Environment, S, A : Any> StructureScope<E_, S>.invoke(
+operator fun <E_ : Environment, S, A> StructureScope<E_, S>.invoke(
     element: StructureElement<E_, S, SignatureConstraint.Terminating<E_, S, A>>,
     execute: Invocation<E_, S>.(A) -> Unit = {  },
 ): StructureElement<E_, S, Structure<E_, S>> = {
     this@invoke.build(Signature1(execute, Tuple1(element.invoke(this))))
 }
 
-operator fun <E_ : Environment, S, A : Any, B : Any> StructureScope<E_, S>.invoke(
+operator fun <E_ : Environment, S, A, B> StructureScope<E_, S>.invoke(
     elementA: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, A>>,
     elementB: StructureElement<E_, S, SignatureConstraint.Terminating<E_, S, B>>,
     execute: Invocation<E_, S>.(A, B) -> Unit = { a, b -> },
@@ -54,7 +54,7 @@ operator fun <E_ : Environment, S, A : Any, B : Any> StructureScope<E_, S>.invok
     this@invoke.build(Signature2(execute, Tuple2(elementA.invoke(this), elementB.invoke(this))))
 }
 
-operator fun <E_ : Environment, S, A : Any, B : Any, C : Any> StructureScope<E_, S>.invoke(
+operator fun <E_ : Environment, S, A, B, C> StructureScope<E_, S>.invoke(
     elementA: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, A>>,
     elementB: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, B>>,
     elementC: StructureElement<E_, S, SignatureConstraint.Terminating<E_, S, C>>,
@@ -65,7 +65,7 @@ operator fun <E_ : Environment, S, A : Any, B : Any, C : Any> StructureScope<E_,
     ))
 }
 
-operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any> StructureScope<E_, S>.invoke(
+operator fun <E_ : Environment, S, A, B, C, D> StructureScope<E_, S>.invoke(
     elementA: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, A>>,
     elementB: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, B>>,
     elementC: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, C>>,
@@ -77,7 +77,7 @@ operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any> Structure
     ))
 }
 
-operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any> StructureScope<E_, S>.invoke(
+operator fun <E_ : Environment, S, A, B, C, D, E> StructureScope<E_, S>.invoke(
     elementA: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, A>>,
     elementB: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, B>>,
     elementC: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, C>>,
@@ -91,8 +91,7 @@ operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any> 
     ))
 }
 
-operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any>
-        StructureScope<E_, S>.invoke(
+operator fun <E_ : Environment, S, A, B, C, D, E, F> StructureScope<E_, S>.invoke(
     elementA: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, A>>,
     elementB: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, B>>,
     elementC: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, C>>,
@@ -107,8 +106,7 @@ operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, 
     ))
 }
 
-operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any>
-        StructureScope<E_, S>.invoke(
+operator fun <E_ : Environment, S, A, B, C, D, E, F, G> StructureScope<E_, S>.invoke(
     elementA: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, A>>,
     elementB: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, B>>,
     elementC: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, C>>,
@@ -124,8 +122,7 @@ operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, 
     ))
 }
 
-operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any>
-        StructureScope<E_, S>.invoke(
+operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H> StructureScope<E_, S>.invoke(
     elementA: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, A>>,
     elementB: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, B>>,
     elementC: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, C>>,
@@ -142,8 +139,7 @@ operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, 
     ))
 }
 
-operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any>
-        StructureScope<E_, S>.invoke(
+operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I> StructureScope<E_, S>.invoke(
     elementA: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, A>>,
     elementB: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, B>>,
     elementC: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, C>>,
@@ -162,8 +158,7 @@ operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, 
     ))
 }
 
-operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any,
-        J : Any> StructureScope<E_, S>.invoke(
+operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J> StructureScope<E_, S>.invoke(
     elementA: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, A>>,
     elementB: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, B>>,
     elementC: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, C>>,
@@ -183,8 +178,7 @@ operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, 
     ))
 }
 
-operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any,
-        J : Any, K : Any> StructureScope<E_, S>.invoke(
+operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K> StructureScope<E_, S>.invoke(
     elementA: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, A>>,
     elementB: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, B>>,
     elementC: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, C>>,
@@ -205,8 +199,7 @@ operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, 
     ))
 }
 
-operator fun <E_ : Environment, S, A : Any, B : Any, C : Any, D : Any, E : Any, F : Any, G : Any, H : Any, I : Any,
-        J : Any, K : Any, L : Any> StructureScope<E_, S>.invoke(
+operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K, L> StructureScope<E_, S>.invoke(
     elementA: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, A>>,
     elementB: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, B>>,
     elementC: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, C>>,

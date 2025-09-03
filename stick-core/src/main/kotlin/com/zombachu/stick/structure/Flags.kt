@@ -66,7 +66,7 @@ inline fun <E : Environment, S, reified T> BuilderScope<E, S>.valueFlag(
     noinline parameter: StructureElement<E, S, Parameter.FixedSize<E, S, T>>,
     aliases: Set<String> = setOf(),
     description: String = "",
-): StructureElement<E, S, Flag<E, S, T>> = valueFlag(id(name), default, parameter, aliases, description)
+): StructureElement<E, S, Flag<E, S, T>> = valueFlag(id<T>(name), default, parameter, aliases, description)
 
 fun <E : Environment, S, T> BuilderScope<E, S>.valueFlag(
     id: TypedIdentifier<T>,
@@ -83,3 +83,40 @@ inline fun <E : Environment, S, reified T> BuilderScope<E, S>.valueFlag(
     aliases: Set<String> = setOf(),
     description: String = "",
 ): StructureElement<E, S, Flag<E, S, T>> = valueFlag(id(name), default, parameter, aliases, description)
+
+fun <E : Environment, S, T> BuilderScope<E, S>.nullableValueFlag(
+    id: TypedIdentifier<T?>,
+    default: ContextualValue<E, S, T?>,
+    parameter: StructureElement<E, S, Parameter.FixedSize<E, S, out T>>,
+    aliases: Set<String> = setOf(),
+    description: String = "",
+): StructureElement<E, S, Flag<E, S, T?>> = {
+    FlagImpl(
+        default,
+        // TODO: Handle safer
+        FlagParameter.ValueFlagParameter(id, parameter(this) as Parameter.FixedSize<E, S, T?>, aliases.lowercase(), description)
+    )
+}
+inline fun <E : Environment, S, reified T> BuilderScope<E, S>.nullableValueFlag(
+    name: String,
+    noinline default: ContextualValue<E, S, T?>,
+    noinline parameter: StructureElement<E, S, Parameter.FixedSize<E, S, out T>>,
+    aliases: Set<String> = setOf(),
+    description: String = "",
+): StructureElement<E, S, Flag<E, S, T?>> = nullableValueFlag(id<T?>(name), default, parameter, aliases, description)
+
+fun <E : Environment, S, T> BuilderScope<E, S>.nullableValueFlag(
+    id: TypedIdentifier<T?>,
+    default: T?,
+    parameter: StructureElement<E, S, Parameter.FixedSize<E, S, out T>>,
+    aliases: Set<String> = setOf(),
+    description: String = "",
+): StructureElement<E, S, Flag<E, S, T?>> =
+    nullableValueFlag(id, { ParsingResult.success(default) }, parameter, aliases.lowercase(), description)
+inline fun <E : Environment, S, reified T> BuilderScope<E, S>.nullableValueFlag(
+    name: String,
+    default: T,
+    noinline parameter: StructureElement<E, S, Parameter.FixedSize<E, S, out T>>,
+    aliases: Set<String> = setOf(),
+    description: String = "",
+): StructureElement<E, S, Flag<E, S, T?>> = nullableValueFlag(id(name), default, parameter, aliases, description)
