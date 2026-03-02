@@ -289,13 +289,15 @@ val fakePlugin: Plugin = object : Plugin {
         sender: CommandSender,
         command: Command,
         label: String,
-        args: Array<out String>?,
-    ): List<String?>? { TODO() }
+        args: Array<out String>,
+    ): List<String?> { TODO() }
 
     override fun onCommand(
         sender: CommandSender,
         command: Command,
         label: String,
-        args: Array<out String>?,
+        args: Array<out String>,
     ): Boolean { TODO() }
+
+    override fun namespace(): String { TODO() }
 }
