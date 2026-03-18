@@ -80,12 +80,4 @@ internal class TransformedStructure<E : Environment, S, S2 : Any>(
             return base.getSyntax()
         }
     }
-
-    context(validationContext: ValidationContext<E, S>)
-    override fun validateSender(): CommandResult<Unit> {
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
-            return base.validateSender()
-        }
-    }
 }
