@@ -78,6 +78,20 @@ internal class PipelinedFlagParameter<E : Environment, S, A, T>(
         }
 }
 
+@PublishedApi
+internal class PipelinedOptionalParameter<E : Environment, S, A, T>(
+    private val base: OptionalParameter<E, S, A>,
+    private val operations: List<PipelineOperation<E, S, *, *>>,
+    id: TypedIdentifier<T>,
+) : Parameter.UnknownSize<E, S, T>(base.size, id, base.description), OptionalParameter<E, S, T> {
+
+    context(inv: Invocation<E, S>)
+    override fun parse(args: List<String>): CommandResult<T> = parsePipeline(args, base, operations)
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun getSyntax(): String = base.getSyntax()
+}
+
 @Suppress("UNCHECKED_CAST")
 context(inv: Invocation<E, S>)
 private fun <E : Environment, S, A, T> parsePipeline(

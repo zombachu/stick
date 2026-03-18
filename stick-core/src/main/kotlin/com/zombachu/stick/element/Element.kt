@@ -44,3 +44,4 @@ sealed interface Flag<E : Environment, S, T> : SyntaxElement<E, S, T>, Signature
 sealed interface Group<E : Environment, S> : SyntaxElement<E, S, GroupResult<*>>, SignatureConstraint.Terminating<E, S, GroupResult<*>>
 sealed interface Structure<E : Environment, S> : Groupable<E, S, Unit>, SignatureConstraint.Terminating<E, S, Unit>, Aliasable, SenderValidator<E, S>
 sealed interface ValidatedParameter<E : Environment, S, T> : Groupable<E, S, T>
+sealed interface OptionalParameter<E : Environment, S, T> : SyntaxElement<E, S, T>, SignatureConstraint.Terminating<E, S, T>

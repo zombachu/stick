@@ -5,8 +5,8 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.element.OptionalParameter
+import com.zombachu.stick.element.OptionalParameterImpl
 import com.zombachu.stick.element.Parameter
-import com.zombachu.stick.element.SignatureConstraint
 import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.StructureElement
@@ -27,19 +27,19 @@ inline fun <E : Environment, S : Any, reified S2 : S> BuilderScope<E, S>.default
 fun <E : Environment, S, T> BuilderScope<E, S>.optionally(
     validatedDefault: ValidatedDefault<E, S, T>,
     parameter: StructureElement<E, S, Parameter<E, S, T>>,
-): StructureElement<E, S, SignatureConstraint.Terminating<E, S, T>> = {
-    OptionalParameter(validatedDefault, parameter(this))
+): StructureElement<E, S, OptionalParameter<E, S, T>> = {
+    OptionalParameterImpl(validatedDefault, parameter(this))
 }
 
 fun <E : Environment, S, T> BuilderScope<E, S>.optionally(
     default: T,
     parameter: StructureElement<E, S, Parameter<E, S, T>>,
-): StructureElement<E, S, SignatureConstraint.Terminating<E, S, T>> =
+): StructureElement<E, S, OptionalParameter<E, S, T>> =
     optionally(defaultValidated({ ParsingResult.success(default) }), parameter)
 
 fun <E : Environment, S, T> BuilderScope<E, S>.optionallyNullable(
     parameter: StructureElement<E, S, Parameter<E, S, out T>>,
-): StructureElement<E, S, SignatureConstraint.Terminating<E, S, T?>> = {
+): StructureElement<E, S, OptionalParameter<E, S, T?>> = {
     @Suppress("UNCHECKED_CAST")
-    OptionalParameter(defaultValidated({ ParsingResult.success(null) }), parameter(this) as Parameter<E, S, T?>)
+    OptionalParameterImpl(defaultValidated({ ParsingResult.success(null) }), parameter(this) as Parameter<E, S, T?>)
 }
