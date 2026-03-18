@@ -2,6 +2,7 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Invocation
@@ -37,7 +38,9 @@ sealed interface Groupable<E : Environment, S, T> : SyntaxElement<E, S, T> {
 }
 
 sealed interface Helper<E : Environment, S, T> : SignatureConstraint.NonTerminating<E, S, T>
-sealed interface Flag<E : Environment, S, T> : SyntaxElement<E, S, T>, SignatureConstraint.NonTerminating<E, S, T>
+sealed interface Flag<E : Environment, S, T> : SyntaxElement<E, S, T>, SignatureConstraint.NonTerminating<E, S, T> {
+    val default: ContextualValue<E, S, T>
+}
 sealed interface Group<E : Environment, S> : SyntaxElement<E, S, GroupResult<*>>, SignatureConstraint.Terminating<E, S, GroupResult<*>>
 sealed interface Structure<E : Environment, S> : Groupable<E, S, Unit>, SignatureConstraint.Terminating<E, S, Unit>, Aliasable, SenderValidator<E, S>
 sealed interface ValidatedParameter<E : Environment, S, T> : Groupable<E, S, T>

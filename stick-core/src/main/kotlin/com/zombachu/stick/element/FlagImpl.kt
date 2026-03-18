@@ -13,8 +13,8 @@ import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 
 internal open class FlagImpl<E : Environment, S, T>(
-    open val default: ContextualValue<E, S, T>,
-    val flagParameter: FlagParameter<E, S, T>,
+    override val default: ContextualValue<E, S, T>,
+    private val flagParameter: FlagParameter<E, S, T>,
 ): Flag<E, S, T> {
 
     override val size: Size = flagParameter.size
@@ -92,7 +92,7 @@ internal class TransformedFlag<E : Environment, S, S2 : Any, T>(
 
     override val default: ContextualValue<E, S, T> = {
         val transformedInvocation = (this as InvocationImpl).forSender(transform)
-        (base as FlagImpl).default(transformedInvocation)
+        base.default(transformedInvocation)
     }
 
     override val size: Size = base.size

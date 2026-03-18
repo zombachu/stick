@@ -19,15 +19,15 @@ import kotlin.contracts.contract
 internal sealed class Signature<E : Environment, S>(
     elements: Tuple<SignatureConstraint<E, S, Any>>
 ) {
-    private val flags: List<IndexedElement<E, S, FlagImpl<E, S, Any>>>
+    private val flags: List<IndexedElement<E, S, Flag<E, S, Any>>>
     private val linearElements: List<IndexedElement<E, S, Element<E, S, Any>>>
 
     init {
         val partitioned = elements.toList()
             .mapIndexed { i, e -> IndexedElement(i, e) }
-            .partition { it.element is FlagImpl }
+            .partition { it.element is Flag }
         @Suppress("UNCHECKED_CAST")
-        flags = partitioned.first as List<IndexedElement<E, S, FlagImpl<E, S, Any>>>
+        flags = partitioned.first as List<IndexedElement<E, S, Flag<E, S, Any>>>
         linearElements = partitioned.second
     }
 
@@ -104,7 +104,7 @@ internal sealed class Signature<E : Environment, S>(
             val flagsIt = unprocessedFlags.iterator()
             while (flagsIt.hasNext()) {
                 val indexedFlag = flagsIt.next()
-                val flag: FlagImpl<E, S, Any> = indexedFlag.element
+                val flag: Flag<E, S, Any> = indexedFlag.element
 
                 // Ignore flags unable to be accessed by the sender
                 flag.validateSender().propagateError<List<Any>> { continue }
