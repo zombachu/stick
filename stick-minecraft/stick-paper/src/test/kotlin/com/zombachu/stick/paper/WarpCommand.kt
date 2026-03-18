@@ -2,6 +2,10 @@ package com.zombachu.stick.paper
 
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.element.SignatureConstraint
+import com.zombachu.stick.impl.BuilderScope
+import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.paper.structure.permission
 import com.zombachu.stick.paper.structure.permissionedValue
 import com.zombachu.stick.paper.structure.playerParameter
@@ -14,6 +18,7 @@ import com.zombachu.stick.structure.helper
 import com.zombachu.stick.structure.id
 import com.zombachu.stick.structure.invoke
 import com.zombachu.stick.structure.optionally
+import com.zombachu.stick.structure.pipeline
 import com.zombachu.stick.structure.requireAs
 import com.zombachu.stick.structure.requireIs
 import com.zombachu.stick.structure.requirement
@@ -131,7 +136,34 @@ class WarpInfoCommand: BukkitCommand<CommandSender> {
 
 class SomePlayerCommand: BukkitCommand<Player> {
     override val structure =
-        command("hey")(stringParameter(id("hi")))
+        command("hey")(
+            stringParameter("hello").pipeline(
+                { ParsingResult.success(it.toInt()) },
+                { ParsingResult.success(it * 5f) },
+                { ParsingResult.success(it.toDouble()) },
+            ),
+            flag(
+                id = id("there"),
+                aliases = setOf("a", "b", "c", "d"),
+                description = "yup",
+            ).pipeline(
+                { ParsingResult.success(if (it) 1 else 0) },
+                { ParsingResult.success(it * 5f) },
+                { ParsingResult.success(it.toDouble()) },
+            ),
+            optionally(
+                default = 10f,
+                parameter = stringParameter(
+                    name = "num",
+                    description = "Number as a string for some reason"
+                ).pipeline(
+                    { ParsingResult.success(it.toInt()) },
+                    { ParsingResult.success(it / 2f) }
+                )
+            )
+        ) { hello: Double, there: Double, num: Float ->
+
+        }
 }
 
 enum class WeatherEnum(
@@ -146,3 +178,17 @@ enum class WeatherEnum(
 enum class Rgb {
     Red, Green, Blue
 }
+
+fun <E : BasicBukkitEnvironment> BuilderScope<E, CommandSender>.targetPlayer(
+
+): StructureElement<E, CommandSender, SignatureConstraint.Terminating<E, CommandSender, Player>> =
+    optionally(
+        validatedDefault = defaultSender<E, CommandSender, Player>(),
+        parameter = playerParameter("player", "The player to explode.").pipeline {
+            if (!it.hasPermission("some_permission")) {
+                ParsingResult.failSyntax("bad permission")
+            } else {
+                ParsingResult.success(it)
+            }
+        }
+    )
