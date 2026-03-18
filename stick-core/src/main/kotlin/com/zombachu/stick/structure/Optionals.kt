@@ -8,38 +8,66 @@ import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.OptionalParameterImpl
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.impl.BuilderScope
+import com.zombachu.stick.impl.InvalidSenderDefault
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.StructureElement
-import com.zombachu.stick.impl.ValidatedDefault
+import com.zombachu.stick.impl.ValidSenderDefault
+import com.zombachu.stick.impl.ValidatedDefaultImpl
 
-fun <E : Environment, S, T> BuilderScope<E, S>.defaultValidated(
+fun <E : Environment, S, T> BuilderScope<E, S>.default(
     value: ContextualValue<E, S, T>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
-): ValidatedDefault<E, S, T> {
-    return ValidatedDefault(value) { requirement.validateSender() }
+): ValidSenderDefault<E, S, T> {
+    return ValidatedDefaultImpl(value) { requirement.validateSender() }
 }
 
-inline fun <E : Environment, S : Any, reified S2 : S> BuilderScope<E, S>.defaultSender(): ValidatedDefault<E, S, S2> {
+fun <E : Environment, S, T> BuilderScope<E, S>.default(value: T): ValidSenderDefault<E, S, T> =
+    default({ ParsingResult.success(value) })
+
+fun <E : Environment, S, T> BuilderScope<E, S>.invalidDefault(
+    value: ContextualValue<E, S, T>,
+    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
+): InvalidSenderDefault<E, S, T> {
+    return ValidatedDefaultImpl(value) { requirement.validateSender() }
+}
+
+fun <E : Environment, S, T> BuilderScope<E, S>.invalidDefault(value: T): InvalidSenderDefault<E, S, T> =
+    invalidDefault({ ParsingResult.success(value) })
+
+inline fun <E : Environment, S : Any, reified S2 : S> BuilderScope<E, S>.defaultSender(): ValidSenderDefault<E, S, S2> {
     // TODO: Tell player it's not optional for them
-    return defaultValidated({ ParsingResult.success(sender as S2) }, requirement() { it.sender is S2 })
+    return default({ ParsingResult.success(sender as S2) }, requirement { it.sender is S2 })
 }
 
 fun <E : Environment, S, T> BuilderScope<E, S>.optionally(
-    validatedDefault: ValidatedDefault<E, S, T>,
+    ifInvalid: InvalidSenderDefault<E, S, T>,
+    ifAbsent: ValidSenderDefault<E, S, T>,
     parameter: StructureElement<E, S, Parameter<E, S, T>>,
 ): StructureElement<E, S, OptionalParameter<E, S, T>> = {
-    OptionalParameterImpl(validatedDefault, parameter(this))
+    OptionalParameterImpl(
+        requirementDefault = ifInvalid,
+        presenceDefault = ifAbsent,
+        parameter = parameter(this)
+    )
 }
 
 fun <E : Environment, S, T> BuilderScope<E, S>.optionally(
-    default: T,
+    ifAbsent: ValidSenderDefault<E, S, T>,
     parameter: StructureElement<E, S, Parameter<E, S, T>>,
-): StructureElement<E, S, OptionalParameter<E, S, T>> =
-    optionally(defaultValidated({ ParsingResult.success(default) }), parameter)
+): StructureElement<E, S, OptionalParameter<E, S, T>> = {
+    OptionalParameterImpl(
+        requirementDefault = invalidDefault({ ifAbsent.value(this) }),
+        presenceDefault = ifAbsent,
+        parameter = parameter(this)
+    )
+}
 
 fun <E : Environment, S, T> BuilderScope<E, S>.optionallyNullable(
     parameter: StructureElement<E, S, Parameter<E, S, out T>>,
 ): StructureElement<E, S, OptionalParameter<E, S, T?>> = {
     @Suppress("UNCHECKED_CAST")
-    OptionalParameterImpl(defaultValidated({ ParsingResult.success(null) }), parameter(this) as Parameter<E, S, T?>)
+    OptionalParameterImpl(
+        requirementDefault = invalidDefault(null),
+        presenceDefault = default(null),
+        parameter = parameter(this) as Parameter<E, S, T?>)
 }

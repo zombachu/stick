@@ -23,6 +23,7 @@ import com.zombachu.stick.structure.requireAs
 import com.zombachu.stick.structure.requireIs
 import com.zombachu.stick.structure.requirement
 import com.zombachu.stick.structure.stringParameter
+import com.zombachu.stick.structure.default
 import com.zombachu.stick.structure.valueFlag
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -126,7 +127,7 @@ class WarpInfoCommand: BukkitCommand<CommandSender> {
                 WeatherEnum::class
             ),
             optionally(
-                default = 5,
+                ifAbsent = default(5),
                 parameter = { McpRequiredIntParameter(id("mcpRequired")) }
             ),
         ) { wgFlag: String, weather: WeatherEnum, playerRequiredInt: Int ->
@@ -152,7 +153,7 @@ class SomePlayerCommand: BukkitCommand<Player> {
                 { ParsingResult.success(it.toDouble()) },
             ),
             optionally(
-                default = 10f,
+                ifAbsent = default(10f),
                 parameter = stringParameter(
                     name = "num",
                     description = "Number as a string for some reason"
@@ -183,7 +184,7 @@ fun <E : BasicBukkitEnvironment> BuilderScope<E, CommandSender>.targetPlayer(
 
 ): StructureElement<E, CommandSender, SignatureConstraint.Terminating<E, CommandSender, Player>> =
     optionally(
-        validatedDefault = defaultSender<E, CommandSender, Player>(),
+        ifAbsent = defaultSender<E, CommandSender, Player>(),
         parameter = playerParameter("player", "The player to explode.").pipeline {
             if (!it.hasPermission("some_permission")) {
                 ParsingResult.failSyntax("bad permission")
