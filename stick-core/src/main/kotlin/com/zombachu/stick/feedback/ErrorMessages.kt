@@ -11,4 +11,5 @@ object ErrorMessages {
     val InvalidLiteral = PreformattedFeedbackMessage<Array2<String>>("The value provided is not one of %0: %1.")
     val InvalidSender = Feedback0("You are unable to use this command.")
     val InvalidSenderType = Feedback0("You are unable to use this command.")
+    val InvalidPermission = Feedback0("You do not have permission to use this command.")
 }

@@ -64,11 +64,13 @@ sealed interface SenderValidationResult: CommandResult<Unit> {
     }
 
     class InvalidSenderError internal constructor(override val feedback: Feedback0): SenderValidationResult, CommandResult.Failure<Unit>
+    class InvalidSenderPermissionError internal constructor(override val feedback: Feedback0): SenderValidationResult, CommandResult.Failure<Unit>
     class InvalidSenderTypeError internal constructor(override val feedback: Feedback0): SenderValidationResult, CommandResult.Failure<Unit>
 
     companion object {
         fun success(): Success = Success()
         fun failSender(): InvalidSenderError = InvalidSenderError(ErrorMessages.InvalidSender)
+        fun failPermission(): InvalidSenderPermissionError = InvalidSenderPermissionError(ErrorMessages.InvalidPermission)
         fun failSenderType(): InvalidSenderTypeError = InvalidSenderTypeError(ErrorMessages.InvalidSenderType)
     }
 }
