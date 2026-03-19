@@ -8,6 +8,7 @@ import com.zombachu.stick.element.Flag
 import com.zombachu.stick.element.FlagImpl
 import com.zombachu.stick.element.FlagParameter
 import com.zombachu.stick.element.Parameter
+import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.lowercase
@@ -102,3 +103,14 @@ inline fun <E : Environment, S, reified T> BuilderScope<E, S>.nullableValueFlag(
     aliases: Set<String> = setOf(),
     description: String = "",
 ): StructureElement<E, S, Flag<E, S, T?>> = nullableValueFlag(id<T?>(name), parameter, aliases, description)
+
+fun <E : Environment, S, T : Enum<T>> BuilderScope<E, S>.multiFlag(
+    default: ContextualValue<E, S, T>,
+    from: StructureElement<E, S, EnumParameter<E, S, T>>,
+): StructureElement<E, S, Flag<E, S, T>> = {
+    FlagImpl(default, FlagParameter.MultiFlagParameter(from(this)))
+}
+fun <E : Environment, S, T : Enum<T>> BuilderScope<E, S>.multiFlag(
+    default: T,
+    from: StructureElement<E, S, EnumParameter<E, S, T>>,
+): StructureElement<E, S, Flag<E, S, T>> = multiFlag({ ParsingResult.success(default) }, from)

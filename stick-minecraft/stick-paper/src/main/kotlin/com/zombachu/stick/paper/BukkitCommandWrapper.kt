@@ -3,7 +3,6 @@ package com.zombachu.stick.paper
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.impl.CommandWrapper
-import org.bukkit.Location
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.PluginIdentifiableCommand

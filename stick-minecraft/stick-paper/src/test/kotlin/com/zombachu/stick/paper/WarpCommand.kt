@@ -10,6 +10,7 @@ import com.zombachu.stick.paper.structure.permission
 import com.zombachu.stick.paper.structure.permissionedValue
 import com.zombachu.stick.paper.structure.playerParameter
 import com.zombachu.stick.structure.command
+import com.zombachu.stick.structure.default
 import com.zombachu.stick.structure.defaultSender
 import com.zombachu.stick.structure.enumParameter
 import com.zombachu.stick.structure.flag
@@ -17,13 +18,13 @@ import com.zombachu.stick.structure.group
 import com.zombachu.stick.structure.helper
 import com.zombachu.stick.structure.id
 import com.zombachu.stick.structure.invoke
+import com.zombachu.stick.structure.multiFlag
 import com.zombachu.stick.structure.optionally
 import com.zombachu.stick.structure.pipeline
 import com.zombachu.stick.structure.requireAs
 import com.zombachu.stick.structure.requireIs
 import com.zombachu.stick.structure.requirement
 import com.zombachu.stick.structure.stringParameter
-import com.zombachu.stick.structure.default
 import com.zombachu.stick.structure.valueFlag
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -193,3 +194,15 @@ fun <E : BasicBukkitEnvironment> BuilderScope<E, CommandSender>.targetPlayer(
             }
         }
     )
+
+class ColorPlayerCommand: BukkitCommand<Player> {
+    override val structure =
+        command("asdf")(
+            multiFlag(
+                Rgb.Red,
+                enumParameter("color", Rgb::class),
+            )
+        ) { color: Rgb ->
+
+        }
+}

@@ -6,8 +6,10 @@ import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.ParsingResult.LiteralNotMatchedError
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
@@ -77,6 +79,32 @@ internal sealed class FlagParameter<E : Environment, S, T>(
 
         context(validationContext: ValidationContext<E, S>)
         override fun getSyntax(): String = "[$label ${valueElement.getSyntax()}]"
+    }
+
+    internal class MultiFlagParameter<E : Environment, S, T : Enum<T>>(
+        val enumElement: EnumParameter<E, S, T>,
+    ) : FlagParameter<E, S, T>(
+        enumElement.size,
+        enumElement.id,
+        enumElement.primaryValues.keys + enumElement.aliasedValues.keys,
+        enumElement.description,
+    ) {
+        private val primaryValues = enumElement.primaryValues.keys.toList().map { "-$it" }
+
+        context(inv: Invocation<E, S>)
+        override fun parse(args: List<String>): CommandResult<T> {
+            // Ignore the - before passing it to the enum parameter
+            val arg = args.first().substring(1)
+            val result = enumElement.parse(arg)
+            // Override the failed syntax message
+            if (result is LiteralNotMatchedError) {
+                return ParsingResult.failLiteral(primaryValues, args.first())
+            }
+            return result
+        }
+
+        context(validationContext: ValidationContext<E, S>)
+        override fun getSyntax(): String = "[${primaryValues.joinToString("|")}]"
     }
 }
 
