@@ -95,7 +95,7 @@ internal sealed class Signature<E : Environment, S>(
 
             // First check if it's a helper as helpers don't need to consume any args
             if (element.isHelper()) {
-                values[indexedElement.index] = element.value(inv)
+                values[indexedElement.index] = element.value(inv).valueOrPropagateError { return it }
                 parameterIndex++
                 continue
             }

@@ -149,7 +149,7 @@ inline fun <E_ : Environment, S, A, reified B> StructureElement<E_, S, OptionalP
     noinline operation: PipelineOperation<E_, S, A, B>,
 ): StructureElement<E_, S, OptionalParameter<E_, S, B>> = {
     val resolvedOptional = this@pipeline()
-    PipelinedOptionalParameter(resolvedOptional, listOf(operation), id<B>(resolvedOptional.id.name))
+    PipelinedOptionalParameter(resolvedOptional, listOf(operation), id(resolvedOptional.id.name))
 }
 
 @OverloadResolutionByLambdaReturnType
