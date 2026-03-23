@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "com.zombachu.stick"
-version = "0.0.5"
+version = "0.0.6"
 
 kotlin {
     // Use a specific Java version to make it easier to work in different environments.
