@@ -38,8 +38,12 @@ sealed interface Groupable<E : Environment, S, T> : SyntaxElement<E, S, T> {
 }
 
 sealed interface Helper<E : Environment, S, T> : SignatureConstraint.NonTerminating<E, S, T>
-sealed interface Flag<E : Environment, S, T> : SyntaxElement<E, S, T>, SignatureConstraint.NonTerminating<E, S, T> {
+sealed interface Flag<E : Environment, S, T> : SyntaxElement<E, S, T> {
     val default: ContextualValue<E, S, T>
+
+    sealed interface Validated<E : Environment, S, T>: Flag<E, S, T>, SenderValidator<E, S> {
+        val invalidDefault: ContextualValue<E, S, T>
+    }
 }
 sealed interface Group<E : Environment, S> : SyntaxElement<E, S, GroupResult<*>>, SignatureConstraint.Terminating<E, S, GroupResult<*>>
 sealed interface Structure<E : Environment, S> : Groupable<E, S, Unit>, SignatureConstraint.Terminating<E, S, Unit>, Aliasable, SenderValidator<E, S>

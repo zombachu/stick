@@ -5,14 +5,16 @@ package com.zombachu.stick.structure
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.element.Flag
+import com.zombachu.stick.element.HybridFlag
 import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.PipelineOperation
 import com.zombachu.stick.element.PipelinedFixedSizeParameter
-import com.zombachu.stick.element.PipelinedFlagParameter
+import com.zombachu.stick.element.PipelinedHybridFlag
 import com.zombachu.stick.element.PipelinedOptionalParameter
 import com.zombachu.stick.element.PipelinedUnknownSizeParameter
+import com.zombachu.stick.element.PipelinedValueFlag
+import com.zombachu.stick.element.ValueFlag
 import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.StructureElement
 import kotlin.experimental.ExperimentalTypeInference
@@ -102,45 +104,87 @@ inline fun <E_ : Environment, S, A, B, C, D, reified E> StructureElement<E_, S, 
 }
 
 @OverloadResolutionByLambdaReturnType
-@JvmName("pipelineFlag")
-inline fun <E_ : Environment, S, A, reified B> StructureElement<E_, S, Flag<E_, S, A>>.pipeline(
+@JvmName("pipelineValueFlag")
+inline fun <E_ : Environment, S, A, reified B> StructureElement<E_, S, ValueFlag<E_, S, A>>.pipeline(
     noinline operation: PipelineOperation<E_, S, A, B>,
-): StructureElement<E_, S, Flag<E_, S, B>> = {
+): StructureElement<E_, S, ValueFlag<E_, S, B>> = {
     val resolvedFlag = this@pipeline()
-    PipelinedFlagParameter(id(resolvedFlag.id.name), resolvedFlag, listOf(operation))
+    PipelinedValueFlag(id(resolvedFlag.id.name), resolvedFlag, listOf(operation))
 }
 
 @OverloadResolutionByLambdaReturnType
-@JvmName("pipelineFlag")
-inline fun <E_ : Environment, S, A, B, reified C> StructureElement<E_, S, Flag<E_, S, A>>.pipeline(
+@JvmName("pipelineValueFlag")
+inline fun <E_ : Environment, S, A, B, reified C> StructureElement<E_, S, ValueFlag<E_, S, A>>.pipeline(
     noinline operationA: PipelineOperation<E_, S, A, B>,
     noinline operationB: PipelineOperation<E_, S, B, C>,
-): StructureElement<E_, S, Flag<E_, S, C>> = {
+): StructureElement<E_, S, ValueFlag<E_, S, C>> = {
     val resolvedFlag = this@pipeline()
-    PipelinedFlagParameter(id(resolvedFlag.id.name), resolvedFlag, listOf(operationA, operationB))
+    PipelinedValueFlag(id(resolvedFlag.id.name), resolvedFlag, listOf(operationA, operationB))
 }
 
 @OverloadResolutionByLambdaReturnType
-@JvmName("pipelineFlag")
-inline fun <E_ : Environment, S, A, B, C, reified D> StructureElement<E_, S, Flag<E_, S, A>>.pipeline(
+@JvmName("pipelineValueFlag")
+inline fun <E_ : Environment, S, A, B, C, reified D> StructureElement<E_, S, ValueFlag<E_, S, A>>.pipeline(
     noinline operationA: PipelineOperation<E_, S, A, B>,
     noinline operationB: PipelineOperation<E_, S, B, C>,
     noinline operationC: PipelineOperation<E_, S, C, D>,
-): StructureElement<E_, S, Flag<E_, S, D>> = {
+): StructureElement<E_, S, ValueFlag<E_, S, D>> = {
     val resolvedFlag = this@pipeline()
-    PipelinedFlagParameter(id(resolvedFlag.id.name), resolvedFlag, listOf(operationA, operationB, operationC))
+    PipelinedValueFlag(id(resolvedFlag.id.name), resolvedFlag, listOf(operationA, operationB, operationC))
 }
 
 @OverloadResolutionByLambdaReturnType
-@JvmName("pipelineFlag")
-inline fun <E_ : Environment, S, A, B, C, D, reified E> StructureElement<E_, S, Flag<E_, S, A>>.pipeline(
+@JvmName("pipelineValueFlag")
+inline fun <E_ : Environment, S, A, B, C, D, reified E> StructureElement<E_, S, ValueFlag<E_, S, A>>.pipeline(
     noinline operationA: PipelineOperation<E_, S, A, B>,
     noinline operationB: PipelineOperation<E_, S, B, C>,
     noinline operationC: PipelineOperation<E_, S, C, D>,
     noinline operationD: PipelineOperation<E_, S, C, E>,
-): StructureElement<E_, S, Flag<E_, S, E>> = {
+): StructureElement<E_, S, ValueFlag<E_, S, E>> = {
     val resolvedFlag = this@pipeline()
-    PipelinedFlagParameter(id(resolvedFlag.id.name), resolvedFlag, listOf(operationA, operationB, operationC, operationD))
+    PipelinedValueFlag(id(resolvedFlag.id.name), resolvedFlag, listOf(operationA, operationB, operationC, operationD))
+}
+
+@OverloadResolutionByLambdaReturnType
+@JvmName("pipelineHybridFlag")
+inline fun <E_ : Environment, S, A, reified B> StructureElement<E_, S, HybridFlag<E_, S, A>>.pipeline(
+    noinline operation: PipelineOperation<E_, S, A, B>,
+): StructureElement<E_, S, HybridFlag<E_, S, B>> = {
+    val resolvedFlag = this@pipeline()
+    PipelinedHybridFlag(id(resolvedFlag.id.name), resolvedFlag, listOf(operation))
+}
+
+@OverloadResolutionByLambdaReturnType
+@JvmName("pipelineHybridFlag")
+inline fun <E_ : Environment, S, A, B, reified C> StructureElement<E_, S, HybridFlag<E_, S, A>>.pipeline(
+    noinline operationA: PipelineOperation<E_, S, A, B>,
+    noinline operationB: PipelineOperation<E_, S, B, C>,
+): StructureElement<E_, S, HybridFlag<E_, S, C>> = {
+    val resolvedFlag = this@pipeline()
+    PipelinedHybridFlag(id(resolvedFlag.id.name), resolvedFlag, listOf(operationA, operationB))
+}
+
+@OverloadResolutionByLambdaReturnType
+@JvmName("pipelineHybridFlag")
+inline fun <E_ : Environment, S, A, B, C, reified D> StructureElement<E_, S, HybridFlag<E_, S, A>>.pipeline(
+    noinline operationA: PipelineOperation<E_, S, A, B>,
+    noinline operationB: PipelineOperation<E_, S, B, C>,
+    noinline operationC: PipelineOperation<E_, S, C, D>,
+): StructureElement<E_, S, HybridFlag<E_, S, D>> = {
+    val resolvedFlag = this@pipeline()
+    PipelinedHybridFlag(id(resolvedFlag.id.name), resolvedFlag, listOf(operationA, operationB, operationC))
+}
+
+@OverloadResolutionByLambdaReturnType
+@JvmName("pipelineHybridFlag")
+inline fun <E_ : Environment, S, A, B, C, D, reified E> StructureElement<E_, S, HybridFlag<E_, S, A>>.pipeline(
+    noinline operationA: PipelineOperation<E_, S, A, B>,
+    noinline operationB: PipelineOperation<E_, S, B, C>,
+    noinline operationC: PipelineOperation<E_, S, C, D>,
+    noinline operationD: PipelineOperation<E_, S, C, E>,
+): StructureElement<E_, S, HybridFlag<E_, S, E>> = {
+    val resolvedFlag = this@pipeline()
+    PipelinedHybridFlag(id(resolvedFlag.id.name), resolvedFlag, listOf(operationA, operationB, operationC, operationD))
 }
 
 @OverloadResolutionByLambdaReturnType

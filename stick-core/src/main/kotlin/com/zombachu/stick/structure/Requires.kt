@@ -4,15 +4,18 @@ package com.zombachu.stick.structure
 
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
+import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SenderValidationResult
-import com.zombachu.stick.element.Flag
+import com.zombachu.stick.element.HybridFlag
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.element.TransformedFlag
+import com.zombachu.stick.element.TransformedHybridFlag
 import com.zombachu.stick.element.TransformedParameter
 import com.zombachu.stick.element.TransformedStructure
+import com.zombachu.stick.element.TransformedValueFlag
 import com.zombachu.stick.element.ValidatedParameter
+import com.zombachu.stick.element.ValueFlag
 import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.StructureElement
@@ -37,15 +40,34 @@ fun <S : Any, S2 : Any, E : Environment, T> BuilderScope<E, S>.requireAs(
 }
 
 @OverloadResolutionByLambdaReturnType
+@JvmName("requireAsValueFlag")
 fun <E : Environment, S : Any, S2 : Any, T> BuilderScope<E, S>.requireAs(
     transform: (S) -> S2,
     invalidDefault: ContextualValue<E, S, T>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    flag: StructureElement<E, S2, StructureElement<E, S2, Flag<E, S2, T>>>,
-): StructureElement<E, S, Flag<E, S, T>> = {
+    flag: StructureElement<E, S2, StructureElement<E, S2, ValueFlag<E, S2, T>>>,
+): StructureElement<E, S, ValueFlag<E, S, T>> = {
     val scope: StructureScope<E, S2> = this.forSender()
-    TransformedFlag(
+    TransformedValueFlag(
+        flag(scope)(scope),
+        transform,
+        requirement,
+        invalidDefault,
+    )
+}
+
+@OverloadResolutionByLambdaReturnType
+@JvmName("requireAsHybridFlag")
+fun <E : Environment, S : Any, S2 : Any, T> BuilderScope<E, S>.requireAs(
+    transform: (S) -> S2,
+    invalidDefault: ContextualValue<E, S, HybridFlagResult<T>>,
+    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    flag: StructureElement<E, S2, StructureElement<E, S2, HybridFlag<E, S2, T>>>,
+): StructureElement<E, S, HybridFlag<E, S, T>> = {
+    val scope: StructureScope<E, S2> = this.forSender()
+    TransformedHybridFlag(
         flag(scope)(scope),
         transform,
         requirement,
@@ -84,13 +106,14 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> BuilderScope<E, S>.requ
     )
 
 @OverloadResolutionByLambdaReturnType
+@JvmName("requireIsValueFlag")
 inline fun <E : Environment, S : Any, reified S2 : S, T> BuilderScope<E, S>.requireIs(
     senderType: KClass<S2>,
     noinline invalidDefault: ContextualValue<E, S, T>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    noinline flag: StructureElement<E, S2, StructureElement<E, S2, Flag<E, S2, T>>>,
-): StructureElement<E, S, Flag<E, S, T>> =
+    noinline flag: StructureElement<E, S2, StructureElement<E, S2, ValueFlag<E, S2, T>>>,
+): StructureElement<E, S, ValueFlag<E, S, T>> =
     requireAs(
         { it as S2 },
         invalidDefault,
@@ -99,13 +122,46 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> BuilderScope<E, S>.requ
     )
 
 @OverloadResolutionByLambdaReturnType
+@JvmName("requireIsValueFlag")
 inline fun <E : Environment, S : Any, reified S2 : S, T> BuilderScope<E, S>.requireIs(
     senderType: KClass<S2>,
     invalidDefault: T,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    noinline flag: StructureElement<E, S2, StructureElement<E, S2, Flag<E, S2, T>>>,
-): StructureElement<E, S, Flag<E, S, T>> =
+    noinline flag: StructureElement<E, S2, StructureElement<E, S2, ValueFlag<E, S2, T>>>,
+): StructureElement<E, S, ValueFlag<E, S, T>> =
+    requireAs(
+        { it as S2 },
+        { ParsingResult.success(invalidDefault) },
+        requirement + requirement(SenderValidationResult::failSenderType) { it.sender is S2 },
+        flag
+    )
+
+@OverloadResolutionByLambdaReturnType
+@JvmName("requireIsHybridFlag")
+inline fun <E : Environment, S : Any, reified S2 : S, T> BuilderScope<E, S>.requireIs(
+    senderType: KClass<S2>,
+    noinline invalidDefault: ContextualValue<E, S, HybridFlagResult<T>>,
+    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    noinline flag: StructureElement<E, S2, StructureElement<E, S2, HybridFlag<E, S2, T>>>,
+): StructureElement<E, S, HybridFlag<E, S, T>> =
+    requireAs(
+        { it as S2 },
+        invalidDefault,
+        requirement + requirement(SenderValidationResult::failSenderType) { it.sender is S2 },
+        flag
+    )
+
+@OverloadResolutionByLambdaReturnType
+@JvmName("requireIsHybridFlag")
+inline fun <E : Environment, S : Any, reified S2 : S, T> BuilderScope<E, S>.requireIs(
+    senderType: KClass<S2>,
+    invalidDefault: HybridFlagResult<T>,
+    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    noinline flag: StructureElement<E, S2, StructureElement<E, S2, HybridFlag<E, S2, T>>>,
+): StructureElement<E, S, HybridFlag<E, S, T>> =
     requireAs(
         { it as S2 },
         { ParsingResult.success(invalidDefault) },
@@ -137,21 +193,43 @@ fun <E : Environment, S : Any, T> BuilderScope<E, S>.require(
     requireAs({ it }, requirement, parameter)
 
 @OverloadResolutionByLambdaReturnType
+@JvmName("requireValueFlag")
 fun <E : Environment, S : Any, T> BuilderScope<E, S>.require(
     invalidDefault: ContextualValue<E, S, T>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    flag: StructureElement<E, S, StructureElement<E, S, Flag<E, S, T>>>,
-): StructureElement<E, S, Flag<E, S, T>> =
+    flag: StructureElement<E, S, StructureElement<E, S, ValueFlag<E, S, T>>>,
+): StructureElement<E, S, ValueFlag<E, S, T>> =
     requireAs({ it }, invalidDefault, requirement, flag)
 
 @OverloadResolutionByLambdaReturnType
+@JvmName("requireValueFlag")
 fun <E : Environment, S : Any, T> BuilderScope<E, S>.require(
     invalidDefault: T,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    flag: StructureElement<E, S, StructureElement<E, S, Flag<E, S, T>>>,
-): StructureElement<E, S, Flag<E, S, T>> =
+    flag: StructureElement<E, S, StructureElement<E, S, ValueFlag<E, S, T>>>,
+): StructureElement<E, S, ValueFlag<E, S, T>> =
+    requireAs({ it }, { ParsingResult.success(invalidDefault) }, requirement, flag)
+
+@OverloadResolutionByLambdaReturnType
+@JvmName("requireHybridFlag")
+fun <E : Environment, S : Any, T> BuilderScope<E, S>.require(
+    invalidDefault: ContextualValue<E, S, HybridFlagResult<T>>,
+    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    flag: StructureElement<E, S, StructureElement<E, S, HybridFlag<E, S, T>>>,
+): StructureElement<E, S, HybridFlag<E, S, T>> =
+    requireAs({ it }, invalidDefault, requirement, flag)
+
+@OverloadResolutionByLambdaReturnType
+@JvmName("requireHybridFlag")
+fun <E : Environment, S : Any, T> BuilderScope<E, S>.require(
+    invalidDefault: HybridFlagResult<T>,
+    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    flag: StructureElement<E, S, StructureElement<E, S, HybridFlag<E, S, T>>>,
+): StructureElement<E, S, HybridFlag<E, S, T>> =
     requireAs({ it }, { ParsingResult.success(invalidDefault) }, requirement, flag)
 
 @OverloadResolutionByLambdaReturnType

@@ -1,6 +1,7 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.Aliasable
+import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.element.SignatureConstraint
@@ -18,7 +19,9 @@ import com.zombachu.stick.structure.group
 import com.zombachu.stick.structure.helper
 import com.zombachu.stick.structure.id
 import com.zombachu.stick.structure.invoke
-import com.zombachu.stick.structure.multiFlag
+import com.zombachu.stick.structure.enumFlag
+import com.zombachu.stick.structure.hybridFlag
+import com.zombachu.stick.structure.invalidDefault
 import com.zombachu.stick.structure.optionally
 import com.zombachu.stick.structure.pipeline
 import com.zombachu.stick.structure.requireAs
@@ -198,11 +201,45 @@ fun <E : BasicBukkitEnvironment> BuilderScope<E, CommandSender>.targetPlayer(
 class ColorPlayerCommand: BukkitCommand<Player> {
     override val structure =
         command("asdf")(
-            multiFlag(
+            enumFlag(
                 Rgb.Red,
                 enumParameter("color", Rgb::class),
             )
         ) { color: Rgb ->
 
+        }
+}
+
+class HybridFlagCommand: BukkitCommand<CommandSender> {
+    override val structure =
+        command("asdf")(
+            hybridFlag(
+                "color",
+                enumParameter("color", Rgb::class),
+            ),
+        ) { color: HybridFlagResult<Rgb> ->
+            when (color) {
+                is HybridFlagResult.Absent -> TODO()
+                is HybridFlagResult.Present -> TODO()
+                is HybridFlagResult.Value -> color.value.name
+            }
+        }
+}
+
+class HybridFlagRequireCommand: BukkitCommand<CommandSender> {
+    override val structure =
+        command("asdf")(
+            requireIs(Player::class, invalidDefault = HybridFlagResult.Value(Rgb.Blue)) {
+                hybridFlag(
+                    "color",
+                    enumParameter("color", Rgb::class),
+                )
+            },
+        ) { color: HybridFlagResult<Rgb> ->
+            when (color) {
+                is HybridFlagResult.Absent -> TODO()
+                is HybridFlagResult.Present -> TODO()
+                is HybridFlagResult.Value -> color.value.name
+            }
         }
 }

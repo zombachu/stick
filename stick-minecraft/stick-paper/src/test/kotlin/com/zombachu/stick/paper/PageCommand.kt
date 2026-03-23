@@ -5,10 +5,10 @@ import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TypedIdentifier
-import com.zombachu.stick.element.Flag
 import com.zombachu.stick.element.Groupable
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
+import com.zombachu.stick.element.ValueFlag
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.impl.BuilderScope
@@ -135,7 +135,7 @@ class SomeClass : BukkitCommand<CommandSender> {
 //                }
 //        }
 
-        val flag1: StructureElement<BukkitEnvironment, CommandSender, Flag<BukkitEnvironment, CommandSender, Boolean>> = flag(
+        val flag1: StructureElement<BukkitEnvironment, CommandSender, ValueFlag<BukkitEnvironment, CommandSender, Boolean>> = flag(
             id("raw")
         )
 
@@ -146,7 +146,7 @@ class SomeClass : BukkitCommand<CommandSender> {
             }
         }
 
-        val flag: StructureElement<BukkitEnvironment, CommandSender, Flag<BukkitEnvironment, CommandSender, Boolean>> = flag(
+        val flag: StructureElement<BukkitEnvironment, CommandSender, ValueFlag<BukkitEnvironment, CommandSender, Boolean>> = flag(
             id("raw")
         )
 

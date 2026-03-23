@@ -25,7 +25,7 @@ internal sealed class Signature<E : Environment, S>(
     init {
         val partitioned = elements.toList()
             .mapIndexed { i, e -> IndexedElement(i, e) }
-            .partition { it.element is Flag }
+            .partition { it.element is Flag<*, *, *> }
         @Suppress("UNCHECKED_CAST")
         flags = partitioned.first as List<IndexedElement<E, S, Flag<E, S, Any>>>
         linearElements = partitioned.second
@@ -133,7 +133,7 @@ internal sealed class Signature<E : Environment, S>(
 
             val default = flag.validateSender().handleInternal(
                 onSuccess = { flag.default(inv) },
-                onFailure = { (flag as TransformedFlag<E, S, *, *>).invalidDefault(inv) }
+                onFailure = { (flag as Flag.Validated<E, S, *>).invalidDefault(inv) }
             )
             values[indexedFlag.index] = default
         }

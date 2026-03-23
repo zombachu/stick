@@ -14,10 +14,12 @@ import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 
-internal open class FlagImpl<E : Environment, S, T>(
+sealed interface ValueFlag<E : Environment, S, T> : Flag<E, S, T>, SignatureConstraint.NonTerminating<E, S, T>
+
+internal open class ValueFlagImpl<E : Environment, S, T>(
     override val default: ContextualValue<E, S, T>,
     private val flagParameter: FlagParameter<E, S, T>,
-): Flag<E, S, T> {
+): ValueFlag<E, S, T> {
 
     override val size: Size = flagParameter.size
     override val type: ElementType = ElementType.Flag
@@ -45,7 +47,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
 
     internal class PresenceFlagParameter<E : Environment, S, T>(
         id: TypedIdentifier<T>,
-        val presentValue: ContextualValue<E, S, T>,
+        private val presentValue: ContextualValue<E, S, T>,
         aliases: Set<String>,
         description: String,
     ) : FlagParameter<E, S, T>(Size(1), id, aliases, description) {
@@ -62,40 +64,40 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         override fun getSyntax(): String = "[$label]"
     }
 
-    internal class ValueFlagParameter<E : Environment, S, T>(
+    internal class ParameterFlagParameter<E : Environment, S, T>(
         id: TypedIdentifier<T>,
-        val valueElement: FixedSize<E, S, T>,
+        private val parameter: FixedSize<E, S, T>,
         aliases: Set<String>,
         description: String,
-    ) : FlagParameter<E, S, T>(Size(1) + valueElement.size, id, aliases, description) {
+    ) : FlagParameter<E, S, T>(Size(1) + parameter.size, id, aliases, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
             if (matches(args[0].lowercase())) {
-                return valueElement.parse(args.subList(1, args.size))
+                return parameter.parse(args.subList(1, args.size))
             }
             return ParsingResult.failTypeInternal()
         }
 
         context(validationContext: ValidationContext<E, S>)
-        override fun getSyntax(): String = "[$label ${valueElement.getSyntax()}]"
+        override fun getSyntax(): String = "[$label ${parameter.getSyntax()}]"
     }
 
     internal class MultiFlagParameter<E : Environment, S, T : Enum<T>>(
-        val enumElement: EnumParameter<E, S, T>,
+        private val enumParameter: EnumParameter<E, S, T>,
     ) : FlagParameter<E, S, T>(
-        enumElement.size,
-        enumElement.id,
-        enumElement.primaryValues.keys + enumElement.aliasedValues.keys,
-        enumElement.description,
+        enumParameter.size,
+        enumParameter.id,
+        enumParameter.primaryValues.keys + enumParameter.aliasedValues.keys,
+        enumParameter.description,
     ) {
-        private val primaryValues = enumElement.primaryValues.keys.toList().map { "-$it" }
+        private val primaryValues = enumParameter.primaryValues.keys.toList().map { "-$it" }
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
             // Ignore the - before passing it to the enum parameter
             val arg = args.first().substring(1)
-            val result = enumElement.parse(arg)
+            val result = enumParameter.parse(arg)
             // Override the failed syntax message
             if (result is LiteralNotMatchedError) {
                 return ParsingResult.failLiteral(primaryValues, args.first())
@@ -108,15 +110,15 @@ internal sealed class FlagParameter<E : Environment, S, T>(
     }
 }
 
-internal class TransformedFlag<E : Environment, S, S2 : Any, T>(
-    val base: Flag<E, S2, T>,
-    val transform: (S) -> S2,
-    val requirement: Requirement<E, S>,
-    val invalidDefault: ContextualValue<E, S, T>,
-) : FlagImpl<E, S, T>(
+internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
+    private val base: ValueFlag<E, S2, T>,
+    private val transform: (S) -> S2,
+    private val requirement: Requirement<E, S>,
+    override val invalidDefault: ContextualValue<E, S, T>,
+) : ValueFlagImpl<E, S, T>(
     { unusedValue() },
     FlagParameter.PresenceFlagParameter(base.id, { unusedValue() }, setOf(), ""),
-), SenderValidator<E, S> {
+), Flag.Validated<E, S, T> {
 
     override val default: ContextualValue<E, S, T> = {
         val transformedInvocation = (this as InvocationImpl).forSender(transform)

@@ -3,6 +3,7 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
+import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TypedIdentifier
@@ -42,11 +43,11 @@ internal class PipelinedUnknownSizeParameter<E : Environment, S, A, T>(
 }
 
 @PublishedApi
-internal class PipelinedFlagParameter<E : Environment, S, A, T>(
+internal class PipelinedValueFlag<E : Environment, S, A, T>(
     override val id: TypedIdentifier<T>,
-    private val base: Flag<E, S, A>,
+    private val base: ValueFlag<E, S, A>,
     private val operations: List<PipelineOperation<E, S, *, *>>,
-) : Flag<E, S, T> {
+) : ValueFlag<E, S, T> {
 
     override val description: String = base.description
     override val size: Size = base.size
@@ -75,6 +76,43 @@ internal class PipelinedFlagParameter<E : Environment, S, A, T>(
                 value = operationResult.value
             }
             ParsingResult.success(value as T)
+        }
+}
+
+@PublishedApi
+internal class PipelinedHybridFlag<E : Environment, S, A, T>(
+    override val id: TypedIdentifier<HybridFlagResult<T>>,
+    private val base: HybridFlag<E, S, A>,
+    private val operations: List<PipelineOperation<E, S, *, *>>,
+) : HybridFlag<E, S, T> {
+
+    override val description: String = base.description
+    override val size: Size = base.size
+    override val type: ElementType = base.type
+
+    context(inv: Invocation<E, S>)
+    override fun parse(args: List<String>): CommandResult<HybridFlagResult<T>> = parsePipeline(args, base, operations)
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun getSyntax(): String = base.getSyntax()
+
+    @Suppress("UNCHECKED_CAST")
+    override val default: ContextualValue<E, S, HybridFlagResult<T>>
+        get() = get@{
+            val baseResult = base.default(this)
+            if (!baseResult.isSuccess()) {
+                return@get baseResult as ParsingResult<HybridFlagResult<T>>
+            }
+            var value: Any? = baseResult.value
+            operations.forEach {
+                val operation = it as PipelineOperation<E, S, Any?, Any?>
+                val operationResult = operation(this, value)
+                if (!operationResult.isSuccess()) {
+                    return@get operationResult as ParsingResult<HybridFlagResult<T>>
+                }
+                value = operationResult.value
+            }
+            ParsingResult.success(value as HybridFlagResult<T>)
         }
 }
 
