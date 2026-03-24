@@ -2,6 +2,7 @@ package com.zombachu.stick.paper
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.GroupResult
+import com.zombachu.stick.GroupResult2
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TypedIdentifier
@@ -69,11 +70,10 @@ class PageCommand: BukkitCommand<CommandSender> {
             )
         }
 
-    fun goToPage(context: Invocation<BukkitEnvironment, Player>, flagValue: String, intElement: Int, result: GroupResult<*>) {
-        result.on(id<String>("direction")) {
-
-        }
-        result.on(pageId) {
+    fun goToPage(context: Invocation<BukkitEnvironment, Player>, flagValue: String, intElement: Int, result: GroupResult2<String, Int>) {
+        when (result) {
+            is GroupResult.ResultA -> result.value.lowercase()
+            is GroupResult.ResultB -> result.value + 10
         }
     }
 

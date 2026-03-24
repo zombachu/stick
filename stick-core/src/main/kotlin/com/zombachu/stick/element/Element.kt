@@ -45,7 +45,7 @@ sealed interface Flag<E : Environment, S, T> : SyntaxElement<E, S, T> {
         val invalidDefault: ContextualValue<E, S, T>
     }
 }
-sealed interface Group<E : Environment, S> : SyntaxElement<E, S, GroupResult<*>>, SignatureConstraint.Terminating<E, S, GroupResult<*>>
+sealed interface Group<E : Environment, S, G : GroupResult> : SyntaxElement<E, S, G>, SignatureConstraint.Terminating<E, S, G>
 sealed interface Structure<E : Environment, S> : Groupable<E, S, Unit>, SignatureConstraint.Terminating<E, S, Unit>, Aliasable, SenderValidator<E, S>
 sealed interface ValidatedParameter<E : Environment, S, T> : Groupable<E, S, T>
 sealed interface OptionalParameter<E : Environment, S, T> : SyntaxElement<E, S, T>, SignatureConstraint.Terminating<E, S, T>

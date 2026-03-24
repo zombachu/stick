@@ -69,9 +69,9 @@ internal open class InvocationImpl<E : Environment, S>(
         }
     }
 
-    internal fun processSyntaxElement(
-        element: SyntaxElement<E, S, Any>,
-    ): CommandResult<Any> {
+    internal fun <T> processSyntaxElement(
+        element: SyntaxElement<E, S, T>,
+    ): CommandResult<T> {
         val peeked = peek(element.size)
         if (peeked !is PeekingResult.Success) {
             return ParsingResult.failSyntax(getSyntax())
