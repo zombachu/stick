@@ -24,13 +24,29 @@ import kotlin.experimental.ExperimentalTypeInference
 import kotlin.reflect.KClass
 
 @OverloadResolutionByLambdaReturnType
-@JvmName("requireAs")
+@JvmName("requireAsUnknownSize")
 fun <S : Any, S2 : Any, E : Environment, T> BuilderScope<E, S>.requireAs(
     transform: (S) -> S2,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    parameter: StructureElement<E, S2, StructureElement<E, S2, Parameter<E, S2, T>>>,
-): StructureElement<E, S, ValidatedParameter<E, S, T>> = {
+    parameter: StructureElement<E, S2, StructureElement<E, S2, Parameter.UnknownSize<E, S2, T>>>,
+): StructureElement<E, S, ValidatedParameter.UnknownSize<E, S, T>> = {
+    val scope: StructureScope<E, S2> = this.forSender()
+    TransformedParameter(
+        parameter(scope)(scope),
+        transform,
+        requirement,
+    )
+}
+
+@OverloadResolutionByLambdaReturnType
+@JvmName("requireAsFixedSize")
+fun <S : Any, S2 : Any, E : Environment, T> BuilderScope<E, S>.requireAs(
+    transform: (S) -> S2,
+    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    parameter: StructureElement<E, S2, StructureElement<E, S2, Parameter.FixedSize<E, S2, T>>>,
+): StructureElement<E, S, ValidatedParameter.FixedSize<E, S, T>> = {
     val scope: StructureScope<E, S2> = this.forSender()
     TransformedParameter(
         parameter(scope)(scope),
@@ -92,13 +108,27 @@ fun <E : Environment, S : Any, S2 : Any> BuilderScope<E, S>.requireAs(
 }
 
 @OverloadResolutionByLambdaReturnType
-@JvmName("requireIs")
+@JvmName("requireIsUnknownSize")
 inline fun <E : Environment, S : Any, reified S2 : S, T> BuilderScope<E, S>.requireIs(
     senderType: KClass<S2>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    noinline parameter: StructureElement<E, S2, StructureElement<E, S2, Parameter<E, S2, T>>>,
-): StructureElement<E, S, ValidatedParameter<E, S, T>> =
+    noinline parameter: StructureElement<E, S2, StructureElement<E, S2, Parameter.UnknownSize<E, S2, T>>>,
+): StructureElement<E, S, ValidatedParameter.UnknownSize<E, S, T>> =
+    requireAs(
+        { it as S2 },
+        requirement + requirement(SenderValidationResult::failSenderType) { it.sender is S2 },
+        parameter
+    )
+
+@OverloadResolutionByLambdaReturnType
+@JvmName("requireIsFixedSize")
+inline fun <E : Environment, S : Any, reified S2 : S, T> BuilderScope<E, S>.requireIs(
+    senderType: KClass<S2>,
+    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    noinline parameter: StructureElement<E, S2, StructureElement<E, S2, Parameter.FixedSize<E, S2, T>>>,
+): StructureElement<E, S, ValidatedParameter.FixedSize<E, S, T>> =
     requireAs(
         { it as S2 },
         requirement + requirement(SenderValidationResult::failSenderType) { it.sender is S2 },
@@ -184,12 +214,21 @@ inline fun <E : Environment, S : Any, reified S2 : S> BuilderScope<E, S>.require
     )
 
 @OverloadResolutionByLambdaReturnType
-@JvmName("require")
+@JvmName("requireUnknownSize")
 fun <E : Environment, S : Any, T> BuilderScope<E, S>.require(
     requirement: Requirement<E, S>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    parameter: StructureElement<E, S, StructureElement<E, S, Parameter<E, S, T>>>,
-): StructureElement<E, S, ValidatedParameter<E, S, T>> =
+    parameter: StructureElement<E, S, StructureElement<E, S, Parameter.UnknownSize<E, S, T>>>,
+): StructureElement<E, S, ValidatedParameter.UnknownSize<E, S, T>> =
+    requireAs({ it }, requirement, parameter)
+
+@OverloadResolutionByLambdaReturnType
+@JvmName("requireFixedSize")
+fun <E : Environment, S : Any, T> BuilderScope<E, S>.require(
+    requirement: Requirement<E, S>,
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    parameter: StructureElement<E, S, StructureElement<E, S, Parameter.FixedSize<E, S, T>>>,
+): StructureElement<E, S, ValidatedParameter.FixedSize<E, S, T>> =
     requireAs({ it }, requirement, parameter)
 
 @OverloadResolutionByLambdaReturnType

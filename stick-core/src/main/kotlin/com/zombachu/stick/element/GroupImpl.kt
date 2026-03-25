@@ -29,7 +29,7 @@ internal open class GroupImpl<E : Environment, S, G : GroupResult>(
     override val name: String,
     override val description: String,
     private val elements: List<GroupElement<E, S, *, G>>,
-) : Group<E, S, G> {
+) : Group.UnknownSize<E, S, G>, Group.FiniteSize<E, S, G> {
 
     private val prioritizedElements: List<GroupElement<E, S, *, G>> = elements.sortedWith(
         compareBy<GroupElement<E, S, *, G>> { it.groupable.type.parsingPriority }
@@ -108,7 +108,7 @@ internal class Group1Impl<E_ : Environment, S, A>(
     element: Groupable<E_, S, A>,
 ) : GroupImpl<E_, S, GroupResult1<A>>(name, description, listOf(
     element to ::ResultA,
-)), Group<E_, S, GroupResult1<A>>
+))
 
 internal class Group2Impl<E_ : Environment, S, A, B>(
     name: String,
@@ -118,7 +118,7 @@ internal class Group2Impl<E_ : Environment, S, A, B>(
 ) : GroupImpl<E_, S, GroupResult2<A, B>>(name, description, listOf(
     elementA to ::ResultA,
     elementB to ::ResultB,
-)), Group<E_, S, GroupResult2<A, B>>
+))
 
 internal class Group3Impl<E_ : Environment, S, A, B, C>(
     name: String,
@@ -130,7 +130,7 @@ internal class Group3Impl<E_ : Environment, S, A, B, C>(
     elementA to ::ResultA,
     elementB to ::ResultB,
     elementC to ::ResultC,
-)), Group<E_, S, GroupResult3<A, B, C>>
+))
 
 internal class Group4Impl<E_ : Environment, S, A, B, C, D>(
     name: String,
@@ -144,7 +144,7 @@ internal class Group4Impl<E_ : Environment, S, A, B, C, D>(
     elementB to ::ResultB,
     elementC to ::ResultC,
     elementD to ::ResultD,
-)), Group<E_, S, GroupResult4<A, B, C, D>>
+))
 
 internal class Group5Impl<E_ : Environment, S, A, B, C, D, E>(
     name: String,
@@ -160,7 +160,7 @@ internal class Group5Impl<E_ : Environment, S, A, B, C, D, E>(
     elementC to ::ResultC,
     elementD to ::ResultD,
     elementE to ::ResultE,
-)), Group<E_, S, GroupResult5<A, B, C, D, E>>
+))
 
 internal class Group6Impl<E_ : Environment, S, A, B, C, D, E, F>(
     name: String,
@@ -178,7 +178,7 @@ internal class Group6Impl<E_ : Environment, S, A, B, C, D, E, F>(
     elementD to ::ResultD,
     elementE to ::ResultE,
     elementF to ::ResultF,
-)), Group<E_, S, GroupResult6<A, B, C, D, E, F>>
+))
 
 internal class Group7Impl<E_ : Environment, S, A, B, C, D, E, F, G>(
     name: String,
@@ -198,7 +198,7 @@ internal class Group7Impl<E_ : Environment, S, A, B, C, D, E, F, G>(
     elementE to ::ResultE,
     elementF to ::ResultF,
     elementG to ::ResultG,
-)), Group<E_, S, GroupResult7<A, B, C, D, E, F, G>>
+))
 
 internal class Group8Impl<E_ : Environment, S, A, B, C, D, E, F, G, H>(
     name: String,
@@ -220,4 +220,4 @@ internal class Group8Impl<E_ : Environment, S, A, B, C, D, E, F, G, H>(
     elementF to ::ResultF,
     elementG to ::ResultG,
     elementH to ::ResultH,
-)), Group<E_, S, GroupResult8<A, B, C, D, E, F, G, H>>
+))

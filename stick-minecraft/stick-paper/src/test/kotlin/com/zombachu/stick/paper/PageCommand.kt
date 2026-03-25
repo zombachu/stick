@@ -29,6 +29,7 @@ import com.zombachu.stick.structure.require
 import com.zombachu.stick.structure.requireAs
 import com.zombachu.stick.structure.requireIs
 import com.zombachu.stick.structure.stringParameter
+import com.zombachu.stick.structure.textParameter
 import com.zombachu.stick.structure.valueFlag
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -206,7 +207,7 @@ fun <S : Any> BuilderScope<BukkitEnvironment, S>.mcpSender(
 
 fun <T> BuilderScope<BukkitEnvironment, CommandSender>.playerSender(
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    element: StructureElement<BukkitEnvironment, Player, StructureElement<BukkitEnvironment, Player, Parameter<BukkitEnvironment, Player, T>>>,
+    element: StructureElement<BukkitEnvironment, Player, StructureElement<BukkitEnvironment, Player, Parameter.FixedSize<BukkitEnvironment, Player, T>>>,
 ): StructureElement<BukkitEnvironment, CommandSender, Groupable<BukkitEnvironment, CommandSender, T>> =
     requireIs<BukkitEnvironment, CommandSender, Player, T>(Player::class, parameter = element)
 
@@ -227,8 +228,27 @@ class ExampleCommand : BukkitCommand<CommandSender> {
                 intParameter("someInt"),
                 stringParameter("someString"),
                 booleanParameter("someBoolean"),
-            )
-        ) { groupArg ->
+            ),
+            intParameter("postGroupInt"),
+        ) { groupArg, postGroupIntArg ->
+            when (groupArg) {
+                is GroupResult.ResultA -> println(groupArg.value + 1)
+                is GroupResult.ResultB -> println(groupArg.value.lowercase())
+                is GroupResult.ResultC -> println(if (groupArg.value) true else false)
+            }
+        }
+}
+
+class Example2Command : BukkitCommand<CommandSender> {
+    override val structure =
+        command("example")(
+            intParameter("postGroupInt"),
+            group(
+                intParameter("someInt"),
+                textParameter("unboundedArg"),
+                booleanParameter("someBoolean"),
+            ),
+        ) { postGroupIntArg, groupArg ->
             when (groupArg) {
                 is GroupResult.ResultA -> println(groupArg.value + 1)
                 is GroupResult.ResultB -> println(groupArg.value.lowercase())

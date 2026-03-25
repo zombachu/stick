@@ -12,7 +12,7 @@ sealed class Parameter<E : Environment, S, T>(
     override val size: Size,
     override val name: String,
     override val description: String,
-) : Groupable<E, S, T>, SignatureConstraint<E, S, T> {
+) : Groupable<E, S, T> {
 
     override val type: ElementType = ElementType.Default
 
@@ -23,7 +23,7 @@ sealed class Parameter<E : Environment, S, T>(
         override val size: Size.Fixed,
         name: String,
         description: String,
-    ) : Parameter<E, S, T>(size, name, description), SignatureConstraint.NonTerminating<E, S, T>
+    ) : Parameter<E, S, T>(size, name, description), Groupable.NonTerminating<E, S, T>
     abstract class Size1<E : Environment, S, T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(1), name, description) {
 
@@ -120,14 +120,14 @@ sealed class Parameter<E : Environment, S, T>(
         size: Size,
         name: String,
         description: String,
-    ) : Parameter<E, S, T>(size, name, description), SignatureConstraint.Terminating<E, S, T>
+    ) : Parameter<E, S, T>(size, name, description), Groupable.Terminating<E, S, T>
 }
 
 internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T>(
     val base: Parameter<E, S2, T>,
     val transform: (S) -> S2,
     val requirement: Requirement<E, S>,
-) : ValidatedParameter<E, S, T>, SenderValidator<E, S> {
+) : ValidatedParameter.UnknownSize<E, S, T>, ValidatedParameter.FixedSize<E, S, T>, SenderValidator<E, S> {
 
     override val size: Size = base.size
     override val type: ElementType = base.type

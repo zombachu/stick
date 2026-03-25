@@ -7,6 +7,7 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TypedIdentifier
+import com.zombachu.stick.element.Group
 import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
@@ -67,7 +68,13 @@ internal open class InvocationImpl<E : Environment, S>(
                     PeekingResult.success(unparsed.subList(0, size.size))
                 }
             }
-            is Size.Deferred, is Size.Unbounded -> PeekingResult.success(unparsed)
+            is Size.Deferred, is Size.Unbounded -> {
+                if (unparsed.isEmpty()) {
+                    PeekingResult.failSize()
+                } else {
+                    PeekingResult.success(unparsed)
+                }
+            }
         }
     }
 
@@ -82,7 +89,10 @@ internal open class InvocationImpl<E : Environment, S>(
         context(this) {
             val result = element.parse(peeked.value)
             result.propagateError { return it }
-            peeked.consume()
+            // Let groups manage their syntax element consumption
+            if (element !is Group) {
+                peeked.consume()
+            }
             return result
         }
     }

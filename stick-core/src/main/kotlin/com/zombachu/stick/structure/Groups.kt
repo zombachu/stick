@@ -25,153 +25,281 @@ import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
 
+@JvmName("groupNonTerminating")
 fun <E_ : Environment, S, A> BuilderScope<E_, S>.group(
-    element: StructureElement<E_, S, Groupable<E_, S, A>>,
+    element: StructureElement<E_, S, Groupable.NonTerminating<E_, S, A>>,
     description: String = "",
-): StructureElement<E_, S, Group<E_, S, GroupResult1<A>>> = {
-    createGroup {
-        Group1Impl(name, description,
-            element(),
-        )
-    }
+): StructureElement<E_, S, Group.FiniteSize<E_, S, GroupResult1<A>>> = createGroup {
+    Group1Impl(name, description,
+        element(),
+    )
 }
 
+@JvmName("groupNonTerminating")
 fun <E_ : Environment, S, A, B> BuilderScope<E_, S>.group(
-    elementA: StructureElement<E_, S, Groupable<E_, S, A>>,
-    elementB: StructureElement<E_, S, Groupable<E_, S, B>>,
+    elementA: StructureElement<E_, S, Groupable.NonTerminating<E_, S, A>>,
+    elementB: StructureElement<E_, S, Groupable.NonTerminating<E_, S, B>>,
     description: String = "",
-): StructureElement<E_, S, Group<E_, S, GroupResult2<A, B>>> = {
-    createGroup {
-        Group2Impl(name, description,
-            elementA(),
-            elementB(),
-        )
-    }
+): StructureElement<E_, S, Group.FiniteSize<E_, S, GroupResult2<A, B>>> = createGroup {
+    Group2Impl(name, description,
+        elementA(),
+        elementB(),
+    )
 }
 
+@JvmName("groupNonTerminating")
 fun <E_ : Environment, S, A, B, C> BuilderScope<E_, S>.group(
-    elementA: StructureElement<E_, S, Groupable<E_, S, A>>,
-    elementB: StructureElement<E_, S, Groupable<E_, S, B>>,
-    elementC: StructureElement<E_, S, Groupable<E_, S, C>>,
+    elementA: StructureElement<E_, S, Groupable.NonTerminating<E_, S, A>>,
+    elementB: StructureElement<E_, S, Groupable.NonTerminating<E_, S, B>>,
+    elementC: StructureElement<E_, S, Groupable.NonTerminating<E_, S, C>>,
     description: String = "",
-): StructureElement<E_, S, Group<E_, S, GroupResult3<A, B, C>>> = {
-    createGroup {
-        Group3Impl(name, description,
-            elementA(),
-            elementB(),
-            elementC(),
-        )
-    }
+): StructureElement<E_, S, Group.FiniteSize<E_, S, GroupResult3<A, B, C>>> = createGroup {
+    Group3Impl(name, description,
+        elementA(),
+        elementB(),
+        elementC(),
+    )
 }
 
+@JvmName("groupNonTerminating")
 fun <E_ : Environment, S, A, B, C, D> BuilderScope<E_, S>.group(
-    elementA: StructureElement<E_, S, Groupable<E_, S, A>>,
-    elementB: StructureElement<E_, S, Groupable<E_, S, B>>,
-    elementC: StructureElement<E_, S, Groupable<E_, S, C>>,
-    elementD: StructureElement<E_, S, Groupable<E_, S, D>>,
+    elementA: StructureElement<E_, S, Groupable.NonTerminating<E_, S, A>>,
+    elementB: StructureElement<E_, S, Groupable.NonTerminating<E_, S, B>>,
+    elementC: StructureElement<E_, S, Groupable.NonTerminating<E_, S, C>>,
+    elementD: StructureElement<E_, S, Groupable.NonTerminating<E_, S, D>>,
     description: String = "",
-): StructureElement<E_, S, Group<E_, S, GroupResult4<A, B, C, D>>> = {
-    createGroup {
-        Group4Impl(name, description,
-            elementA(),
-            elementB(),
-            elementC(),
-            elementD(),
-        )
-    }
+): StructureElement<E_, S, Group.FiniteSize<E_, S, GroupResult4<A, B, C, D>>> = createGroup {
+    Group4Impl(name, description,
+        elementA(),
+        elementB(),
+        elementC(),
+        elementD(),
+    )
 }
 
+@JvmName("groupNonTerminating")
 fun <E_ : Environment, S, A, B, C, D, E> BuilderScope<E_, S>.group(
-    elementA: StructureElement<E_, S, Groupable<E_, S, A>>,
-    elementB: StructureElement<E_, S, Groupable<E_, S, B>>,
-    elementC: StructureElement<E_, S, Groupable<E_, S, C>>,
-    elementD: StructureElement<E_, S, Groupable<E_, S, D>>,
-    elementE: StructureElement<E_, S, Groupable<E_, S, E>>,
+    elementA: StructureElement<E_, S, Groupable.NonTerminating<E_, S, A>>,
+    elementB: StructureElement<E_, S, Groupable.NonTerminating<E_, S, B>>,
+    elementC: StructureElement<E_, S, Groupable.NonTerminating<E_, S, C>>,
+    elementD: StructureElement<E_, S, Groupable.NonTerminating<E_, S, D>>,
+    elementE: StructureElement<E_, S, Groupable.NonTerminating<E_, S, E>>,
     description: String = "",
-): StructureElement<E_, S, Group<E_, S, GroupResult5<A, B, C, D, E>>> = {
-    createGroup {
-        Group5Impl(name, description,
-            elementA(),
-            elementB(),
-            elementC(),
-            elementD(),
-            elementE(),
-        )
-    }
+): StructureElement<E_, S, Group.FiniteSize<E_, S, GroupResult5<A, B, C, D, E>>> = createGroup {
+    Group5Impl(name, description,
+        elementA(),
+        elementB(),
+        elementC(),
+        elementD(),
+        elementE(),
+    )
 }
 
+@JvmName("groupNonTerminating")
 fun <E_ : Environment, S, A, B, C, D, E, F> BuilderScope<E_, S>.group(
-    elementA: StructureElement<E_, S, Groupable<E_, S, A>>,
-    elementB: StructureElement<E_, S, Groupable<E_, S, B>>,
-    elementC: StructureElement<E_, S, Groupable<E_, S, C>>,
-    elementD: StructureElement<E_, S, Groupable<E_, S, D>>,
-    elementE: StructureElement<E_, S, Groupable<E_, S, E>>,
-    elementF: StructureElement<E_, S, Groupable<E_, S, F>>,
+    elementA: StructureElement<E_, S, Groupable.NonTerminating<E_, S, A>>,
+    elementB: StructureElement<E_, S, Groupable.NonTerminating<E_, S, B>>,
+    elementC: StructureElement<E_, S, Groupable.NonTerminating<E_, S, C>>,
+    elementD: StructureElement<E_, S, Groupable.NonTerminating<E_, S, D>>,
+    elementE: StructureElement<E_, S, Groupable.NonTerminating<E_, S, E>>,
+    elementF: StructureElement<E_, S, Groupable.NonTerminating<E_, S, F>>,
     description: String = "",
-): StructureElement<E_, S, Group<E_, S, GroupResult6<A, B, C, D, E, F>>> = {
-    createGroup {
-        Group6Impl(name, description,
-            elementA(),
-            elementB(),
-            elementC(),
-            elementD(),
-            elementE(),
-            elementF(),
-        )
-    }
+): StructureElement<E_, S, Group.FiniteSize<E_, S, GroupResult6<A, B, C, D, E, F>>> = createGroup {
+    Group6Impl(name, description,
+        elementA(),
+        elementB(),
+        elementC(),
+        elementD(),
+        elementE(),
+        elementF(),
+    )
 }
 
+@JvmName("groupNonTerminating")
 fun <E_ : Environment, S, A, B, C, D, E, F, G> BuilderScope<E_, S>.group(
-    elementA: StructureElement<E_, S, Groupable<E_, S, A>>,
-    elementB: StructureElement<E_, S, Groupable<E_, S, B>>,
-    elementC: StructureElement<E_, S, Groupable<E_, S, C>>,
-    elementD: StructureElement<E_, S, Groupable<E_, S, D>>,
-    elementE: StructureElement<E_, S, Groupable<E_, S, E>>,
-    elementF: StructureElement<E_, S, Groupable<E_, S, F>>,
-    elementG: StructureElement<E_, S, Groupable<E_, S, G>>,
+    elementA: StructureElement<E_, S, Groupable.NonTerminating<E_, S, A>>,
+    elementB: StructureElement<E_, S, Groupable.NonTerminating<E_, S, B>>,
+    elementC: StructureElement<E_, S, Groupable.NonTerminating<E_, S, C>>,
+    elementD: StructureElement<E_, S, Groupable.NonTerminating<E_, S, D>>,
+    elementE: StructureElement<E_, S, Groupable.NonTerminating<E_, S, E>>,
+    elementF: StructureElement<E_, S, Groupable.NonTerminating<E_, S, F>>,
+    elementG: StructureElement<E_, S, Groupable.NonTerminating<E_, S, G>>,
     description: String = "",
-): StructureElement<E_, S, Group<E_, S, GroupResult7<A, B, C, D, E, F, G>>> = {
-    createGroup {
-        Group7Impl(name, description,
-            elementA(),
-            elementB(),
-            elementC(),
-            elementD(),
-            elementE(),
-            elementF(),
-            elementG(),
-        )
-    }
+): StructureElement<E_, S, Group.FiniteSize<E_, S, GroupResult7<A, B, C, D, E, F, G>>> = createGroup {
+    Group7Impl(name, description,
+        elementA(),
+        elementB(),
+        elementC(),
+        elementD(),
+        elementE(),
+        elementF(),
+        elementG(),
+    )
 }
 
+@JvmName("groupNonTerminating")
 fun <E_ : Environment, S, A, B, C, D, E, F, G, H> BuilderScope<E_, S>.group(
-    elementA: StructureElement<E_, S, Groupable<E_, S, A>>,
-    elementB: StructureElement<E_, S, Groupable<E_, S, B>>,
-    elementC: StructureElement<E_, S, Groupable<E_, S, C>>,
-    elementD: StructureElement<E_, S, Groupable<E_, S, D>>,
-    elementE: StructureElement<E_, S, Groupable<E_, S, E>>,
-    elementF: StructureElement<E_, S, Groupable<E_, S, F>>,
-    elementG: StructureElement<E_, S, Groupable<E_, S, G>>,
-    elementH: StructureElement<E_, S, Groupable<E_, S, H>>,
+    elementA: StructureElement<E_, S, Groupable.NonTerminating<E_, S, A>>,
+    elementB: StructureElement<E_, S, Groupable.NonTerminating<E_, S, B>>,
+    elementC: StructureElement<E_, S, Groupable.NonTerminating<E_, S, C>>,
+    elementD: StructureElement<E_, S, Groupable.NonTerminating<E_, S, D>>,
+    elementE: StructureElement<E_, S, Groupable.NonTerminating<E_, S, E>>,
+    elementF: StructureElement<E_, S, Groupable.NonTerminating<E_, S, F>>,
+    elementG: StructureElement<E_, S, Groupable.NonTerminating<E_, S, G>>,
+    elementH: StructureElement<E_, S, Groupable.NonTerminating<E_, S, H>>,
     description: String = "",
-): StructureElement<E_, S, Group<E_, S, GroupResult8<A, B, C, D, E, F, G, H>>> = {
-    createGroup {
-        Group8Impl(name, description,
-            elementA(),
-            elementB(),
-            elementC(),
-            elementD(),
-            elementE(),
-            elementF(),
-            elementG(),
-            elementH(),
-        )
-    }
+): StructureElement<E_, S, Group.FiniteSize<E_, S, GroupResult8<A, B, C, D, E, F, G, H>>> = createGroup {
+    Group8Impl(name, description,
+        elementA(),
+        elementB(),
+        elementC(),
+        elementD(),
+        elementE(),
+        elementF(),
+        elementG(),
+        elementH(),
+    )
 }
 
-private fun <E : Environment, S, R : GroupResult, G : Group<E, S, R>> StructureScope<E, S>.createGroup(
+@JvmName("groupTerminating")
+fun <E_ : Environment, S, A> BuilderScope<E_, S>.group(
+    element: StructureElement<E_, S, Groupable.Terminating<E_, S, A>>,
+    description: String = "",
+): StructureElement<E_, S, Group.UnknownSize<E_, S, GroupResult1<A>>> = createGroup {
+    Group1Impl(name, description,
+        element(),
+    )
+}
+
+@JvmName("groupTerminating")
+fun <E_ : Environment, S, A, B> BuilderScope<E_, S>.group(
+    elementA: StructureElement<E_, S, Groupable.Terminating<E_, S, A>>,
+    elementB: StructureElement<E_, S, Groupable.Terminating<E_, S, B>>,
+    description: String = "",
+): StructureElement<E_, S, Group.UnknownSize<E_, S, GroupResult2<A, B>>> = createGroup {
+    Group2Impl(name, description,
+        elementA(),
+        elementB(),
+    )
+}
+
+@JvmName("groupTerminating")
+fun <E_ : Environment, S, A, B, C> BuilderScope<E_, S>.group(
+    elementA: StructureElement<E_, S, Groupable.Terminating<E_, S, A>>,
+    elementB: StructureElement<E_, S, Groupable.Terminating<E_, S, B>>,
+    elementC: StructureElement<E_, S, Groupable.Terminating<E_, S, C>>,
+    description: String = "",
+): StructureElement<E_, S, Group.UnknownSize<E_, S, GroupResult3<A, B, C>>> = createGroup {
+    Group3Impl(name, description,
+        elementA(),
+        elementB(),
+        elementC(),
+    )
+}
+
+@JvmName("groupTerminating")
+fun <E_ : Environment, S, A, B, C, D> BuilderScope<E_, S>.group(
+    elementA: StructureElement<E_, S, Groupable.Terminating<E_, S, A>>,
+    elementB: StructureElement<E_, S, Groupable.Terminating<E_, S, B>>,
+    elementC: StructureElement<E_, S, Groupable.Terminating<E_, S, C>>,
+    elementD: StructureElement<E_, S, Groupable.Terminating<E_, S, D>>,
+    description: String = "",
+): StructureElement<E_, S, Group.UnknownSize<E_, S, GroupResult4<A, B, C, D>>> = createGroup {
+    Group4Impl(name, description,
+        elementA(),
+        elementB(),
+        elementC(),
+        elementD(),
+    )
+}
+
+@JvmName("groupTerminating")
+fun <E_ : Environment, S, A, B, C, D, E> BuilderScope<E_, S>.group(
+    elementA: StructureElement<E_, S, Groupable.Terminating<E_, S, A>>,
+    elementB: StructureElement<E_, S, Groupable.Terminating<E_, S, B>>,
+    elementC: StructureElement<E_, S, Groupable.Terminating<E_, S, C>>,
+    elementD: StructureElement<E_, S, Groupable.Terminating<E_, S, D>>,
+    elementE: StructureElement<E_, S, Groupable.Terminating<E_, S, E>>,
+    description: String = "",
+): StructureElement<E_, S, Group.UnknownSize<E_, S, GroupResult5<A, B, C, D, E>>> = createGroup {
+    Group5Impl(name, description,
+        elementA(),
+        elementB(),
+        elementC(),
+        elementD(),
+        elementE(),
+    )
+}
+
+@JvmName("groupTerminating")
+fun <E_ : Environment, S, A, B, C, D, E, F> BuilderScope<E_, S>.group(
+    elementA: StructureElement<E_, S, Groupable.Terminating<E_, S, A>>,
+    elementB: StructureElement<E_, S, Groupable.Terminating<E_, S, B>>,
+    elementC: StructureElement<E_, S, Groupable.Terminating<E_, S, C>>,
+    elementD: StructureElement<E_, S, Groupable.Terminating<E_, S, D>>,
+    elementE: StructureElement<E_, S, Groupable.Terminating<E_, S, E>>,
+    elementF: StructureElement<E_, S, Groupable.Terminating<E_, S, F>>,
+    description: String = "",
+): StructureElement<E_, S, Group.UnknownSize<E_, S, GroupResult6<A, B, C, D, E, F>>> = createGroup {
+    Group6Impl(name, description,
+        elementA(),
+        elementB(),
+        elementC(),
+        elementD(),
+        elementE(),
+        elementF(),
+    )
+}
+
+@JvmName("groupTerminating")
+fun <E_ : Environment, S, A, B, C, D, E, F, G> BuilderScope<E_, S>.group(
+    elementA: StructureElement<E_, S, Groupable.Terminating<E_, S, A>>,
+    elementB: StructureElement<E_, S, Groupable.Terminating<E_, S, B>>,
+    elementC: StructureElement<E_, S, Groupable.Terminating<E_, S, C>>,
+    elementD: StructureElement<E_, S, Groupable.Terminating<E_, S, D>>,
+    elementE: StructureElement<E_, S, Groupable.Terminating<E_, S, E>>,
+    elementF: StructureElement<E_, S, Groupable.Terminating<E_, S, F>>,
+    elementG: StructureElement<E_, S, Groupable.Terminating<E_, S, G>>,
+    description: String = "",
+): StructureElement<E_, S, Group.UnknownSize<E_, S, GroupResult7<A, B, C, D, E, F, G>>> = createGroup {
+    Group7Impl(name, description,
+        elementA(),
+        elementB(),
+        elementC(),
+        elementD(),
+        elementE(),
+        elementF(),
+        elementG(),
+    )
+}
+
+@JvmName("groupTerminating")
+fun <E_ : Environment, S, A, B, C, D, E, F, G, H> BuilderScope<E_, S>.group(
+    elementA: StructureElement<E_, S, Groupable.Terminating<E_, S, A>>,
+    elementB: StructureElement<E_, S, Groupable.Terminating<E_, S, B>>,
+    elementC: StructureElement<E_, S, Groupable.Terminating<E_, S, C>>,
+    elementD: StructureElement<E_, S, Groupable.Terminating<E_, S, D>>,
+    elementE: StructureElement<E_, S, Groupable.Terminating<E_, S, E>>,
+    elementF: StructureElement<E_, S, Groupable.Terminating<E_, S, F>>,
+    elementG: StructureElement<E_, S, Groupable.Terminating<E_, S, G>>,
+    elementH: StructureElement<E_, S, Groupable.Terminating<E_, S, H>>,
+    description: String = "",
+): StructureElement<E_, S, Group.UnknownSize<E_, S, GroupResult8<A, B, C, D, E, F, G, H>>> = createGroup {
+    Group8Impl(name, description,
+        elementA(),
+        elementB(),
+        elementC(),
+        elementD(),
+        elementE(),
+        elementF(),
+        elementG(),
+        elementH(),
+    )
+}
+
+private fun <E : Environment, S, R : GroupResult, G : Group<E, S, R>> createGroup(
     block: StructureScope<E, S>.() -> G
-): G {
+): StructureElement<E, S, G> = {
     val scope = StructureScope(
         name = "${this.name}_group",
         aliases = setOf(),
@@ -179,5 +307,5 @@ private fun <E : Environment, S, R : GroupResult, G : Group<E, S, R>> StructureS
         parent = this,
         requirement = requirement { SenderValidationResult.success() },
     )
-    return block(scope)
+    block(scope)
 }
