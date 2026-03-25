@@ -33,11 +33,14 @@ internal open class InvocationImpl<E : Environment, S>(
         return parsed[id] as T
     }
 
-    override fun <T> getOrPut(id: TypedIdentifier<T>, defaultValue: () -> T): T {
+    override fun <T> put(id: TypedIdentifier<T>, value: T) {
+        parsed[id] = value
+    }
+
+    override fun <T> getOrPut(id: TypedIdentifier<T>, value: T): T {
         if (parsed.containsKey(id)) {
             return get(id)
         }
-        val value = defaultValue()
         put(id, value)
         return value
     }
@@ -83,10 +86,6 @@ internal open class InvocationImpl<E : Environment, S>(
             put(element.id, value)
             return ParsingResult.success(value)
         }
-    }
-
-    private fun <T> put(id: TypedIdentifier<T>, parsedValue: T) {
-        parsed[id] = parsedValue
     }
 }
 
