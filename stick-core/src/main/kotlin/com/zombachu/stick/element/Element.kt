@@ -7,7 +7,6 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.Size
 
@@ -17,7 +16,7 @@ sealed interface Element<E : Environment, S, T> {
 }
 
 sealed interface SyntaxElement<E : Environment, S, T> : Element<E, S, T> {
-    val id: TypedIdentifier<T>
+    val name: String
     val description: String
 
     context(inv: Invocation<E, S>)
@@ -34,7 +33,7 @@ sealed interface SignatureConstraint<E : Environment, S, T> : Element<E, S, T> {
 
 sealed interface Groupable<E : Environment, S, T> : SyntaxElement<E, S, T> {
     context(validationContext: ValidationContext<E, S>)
-    fun getGroupedSyntax(): String = id.name
+    fun getGroupedSyntax(): String = name
 }
 
 sealed interface Helper<E : Environment, S, T> : SignatureConstraint.NonTerminating<E, S, T>

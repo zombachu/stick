@@ -4,15 +4,14 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.valueOrPropagateError
 
 open class ListParameter<E : Environment, S, T>(
-    id: TypedIdentifier<List<T>>,
+    name: String,
     description: String,
     val parameter: Size1<E, S, T>,
-) : Parameter.Size1<E, S, List<T>>(id, description) {
+) : Parameter.Size1<E, S, List<T>>(name, description) {
 
     context(inv: Invocation<E, S>)
     override fun parse(arg0: String): CommandResult<List<T>> {

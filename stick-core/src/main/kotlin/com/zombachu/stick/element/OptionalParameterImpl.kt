@@ -15,7 +15,7 @@ internal class OptionalParameterImpl<E : Environment, S, T>(
     val requirementDefault: InvalidSenderDefault<E, S, T>,
     val presenceDefault: ValidSenderDefault<E, S, T>,
     val parameter: Parameter<E, S, T>
-) : Parameter.UnknownSize<E, S, T>(Size.Deferred, parameter.id, parameter.description), OptionalParameter<E, S, T> {
+) : Parameter.UnknownSize<E, S, T>(Size.Deferred, parameter.name, parameter.description), OptionalParameter<E, S, T> {
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> {
@@ -43,7 +43,7 @@ internal class OptionalParameterImpl<E : Environment, S, T>(
     override fun getSyntax(): String {
         // Check if the sender is allowed to provide a value
         if (requirementDefault.validateSender().isSuccess()) {
-            return "[${id.name}]"
+            return "[${name}]"
         }
         return ""
     }

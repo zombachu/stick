@@ -7,7 +7,6 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.ParsingResult.LiteralNotMatchedError
-import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.impl.InvocationImpl
@@ -15,13 +14,13 @@ import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 
 internal open class ValueFlagImpl<E : Environment, S, T>(
+    override val name: String,
     override val default: ContextualValue<E, S, T>,
     private val flagParameter: FlagParameter<E, S, T>,
 ): ValueFlag<E, S, T> {
 
     override val size: Size = flagParameter.size
     override val type: ElementType = ElementType.Flag
-    override val id: TypedIdentifier<T> = flagParameter.id
     override val description: String = flagParameter.description
 
     context(inv: Invocation<E, S>)
@@ -35,20 +34,20 @@ internal open class ValueFlagImpl<E : Environment, S, T>(
 
 internal sealed class FlagParameter<E : Environment, S, T>(
     size: Size.Fixed,
-    id: TypedIdentifier<T>,
+    name: String,
     aliases: Set<String>,
     description: String,
-) : Parameter.FixedSize<E, S, T>(size, id, description), Aliasable {
+) : Parameter.FixedSize<E, S, T>(size, name, description), Aliasable {
 
-    override val label: String = "-${id.name}"
+    override val label: String = "-${name}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
 
     internal class PresenceFlagParameter<E : Environment, S, T>(
-        id: TypedIdentifier<T>,
+        name: String,
         private val presentValue: ContextualValue<E, S, T>,
         aliases: Set<String>,
         description: String,
-    ) : FlagParameter<E, S, T>(Size(1), id, aliases, description) {
+    ) : FlagParameter<E, S, T>(Size(1), name, aliases, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
@@ -63,11 +62,9 @@ internal sealed class FlagParameter<E : Environment, S, T>(
     }
 
     internal class ParameterFlagParameter<E : Environment, S, T>(
-        id: TypedIdentifier<T>,
         private val parameter: FixedSize<E, S, T>,
         aliases: Set<String>,
-        description: String,
-    ) : FlagParameter<E, S, T>(Size(1) + parameter.size, id, aliases, description) {
+    ) : FlagParameter<E, S, T>(Size(1) + parameter.size, parameter.name, aliases, parameter.description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
@@ -85,7 +82,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         private val enumParameter: EnumParameter<E, S, T>,
     ) : FlagParameter<E, S, T>(
         enumParameter.size,
-        enumParameter.id,
+        enumParameter.name,
         enumParameter.primaryValues.keys + enumParameter.aliasedValues.keys,
         enumParameter.description,
     ) {
@@ -113,10 +110,7 @@ internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
     private val transform: (S) -> S2,
     private val requirement: Requirement<E, S>,
     override val invalidDefault: ContextualValue<E, S, T>,
-) : ValueFlagImpl<E, S, T>(
-    { unusedValue() },
-    FlagParameter.PresenceFlagParameter(base.id, { unusedValue() }, setOf(), ""),
-), Flag.Validated<E, S, T> {
+) : ValueFlag<E, S, T>, Flag.Validated<E, S, T> {
 
     override val default: ContextualValue<E, S, T> = {
         val transformedInvocation = (this as InvocationImpl).forSender(transform)
@@ -124,7 +118,8 @@ internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
     }
 
     override val size: Size = base.size
-    override val id: TypedIdentifier<T> = base.id
+    override val type: ElementType = ElementType.Flag
+    override val name: String = base.name
     override val description: String = base.description
 
     context(inv: Invocation<E, S>)

@@ -13,20 +13,20 @@ import com.zombachu.stick.paper.structure.playerParameter
 import com.zombachu.stick.structure.command
 import com.zombachu.stick.structure.default
 import com.zombachu.stick.structure.defaultSender
+import com.zombachu.stick.structure.enumFlag
 import com.zombachu.stick.structure.enumParameter
 import com.zombachu.stick.structure.flag
 import com.zombachu.stick.structure.group
 import com.zombachu.stick.structure.helper
+import com.zombachu.stick.structure.hybridFlag
 import com.zombachu.stick.structure.id
 import com.zombachu.stick.structure.invoke
-import com.zombachu.stick.structure.enumFlag
-import com.zombachu.stick.structure.hybridFlag
-import com.zombachu.stick.structure.invalidDefault
 import com.zombachu.stick.structure.optionally
 import com.zombachu.stick.structure.pipeline
 import com.zombachu.stick.structure.requireAs
 import com.zombachu.stick.structure.requireIs
 import com.zombachu.stick.structure.requirement
+import com.zombachu.stick.structure.store
 import com.zombachu.stick.structure.stringParameter
 import com.zombachu.stick.structure.valueFlag
 import org.bukkit.command.CommandSender
@@ -43,18 +43,18 @@ class WarpCommand : BukkitCommand<CommandSender> {
             description = "The main command for warps",
         )(
             stringParameter(
-                warpParameterId,
+                warpParameterId.name,
                 description = "The warp to target",
             ),
             valueFlag(
-                name = "wg",
+                "wg",
                 default = permissionedValue(
                     permission = "syn.secretwgs",
                     default = "secretworld",
                     fallback = "lobby"
                 ),
                 stringParameter(
-                    id("worldgroup")
+                    "worldgroup"
                 ),
             ),
             group(
@@ -85,14 +85,14 @@ class WarpCommand : BukkitCommand<CommandSender> {
                     requirement { it.sender is Player },
                 ) {
                     command("anothercommand")(
-                            mcpRequiredStringParameter(id("playerStringParameter"))
+                            mcpRequiredStringParameter("playerStringParameter")
                     )
                 },
                 requireIs(Player::class) {
-                    stringParameter(id("blah"))
+                    stringParameter("blah")
                 },
                 enumParameter(
-                    id("rgb"),
+                    "rgb",
                     Rgb::class
                 ),
 //                require(
@@ -120,19 +120,19 @@ class WarpInfoCommand: BukkitCommand<CommandSender> {
             description = "Displays information about a warp.",
         )(
             valueFlag(
-                id("wg"),
+                "wg",
                 default = "",
                 stringParameter(
-                    id("worldgroup")
+                    "worldgroup"
                 ),
             ),
             enumParameter(
-                id("weather"),
+                "weather",
                 WeatherEnum::class
             ),
             optionally(
                 ifAbsent = default(5),
-                parameter = { McpRequiredIntParameter(id("mcpRequired")) }
+                parameter = { McpRequiredIntParameter("mcpRequired") }
             ),
         ) { wgFlag: String, weather: WeatherEnum, playerRequiredInt: Int ->
         }
@@ -148,7 +148,7 @@ class SomePlayerCommand: BukkitCommand<Player> {
                 { ParsingResult.success(it.toDouble()) },
             ),
             flag(
-                id = id("there"),
+                name = "there",
                 aliases = setOf("a", "b", "c", "d"),
                 description = "yup",
             ).pipeline(
@@ -204,7 +204,7 @@ class ColorPlayerCommand: BukkitCommand<Player> {
             enumFlag(
                 Rgb.Red,
                 enumParameter("color", Rgb::class),
-            )
+            ).store(id("storedColor"))
         ) { color: Rgb ->
 
         }
@@ -214,7 +214,6 @@ class HybridFlagCommand: BukkitCommand<CommandSender> {
     override val structure =
         command("asdf")(
             hybridFlag(
-                "color",
                 enumParameter("color", Rgb::class),
             ),
         ) { color: HybridFlagResult<Rgb> ->
@@ -231,7 +230,6 @@ class HybridFlagRequireCommand: BukkitCommand<CommandSender> {
         command("asdf")(
             requireIs(Player::class, invalidDefault = HybridFlagResult.Value(Rgb.Blue)) {
                 hybridFlag(
-                    "color",
                     enumParameter("color", Rgb::class),
                 )
             },

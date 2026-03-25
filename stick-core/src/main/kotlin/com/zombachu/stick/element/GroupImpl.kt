@@ -14,7 +14,6 @@ import com.zombachu.stick.GroupResult7
 import com.zombachu.stick.GroupResult8
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.GroupElement.Companion.to
 import com.zombachu.stick.impl.InvocationImpl
@@ -27,7 +26,7 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 internal open class GroupImpl<E : Environment, S, G : GroupResult>(
-    override val id: TypedIdentifier<G>,
+    override val name: String,
     override val description: String,
     private val elements: List<GroupElement<E, S, *, G>>,
 ) : Group<E, S, G> {
@@ -104,43 +103,43 @@ internal class GroupElement<E : Environment, S, T, G : GroupResult>(
 }
 
 internal class Group1Impl<E_ : Environment, S, A>(
-    id: TypedIdentifier<GroupResult1<A>>,
+    name: String,
     description: String,
     element: Groupable<E_, S, A>,
-) : GroupImpl<E_, S, GroupResult1<A>>(id, description, listOf(
+) : GroupImpl<E_, S, GroupResult1<A>>(name, description, listOf(
     element to ::ResultA,
 )), Group<E_, S, GroupResult1<A>>
 
 internal class Group2Impl<E_ : Environment, S, A, B>(
-    id: TypedIdentifier<GroupResult2<A, B>>,
+    name: String,
     description: String,
     elementA: Groupable<E_, S, A>,
     elementB: Groupable<E_, S, B>,
-) : GroupImpl<E_, S, GroupResult2<A, B>>(id, description, listOf(
+) : GroupImpl<E_, S, GroupResult2<A, B>>(name, description, listOf(
     elementA to ::ResultA,
     elementB to ::ResultB,
 )), Group<E_, S, GroupResult2<A, B>>
 
 internal class Group3Impl<E_ : Environment, S, A, B, C>(
-    id: TypedIdentifier<GroupResult3<A, B, C>>,
+    name: String,
     description: String,
     elementA: Groupable<E_, S, A>,
     elementB: Groupable<E_, S, B>,
     elementC: Groupable<E_, S, C>,
-) : GroupImpl<E_, S, GroupResult3<A, B, C>>(id, description, listOf(
+) : GroupImpl<E_, S, GroupResult3<A, B, C>>(name, description, listOf(
     elementA to ::ResultA,
     elementB to ::ResultB,
     elementC to ::ResultC,
 )), Group<E_, S, GroupResult3<A, B, C>>
 
 internal class Group4Impl<E_ : Environment, S, A, B, C, D>(
-    id: TypedIdentifier<GroupResult4<A, B, C, D>>,
+    name: String,
     description: String,
     elementA: Groupable<E_, S, A>,
     elementB: Groupable<E_, S, B>,
     elementC: Groupable<E_, S, C>,
     elementD: Groupable<E_, S, D>,
-) : GroupImpl<E_, S, GroupResult4<A, B, C, D>>(id, description, listOf(
+) : GroupImpl<E_, S, GroupResult4<A, B, C, D>>(name, description, listOf(
     elementA to ::ResultA,
     elementB to ::ResultB,
     elementC to ::ResultC,
@@ -148,14 +147,14 @@ internal class Group4Impl<E_ : Environment, S, A, B, C, D>(
 )), Group<E_, S, GroupResult4<A, B, C, D>>
 
 internal class Group5Impl<E_ : Environment, S, A, B, C, D, E>(
-    id: TypedIdentifier<GroupResult5<A, B, C, D, E>>,
+    name: String,
     description: String,
     elementA: Groupable<E_, S, A>,
     elementB: Groupable<E_, S, B>,
     elementC: Groupable<E_, S, C>,
     elementD: Groupable<E_, S, D>,
     elementE: Groupable<E_, S, E>,
-) : GroupImpl<E_, S, GroupResult5<A, B, C, D, E>>(id, description, listOf(
+) : GroupImpl<E_, S, GroupResult5<A, B, C, D, E>>(name, description, listOf(
     elementA to ::ResultA,
     elementB to ::ResultB,
     elementC to ::ResultC,
@@ -164,7 +163,7 @@ internal class Group5Impl<E_ : Environment, S, A, B, C, D, E>(
 )), Group<E_, S, GroupResult5<A, B, C, D, E>>
 
 internal class Group6Impl<E_ : Environment, S, A, B, C, D, E, F>(
-    id: TypedIdentifier<GroupResult6<A, B, C, D, E, F>>,
+    name: String,
     description: String,
     elementA: Groupable<E_, S, A>,
     elementB: Groupable<E_, S, B>,
@@ -172,7 +171,7 @@ internal class Group6Impl<E_ : Environment, S, A, B, C, D, E, F>(
     elementD: Groupable<E_, S, D>,
     elementE: Groupable<E_, S, E>,
     elementF: Groupable<E_, S, F>,
-) : GroupImpl<E_, S, GroupResult6<A, B, C, D, E, F>>(id, description, listOf(
+) : GroupImpl<E_, S, GroupResult6<A, B, C, D, E, F>>(name, description, listOf(
     elementA to ::ResultA,
     elementB to ::ResultB,
     elementC to ::ResultC,
@@ -182,7 +181,7 @@ internal class Group6Impl<E_ : Environment, S, A, B, C, D, E, F>(
 )), Group<E_, S, GroupResult6<A, B, C, D, E, F>>
 
 internal class Group7Impl<E_ : Environment, S, A, B, C, D, E, F, G>(
-    id: TypedIdentifier<GroupResult7<A, B, C, D, E, F, G>>,
+    name: String,
     description: String,
     elementA: Groupable<E_, S, A>,
     elementB: Groupable<E_, S, B>,
@@ -191,7 +190,7 @@ internal class Group7Impl<E_ : Environment, S, A, B, C, D, E, F, G>(
     elementE: Groupable<E_, S, E>,
     elementF: Groupable<E_, S, F>,
     elementG: Groupable<E_, S, G>,
-) : GroupImpl<E_, S, GroupResult7<A, B, C, D, E, F, G>>(id, description, listOf(
+) : GroupImpl<E_, S, GroupResult7<A, B, C, D, E, F, G>>(name, description, listOf(
     elementA to ::ResultA,
     elementB to ::ResultB,
     elementC to ::ResultC,
@@ -202,7 +201,7 @@ internal class Group7Impl<E_ : Environment, S, A, B, C, D, E, F, G>(
 )), Group<E_, S, GroupResult7<A, B, C, D, E, F, G>>
 
 internal class Group8Impl<E_ : Environment, S, A, B, C, D, E, F, G, H>(
-    id: TypedIdentifier<GroupResult8<A, B, C, D, E, F, G, H>>,
+    name: String,
     description: String,
     elementA: Groupable<E_, S, A>,
     elementB: Groupable<E_, S, B>,
@@ -212,7 +211,7 @@ internal class Group8Impl<E_ : Environment, S, A, B, C, D, E, F, G, H>(
     elementF: Groupable<E_, S, F>,
     elementG: Groupable<E_, S, G>,
     elementH: Groupable<E_, S, H>,
-) : GroupImpl<E_, S, GroupResult8<A, B, C, D, E, F, G, H>>(id, description, listOf(
+) : GroupImpl<E_, S, GroupResult8<A, B, C, D, E, F, G, H>>(name, description, listOf(
     elementA to ::ResultA,
     elementB to ::ResultB,
     elementC to ::ResultC,

@@ -6,7 +6,6 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.isSuccess
@@ -18,8 +17,7 @@ typealias PipelineOperation<E, S, A, B> = Invocation<E, S>.(A) -> CommandResult<
 internal class PipelinedFixedSizeParameter<E : Environment, S, A, T>(
     private val base: FixedSize<E, S, A>,
     private val operations: List<PipelineOperation<E, S, *, *>>,
-    id: TypedIdentifier<T>,
-) : Parameter.FixedSize<E, S, T>(base.size, id, base.description) {
+) : Parameter.FixedSize<E, S, T>(base.size, base.name, base.description) {
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parsePipeline(args, base, operations)
@@ -32,8 +30,7 @@ internal class PipelinedFixedSizeParameter<E : Environment, S, A, T>(
 internal class PipelinedUnknownSizeParameter<E : Environment, S, A, T>(
     private val base: UnknownSize<E, S, A>,
     private val operations: List<PipelineOperation<E, S, *, *>>,
-    id: TypedIdentifier<T>,
-) : Parameter.UnknownSize<E, S, T>(base.size, id, base.description) {
+) : Parameter.UnknownSize<E, S, T>(base.size, base.name, base.description) {
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parsePipeline(args, base, operations)
@@ -44,14 +41,14 @@ internal class PipelinedUnknownSizeParameter<E : Environment, S, A, T>(
 
 @PublishedApi
 internal class PipelinedValueFlag<E : Environment, S, A, T>(
-    override val id: TypedIdentifier<T>,
     private val base: ValueFlag<E, S, A>,
     private val operations: List<PipelineOperation<E, S, *, *>>,
 ) : ValueFlag<E, S, T> {
 
-    override val description: String = base.description
     override val size: Size = base.size
     override val type: ElementType = base.type
+    override val name: String = base.name
+    override val description: String = base.description
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parsePipeline(args, base, operations)
@@ -81,14 +78,14 @@ internal class PipelinedValueFlag<E : Environment, S, A, T>(
 
 @PublishedApi
 internal class PipelinedHybridFlag<E : Environment, S, A, T>(
-    override val id: TypedIdentifier<HybridFlagResult<T>>,
     private val base: HybridFlag<E, S, A>,
     private val operations: List<PipelineOperation<E, S, *, *>>,
 ) : HybridFlag<E, S, T> {
 
-    override val description: String = base.description
     override val size: Size = base.size
     override val type: ElementType = base.type
+    override val name: String = base.name
+    override val description: String = base.description
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<HybridFlagResult<T>> = parsePipeline(args, base, operations)
@@ -120,8 +117,7 @@ internal class PipelinedHybridFlag<E : Environment, S, A, T>(
 internal class PipelinedOptionalParameter<E : Environment, S, A, T>(
     private val base: OptionalParameter<E, S, A>,
     private val operations: List<PipelineOperation<E, S, *, *>>,
-    id: TypedIdentifier<T>,
-) : Parameter.UnknownSize<E, S, T>(base.size, id, base.description), OptionalParameter<E, S, T> {
+) : Parameter.UnknownSize<E, S, T>(base.size, base.name, base.description), OptionalParameter<E, S, T> {
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parsePipeline(args, base, operations)

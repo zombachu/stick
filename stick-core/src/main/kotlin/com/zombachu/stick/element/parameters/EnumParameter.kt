@@ -6,18 +6,17 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.lowercase
 
 open class EnumParameter<E : Environment, S, T : Enum<T>>(
-    id: TypedIdentifier<T>,
+    name: String,
     description: String,
     val primaryValues: Map<String, T>,
     val aliasedValues: Map<String, T>,
-) : Parameter.Size1<E, S, T>(id, description) {
+) : Parameter.Size1<E, S, T>(name, description) {
 
     override val type: ElementType = ElementType.Literal
 

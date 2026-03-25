@@ -23,7 +23,7 @@ class VelocityStick(
         structure: Structure<E, CommandSource>,
     ) {
         val commandMeta = commandManager
-            .metaBuilder(structure.id.name)
+            .metaBuilder(structure.name)
             .aliases(*structure.aliases.toTypedArray())
             .plugin(plugin)
             .build()

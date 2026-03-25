@@ -5,7 +5,6 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
-import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Requirement
@@ -13,16 +12,16 @@ import com.zombachu.stick.impl.Size
 import com.zombachu.stick.propagateError
 
 internal open class StructureImpl<E : Environment, S>(
-    override val id: TypedIdentifier<Unit>,
+    override val name: String,
     override val aliases: Set<String>,
     override val description: String,
     internal val requirement: Requirement<E, S>,
     internal val signature: Signature<E, S>,
 ) : Structure<E, S>  {
 
-    override val label by id
     override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Literal
+    override val label: String = name
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<Unit> {
@@ -44,9 +43,9 @@ internal open class StructureImpl<E : Environment, S>(
     override fun getSyntax(): String {
         val signatureSyntax = signature.getSyntax()
         return if (signatureSyntax.isEmpty()) {
-            id.name
+            name
         } else {
-            "${id.name} $signatureSyntax"
+            "${name} $signatureSyntax"
         }
     }
 
@@ -59,7 +58,7 @@ internal class TransformedStructure<E : Environment, S, S2 : Any>(
     val transform: (S) -> S2,
     requirement: Requirement<E, S>,
 ) : StructureImpl<E, S>(
-    base.id,
+    base.name,
     base.aliases,
     base.description,
     requirement,

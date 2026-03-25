@@ -4,7 +4,6 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.element.Signature
 import com.zombachu.stick.element.StructureImpl
-import com.zombachu.stick.structure.id
 
 typealias StructureElement<E, S, T> = StructureScope<E, S>.() -> T
 
@@ -31,7 +30,7 @@ class StructureScope<E : Environment, S>(
 
     internal fun build(signature: Signature<E, S>): StructureImpl<E, S> {
         return StructureImpl(
-            id(this.name),
+            this.name,
             this.aliases,
             this.description,
             this.requirement,

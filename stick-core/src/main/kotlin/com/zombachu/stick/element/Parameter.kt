@@ -3,7 +3,6 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Requirement
@@ -11,22 +10,22 @@ import com.zombachu.stick.impl.Size
 
 sealed class Parameter<E : Environment, S, T>(
     override val size: Size,
-    override val id: TypedIdentifier<T>,
+    override val name: String,
     override val description: String,
 ) : Groupable<E, S, T>, SignatureConstraint<E, S, T> {
 
     override val type: ElementType = ElementType.Default
 
     context(validationContext: ValidationContext<E, S>)
-    override fun getSyntax(): String = "<${id.name}>"
+    override fun getSyntax(): String = "<${name}>"
 
     sealed class FixedSize<E : Environment, S, T>(
         override val size: Size.Fixed,
-        id: TypedIdentifier<T>,
+        name: String,
         description: String,
-    ) : Parameter<E, S, T>(size, id, description), SignatureConstraint.NonTerminating<E, S, T>
-    abstract class Size1<E : Environment, S, T>(id: TypedIdentifier<T>, description: String) :
-        FixedSize<E, S, T>(Size(1), id, description) {
+    ) : Parameter<E, S, T>(size, name, description), SignatureConstraint.NonTerminating<E, S, T>
+    abstract class Size1<E : Environment, S, T>(name: String, description: String) :
+        FixedSize<E, S, T>(Size(1), name, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
@@ -36,8 +35,8 @@ sealed class Parameter<E : Environment, S, T>(
         context(inv: Invocation<E, S>)
         abstract fun parse(arg0: String): CommandResult<T>
     }
-    abstract class Size2<E : Environment, S, T>(id: TypedIdentifier<T>, description: String) :
-        FixedSize<E, S, T>(Size(2), id, description) {
+    abstract class Size2<E : Environment, S, T>(name: String, description: String) :
+        FixedSize<E, S, T>(Size(2), name, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
@@ -47,8 +46,8 @@ sealed class Parameter<E : Environment, S, T>(
         context(inv: Invocation<E, S>)
         abstract fun parse(arg0: String, arg1: String): CommandResult<T>
     }
-    abstract class Size3<E : Environment, S, T>(id: TypedIdentifier<T>, description: String) :
-        FixedSize<E, S, T>(Size(3), id, description) {
+    abstract class Size3<E : Environment, S, T>(name: String, description: String) :
+        FixedSize<E, S, T>(Size(3), name, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
@@ -58,8 +57,8 @@ sealed class Parameter<E : Environment, S, T>(
         context(inv: Invocation<E, S>)
         abstract fun parse(arg0: String, arg1: String, arg2: String): CommandResult<T>
     }
-    abstract class Size4<E : Environment, S, T>(id: TypedIdentifier<T>, description: String) :
-        FixedSize<E, S, T>(Size(4), id, description) {
+    abstract class Size4<E : Environment, S, T>(name: String, description: String) :
+        FixedSize<E, S, T>(Size(4), name, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
@@ -69,8 +68,8 @@ sealed class Parameter<E : Environment, S, T>(
         context(inv: Invocation<E, S>)
         abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String): CommandResult<T>
     }
-    abstract class Size5<E : Environment, S, T>(id: TypedIdentifier<T>, description: String) :
-        FixedSize<E, S, T>(Size(5), id, description) {
+    abstract class Size5<E : Environment, S, T>(name: String, description: String) :
+        FixedSize<E, S, T>(Size(5), name, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
@@ -80,8 +79,8 @@ sealed class Parameter<E : Environment, S, T>(
         context(inv: Invocation<E, S>)
         abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String): CommandResult<T>
     }
-    abstract class Size6<E : Environment, S, T>(id: TypedIdentifier<T>, description: String) :
-        FixedSize<E, S, T>(Size(6), id, description) {
+    abstract class Size6<E : Environment, S, T>(name: String, description: String) :
+        FixedSize<E, S, T>(Size(6), name, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
@@ -92,8 +91,8 @@ sealed class Parameter<E : Environment, S, T>(
         abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String,
                            arg5: String): CommandResult<T>
     }
-    abstract class Size7<E : Environment, S, T>(id: TypedIdentifier<T>, description: String) :
-        FixedSize<E, S, T>(Size(7), id, description) {
+    abstract class Size7<E : Environment, S, T>(name: String, description: String) :
+        FixedSize<E, S, T>(Size(7), name, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
@@ -104,8 +103,8 @@ sealed class Parameter<E : Environment, S, T>(
         abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String, arg5: String,
                            arg6: String): CommandResult<T>
     }
-    abstract class Size8<E : Environment, S, T>(id: TypedIdentifier<T>, description: String) :
-        FixedSize<E, S, T>(Size(8), id, description) {
+    abstract class Size8<E : Environment, S, T>(name: String, description: String) :
+        FixedSize<E, S, T>(Size(8), name, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
@@ -119,9 +118,9 @@ sealed class Parameter<E : Environment, S, T>(
 
     abstract class UnknownSize<E : Environment, S, T>(
         size: Size,
-        id: TypedIdentifier<T>,
+        name: String,
         description: String,
-    ) : Parameter<E, S, T>(size, id, description), SignatureConstraint.Terminating<E, S, T>
+    ) : Parameter<E, S, T>(size, name, description), SignatureConstraint.Terminating<E, S, T>
 }
 
 internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T>(
@@ -132,7 +131,7 @@ internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T>(
 
     override val size: Size = base.size
     override val type: ElementType = base.type
-    override val id: TypedIdentifier<T> = base.id
+    override val name: String = base.name
     override val description: String = base.description
 
     context(inv: Invocation<E, S>)

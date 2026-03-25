@@ -5,7 +5,6 @@ import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult2
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.Groupable
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
@@ -44,14 +43,12 @@ class PageCommand: BukkitCommand<CommandSender> {
                 name = "page",
             )(
                 valueFlag(
-                    id("wg"),
+                    name = "wg",
                     default = { ParsingResult.success("huh") },
-                    stringParameter(
-                        id("worldgroup")
-                    ),
+                    stringParameter("worldgroup"),
                 ),
                 listElementParameter(
-                    id("intElement"),
+                    "intElement",
                     list = {
                         ParsingResult.success(listOf(1, 2, 3))
                     },
@@ -61,10 +58,10 @@ class PageCommand: BukkitCommand<CommandSender> {
                 ),
                 group(
                     literalParameter(
-                        id("direction")
+                        "direction"
                     ),
                     intParameter(
-                        pageId,
+                        pageId.name,
                     ),
                 ),
                 execute = ::goToPage,
@@ -82,13 +79,13 @@ class PageCommand: BukkitCommand<CommandSender> {
     }
 }
 
-class PlayerRequiredStringParameter(id: TypedIdentifier<String>) : StringParameter<BukkitEnvironment, Player>(id, "")
-fun <S> BuilderScope<BukkitEnvironment, S>.playerRequiredStringParameter(id: TypedIdentifier<String>): StructureElement<BukkitEnvironment, Player, StringParameter<BukkitEnvironment, Player>> =
-    { PlayerRequiredStringParameter(id) }
+class PlayerRequiredStringParameter(name: String) : StringParameter<BukkitEnvironment, Player>(name, "")
+fun <S> BuilderScope<BukkitEnvironment, S>.playerRequiredStringParameter(name: String): StructureElement<BukkitEnvironment, Player, StringParameter<BukkitEnvironment, Player>> =
+    { PlayerRequiredStringParameter(name) }
 
-class McpRequiredStringParameter(id: TypedIdentifier<String>) : StringParameter<BukkitEnvironment, MinecraftProfile>(id, "")
-fun <S> BuilderScope<BukkitEnvironment, S>.mcpRequiredStringParameter(id: TypedIdentifier<String>): StructureElement<BukkitEnvironment, MinecraftProfile, StringParameter<BukkitEnvironment, MinecraftProfile>> =
-    { McpRequiredStringParameter(id) }
+class McpRequiredStringParameter(name: String) : StringParameter<BukkitEnvironment, MinecraftProfile>(name, "")
+fun <S> BuilderScope<BukkitEnvironment, S>.mcpRequiredStringParameter(name: String): StructureElement<BukkitEnvironment, MinecraftProfile, StringParameter<BukkitEnvironment, MinecraftProfile>> =
+    { McpRequiredStringParameter(name) }
 
 class TestFlag: BukkitCommand<CommandSender> {
 
@@ -100,13 +97,13 @@ class TestFlag: BukkitCommand<CommandSender> {
                     invalidDefault = "him"
                 ) {
                     valueFlag(
-                        id("hello"),
+                        "hello",
                         default = "blank",
-                        stringParameter(id("blah"))
+                        stringParameter("blah")
                     )
                 },
                 listParameter(
-                    id("ints"),
+                    "ints",
                     parameter = intParameter("int")
                 ),
                 ::execute,
@@ -137,10 +134,10 @@ class SomeClass : BukkitCommand<CommandSender> {
 //        }
 
         val flag1: StructureElement<BukkitEnvironment, CommandSender, ValueFlag<BukkitEnvironment, CommandSender, Boolean>> = flag(
-            id("raw")
+            "raw"
         )
 
-        val test = object : Parameter.Size1<BukkitEnvironment, CommandSender, Boolean>(id(""), "") {
+        val test = object : Parameter.Size1<BukkitEnvironment, CommandSender, Boolean>("", "") {
             context(inv: Invocation<BukkitEnvironment, CommandSender>)
             override fun parse(arg0: String): CommandResult<Boolean> {
                 TODO("Not yet implemented")
@@ -148,41 +145,41 @@ class SomeClass : BukkitCommand<CommandSender> {
         }
 
         val flag: StructureElement<BukkitEnvironment, CommandSender, ValueFlag<BukkitEnvironment, CommandSender, Boolean>> = flag(
-            id("raw")
+            "raw"
         )
 
         object : BuilderScope<BukkitEnvironment, Player> { }.playerRequiredStringParameter<Player>(
-            id("worldgroup")
+            "worldgroup"
         )
 
         val structureElement: StructureElement<BukkitEnvironment, CommandSender, Parameter.Size1<BukkitEnvironment, CommandSender, String>> = {
             StringParameter<BukkitEnvironment, CommandSender>(
-                id("name"),
+                "name",
                 "description",
             )
         }
         val structureElement2: StructureElement<BukkitEnvironment, CommandSender, Parameter.FixedSize<BukkitEnvironment, CommandSender, String>> = stringParameter<BukkitEnvironment, CommandSender>(
-            id("1234")
+            "1234"
         )
         val structureElement3: StructureElement<BukkitEnvironment, CommandSender, StringParameter<BukkitEnvironment, CommandSender>> = stringParameter<BukkitEnvironment, CommandSender>(
-            id("1234")
+            "1234"
         )
 
         valueFlag<BukkitEnvironment, CommandSender, String>(
-            id("wg"),
+            "wg",
             default = "",
             { StringParameter<BukkitEnvironment, CommandSender>(
-                id("name"),
+                "name",
                 "description",
             ) },
         )
     }
 }
 
-class McpRequiredIntParameter(id: TypedIdentifier<Int>) : IntParameter<BukkitEnvironment, MinecraftProfile>(id, "", 0, 10)
+class McpRequiredIntParameter(name: String) : IntParameter<BukkitEnvironment, MinecraftProfile>(name, "", 0, 10)
 
 class PlayerRequiredUnknownInt(name: String) : Parameter.UnknownSize<BukkitEnvironment, Player, Int>(Size.Unbounded,
-    id(""), "") {
+    "", "") {
     context(inv: Invocation<BukkitEnvironment, Player>)
     override fun parse(args: List<String>): CommandResult<Int> {
         TODO("Not yet implemented")
@@ -194,7 +191,7 @@ class OrangeCommand : BukkitCommand<CommandSender> {
         command("orange", requirement = permission("syn.orange"))(
             requireIs(Player::class) {
                     command("apple")(
-                            playerRequiredStringParameter(id("someString"))
+                            playerRequiredStringParameter("someString")
                     )
                 }
         )

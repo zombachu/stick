@@ -11,8 +11,7 @@ import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
 import com.zombachu.stick.element.SyntaxElement
-import com.zombachu.stick.structure.id
-import com.zombachu.stick.valueOrPropagateError
+import com.zombachu.stick.propagateError
 
 internal open class InvocationImpl<E : Environment, S>(
     override val sender: S,
@@ -81,10 +80,10 @@ internal open class InvocationImpl<E : Environment, S>(
         }
 
         context(this) {
-            val value = element.parse(peeked.value).valueOrPropagateError { return it }
+            val result = element.parse(peeked.value)
+            result.propagateError { return it }
             peeked.consume()
-            put(element.id, value)
-            return ParsingResult.success(value)
+            return result
         }
     }
 }
@@ -98,7 +97,7 @@ private class TransformedInvocationImpl<E : Environment, S, S2>(
     base.label,
     base.args,
     // TransformedInvocationImpl forwards to structure of base invocation
-    StructureImpl(id(""), setOf(), "", Requirement { SenderValidationResult.success() }, Signature0()),
+    StructureImpl("", setOf(), "", Requirement { SenderValidationResult.success() }, Signature0()),
     parent = base,
 ) {
     override var unparsed: MutableList<String> = base.unparsed

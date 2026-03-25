@@ -1,6 +1,7 @@
 package com.zombachu.stick.structure
 
 import com.zombachu.stick.Environment
+import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult1
 import com.zombachu.stick.GroupResult2
 import com.zombachu.stick.GroupResult3
@@ -28,10 +29,11 @@ fun <E_ : Environment, S, A> BuilderScope<E_, S>.group(
     element: StructureElement<E_, S, Groupable<E_, S, A>>,
     description: String = "",
 ): StructureElement<E_, S, Group<E_, S, GroupResult1<A>>> = {
-    val groupScope = groupScope()
-    Group1Impl(id(groupScope.name), description,
-        element(groupScope),
-    )
+    createGroup {
+        Group1Impl(name, description,
+            element(),
+        )
+    }
 }
 
 fun <E_ : Environment, S, A, B> BuilderScope<E_, S>.group(
@@ -39,11 +41,12 @@ fun <E_ : Environment, S, A, B> BuilderScope<E_, S>.group(
     elementB: StructureElement<E_, S, Groupable<E_, S, B>>,
     description: String = "",
 ): StructureElement<E_, S, Group<E_, S, GroupResult2<A, B>>> = {
-    val groupScope = groupScope()
-    Group2Impl(id(groupScope.name), description,
-        elementA(groupScope),
-        elementB(groupScope),
-    )
+    createGroup {
+        Group2Impl(name, description,
+            elementA(),
+            elementB(),
+        )
+    }
 }
 
 fun <E_ : Environment, S, A, B, C> BuilderScope<E_, S>.group(
@@ -52,12 +55,13 @@ fun <E_ : Environment, S, A, B, C> BuilderScope<E_, S>.group(
     elementC: StructureElement<E_, S, Groupable<E_, S, C>>,
     description: String = "",
 ): StructureElement<E_, S, Group<E_, S, GroupResult3<A, B, C>>> = {
-    val groupScope = groupScope()
-    Group3Impl(id(groupScope.name), description,
-        elementA(groupScope),
-        elementB(groupScope),
-        elementC(groupScope),
-    )
+    createGroup {
+        Group3Impl(name, description,
+            elementA(),
+            elementB(),
+            elementC(),
+        )
+    }
 }
 
 fun <E_ : Environment, S, A, B, C, D> BuilderScope<E_, S>.group(
@@ -67,13 +71,14 @@ fun <E_ : Environment, S, A, B, C, D> BuilderScope<E_, S>.group(
     elementD: StructureElement<E_, S, Groupable<E_, S, D>>,
     description: String = "",
 ): StructureElement<E_, S, Group<E_, S, GroupResult4<A, B, C, D>>> = {
-    val groupScope = groupScope()
-    Group4Impl(id(groupScope.name), description,
-        elementA(groupScope),
-        elementB(groupScope),
-        elementC(groupScope),
-        elementD(groupScope),
-    )
+    createGroup {
+        Group4Impl(name, description,
+            elementA(),
+            elementB(),
+            elementC(),
+            elementD(),
+        )
+    }
 }
 
 fun <E_ : Environment, S, A, B, C, D, E> BuilderScope<E_, S>.group(
@@ -84,14 +89,15 @@ fun <E_ : Environment, S, A, B, C, D, E> BuilderScope<E_, S>.group(
     elementE: StructureElement<E_, S, Groupable<E_, S, E>>,
     description: String = "",
 ): StructureElement<E_, S, Group<E_, S, GroupResult5<A, B, C, D, E>>> = {
-    val groupScope = groupScope()
-    Group5Impl(id(groupScope.name), description,
-        elementA(groupScope),
-        elementB(groupScope),
-        elementC(groupScope),
-        elementD(groupScope),
-        elementE(groupScope),
-    )
+    createGroup {
+        Group5Impl(name, description,
+            elementA(),
+            elementB(),
+            elementC(),
+            elementD(),
+            elementE(),
+        )
+    }
 }
 
 fun <E_ : Environment, S, A, B, C, D, E, F> BuilderScope<E_, S>.group(
@@ -103,15 +109,16 @@ fun <E_ : Environment, S, A, B, C, D, E, F> BuilderScope<E_, S>.group(
     elementF: StructureElement<E_, S, Groupable<E_, S, F>>,
     description: String = "",
 ): StructureElement<E_, S, Group<E_, S, GroupResult6<A, B, C, D, E, F>>> = {
-    val groupScope = groupScope()
-    Group6Impl(id(groupScope.name), description,
-        elementA(groupScope),
-        elementB(groupScope),
-        elementC(groupScope),
-        elementD(groupScope),
-        elementE(groupScope),
-        elementF(groupScope),
-    )
+    createGroup {
+        Group6Impl(name, description,
+            elementA(),
+            elementB(),
+            elementC(),
+            elementD(),
+            elementE(),
+            elementF(),
+        )
+    }
 }
 
 fun <E_ : Environment, S, A, B, C, D, E, F, G> BuilderScope<E_, S>.group(
@@ -124,17 +131,17 @@ fun <E_ : Environment, S, A, B, C, D, E, F, G> BuilderScope<E_, S>.group(
     elementG: StructureElement<E_, S, Groupable<E_, S, G>>,
     description: String = "",
 ): StructureElement<E_, S, Group<E_, S, GroupResult7<A, B, C, D, E, F, G>>> = {
-    val groupScope = groupScope()
-    Group7Impl(
-        id(groupScope.name), description,
-        elementA(groupScope),
-        elementB(groupScope),
-        elementC(groupScope),
-        elementD(groupScope),
-        elementE(groupScope),
-        elementF(groupScope),
-        elementG(groupScope),
-    )
+    createGroup {
+        Group7Impl(name, description,
+            elementA(),
+            elementB(),
+            elementC(),
+            elementD(),
+            elementE(),
+            elementF(),
+            elementG(),
+        )
+    }
 }
 
 fun <E_ : Environment, S, A, B, C, D, E, F, G, H> BuilderScope<E_, S>.group(
@@ -148,26 +155,29 @@ fun <E_ : Environment, S, A, B, C, D, E, F, G, H> BuilderScope<E_, S>.group(
     elementH: StructureElement<E_, S, Groupable<E_, S, H>>,
     description: String = "",
 ): StructureElement<E_, S, Group<E_, S, GroupResult8<A, B, C, D, E, F, G, H>>> = {
-    val groupScope = groupScope()
-    Group8Impl(
-        id(groupScope.name), description,
-        elementA(groupScope),
-        elementB(groupScope),
-        elementC(groupScope),
-        elementD(groupScope),
-        elementE(groupScope),
-        elementF(groupScope),
-        elementG(groupScope),
-        elementH(groupScope),
-    )
+    createGroup {
+        Group8Impl(name, description,
+            elementA(),
+            elementB(),
+            elementC(),
+            elementD(),
+            elementE(),
+            elementF(),
+            elementG(),
+            elementH(),
+        )
+    }
 }
 
-private fun <E : Environment, S> StructureScope<E, S>.groupScope(): StructureScope<E, S> {
-    return StructureScope(
+private fun <E : Environment, S, R : GroupResult, G : Group<E, S, R>> StructureScope<E, S>.createGroup(
+    block: StructureScope<E, S>.() -> G
+): G {
+    val scope = StructureScope(
         name = "${this.name}_group",
         aliases = setOf(),
         description = "",
         parent = this,
         requirement = requirement { SenderValidationResult.success() },
     )
+    return block(scope)
 }

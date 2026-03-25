@@ -7,7 +7,6 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.Parameter.FixedSize
 import com.zombachu.stick.impl.InvocationImpl
@@ -16,17 +15,16 @@ import com.zombachu.stick.impl.Size
 import com.zombachu.stick.valueOrPropagateError
 
 internal open class HybridFlagImpl<E : Environment, S, T>(
-    override val id: TypedIdentifier<HybridFlagResult<T>>,
-    override val description: String,
     private val parameter: FixedSize<E, S, T>,
     aliases: Set<String>,
 ): HybridFlag<E, S, T>, Aliasable {
 
     override val size: Size = Size.Unbounded
     override val type: ElementType = ElementType.Flag
+    override val name: String = parameter.name
+    override val description: String = parameter.description
     override val default: ContextualValue<E, S, HybridFlagResult<T>> = { ParsingResult.success(HybridFlagResult.Absent()) }
-
-    override val label: String = "-${id.name}"
+    override val label: String = "-${name}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
 
     context(inv: Invocation<E, S>)
@@ -54,10 +52,9 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
 ) : HybridFlag<E, S, T>, Flag.Validated<E, S, HybridFlagResult<T>> {
 
     override val size: Size = base.size
-    override val id: TypedIdentifier<HybridFlagResult<T>> = base.id
-    override val description: String = base.description
-
     override val type: ElementType = ElementType.Flag
+    override val name: String = base.name
+    override val description: String = base.description
     override val default: ContextualValue<E, S, HybridFlagResult<T>> = { ParsingResult.success(HybridFlagResult.Absent()) }
 
     context(inv: Invocation<E, S>)

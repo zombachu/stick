@@ -4,14 +4,12 @@ import com.zombachu.stick.Command
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.paper.structure.permissionedValue
 import com.zombachu.stick.structure.command
-import com.zombachu.stick.structure.id
 import com.zombachu.stick.structure.invoke
 import com.zombachu.stick.structure.stringParameter
 import com.zombachu.stick.structure.valueFlag
@@ -20,16 +18,16 @@ import org.bukkit.command.CommandSender
 class CustomCommand : Command<CustomBukkitEnvironment, CommandSender> {
     override val structure =
         command("hi")(
-            translatedStringParameter(id("shouldntcompileifbukkitenv")),
-            scopedTranslatedStringParameter(id("yo")),
+            translatedStringParameter("shouldntcompileifbukkitenv"),
+            scopedTranslatedStringParameter("yo"),
             valueFlag(
-                id("wg"),
+                name = "wg",
                 default = permissionedValue(
                     permission = "syn.secretwgs",
                     default = "secretworld",
                     fallback = "lobby"
                 ),
-                stringParameter(id("worldgroup"))
+                stringParameter("worldgroup"),
             ),
             Invocation<CustomBukkitEnvironment, CommandSender>::doSomething,
         )
@@ -42,7 +40,7 @@ private fun Invocation<CustomBukkitEnvironment, CommandSender>.doSomething(strin
 class UncustomCommand : Command<BukkitEnvironment, CommandSender> {
     override val structure =
         command("hi")(
-            stringParameter(id("shouldntcompile")),
+            stringParameter("shouldntcompile"),
 //        scopedTranslatedStringParameter(id("yo")),
             Invocation<BukkitEnvironment, CommandSender>::doOtherThing,
         )
@@ -69,23 +67,23 @@ class CustomFailureHandler : FailureHandler<CustomBukkitEnvironment, CommandSend
 }
 
 fun <E : Environment, S : Any> BuilderScope<E, S>.translatedStringParameter(
-    id: TypedIdentifier<String>,
+    name: String,
     description: String = "",
 ): StructureElement<E, S, TranslatedStringParameter<S>> = {
-    TranslatedStringParameter(id, description)
+    TranslatedStringParameter(name, description)
 }
 
 fun <S : Any> BuilderScope<CustomBukkitEnvironment, S>.scopedTranslatedStringParameter(
-    id: TypedIdentifier<String>,
+    name: String,
     description: String = "",
 ): StructureElement<CustomBukkitEnvironment, S, TranslatedStringParameter<S>> = {
-    TranslatedStringParameter(id, description)
+    TranslatedStringParameter(name, description)
 }
 
 class TranslatedStringParameter<S : Any>(
-    id: TypedIdentifier<String>,
+    name: String,
     description: String
-) : StringParameter<CustomBukkitEnvironment, S>(id, description) {
+) : StringParameter<CustomBukkitEnvironment, S>(name, description) {
 
     context(inv: Invocation<CustomBukkitEnvironment, S>)
     override fun parse(arg0: String): CommandResult<String> {

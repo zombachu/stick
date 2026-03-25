@@ -5,17 +5,16 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
 
 open class LiteralParameter<E : Environment, S>(
-    id: TypedIdentifier<String>,
+    name: String,
     override val aliases: Set<String>,
     description: String,
-) : Parameter.Size1<E, S, String>(id, description), Aliasable {
+) : Parameter.Size1<E, S, String>(name, description), Aliasable {
 
-    override val label by id
+    override val label: String = name
     override val type: ElementType = ElementType.Literal
 
     context(inv: Invocation<E, S>)
