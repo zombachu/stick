@@ -14,8 +14,6 @@ import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 
-sealed interface ValueFlag<E : Environment, S, T> : Flag<E, S, T>, SignatureConstraint.NonTerminating<E, S, T>
-
 internal open class ValueFlagImpl<E : Environment, S, T>(
     override val default: ContextualValue<E, S, T>,
     private val flagParameter: FlagParameter<E, S, T>,

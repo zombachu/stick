@@ -5,6 +5,7 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
+import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
@@ -32,12 +33,12 @@ sealed interface SignatureConstraint<E : Environment, S, T> : Element<E, S, T> {
 }
 
 sealed interface Groupable<E : Environment, S, T> : SyntaxElement<E, S, T> {
-
     context(validationContext: ValidationContext<E, S>)
     fun getGroupedSyntax(): String = id.name
 }
 
 sealed interface Helper<E : Environment, S, T> : SignatureConstraint.NonTerminating<E, S, T>
+
 sealed interface Flag<E : Environment, S, T> : SyntaxElement<E, S, T> {
     val default: ContextualValue<E, S, T>
 
@@ -45,6 +46,9 @@ sealed interface Flag<E : Environment, S, T> : SyntaxElement<E, S, T> {
         val invalidDefault: ContextualValue<E, S, T>
     }
 }
+sealed interface ValueFlag<E : Environment, S, T> : Flag<E, S, T>, SignatureConstraint.NonTerminating<E, S, T>
+sealed interface HybridFlag<E : Environment, S, T> : Flag<E, S, HybridFlagResult<T>>, SignatureConstraint.Terminating<E, S, HybridFlagResult<T>>
+
 sealed interface Group<E : Environment, S, G : GroupResult> : SyntaxElement<E, S, G>, SignatureConstraint.Terminating<E, S, G>
 sealed interface Structure<E : Environment, S> : Groupable<E, S, Unit>, SignatureConstraint.Terminating<E, S, Unit>, Aliasable, SenderValidator<E, S>
 sealed interface ValidatedParameter<E : Environment, S, T> : Groupable<E, S, T>

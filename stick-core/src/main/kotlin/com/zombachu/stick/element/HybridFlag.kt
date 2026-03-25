@@ -15,8 +15,6 @@ import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.valueOrPropagateError
 
-sealed interface HybridFlag<E : Environment, S, T> : Flag<E, S, HybridFlagResult<T>>, SignatureConstraint.Terminating<E, S, HybridFlagResult<T>>
-
 internal open class HybridFlagImpl<E : Environment, S, T>(
     override val id: TypedIdentifier<HybridFlagResult<T>>,
     override val description: String,

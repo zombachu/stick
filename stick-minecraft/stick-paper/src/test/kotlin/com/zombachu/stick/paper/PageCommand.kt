@@ -16,6 +16,7 @@ import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.paper.structure.permission
+import com.zombachu.stick.structure.booleanParameter
 import com.zombachu.stick.structure.command
 import com.zombachu.stick.structure.flag
 import com.zombachu.stick.structure.group
@@ -220,4 +221,21 @@ class PlayerUtil {
             return null as MinecraftProfile
         }
     }
+}
+
+class ExampleCommand : BukkitCommand<CommandSender> {
+    override val structure =
+        command("example")(
+            group(
+                intParameter("someInt"),
+                stringParameter("someString"),
+                booleanParameter("someBoolean"),
+            )
+        ) { groupArg ->
+            when (groupArg) {
+                is GroupResult.ResultA -> println(groupArg.value + 1)
+                is GroupResult.ResultB -> println(groupArg.value.lowercase())
+                is GroupResult.ResultC -> println(if (groupArg.value) true else false)
+            }
+        }
 }
