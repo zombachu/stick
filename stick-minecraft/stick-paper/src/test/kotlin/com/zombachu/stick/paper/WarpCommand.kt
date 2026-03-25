@@ -214,6 +214,7 @@ class HybridFlagCommand: BukkitCommand<CommandSender> {
     override val structure =
         command("asdf")(
             hybridFlag(
+                "color",
                 enumParameter("color", Rgb::class),
             ),
         ) { color: HybridFlagResult<Rgb> ->
@@ -230,6 +231,7 @@ class HybridFlagRequireCommand: BukkitCommand<CommandSender> {
         command("asdf")(
             requireIs(Player::class, invalidDefault = HybridFlagResult.Value(Rgb.Blue)) {
                 hybridFlag(
+                    "color",
                     enumParameter("color", Rgb::class),
                 )
             },

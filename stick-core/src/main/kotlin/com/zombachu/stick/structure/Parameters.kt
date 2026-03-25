@@ -109,7 +109,6 @@ fun <E : Environment, S> BuilderScope<E, S>.textParameter(
     TextParameter(name, description)
 }
 
-@JvmName("enumParameter1")
 inline fun <E : Environment, S, reified T : Enum<T>> BuilderScope<E, S>.enumParameter(
     name: String,
     enum: KClass<T>,
@@ -123,7 +122,7 @@ inline fun <E : Environment, S, reified T : Enum<T>> BuilderScope<E, S>.enumPara
     )
 }
 
-@JvmName("enumParameter2")
+@JvmName("aliasableEnumParameter")
 inline fun <E : Environment, S, reified T> BuilderScope<E, S>.enumParameter(
     name: String,
     enum: KClass<T>,

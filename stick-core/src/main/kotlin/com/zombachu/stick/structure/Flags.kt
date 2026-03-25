@@ -87,8 +87,9 @@ fun <E : Environment, S, T : Enum<T>> BuilderScope<E, S>.enumFlag(
 ): StructureElement<E, S, ValueFlag<E, S, T>> = enumFlag({ ParsingResult.success(default) }, from)
 
 fun <E : Environment, S, T> BuilderScope<E, S>.hybridFlag(
+    name: String,
     parameter: StructureElement<E, S, Parameter.FixedSize<E, S, T>>,
     aliases: Set<String> = setOf(),
 ): StructureElement<E, S, HybridFlag<E, S, T>> = {
-    HybridFlagImpl(parameter(this), aliases)
+    HybridFlagImpl(name, parameter(this), aliases)
 }

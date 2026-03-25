@@ -15,13 +15,13 @@ import com.zombachu.stick.impl.Size
 import com.zombachu.stick.valueOrPropagateError
 
 internal open class HybridFlagImpl<E : Environment, S, T>(
+    override val name: String,
     private val parameter: FixedSize<E, S, T>,
     aliases: Set<String>,
 ): HybridFlag<E, S, T>, Aliasable {
 
     override val size: Size = Size.Unbounded
     override val type: ElementType = ElementType.Flag
-    override val name: String = parameter.name
     override val description: String = parameter.description
     override val default: ContextualValue<E, S, HybridFlagResult<T>> = { ParsingResult.success(HybridFlagResult.Absent()) }
     override val label: String = "-${name}"
