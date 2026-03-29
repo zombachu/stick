@@ -6,6 +6,7 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.handleInternal
 import com.zombachu.stick.impl.InvocationImpl
@@ -100,32 +101,17 @@ internal sealed class Signature<E : Environment, S>(
                 continue
             }
 
-            // Attempt to parse the input as a flag (potentially multiple in a row)
-            val flagsIt = unprocessedFlags.iterator()
-            while (flagsIt.hasNext()) {
-                val indexedFlag = flagsIt.next()
-                val flag: Flag<E, S, Any> = indexedFlag.element
-
-                // Ignore flags unable to be accessed by the sender
-                flag.validateSender().propagateError<List<Any>> { continue }
-
-                processSyntaxElement(values, flag, indexedFlag.index).propagateError {
-                    if (it is ParsingResult.TypeNotMatchedError) {
-                        // Ignore type errors (flag didn't match)
-                        continue
-                    } else {
-                        // If the flag matched and an error occurred in parsing then propagate it up
-                        return it
-                    }
-                }
-                // Mark the flag as processed if it succeeded
-                flagsIt.remove()
-            }
+            processFlags(unprocessedFlags, values).propagateError { return it }
 
             // Parse with the element as a syntax element
-            processSyntaxElement(values, element, indexedElement.index).propagateError { return it }
+            processSyntaxElement(values, element, indexedElement.index).propagateError {
+                // Give a syntax failure for invalid arg length for parameters
+                return if (it is PeekingResult.InvalidSizeError) ParsingResult.failSyntax(inv.getSyntax()) else it
+            }
             parameterIndex++
         }
+
+        processFlags(unprocessedFlags, values).propagateError { return it }
 
         // Populate unused flag values with defaults
         for (indexedFlag in unprocessedFlags) {
@@ -142,7 +128,34 @@ internal sealed class Signature<E : Environment, S>(
         return ParsingResult.success(values)
     }
 
-    private fun Element<E, S, Any>.isHelper(): Boolean {
+    context(inv: InvocationImpl<E, S>)
+    private fun processFlags(
+        unprocessedFlags: MutableList<IndexedElement<E, S, Flag<E, S, Any?>>>,
+        values: MutableList<Any?>,
+    ): CommandResult<Unit> {
+        // Attempt to parse the input as a flag (potentially multiple in a row)
+        val flagsIt = unprocessedFlags.iterator()
+        while (flagsIt.hasNext()) {
+            val indexedFlag = flagsIt.next()
+            val flag: Flag<E, S, Any?> = indexedFlag.element
+
+            // Ignore flags unable to be accessed by the sender
+            flag.validateSender().propagateError<List<Any>> { continue }
+
+            processSyntaxElement(values, flag, indexedFlag.index).propagateError {
+                when (it) {
+                    // Ignore type errors (flag didn't match)
+                    is ParsingResult.TypeNotMatchedInternal -> continue
+                    // If the flag matched and an error occurred in parsing then propagate it up
+                    else -> return it
+                }
+            }
+            // Mark the flag as processed if it succeeded
+            flagsIt.remove()
+        }
+        return ParsingResult.success(Unit)
+    }
+
     private fun Element<E, S, Any?>.isHelper(): Boolean {
         contract {
             returns(true) implies (this@isHelper is HelperImpl<E, S, Any?>)
