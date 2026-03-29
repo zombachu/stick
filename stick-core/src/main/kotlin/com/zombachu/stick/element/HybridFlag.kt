@@ -30,7 +30,8 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<HybridFlagResult<T>> {
-        if (matches(args[0].lowercase())) {
+        if (args.isEmpty()) return ParsingResult.failTypeInternal()
+        if (matches(args.first().lowercase())) {
             if (args.size > 1) {
                 val value = parameter.parse(args.subList(1, args.size)).valueOrPropagateError { return it }
                 return ParsingResult.success(HybridFlagResult.Value(value))

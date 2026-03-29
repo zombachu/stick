@@ -14,6 +14,7 @@ import com.zombachu.stick.GroupResult7
 import com.zombachu.stick.GroupResult8
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.GroupElement.Companion.to
 import com.zombachu.stick.impl.InvocationImpl
@@ -78,12 +79,11 @@ internal open class GroupImpl<E : Environment, S, G : GroupResult>(
         groupElement.groupable.validateSender().propagateError<G> { onElementMismatch() }
 
         val value = (inv as InvocationImpl).processSyntaxElement(groupElement.groupable).valueOrPropagateError {
-            if (it is ParsingResult.TypeNotMatchedError) {
+            when (it) {
                 // Ignore type errors (element didn't match)
-                onElementMismatch()
-            } else {
+                is ParsingResult.TypeNotMatchedInternal, is ParsingResult.TypeNotMatchedError -> onElementMismatch()
                 // If the element matched and an error occurred in parsing then propagate it up
-                onError(it)
+                else -> onError(it)
             }
         }
         // If successful, return
