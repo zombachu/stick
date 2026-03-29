@@ -15,7 +15,8 @@ class VelocityCommandWrapper<E : VelocityEnvironment>(
 ) : RawCommand, CommandWrapper<E, CommandSource> {
 
     override fun execute(invocation: RawCommand.Invocation) {
-        execute(invocation.source(), listOf(invocation.alias(), *invocation.arguments().split(' ').toTypedArray()))
+        val args = invocation.arguments().split(' ').filter { it.isNotEmpty() }
+        execute(invocation.source(), listOf(invocation.alias(), *args.toTypedArray()))
     }
 
     override fun hasPermission(invocation: RawCommand.Invocation): Boolean {
