@@ -9,8 +9,8 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.ParsingResult.LiteralNotMatchedError
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.EnumParameter
+import com.zombachu.stick.impl.InvalidSenderDefault
 import com.zombachu.stick.impl.InvocationImpl
-import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 
 internal open class ValueFlagImpl<E : Environment, S, T>(
@@ -108,8 +108,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
 internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
     private val base: ValueFlag<E, S2, T>,
     private val transform: (S) -> S2,
-    private val requirement: Requirement<E, S>,
-    override val invalidDefault: ContextualValue<E, S, T>,
+    private val invalidSenderDefault: InvalidSenderDefault<E, S, T>,
 ) : ValueFlag<E, S, T>, Flag.Validated<E, S, T> {
 
     override val default: ContextualValue<E, S, T> = {
@@ -121,6 +120,7 @@ internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
     override val type: ElementType = ElementType.Flag
     override val name: String = base.name
     override val description: String = base.description
+    override val invalidDefault: ContextualValue<E, S, T> = invalidSenderDefault.value
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> {
@@ -139,5 +139,5 @@ internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
     }
 
     context(validationContext: ValidationContext<E, S>)
-    override fun validateSender(): CommandResult<Unit> = requirement.validateSender()
+    override fun validateSender(): CommandResult<Unit> = invalidSenderDefault.validateSender()
 }

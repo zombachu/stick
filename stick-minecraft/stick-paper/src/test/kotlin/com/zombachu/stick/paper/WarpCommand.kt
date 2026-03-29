@@ -20,9 +20,12 @@ import com.zombachu.stick.structure.group
 import com.zombachu.stick.structure.helper
 import com.zombachu.stick.structure.hybridFlag
 import com.zombachu.stick.structure.id
+import com.zombachu.stick.structure.invalidDefault
 import com.zombachu.stick.structure.invoke
+import com.zombachu.stick.structure.nullableEnumFlag
 import com.zombachu.stick.structure.optionally
 import com.zombachu.stick.structure.pipeline
+import com.zombachu.stick.structure.require
 import com.zombachu.stick.structure.requireAs
 import com.zombachu.stick.structure.requireIs
 import com.zombachu.stick.structure.requirement
@@ -204,8 +207,16 @@ class ColorPlayerCommand: BukkitCommand<Player> {
             enumFlag(
                 Rgb.Red,
                 enumParameter("color", Rgb::class),
-            ).store(id("storedColor"))
-        ) { color: Rgb ->
+            ).store(id("storedColor")),
+            nullableEnumFlag(
+                enumParameter("otherColor", Rgb::class)
+            ),
+            require(
+                invalidDefault(false, permission("some_permission") )
+            ) {
+                flag("hi")
+            }
+        ) { color: Rgb, other: Rgb?, fl: Boolean ->
 
         }
 }
@@ -229,7 +240,7 @@ class HybridFlagCommand: BukkitCommand<CommandSender> {
 class HybridFlagRequireCommand: BukkitCommand<CommandSender> {
     override val structure =
         command("asdf")(
-            requireIs(Player::class, invalidDefault = HybridFlagResult.Value(Rgb.Blue)) {
+            requireIs(Player::class, invalidDefault(HybridFlagResult.Value(Rgb.Blue))) {
                 hybridFlag(
                     "color",
                     enumParameter("color", Rgb::class),

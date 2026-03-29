@@ -21,8 +21,12 @@ fun <E : Environment, S, T> BuilderScope<E, S>.default(
     return ValidatedDefaultImpl(value) { requirement.validateSender() }
 }
 
-fun <E : Environment, S, T> BuilderScope<E, S>.default(value: T): ValidSenderDefault<E, S, T> =
-    default({ ParsingResult.success(value) })
+fun <E : Environment, S, T> BuilderScope<E, S>.default(
+    value: T,
+    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
+): ValidSenderDefault<E, S, T> {
+    return ValidatedDefaultImpl({ ParsingResult.success(value) }) { requirement.validateSender() }
+}
 
 fun <E : Environment, S, T> BuilderScope<E, S>.invalidDefault(
     value: ContextualValue<E, S, T>,
@@ -31,11 +35,14 @@ fun <E : Environment, S, T> BuilderScope<E, S>.invalidDefault(
     return ValidatedDefaultImpl(value) { requirement.validateSender() }
 }
 
-fun <E : Environment, S, T> BuilderScope<E, S>.invalidDefault(value: T): InvalidSenderDefault<E, S, T> =
-    invalidDefault({ ParsingResult.success(value) })
+fun <E : Environment, S, T> BuilderScope<E, S>.invalidDefault(
+    value: T,
+    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
+): InvalidSenderDefault<E, S, T> {
+    return ValidatedDefaultImpl({ ParsingResult.success(value) }) { requirement.validateSender() }
+}
 
 inline fun <E : Environment, S : Any, reified S2 : S> BuilderScope<E, S>.defaultSender(): ValidSenderDefault<E, S, S2> {
-    // TODO: Tell player it's not optional for them
     return default({ ParsingResult.success(sender as S2) }, requirement { it.sender is S2 })
 }
 

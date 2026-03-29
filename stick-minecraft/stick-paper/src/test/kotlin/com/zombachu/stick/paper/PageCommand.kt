@@ -21,6 +21,7 @@ import com.zombachu.stick.structure.flag
 import com.zombachu.stick.structure.group
 import com.zombachu.stick.structure.id
 import com.zombachu.stick.structure.intParameter
+import com.zombachu.stick.structure.invalidDefault
 import com.zombachu.stick.structure.invoke
 import com.zombachu.stick.structure.listElementParameter
 import com.zombachu.stick.structure.listParameter
@@ -95,7 +96,7 @@ class TestFlag: BukkitCommand<CommandSender> {
             command("hi")(
                 requireIs(
                     Player::class,
-                    invalidDefault = "him"
+                    invalidDefault("him")
                 ) {
                     valueFlag(
                         "hello",

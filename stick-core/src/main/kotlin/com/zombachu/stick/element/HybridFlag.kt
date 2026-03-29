@@ -9,6 +9,7 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.Parameter.FixedSize
+import com.zombachu.stick.impl.InvalidSenderDefault
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
@@ -47,14 +48,14 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
 internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
     private val base: HybridFlag<E, S2, T>,
     private val transform: (S) -> S2,
-    private val requirement: Requirement<E, S>,
-    override val invalidDefault: ContextualValue<E, S, HybridFlagResult<T>>,
+    private val invalidSenderDefault: InvalidSenderDefault<E, S, HybridFlagResult<T>>,
 ) : HybridFlag<E, S, T>, Flag.Validated<E, S, HybridFlagResult<T>> {
 
     override val size: Size = base.size
     override val type: ElementType = ElementType.Flag
     override val name: String = base.name
     override val description: String = base.description
+    override val invalidDefault: ContextualValue<E, S, HybridFlagResult<T>> = invalidSenderDefault.value
     override val default: ContextualValue<E, S, HybridFlagResult<T>> = { ParsingResult.success(HybridFlagResult.Absent()) }
 
     context(inv: Invocation<E, S>)
@@ -74,5 +75,5 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
     }
 
     context(validationContext: ValidationContext<E, S>)
-    override fun validateSender(): CommandResult<Unit> = requirement.validateSender()
+    override fun validateSender(): CommandResult<Unit> = invalidSenderDefault.validateSender()
 }
