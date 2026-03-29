@@ -17,25 +17,25 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 internal sealed class Signature<E : Environment, S>(
-    elements: Tuple<SignatureConstraint<E, S, Any>>
+    elements: Tuple<SignatureConstraint<E, S, Any?>>
 ) {
-    private val flags: List<IndexedElement<E, S, Flag<E, S, Any>>>
-    private val linearElements: List<IndexedElement<E, S, Element<E, S, Any>>>
+    private val flags: List<IndexedElement<E, S, Flag<E, S, Any?>>>
+    private val linearElements: List<IndexedElement<E, S, Element<E, S, Any?>>>
 
     init {
         val partitioned = elements.toList()
             .mapIndexed { i, e -> IndexedElement(i, e) }
             .partition { it.element is Flag<*, *, *> }
         @Suppress("UNCHECKED_CAST")
-        flags = partitioned.first as List<IndexedElement<E, S, Flag<E, S, Any>>>
+        flags = partitioned.first as List<IndexedElement<E, S, Flag<E, S, Any?>>>
         linearElements = partitioned.second
     }
 
-    protected abstract fun executeParsed(context: Invocation<E, S>, parsedValues: List<Any>)
+    protected abstract fun executeParsed(context: Invocation<E, S>, parsedValues: List<Any?>)
 
     context(inv: InvocationImpl<E, S>)
     fun execute(): CommandResult<*> {
-        val value = parse().valueOrPropagateError<List<Any>, List<Any>> { return it }
+        val value = parse().valueOrPropagateError<List<Any?>, List<Any>> { return it }
         executeParsed(inv, value)
         return ParsingResult.success(Unit)
     }
@@ -71,10 +71,10 @@ internal sealed class Signature<E : Environment, S>(
 
     context(inv: InvocationImpl<E, S>)
     private fun processSyntaxElement(
-        values: MutableList<Any>,
-        element: SyntaxElement<E, S, Any>,
+        values: MutableList<Any?>,
+        element: SyntaxElement<E, S, Any?>,
         index: Int
-    ): CommandResult<Any> {
+    ): CommandResult<out Any?> {
         val processResult = inv.processSyntaxElement(element)
         if (processResult.isSuccess()) {
             values[index] = processResult.value
@@ -83,8 +83,8 @@ internal sealed class Signature<E : Environment, S>(
     }
 
     context(inv: InvocationImpl<E, S>)
-    private fun parse(): CommandResult<List<Any>> {
-        val values: MutableList<Any> = MutableList(flags.size + linearElements.size) {}
+    private fun parse(): CommandResult<List<Any?>> {
+        val values: MutableList<Any?> = MutableList(flags.size + linearElements.size) {}
 
         val unprocessedFlags = flags.toMutableList()
         var parameterIndex = 0
@@ -142,11 +142,12 @@ internal sealed class Signature<E : Environment, S>(
     }
 
     private fun Element<E, S, Any>.isHelper(): Boolean {
+    private fun Element<E, S, Any?>.isHelper(): Boolean {
         contract {
-            returns(true) implies (this@isHelper is HelperImpl<E, S, Any>)
-            returns(false) implies (this@isHelper is SyntaxElement<E, S, Any>)
+            returns(true) implies (this@isHelper is HelperImpl<E, S, Any?>)
+            returns(false) implies (this@isHelper is SyntaxElement<E, S, Any?>)
         }
-        return this is HelperImpl<E, S, Any>
+        return this is HelperImpl<E, S, Any?>
     }
 
     data class IndexedElement<E : Environment, S, out L : Element<E, S, *>>(
