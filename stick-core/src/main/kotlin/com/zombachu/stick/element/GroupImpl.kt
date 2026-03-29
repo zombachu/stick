@@ -82,6 +82,8 @@ internal open class GroupImpl<E : Environment, S, G : GroupResult>(
             when (it) {
                 // Ignore type errors (element didn't match)
                 is ParsingResult.TypeNotMatchedInternal, is ParsingResult.TypeNotMatchedError -> onElementMismatch()
+                // Separate branch because the compiler doesn't like them combined for some reason
+                is PeekingResult.InvalidSizeError -> onElementMismatch()
                 // If the element matched and an error occurred in parsing then propagate it up
                 else -> onError(it)
             }

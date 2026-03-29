@@ -21,10 +21,7 @@ internal class OptionalParameterImpl<E : Environment, S, T>(
     override fun parse(args: List<String>): CommandResult<T> {
         if (args.isEmpty()) {
             // If the sender isn't allowed to provide a value use the default
-            if (!requirementDefault.validateSender().isSuccess()) {
-                return requirementDefault.value(inv)
-            }
-
+            requirementDefault.validateSender().propagateError<T> { return requirementDefault.value(inv) }
             // Check if the value is required to be specified by the sender
             presenceDefault.validateSender().propagateError { return it }
             return presenceDefault.value(inv)
@@ -33,9 +30,7 @@ internal class OptionalParameterImpl<E : Environment, S, T>(
         // Check if the sender provided a value when they're not allowed to
         requirementDefault.validateSender().propagateError { return it }
 
-        if (!parameter.size.matches(args.size)) {
-            return ParsingResult.failSyntax(inv.getSyntax())
-        }
+        if (!parameter.size.matches(args.size)) return ParsingResult.failSyntax(inv.getSyntax())
         return parameter.parse(args)
     }
 

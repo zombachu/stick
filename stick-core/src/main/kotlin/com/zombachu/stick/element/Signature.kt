@@ -146,6 +146,8 @@ internal sealed class Signature<E : Environment, S>(
                 when (it) {
                     // Ignore type errors (flag didn't match)
                     is ParsingResult.TypeNotMatchedInternal -> continue
+                    // Separate branch because the compiler doesn't like them combined for some reason
+                    is PeekingResult.InvalidSizeError -> continue
                     // If the flag matched and an error occurred in parsing then propagate it up
                     else -> return it
                 }

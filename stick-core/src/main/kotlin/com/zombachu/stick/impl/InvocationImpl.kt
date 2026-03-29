@@ -13,6 +13,7 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
 import com.zombachu.stick.element.SyntaxElement
 import com.zombachu.stick.propagateError
+import com.zombachu.stick.valueOrPropagateError
 
 internal open class InvocationImpl<E : Environment, S>(
     override val sender: S,
@@ -75,9 +76,10 @@ internal open class InvocationImpl<E : Environment, S>(
     internal fun <T> processSyntaxElement(
         element: SyntaxElement<E, S, T>,
     ): CommandResult<T> {
-        val peeked = peek(element.size)
+        val peeked: PeekingResult = peek(element.size)
         if (peeked !is PeekingResult.Success) {
-            return ParsingResult.failSyntax(getSyntax())
+            @Suppress("UNCHECKED_CAST")
+            return peeked as CommandResult<T>
         }
 
         context(this) {

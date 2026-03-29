@@ -20,7 +20,7 @@ class BukkitCommandWrapper<E : BukkitEnvironment>(
 ), PluginIdentifiableCommand, CommandWrapper<E, CommandSender> {
 
     override fun execute(sender: CommandSender, label: String, args: Array<String>): Boolean {
-        execute(sender, mutableListOf(label, *args))
+        execute(sender, listOf(label, *args))
         return true
     }
 
