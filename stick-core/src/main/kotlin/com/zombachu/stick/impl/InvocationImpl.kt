@@ -68,13 +68,7 @@ internal open class InvocationImpl<E : Environment, S>(
                     PeekingResult.success(unparsed.subList(0, size.size))
                 }
             }
-            is Size.Deferred, is Size.Unbounded -> {
-                if (unparsed.isEmpty()) {
-                    PeekingResult.failSize()
-                } else {
-                    PeekingResult.success(unparsed)
-                }
-            }
+            is Size.Deferred, is Size.Unbounded -> PeekingResult.success(unparsed)
         }
     }
 
