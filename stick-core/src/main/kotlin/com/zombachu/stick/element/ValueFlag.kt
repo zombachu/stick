@@ -51,7 +51,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            if (matches(args[0].lowercase())) {
+            if (matches(args.first().lowercase())) {
                 return inv.presentValue()
             }
             return ParsingResult.failTypeInternal()
@@ -68,7 +68,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            if (matches(args[0].lowercase())) {
+            if (matches(args.first().lowercase())) {
                 return parameter.parse(args.subList(1, args.size))
             }
             return ParsingResult.failTypeInternal()
@@ -78,7 +78,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         override fun getSyntax(): String = "[$label ${parameter.getSyntax()}]"
     }
 
-    internal class MultiFlagParameter<E : Environment, S, T : Enum<T>>(
+    internal class EnumFlagParameter<E : Environment, S, T : Enum<T>>(
         private val enumParameter: EnumParameter<E, S, T>,
     ) : FlagParameter<E, S, T>(
         enumParameter.size,

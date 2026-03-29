@@ -63,14 +63,14 @@ fun <E : Environment, S, T> BuilderScope<E, S>.valueFlag(
 
 fun <E : Environment, S, T> BuilderScope<E, S>.nullableValueFlag(
     name: String,
-    parameter: StructureElement<E, S, Parameter.FixedSize<E, S, out T>>,
+    parameter: StructureElement<E, S, Parameter.FixedSize<E, S, T>>,
     aliases: Set<String> = setOf(),
 ): StructureElement<E, S, ValueFlag<E, S, T?>> = {
     @Suppress("UNCHECKED_CAST")
     ValueFlagImpl(
         name,
         { ParsingResult.success(null) },
-        FlagParameter.ParameterFlagParameter(parameter(this) as Parameter.FixedSize<E, S, T?>, aliases.lowercase())
+        FlagParameter.ParameterFlagParameter(parameter(this), aliases.lowercase()) as FlagParameter.ParameterFlagParameter<E, S, T?>
     )
 }
 
@@ -79,12 +79,24 @@ fun <E : Environment, S, T : Enum<T>> BuilderScope<E, S>.enumFlag(
     from: StructureElement<E, S, EnumParameter<E, S, T>>,
 ): StructureElement<E, S, ValueFlag<E, S, T>> = {
     val enumParameter = from(this)
-    ValueFlagImpl(enumParameter.name, default, FlagParameter.MultiFlagParameter(enumParameter))
+    ValueFlagImpl(enumParameter.name, default, FlagParameter.EnumFlagParameter(enumParameter))
 }
 fun <E : Environment, S, T : Enum<T>> BuilderScope<E, S>.enumFlag(
     default: T,
     from: StructureElement<E, S, EnumParameter<E, S, T>>,
 ): StructureElement<E, S, ValueFlag<E, S, T>> = enumFlag({ ParsingResult.success(default) }, from)
+
+fun <E : Environment, S, T : Enum<T>> BuilderScope<E, S>.nullableEnumFlag(
+    from: StructureElement<E, S, EnumParameter<E, S, T>>,
+): StructureElement<E, S, ValueFlag<E, S, T?>> = {
+    val enumParameter = from(this)
+    @Suppress("UNCHECKED_CAST")
+    ValueFlagImpl(
+        enumParameter.name,
+        { ParsingResult.success(null) },
+        FlagParameter.EnumFlagParameter(enumParameter) as FlagParameter.EnumFlagParameter<E, S, T?>
+    )
+}
 
 fun <E : Environment, S, T> BuilderScope<E, S>.hybridFlag(
     name: String,
