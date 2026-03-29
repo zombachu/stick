@@ -135,7 +135,8 @@ internal sealed class Signature<E : Environment, S>(
                 onSuccess = { flag.default(inv) },
                 onFailure = { (flag as Flag.Validated<E, S, *>).invalidDefault(inv) }
             )
-            values[indexedFlag.index] = default
+            val value = default.valueOrPropagateError { return it }
+            values[indexedFlag.index] = value
         }
 
         return ParsingResult.success(values)
