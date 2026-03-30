@@ -10,21 +10,19 @@ import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.handleInternal
 import com.zombachu.stick.impl.InvocationImpl
-import com.zombachu.stick.impl.Tuple
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 
 internal sealed class Signature<E : Environment, S>(
-    elements: Tuple<SignatureConstraint<E, S, Any?>>
+    elements: List<SignatureConstraint<E, S, Any?>>
 ) {
     private val flags: List<IndexedElement<E, S, Flag<E, S, Any?>>>
     private val linearElements: List<IndexedElement<E, S, Element<E, S, Any?>>>
 
     init {
-        val partitioned = elements.toList()
+        val partitioned = elements
             .mapIndexed { i, e -> IndexedElement(i, e) }
             .partition { it.element is Flag<*, *, *> }
         @Suppress("UNCHECKED_CAST")
