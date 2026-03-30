@@ -11,7 +11,6 @@ import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.Parameter.FixedSize
 import com.zombachu.stick.impl.InvalidSenderDefault
 import com.zombachu.stick.impl.InvocationImpl
-import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.valueOrPropagateError
 

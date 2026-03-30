@@ -9,7 +9,6 @@ import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.SenderValidator
 import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.Requirement
-import sun.security.util.KeyUtil.validate
 import kotlin.experimental.ExperimentalTypeInference
 
 @OverloadResolutionByLambdaReturnType
@@ -23,7 +22,7 @@ fun <E : Environment, S> BuilderScope<E, S>.requirement(
 @OverloadResolutionByLambdaReturnType
 @JvmName("requirementBoolean")
 fun <E : Environment, S> BuilderScope<E, S>.requirement(
-    failureResult: () -> CommandResult.Failure<Unit> = SenderValidationResult::failSender,
+    failureResult: () -> CommandResult.Failure = SenderValidationResult::failSender,
     validate: (validationContext: ValidationContext<E, S>) -> Boolean,
 ): Requirement<E, S> {
     return Requirement {

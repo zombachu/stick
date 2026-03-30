@@ -2,10 +2,8 @@
 
 package com.zombachu.stick.structure
 
-import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.element.HybridFlag
 import com.zombachu.stick.element.Parameter
@@ -21,8 +19,6 @@ import com.zombachu.stick.impl.InvalidSenderDefault
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
-import com.zombachu.stick.impl.ValidatedDefault
-import com.zombachu.stick.propagateError
 import kotlin.experimental.ExperimentalTypeInference
 import kotlin.reflect.KClass
 

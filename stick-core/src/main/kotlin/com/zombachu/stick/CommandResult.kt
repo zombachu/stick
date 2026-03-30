@@ -15,108 +15,108 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
-sealed interface CommandResult<T> {
-    sealed interface Success<T> : CommandResult<T> {
+sealed interface CommandResult<out T> {
+    interface Success<out T> : CommandResult<T> {
         val value: T
     }
 
-    sealed interface InternalFailure<T> : CommandResult<T>
+    sealed interface InternalFailure : CommandResult<Nothing>
 
-    sealed interface Failure<T> : InternalFailure<T> {
+    sealed interface Failure : InternalFailure {
         val feedback: Feedback<out Tuple<String>>
     }
 }
 
-sealed interface ParsingResult<T> : CommandResult<T> {
-    class Success<T> internal constructor(override val value: T) : ParsingResult<T>, CommandResult.Success<T>
+sealed interface ParsingResult<out T> : CommandResult<T> {
+    class Success<out T> internal constructor(override val value: T) : ParsingResult<T>, CommandResult.Success<T>
 
-//    class UnknownError<T> internal constructor(override val feedback: Feedback0) : ParsingResult<T>, Result.Failure<T>
 
-    class HandledError<T> internal constructor() : ParsingResult<T>, CommandResult.InternalFailure<T>
+//    class UnknownError internal constructor(override val feedback: Feedback0) : ParsingResult<Nothing>, CommandResult.Failure
+    sealed interface InternalFailure : ParsingResult<Nothing>, CommandResult.InternalFailure
+    sealed interface Failure : ParsingResult<Nothing>, CommandResult.Failure
 
-    class TypeNotMatchedInternal<T> internal constructor() : ParsingResult<T>, CommandResult.InternalFailure<T>
-    class TypeNotMatchedError<T> internal constructor(override val feedback: Feedback2) : ParsingResult<T>, CommandResult.Failure<T>
-    class TypeNotMatchedSyntaxError<T> internal constructor(override val feedback: Feedback1) : ParsingResult<T>, CommandResult.Failure<T>
-    class LiteralNotMatchedError<T> internal constructor(override val feedback: PreformattedFeedback<Array2<String>>) : ParsingResult<T>, CommandResult.Failure<T>
+    object HandledError : InternalFailure
+    object TypeNotMatchedInternal : InternalFailure
 
-    class InvalidSyntaxError<T> internal constructor(override val feedback: Feedback1) : ParsingResult<T>, CommandResult.Failure<T>
+    class TypeNotMatchedError internal constructor(override val feedback: Feedback2) : Failure
+    class TypeNotMatchedSyntaxError internal constructor(override val feedback: Feedback1) : Failure
+    class LiteralNotMatchedError internal constructor(override val feedback: PreformattedFeedback<Array2<String>>) : Failure
 
-    class OutOfRangeError<T> internal constructor(override val feedback: Feedback3) : ParsingResult<T>, CommandResult.Failure<T>
+    class InvalidSyntaxError internal constructor(override val feedback: Feedback1) : Failure
 
-    interface CustomError<T> : ParsingResult<T>, CommandResult.Failure<T>
+    class OutOfRangeError internal constructor(override val feedback: Feedback3) : Failure
+
+    interface CustomError : Failure
 
     companion object {
         fun <T> success(value: T): Success<T> = Success(value)
 //        fun <T> failUnknown(): ParsingResult<T> = UnknownError { ErrorMessages.Unknown }
-        fun <T> failHandled(): HandledError<T> = HandledError()
-        internal fun <T> failTypeInternal(): TypeNotMatchedInternal<T> = TypeNotMatchedInternal()
-        fun <T> failType(type: String, arg: String): TypeNotMatchedError<T> = TypeNotMatchedError(ErrorMessages.NotAType.with(type, arg))
-        fun <T> failTypeSyntax(syntax: String): TypeNotMatchedSyntaxError<T> = TypeNotMatchedSyntaxError(ErrorMessages.InvalidSyntax.with(syntax))
-        fun <T> failLiteral(valid: List<String>, arg: String): LiteralNotMatchedError<T> = LiteralNotMatchedError(ErrorMessages.InvalidLiteral.with(Array2(valid.joinToString(", "), arg), valid))
-        fun <T> failSyntax(syntax: String): InvalidSyntaxError<T> = InvalidSyntaxError(ErrorMessages.InvalidSyntax.with(syntax))
-        fun <T> failRange(min: String, max: String, arg: String): OutOfRangeError<T> = OutOfRangeError(ErrorMessages.OutOfRange.with(min, max, arg))
+        fun failHandled(): HandledError = HandledError
+        internal fun failTypeInternal(): TypeNotMatchedInternal = TypeNotMatchedInternal
+        fun failType(type: String, arg: String): TypeNotMatchedError = TypeNotMatchedError(ErrorMessages.NotAType.with(type, arg))
+        fun failTypeSyntax(syntax: String): TypeNotMatchedSyntaxError = TypeNotMatchedSyntaxError(ErrorMessages.InvalidSyntax.with(syntax))
+        fun failLiteral(valid: List<String>, arg: String): LiteralNotMatchedError = LiteralNotMatchedError(ErrorMessages.InvalidLiteral.with(Array2(valid.joinToString(", "), arg), valid))
+        fun failSyntax(syntax: String): InvalidSyntaxError = InvalidSyntaxError(ErrorMessages.InvalidSyntax.with(syntax))
+        fun failRange(min: String, max: String, arg: String): OutOfRangeError = OutOfRangeError(ErrorMessages.OutOfRange.with(min, max, arg))
     }
 }
 
-sealed interface SenderValidationResult: CommandResult<Unit> {
-    class Success internal constructor() : SenderValidationResult, CommandResult.Success<Unit> {
+sealed interface SenderValidationResult {
+    object Success : SenderValidationResult, CommandResult.Success<Unit> {
         override val value: Unit = Unit
     }
 
-    class InvalidSenderError internal constructor(override val feedback: Feedback0): SenderValidationResult, CommandResult.Failure<Unit>
-    class InvalidSenderPermissionError internal constructor(override val feedback: Feedback0): SenderValidationResult, CommandResult.Failure<Unit>
-    class InvalidSenderTypeError internal constructor(override val feedback: Feedback0): SenderValidationResult, CommandResult.Failure<Unit>
+    sealed interface Failure : SenderValidationResult, CommandResult.Failure
+
+    class InvalidSenderError internal constructor(override val feedback: Feedback0): Failure
+    class InvalidSenderPermissionError internal constructor(override val feedback: Feedback0): Failure
+    class InvalidSenderTypeError internal constructor(override val feedback: Feedback0): Failure
 
     companion object {
-        fun success(): Success = Success()
+        fun success(): Success = Success
         fun failSender(): InvalidSenderError = InvalidSenderError(ErrorMessages.InvalidSender)
         fun failPermission(): InvalidSenderPermissionError = InvalidSenderPermissionError(ErrorMessages.InvalidPermission)
         fun failSenderType(): InvalidSenderTypeError = InvalidSenderTypeError(ErrorMessages.InvalidSenderType)
     }
 }
 
-internal sealed interface PeekingResult : CommandResult<List<String>> {
+internal sealed interface PeekingResult {
     class Success internal constructor(private val mutableArgs: MutableList<String>): PeekingResult, CommandResult.Success<List<String>> {
         override val value: List<String> = mutableArgs
         fun consume() {
             mutableArgs.clear()
         }
     }
-    class InvalidSizeError internal constructor() : PeekingResult, CommandResult.InternalFailure<List<String>>
+    object InvalidSizeError : PeekingResult, CommandResult.InternalFailure
 
     companion object {
         fun success(mutableArgs: MutableList<String>): Success = Success(mutableArgs)
-        fun failSize(): InvalidSizeError = InvalidSizeError()
+        fun failSize(): InvalidSizeError = InvalidSizeError
     }
 }
 
 internal inline fun <T, R> CommandResult<T>.handleInternal(
     onSuccess: (CommandResult.Success<T>) -> R,
-    onFailure: (CommandResult.InternalFailure<T>) -> R
+    onFailure: (CommandResult.InternalFailure) -> R
 ): R {
     return if (isSuccess()) onSuccess(this) else onFailure(this)
 }
 
-inline fun <T2> CommandResult<*>.propagateError(onFailure: (CommandResult.InternalFailure<T2>) -> Nothing) {
+@OptIn(ExperimentalContracts::class)
+inline fun CommandResult<*>.propagateError(onFailure: (CommandResult.InternalFailure) -> Nothing) {
     contract {
         callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
     }
-
-    if (isSuccess()) {
-        return
-    }
-    onFailure(unsafeCast())
+    if (isSuccess()) return
+    onFailure(this)
 }
 
-inline fun <T, T2> CommandResult<T>.valueOrPropagateError(onFailure: (CommandResult.InternalFailure<T2>) -> Nothing): T {
+inline fun <T> CommandResult<T>.valueOrPropagateError(onFailure: (CommandResult.InternalFailure) -> Nothing): T {
     contract {
         callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
     }
-
-    if (isSuccess()) {
-        return value
-    }
-    onFailure(unsafeCast())
+    if (isSuccess()) return value
+    onFailure(this)
 }
 
 fun <T> CommandResult<T>.isSuccess(): Boolean {
@@ -126,6 +126,3 @@ fun <T> CommandResult<T>.isSuccess(): Boolean {
     }
     return this is CommandResult.Success
 }
-
-@Suppress("UNCHECKED_CAST")
-fun <T2> CommandResult.InternalFailure<*>.unsafeCast(): CommandResult.InternalFailure<T2> = this as CommandResult.InternalFailure<T2>

@@ -67,7 +67,7 @@ internal open class GroupImpl<E : Environment, S, G : GroupResult>(
         groupElement: GroupElement<E, S, T, G>,
         onSuccess: (G) -> Nothing,
         onElementMismatch: () -> Nothing,
-        onError: (CommandResult.InternalFailure<G>) -> Nothing,
+        onError: (CommandResult.InternalFailure) -> Nothing,
     ) {
         contract {
             callsInPlace(onSuccess, InvocationKind.AT_MOST_ONCE)
@@ -76,14 +76,12 @@ internal open class GroupImpl<E : Environment, S, G : GroupResult>(
         }
 
         // Ignore elements unable to be accessed by the sender
-        groupElement.groupable.validateSender().propagateError<G> { onElementMismatch() }
+        groupElement.groupable.validateSender().propagateError { onElementMismatch() }
 
         val value = (inv as InvocationImpl).processSyntaxElement(groupElement.groupable).valueOrPropagateError {
             when (it) {
                 // Ignore type errors (element didn't match)
-                is ParsingResult.TypeNotMatchedInternal, is ParsingResult.TypeNotMatchedError -> onElementMismatch()
-                // Separate branch because the compiler doesn't like them combined for some reason
-                is PeekingResult.InvalidSizeError -> onElementMismatch()
+                is ParsingResult.TypeNotMatchedInternal, is ParsingResult.TypeNotMatchedError, is PeekingResult.InvalidSizeError -> onElementMismatch()
                 // If the element matched and an error occurred in parsing then propagate it up
                 else -> onError(it)
             }

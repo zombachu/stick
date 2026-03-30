@@ -10,7 +10,7 @@ import org.bukkit.command.CommandSender
 
 fun <E : BukkitEnvironment, S : CommandSender> BuilderScope<E, S>.permission(
     permission: String,
-    failureResult: () -> CommandResult.Failure<Unit> = SenderValidationResult::failPermission,
+    failureResult: () -> CommandResult.Failure = SenderValidationResult::failPermission,
 ): Requirement<E, S> = requirement(failureResult) {
     it.sender.hasPermission(permission)
 }

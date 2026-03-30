@@ -3,7 +3,6 @@ package com.zombachu.stick.impl
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TypedIdentifier
@@ -13,7 +12,6 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
 import com.zombachu.stick.element.SyntaxElement
 import com.zombachu.stick.propagateError
-import com.zombachu.stick.valueOrPropagateError
 
 internal open class InvocationImpl<E : Environment, S>(
     override val sender: S,
