@@ -6,11 +6,11 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TypedIdentifier
+import com.zombachu.stick.element.Element
 import com.zombachu.stick.element.Group
 import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
-import com.zombachu.stick.element.SyntaxElement
 import com.zombachu.stick.propagateError
 
 internal open class InvocationImpl<E : Environment, S>(
@@ -71,8 +71,8 @@ internal open class InvocationImpl<E : Environment, S>(
         }
     }
 
-    internal fun <T> processSyntaxElement(
-        element: SyntaxElement<E, S, T>,
+    internal fun <T> processElement(
+        element: Element<E, S, T>,
     ): CommandResult<T> {
         val peeked: PeekingResult = peek(element.size)
         if (peeked !is PeekingResult.Success) {

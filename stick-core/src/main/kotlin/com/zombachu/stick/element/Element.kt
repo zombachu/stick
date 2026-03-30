@@ -13,14 +13,14 @@ import com.zombachu.stick.impl.Size
 sealed interface Element<E : Environment, S, T> {
     val size: Size
     val type: ElementType
+
+    context(inv: Invocation<E, S>)
+    fun parse(args: List<String>): CommandResult<T>
 }
 
 sealed interface SyntaxElement<E : Environment, S, T> : Element<E, S, T> {
     val name: String
     val description: String
-
-    context(inv: Invocation<E, S>)
-    fun parse(args: List<String>): CommandResult<T>
 
     context(validationContext: ValidationContext<E, S>)
     fun getSyntax(): String

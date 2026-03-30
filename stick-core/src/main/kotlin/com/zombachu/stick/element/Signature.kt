@@ -71,14 +71,13 @@ internal sealed class Signature<E : Environment, S>(
     }
 
     context(inv: InvocationImpl<E, S>)
-    private fun processSyntaxElement(
+    private fun processElement(
         values: MutableList<Any?>,
-        element: SyntaxElement<E, S, Any?>,
-        index: Int
-    ): CommandResult<out Any?> {
-        val processResult = inv.processSyntaxElement(element)
+        element: IndexedElement<E, S, Element<E, S, Any?>>,
+    ): CommandResult<Any?> {
+        val processResult = inv.processElement(element.element)
         if (processResult.isSuccess()) {
-            values[index] = processResult.value
+            values[element.index] = processResult.value
         }
         return processResult
     }
@@ -91,20 +90,10 @@ internal sealed class Signature<E : Environment, S>(
         var parameterIndex = 0
 
         while (parameterIndex < linearElements.size) {
-            val indexedElement = linearElements[parameterIndex]
-            val element = indexedElement.element
-
-            // First check if it's a helper as helpers don't need to consume any args
-            if (element.isHelper()) {
-                values[indexedElement.index] = element.value(inv).valueOrPropagateError { return it }
-                parameterIndex++
-                continue
-            }
-
             processFlags(unprocessedFlags, values).propagateError { return it }
 
             // Parse with the element as a syntax element
-            processSyntaxElement(values, element, indexedElement.index).propagateError {
+            processElement(values, linearElements[parameterIndex]).propagateError {
                 // Give a syntax failure for invalid arg length for parameters
                 return if (it is PeekingResult.InvalidSizeError) ParsingResult.failSyntax(inv.getSyntax()) else it
             }
@@ -142,7 +131,7 @@ internal sealed class Signature<E : Environment, S>(
             // Ignore flags unable to be accessed by the sender
             flag.validateSender().propagateError { continue }
 
-            processSyntaxElement(values, flag, indexedFlag.index).propagateError {
+            processElement(values, indexedFlag).propagateError {
                 when (it) {
                     // Ignore type errors (flag didn't match)
                     is ParsingResult.TypeNotMatchedInternal, is PeekingResult.InvalidSizeError -> continue
@@ -154,14 +143,6 @@ internal sealed class Signature<E : Environment, S>(
             flagsIt.remove()
         }
         return ParsingResult.success(Unit)
-    }
-
-    private fun Element<E, S, Any?>.isHelper(): Boolean {
-        contract {
-            returns(true) implies (this@isHelper is HelperImpl<E, S, Any?>)
-            returns(false) implies (this@isHelper is SyntaxElement<E, S, Any?>)
-        }
-        return this is HelperImpl<E, S, Any?>
     }
 
     data class IndexedElement<E : Environment, S, out L : Element<E, S, *>>(

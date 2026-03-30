@@ -30,7 +30,6 @@ sealed interface CommandResult<out T> {
 sealed interface ParsingResult<out T> : CommandResult<T> {
     class Success<out T> internal constructor(override val value: T) : ParsingResult<T>, CommandResult.Success<T>
 
-
 //    class UnknownError internal constructor(override val feedback: Feedback0) : ParsingResult<Nothing>, CommandResult.Failure
     sealed interface InternalFailure : ParsingResult<Nothing>, CommandResult.InternalFailure
     sealed interface Failure : ParsingResult<Nothing>, CommandResult.Failure
@@ -50,7 +49,7 @@ sealed interface ParsingResult<out T> : CommandResult<T> {
 
     companion object {
         fun <T> success(value: T): Success<T> = Success(value)
-//        fun <T> failUnknown(): ParsingResult<T> = UnknownError { ErrorMessages.Unknown }
+//        fun <T> failUnknown(): UnknownError = UnknownError(ErrorMessages.Unknown)
         fun failHandled(): HandledError = HandledError
         internal fun failTypeInternal(): TypeNotMatchedInternal = TypeNotMatchedInternal
         fun failType(type: String, arg: String): TypeNotMatchedError = TypeNotMatchedError(ErrorMessages.NotAType.with(type, arg))
