@@ -102,6 +102,9 @@ internal sealed class Signature<E : Environment, S>(
 
         processFlags(unprocessedFlags, values).propagateError { return it }
 
+        // If there are unused args then the sender used invalid syntax
+        if (inv.unparsed.isNotEmpty()) return ParsingResult.failSyntax(inv.getSyntax())
+
         // Populate unused flag values with defaults
         for (indexedFlag in unprocessedFlags) {
             val flag = indexedFlag.element
