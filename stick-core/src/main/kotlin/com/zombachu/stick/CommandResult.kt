@@ -2,8 +2,6 @@
 
 package com.zombachu.stick
 
-import com.zombachu.stick.CommandResult
-import com.zombachu.stick.element.Element
 import com.zombachu.stick.feedback.ErrorMessages
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.feedback.Feedback0

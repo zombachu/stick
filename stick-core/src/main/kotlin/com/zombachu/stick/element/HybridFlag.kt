@@ -13,7 +13,6 @@ import com.zombachu.stick.impl.InvalidSenderDefault
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.propagateError
-import com.zombachu.stick.valueOrPropagateError
 
 internal open class HybridFlagImpl<E : Environment, S, T>(
     override val name: String,

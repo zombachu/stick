@@ -4,7 +4,6 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.impl.Size
 
 internal class HelperImpl<E : Environment, S, T>(
