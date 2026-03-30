@@ -2,6 +2,8 @@
 
 package com.zombachu.stick
 
+import com.zombachu.stick.CommandResult
+import com.zombachu.stick.element.Element
 import com.zombachu.stick.feedback.ErrorMessages
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.feedback.Feedback0
@@ -10,6 +12,7 @@ import com.zombachu.stick.feedback.Feedback2
 import com.zombachu.stick.feedback.Feedback3
 import com.zombachu.stick.feedback.PreformattedFeedback
 import com.zombachu.stick.impl.Array2
+import com.zombachu.stick.impl.Size
 import com.zombachu.stick.impl.Tuple
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -18,6 +21,7 @@ import kotlin.contracts.contract
 sealed interface CommandResult<out T> {
     interface Success<out T> : CommandResult<T> {
         val value: T
+        val consumed: Size.Fixed
     }
 
     sealed interface InternalFailure : CommandResult<Nothing>
@@ -28,9 +32,9 @@ sealed interface CommandResult<out T> {
 }
 
 sealed interface ParsingResult<out T> : CommandResult<T> {
-    class Success<out T> internal constructor(override val value: T) : ParsingResult<T>, CommandResult.Success<T>
+    class Success<out T> internal constructor(override val value: T, override val consumed: Size.Fixed) : ParsingResult<T>, CommandResult.Success<T>
 
-//    class UnknownError internal constructor(override val feedback: Feedback0) : ParsingResult<Nothing>, CommandResult.Failure
+    class UnknownError internal constructor(override val feedback: Feedback0) : ParsingResult<Nothing>, CommandResult.Failure
     sealed interface InternalFailure : ParsingResult<Nothing>, CommandResult.InternalFailure
     sealed interface Failure : ParsingResult<Nothing>, CommandResult.Failure
 
@@ -48,8 +52,8 @@ sealed interface ParsingResult<out T> : CommandResult<T> {
     interface CustomError : Failure
 
     companion object {
-        fun <T> success(value: T): Success<T> = Success(value)
-//        fun <T> failUnknown(): UnknownError = UnknownError(ErrorMessages.Unknown)
+        fun <T> success(value: T, consumed: Size.Fixed = Size(0)): Success<T> = Success(value, consumed)
+        fun failUnknown(): UnknownError = UnknownError(ErrorMessages.Unknown)
         fun failHandled(): HandledError = HandledError
         internal fun failTypeInternal(): TypeNotMatchedInternal = TypeNotMatchedInternal
         fun failType(type: String, arg: String): TypeNotMatchedError = TypeNotMatchedError(ErrorMessages.NotAType.with(type, arg))
@@ -63,6 +67,7 @@ sealed interface ParsingResult<out T> : CommandResult<T> {
 sealed interface SenderValidationResult {
     object Success : SenderValidationResult, CommandResult.Success<Unit> {
         override val value: Unit = Unit
+        override val consumed: Size.Fixed = Size(0)
     }
 
     sealed interface Failure : SenderValidationResult, CommandResult.Failure
@@ -80,10 +85,11 @@ sealed interface SenderValidationResult {
 }
 
 internal sealed interface PeekingResult {
-    class Success internal constructor(private val mutableArgs: MutableList<String>): PeekingResult, CommandResult.Success<List<String>> {
+    data class Success internal constructor(private val mutableArgs: MutableList<String>): PeekingResult, CommandResult.Success<List<String>> {
         override val value: List<String> = mutableArgs
-        fun consume() {
-            mutableArgs.clear()
+        override val consumed: Size.Fixed = Size(0)
+        fun consume(count: Int) {
+            mutableArgs.subList(0, count).clear()
         }
     }
     object InvalidSizeError : PeekingResult, CommandResult.InternalFailure
@@ -102,8 +108,9 @@ internal inline fun <T, R> CommandResult<T>.handleInternal(
 }
 
 @OptIn(ExperimentalContracts::class)
-inline fun CommandResult<*>.propagateError(onFailure: (CommandResult.InternalFailure) -> Nothing) {
+inline fun <T> CommandResult<T>.propagateError(onFailure: (CommandResult.InternalFailure) -> Nothing) {
     contract {
+        returns() implies (this@propagateError is CommandResult.Success)
         callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
     }
     if (isSuccess()) return
@@ -112,6 +119,7 @@ inline fun CommandResult<*>.propagateError(onFailure: (CommandResult.InternalFai
 
 inline fun <T> CommandResult<T>.valueOrPropagateError(onFailure: (CommandResult.InternalFailure) -> Nothing): T {
     contract {
+        returns() implies (this@valueOrPropagateError is CommandResult.Success)
         callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
     }
     if (isSuccess()) return value
@@ -124,4 +132,9 @@ fun <T> CommandResult<T>.isSuccess(): Boolean {
         returns(false) implies (this@isSuccess is CommandResult.InternalFailure)
     }
     return this is CommandResult.Success
+}
+
+fun <T> CommandResult<T>.withSize(size: Size.Fixed): CommandResult<T> {
+    this.propagateError { return it }
+    return ParsingResult.success(this.value, size)
 }

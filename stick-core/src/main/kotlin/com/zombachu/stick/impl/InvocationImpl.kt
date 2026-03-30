@@ -3,6 +3,7 @@ package com.zombachu.stick.impl
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TypedIdentifier
@@ -77,15 +78,21 @@ internal open class InvocationImpl<E : Environment, S>(
         val peeked: PeekingResult = peek(element.size)
         if (peeked !is PeekingResult.Success) {
             @Suppress("UNCHECKED_CAST")
-            return peeked as CommandResult<T>
+            return peeked as CommandResult<Nothing>
         }
 
         context(this) {
             val result = element.parse(peeked.value)
             result.propagateError { return it }
-            // Let groups manage their syntax element consumption
-            if (element !is Group) {
-                peeked.consume()
+            val consumed = result.consumed
+            // Let containers manage their syntax element consumption
+            if (element !is Group && element !is Structure && consumed is Size.Fixed) {
+                if (consumed.size > peeked.value.size) {
+                    // Bug in element implementation
+                    return ParsingResult.failUnknown()
+                } else {
+                    peeked.consume(consumed.size)
+                }
             }
             return result
         }

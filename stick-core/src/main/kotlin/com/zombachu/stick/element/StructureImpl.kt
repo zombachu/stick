@@ -33,10 +33,10 @@ internal open class StructureImpl<E : Environment, S>(
         if (!matches(label)) {
             return ParsingResult.failTypeSyntax(inv.getSyntax())
         }
-        peeked.consume()
+        peeked.consume(1)
         validateSender().propagateError { return it }
         signature.execute().propagateError { return it }
-        return ParsingResult.success(Unit)
+        return ParsingResult.success(Unit, Size(args.size - 1))
     }
 
     context(validationContext: ValidationContext<E, S>)

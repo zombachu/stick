@@ -138,5 +138,6 @@ private fun <E : Environment, S, A, T> parsePipeline(
         val operation = it as PipelineOperation<E, S, Any?, Any?>
         value = operation(inv, value).valueOrPropagateError { return it }
     }
-    return ParsingResult.success(value as T)
+    val consumed = base.size as? Size.Fixed ?: Size(args.size)
+    return ParsingResult.success(value as T, consumed)
 }

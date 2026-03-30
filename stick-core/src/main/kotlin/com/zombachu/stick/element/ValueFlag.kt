@@ -12,6 +12,7 @@ import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.impl.InvalidSenderDefault
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Size
+import com.zombachu.stick.withSize
 
 internal open class ValueFlagImpl<E : Environment, S, T>(
     override val name: String,
@@ -19,13 +20,13 @@ internal open class ValueFlagImpl<E : Environment, S, T>(
     private val flagParameter: FlagParameter<E, S, T>,
 ): ValueFlag<E, S, T> {
 
-    override val size: Size = flagParameter.size
+    override val size: Size.Fixed = flagParameter.size
     override val type: ElementType = ElementType.Flag
     override val description: String = flagParameter.description
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> {
-        return flagParameter.parse(args)
+        return flagParameter.parse(args).withSize(size)
     }
 
     context(validationContext: ValidationContext<E, S>)
@@ -69,7 +70,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
             if (matches(args.first().lowercase())) {
-                return parameter.parse(args.subList(1, args.size))
+                return parameter.parse(args.subList(1, args.size)).withSize(size)
             }
             return ParsingResult.failTypeInternal()
         }

@@ -46,7 +46,7 @@ internal open class GroupImpl<E : Environment, S, G : GroupResult>(
         for (element in prioritizedElements) {
             processGroupElement(
                 element,
-                onSuccess = { return ParsingResult.success(it) },
+                onSuccess = { return ParsingResult.success(it, Size(0)) },
                 onElementMismatch = { continue },
                 onError = { return it }
             )

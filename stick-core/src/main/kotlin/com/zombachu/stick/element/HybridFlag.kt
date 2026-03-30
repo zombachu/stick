@@ -12,6 +12,7 @@ import com.zombachu.stick.element.Parameter.FixedSize
 import com.zombachu.stick.impl.InvalidSenderDefault
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Size
+import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 
 internal open class HybridFlagImpl<E : Environment, S, T>(
@@ -20,7 +21,7 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
     aliases: Set<String>,
 ): HybridFlag<E, S, T>, Aliasable {
 
-    override val size: Size = Size.Unbounded
+    override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Flag
     override val description: String = parameter.description
     override val default: ContextualValue<E, S, HybridFlagResult<T>> = { ParsingResult.success(HybridFlagResult.Absent()) }
@@ -31,11 +32,12 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
     override fun parse(args: List<String>): CommandResult<HybridFlagResult<T>> {
         if (args.isEmpty()) return ParsingResult.failTypeInternal()
         if (matches(args.first().lowercase())) {
-            if (args.size > 1) {
-                val value = parameter.parse(args.subList(1, args.size)).valueOrPropagateError { return it }
-                return ParsingResult.success(HybridFlagResult.Value(value))
+            if (args.size == 1) {
+                return ParsingResult.success(HybridFlagResult.Present(), Size(1))
             } else {
-                return ParsingResult.success(HybridFlagResult.Present())
+                val result = parameter.parse(args.subList(1, args.size))
+                result.propagateError { return it }
+                return ParsingResult.success(HybridFlagResult.Value(result.value), Size(1) + result.consumed)
             }
         }
         return ParsingResult.failTypeInternal()
