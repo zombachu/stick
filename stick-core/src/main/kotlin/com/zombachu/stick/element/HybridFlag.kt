@@ -42,7 +42,7 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
     }
 
     context(validationContext: ValidationContext<E, S>)
-    override fun getSyntax(): String = "[$label [${parameter.getSyntax()}]]"
+    override fun getSyntax(): String = "[$label [${parameter.getGroupedSyntax()}]]"
 }
 
 internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
