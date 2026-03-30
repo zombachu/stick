@@ -122,25 +122,30 @@ internal sealed class Signature<E : Environment, S>(
         unprocessedFlags: MutableList<IndexedElement<E, S, Flag<E, S, Any?>>>,
         values: MutableList<Any?>,
     ): CommandResult<Unit> {
-        // Attempt to parse the input as a flag (potentially multiple in a row)
-        val flagsIt = unprocessedFlags.iterator()
-        while (flagsIt.hasNext()) {
-            val indexedFlag = flagsIt.next()
-            val flag: Flag<E, S, Any?> = indexedFlag.element
+        // Attempt to parse the input as a flag (potentially multiple in a row, in any order)
+        var unprocessedFlagsSize = -1
+        while (unprocessedFlagsSize != unprocessedFlags.size) {
+            unprocessedFlagsSize = unprocessedFlags.size
 
-            // Ignore flags unable to be accessed by the sender
-            flag.validateSender().propagateError { continue }
+            val flagsIt = unprocessedFlags.iterator()
+            while (flagsIt.hasNext()) {
+                val indexedFlag = flagsIt.next()
+                val flag: Flag<E, S, Any?> = indexedFlag.element
 
-            processElement(values, indexedFlag).propagateError {
-                when (it) {
-                    // Ignore type errors (flag didn't match)
-                    is ParsingResult.TypeNotMatchedInternal, is PeekingResult.InvalidSizeError -> continue
-                    // If the flag matched and an error occurred in parsing then propagate it up
-                    else -> return it
+                // Ignore flags unable to be accessed by the sender
+                flag.validateSender().propagateError { continue }
+
+                processElement(values, indexedFlag).propagateError {
+                    when (it) {
+                        // Ignore type errors (flag didn't match)
+                        is ParsingResult.TypeNotMatchedInternal, is PeekingResult.InvalidSizeError -> continue
+                        // If the flag matched and an error occurred in parsing then propagate it up
+                        else -> return it
+                    }
                 }
+                // Mark the flag as processed if it succeeded
+                flagsIt.remove()
             }
-            // Mark the flag as processed if it succeeded
-            flagsIt.remove()
         }
         return ParsingResult.success(Unit)
     }
