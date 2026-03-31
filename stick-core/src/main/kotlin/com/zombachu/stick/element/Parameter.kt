@@ -121,7 +121,7 @@ sealed class Parameter<E : Environment, S, T>(
         size: Size,
         name: String,
         description: String,
-    ) : Parameter<E, S, T>(size, name, description), Groupable.Terminating<E, S, T>
+    ) : Parameter<E, S, T>(size, name, description)
 }
 
 internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T>(

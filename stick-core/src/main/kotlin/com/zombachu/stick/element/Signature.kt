@@ -17,7 +17,7 @@ import com.zombachu.stick.valueOrPropagateError
 import kotlin.contracts.ExperimentalContracts
 
 internal sealed class Signature<E : Environment, S, T_ : Arguments>(
-    elements: List<SignatureConstraint<E, S, Any?>>
+    elements: List<Element<E, S, Any?>>
 ) {
     private val flags: List<IndexedElement<E, S, Flag<E, S, Any?>>>
     private val linearElements: List<IndexedElement<E, S, Element<E, S, Any?>>>
@@ -56,7 +56,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         // Add terminating element after flags
         val lastLinearElement = linearElements.lastOrNull()?.element
         var terminatingElementSyntax: String? = null
-        if (lastLinearElement is SignatureConstraint.Terminating) {
+        if (lastLinearElement !is Element.NonTerminating) {
             terminatingElementSyntax = linearSyntax.last()
             linearSyntax = linearSyntax.subList(0, linearSyntax.size - 1)
         }

@@ -5,7 +5,7 @@ import com.zombachu.stick.GroupResult5
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.element.SignatureConstraint
+import com.zombachu.stick.element.Element
 import com.zombachu.stick.impl.Arguments1
 import com.zombachu.stick.impl.Arguments3
 import com.zombachu.stick.impl.BuilderScope
@@ -199,7 +199,7 @@ enum class Rgb {
 
 fun <E : BasicBukkitEnvironment> BuilderScope<E, CommandSender>.targetPlayer(
 
-): StructureElement<E, CommandSender, SignatureConstraint.Terminating<E, CommandSender, Player>> =
+): StructureElement<E, CommandSender, Element<E, CommandSender, Player>> =
     optionally(
         ifAbsent = defaultSender<E, CommandSender, Player>(),
         parameter = playerParameter("player", "The player to explode.").pipeline {
