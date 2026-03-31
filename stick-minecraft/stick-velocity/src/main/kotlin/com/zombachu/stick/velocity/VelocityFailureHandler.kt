@@ -12,7 +12,7 @@ interface VelocityFailureHandler<E : VelocityEnvironment> : FailureHandler<E, Co
 open class BasicVelocityFailureHandler : VelocityFailureHandler<VelocityEnvironment> {
     context(inv: Invocation<VelocityEnvironment, CommandSource>)
     override fun onFailure(failure: CommandResult.Failure) {
-        val message = failure.feedback.format()
+        val message = failure.feedback.message
         if (message.isEmpty()) { return }
         inv.sender.sendMessage(Component.text(message, NamedTextColor.RED))
     }

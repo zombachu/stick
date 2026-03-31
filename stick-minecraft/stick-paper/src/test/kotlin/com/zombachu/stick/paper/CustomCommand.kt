@@ -4,6 +4,8 @@ import com.zombachu.stick.Command
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.impl.BuilderScope
@@ -60,7 +62,23 @@ class CustomBukkitEnvironment : BasicBukkitEnvironment(fakePlugin) {
 class CustomFailureHandler : FailureHandler<CustomBukkitEnvironment, CommandSender> {
     context(inv: Invocation<CustomBukkitEnvironment, CommandSender>)
     override fun onFailure(failure: CommandResult.Failure) {
-        val message = failure.feedback.format()
+        when (failure) {
+            is ParsingResult.OutOfRangeError -> inv.sender.sendMessage("min: ${failure.feedback.max} max: ${failure.feedback.max}")
+            is ParsingResult.CustomError,
+            is ParsingResult.InvalidSyntaxError,
+            is ParsingResult.LiteralNotMatchedError,
+            is ParsingResult.TypeNotMatchedError,
+            is ParsingResult.TypeNotMatchedSyntaxError,
+            is ParsingResult.UnknownError -> defaultProcess(failure)
+            is SenderValidationResult.InvalidSenderError,
+            is SenderValidationResult.InvalidSenderPermissionError,
+            is SenderValidationResult.InvalidSenderTypeError -> defaultProcess(failure)
+        }
+    }
+
+    context(inv: Invocation<CustomBukkitEnvironment, CommandSender>)
+    fun defaultProcess(failure: CommandResult.Failure) {
+        val message = failure.feedback.message
         if (message.isEmpty()) { return }
         inv.sender.sendMessage(inv.env.translateMessage(message))
     }
