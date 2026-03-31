@@ -17,19 +17,32 @@ import com.zombachu.stick.element.Signature8
 import com.zombachu.stick.element.Signature9
 import com.zombachu.stick.element.SignatureConstraint
 import com.zombachu.stick.element.Structure
+import com.zombachu.stick.impl.Arguments0
+import com.zombachu.stick.impl.Arguments1
+import com.zombachu.stick.impl.Arguments10
+import com.zombachu.stick.impl.Arguments11
+import com.zombachu.stick.impl.Arguments12
+import com.zombachu.stick.impl.Arguments2
+import com.zombachu.stick.impl.Arguments3
+import com.zombachu.stick.impl.Arguments4
+import com.zombachu.stick.impl.Arguments5
+import com.zombachu.stick.impl.Arguments6
+import com.zombachu.stick.impl.Arguments7
+import com.zombachu.stick.impl.Arguments8
+import com.zombachu.stick.impl.Arguments9
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
 
 operator fun <E_ : Environment, S> StructureScope<E_, S>.invoke(
     execute: Invocation<E_, S>.() -> Unit,
-): StructureElement<E_, S, Structure<E_, S>> = {
+): StructureElement<E_, S, Structure<E_, S, Arguments0>> = {
     this@invoke.build(Signature0(execute, emptyList()))
 }
 
 operator fun <E_ : Environment, S, A> StructureScope<E_, S>.invoke(
     element: StructureElement<E_, S, SignatureConstraint.Terminating<E_, S, A>>,
     execute: Invocation<E_, S>.(A) -> Unit = {  },
-): StructureElement<E_, S, Structure<E_, S>> = {
+): StructureElement<E_, S, Structure<E_, S, Arguments1<A>>> = {
     this@invoke.build(Signature1(execute, listOf(element.invoke(this))))
 }
 
@@ -37,7 +50,7 @@ operator fun <E_ : Environment, S, A, B> StructureScope<E_, S>.invoke(
     elementA: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, A>>,
     elementB: StructureElement<E_, S, SignatureConstraint.Terminating<E_, S, B>>,
     execute: Invocation<E_, S>.(A, B) -> Unit = { a, b -> },
-): StructureElement<E_, S, Structure<E_, S>> = {
+): StructureElement<E_, S, Structure<E_, S, Arguments2<A, B>>> = {
     this@invoke.build(Signature2(execute, listOf(elementA.invoke(this), elementB.invoke(this))))
 }
 
@@ -46,7 +59,7 @@ operator fun <E_ : Environment, S, A, B, C> StructureScope<E_, S>.invoke(
     elementB: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, B>>,
     elementC: StructureElement<E_, S, SignatureConstraint.Terminating<E_, S, C>>,
     execute: Invocation<E_, S>.(A, B, C) -> Unit = { a, b, c -> },
-): StructureElement<E_, S, Structure<E_, S>> = {
+): StructureElement<E_, S, Structure<E_, S, Arguments3<A, B, C>>> = {
     this@invoke.build(Signature3(execute,
         listOf(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this))
     ))
@@ -58,7 +71,7 @@ operator fun <E_ : Environment, S, A, B, C, D> StructureScope<E_, S>.invoke(
     elementC: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, C>>,
     elementD: StructureElement<E_, S, SignatureConstraint.Terminating<E_, S, D>>,
     execute: Invocation<E_, S>.(A, B, C, D) -> Unit = { a, b, c, d -> },
-): StructureElement<E_, S, Structure<E_, S>> = {
+): StructureElement<E_, S, Structure<E_, S, Arguments4<A, B, C, D>>> = {
     this@invoke.build(Signature4(execute,
         listOf(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this))
     ))
@@ -71,7 +84,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E> StructureScope<E_, S>.invoke(
     elementD: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, D>>,
     elementE: StructureElement<E_, S, SignatureConstraint.Terminating<E_, S, E>>,
     execute: Invocation<E_, S>.(A, B, C, D, E) -> Unit = { a, b, c, d, e -> },
-): StructureElement<E_, S, Structure<E_, S>> = {
+): StructureElement<E_, S, Structure<E_, S, Arguments5<A, B, C, D, E>>> = {
     this@invoke.build(Signature5(execute,
         listOf(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this))
@@ -86,7 +99,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F> StructureScope<E_, S>.invok
     elementE: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, E>>,
     elementF: StructureElement<E_, S, SignatureConstraint.Terminating<E_, S, F>>,
     execute: Invocation<E_, S>.(A, B, C, D, E, F) -> Unit = { a, b, c, d, e, f -> },
-): StructureElement<E_, S, Structure<E_, S>> = {
+): StructureElement<E_, S, Structure<E_, S, Arguments6<A, B, C, D, E, F>>> = {
     this@invoke.build(Signature6(execute,
         listOf(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this))
@@ -102,7 +115,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G> StructureScope<E_, S>.in
     elementF: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, F>>,
     elementG: StructureElement<E_, S, SignatureConstraint.Terminating<E_, S, G>>,
     execute: Invocation<E_, S>.(A, B, C, D, E, F, G) -> Unit = { a, b, c, d, e, f, g -> },
-): StructureElement<E_, S, Structure<E_, S>> = {
+): StructureElement<E_, S, Structure<E_, S, Arguments7<A, B, C, D, E, F, G>>> = {
     this@invoke.build(Signature7(execute,
         listOf(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this))
@@ -119,7 +132,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H> StructureScope<E_, S>
     elementG: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, G>>,
     elementH: StructureElement<E_, S, SignatureConstraint.Terminating<E_, S, H>>,
     execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H) -> Unit = { a, b, c, d, e, f, g, h -> },
-): StructureElement<E_, S, Structure<E_, S>> = {
+): StructureElement<E_, S, Structure<E_, S, Arguments8<A, B, C, D, E, F, G, H>>> = {
     this@invoke.build(Signature8(execute,
         listOf(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this), elementH.invoke(this))
@@ -137,7 +150,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I> StructureScope<E_,
     elementH: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, H>>,
     elementI: StructureElement<E_, S, SignatureConstraint.Terminating<E_, S, I>>,
     execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H, I) -> Unit = { a, b, c, d, e, f, g, h, i -> },
-): StructureElement<E_, S, Structure<E_, S>> = {
+): StructureElement<E_, S, Structure<E_, S, Arguments9<A, B, C, D, E, F, G, H, I>>> = {
     this@invoke.build(Signature9(execute,
         listOf(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this), elementH.invoke(this),
@@ -157,7 +170,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J> StructureScope<
     elementI: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, I>>,
     elementJ: StructureElement<E_, S, SignatureConstraint.Terminating<E_, S, J>>,
     execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H, I, J) -> Unit = { a, b, c, d, e, f, g, h, i, j -> },
-): StructureElement<E_, S, Structure<E_, S>> = {
+): StructureElement<E_, S, Structure<E_, S, Arguments10<A, B, C, D, E, F, G, H, I, J>>> = {
     this@invoke.build(Signature10(execute,
         listOf(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this), elementH.invoke(this),
@@ -178,7 +191,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K> StructureSco
     elementJ: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, J>>,
     elementK: StructureElement<E_, S, SignatureConstraint.Terminating<E_, S, K>>,
     execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H, I, J, K) -> Unit = { a, b, c, d, e, f, g, h, i, j, k -> },
-): StructureElement<E_, S, Structure<E_, S>> = {
+): StructureElement<E_, S, Structure<E_, S, Arguments11<A, B, C, D, E, F, G, H, I, J, K>>> = {
     this@invoke.build(Signature11(execute,
         listOf(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this), elementH.invoke(this),
@@ -200,7 +213,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K, L> Structure
     elementK: StructureElement<E_, S, SignatureConstraint.NonTerminating<E_, S, K>>,
     elementL: StructureElement<E_, S, SignatureConstraint.Terminating<E_, S, L>>,
     execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H, I, J, K, L) -> Unit = { a, b, c, d, e, f, g, h, i, j, k, l -> },
-): StructureElement<E_, S, Structure<E_, S>> = {
+): StructureElement<E_, S, Structure<E_, S, Arguments12<A, B, C, D, E, F, G, H, I, J, K, L>>> = {
     this@invoke.build(Signature12(execute,
         listOf(elementA.invoke(this), elementB.invoke(this), elementC.invoke(this), elementD.invoke(this),
             elementE.invoke(this), elementF.invoke(this), elementG.invoke(this), elementH.invoke(this),

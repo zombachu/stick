@@ -11,7 +11,7 @@ import com.zombachu.stick.isSuccess
 class VelocityCommandWrapper<E : VelocityEnvironment>(
     override val env: E,
     override val failureHandler: FailureHandler<E, CommandSource>,
-    override val structure: Structure<E, CommandSource>,
+    override val structure: Structure<E, CommandSource, *>,
 ) : RawCommand, CommandWrapper<E, CommandSource> {
 
     override fun execute(invocation: RawCommand.Invocation) {

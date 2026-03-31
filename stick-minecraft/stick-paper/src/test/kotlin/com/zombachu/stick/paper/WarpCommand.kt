@@ -1,10 +1,13 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.Aliasable
+import com.zombachu.stick.GroupResult5
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.element.SignatureConstraint
+import com.zombachu.stick.impl.Arguments1
+import com.zombachu.stick.impl.Arguments3
 import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.paper.structure.permission
@@ -83,7 +86,7 @@ class WarpCommand : BukkitCommand<CommandSender> {
                     )
                 },
                 WarpInfoCommand().structure,
-                requireAs<BukkitEnvironment, CommandSender, MinecraftProfile>(
+                requireAs<BukkitEnvironment, CommandSender, MinecraftProfile, Arguments1<String>>(
                     { PlayerUtil.getProfile(it as Player) },
                     requirement { it.sender is Player },
                 ) {
@@ -107,7 +110,14 @@ class WarpCommand : BukkitCommand<CommandSender> {
 //                    )
 //                },
             ),
-        )
+        ) { a: String,
+            b: String,
+            c: GroupResult5<
+                    Arguments3<String, Boolean, Player>,
+                    Arguments3<String, WeatherEnum, Int>,
+                    Arguments1<String>, String, Rgb> ->
+
+        }
 
     fun teleport(context: Invocation<BukkitEnvironment, Player>, warp: String, isRaw: Boolean, player: Player) {
         val warp: String = context.get(warpParameterId)

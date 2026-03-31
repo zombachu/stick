@@ -20,7 +20,7 @@ class BukkitStick(
 
     context(env: E, failureHandler: FailureHandler<E, CommandSender>)
     override fun <E : BukkitEnvironment> registerCommand(
-        structure: Structure<E, CommandSender>
+        structure: Structure<E, CommandSender, *>
     ) {
         val fallbackPrefix = env.plugin.name.lowercase()
         commandMap.register(fallbackPrefix, BukkitCommandWrapper(env, failureHandler, structure))

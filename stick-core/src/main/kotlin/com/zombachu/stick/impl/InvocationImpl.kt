@@ -19,7 +19,7 @@ internal open class InvocationImpl<E : Environment, S>(
     override val env: E,
     override val label: String,
     override val args: List<String>,
-    private val structure: Structure<E, S>,
+    private val structure: Structure<E, S, *>,
     parent: InvocationImpl<*, *>?,
 ) : Invocation<E, S> {
 
@@ -108,7 +108,7 @@ private class TransformedInvocationImpl<E : Environment, S, S2>(
     base.label,
     base.args,
     // TransformedInvocationImpl forwards to structure of base invocation
-    StructureImpl("", setOf(), "", Requirement { SenderValidationResult.success() }, Signature0()),
+    StructureImpl("", setOf(), "", Requirement { SenderValidationResult.success() }, Signature0({ }, listOf())),
     parent = base,
 ) {
     override var unparsed: MutableList<String> = base.unparsed

@@ -87,7 +87,7 @@ abstract class Stick<E : Environment, S : Any>(
         castSender: (S) -> S2,
     ) {
         val emptyContext: StructureScope<E, S> = StructureScope.empty()
-        val structureElement: StructureElement<E, S, Structure<E, S>> =
+        val structureElement: StructureElement<E, S, Structure<E, S, *>> =
             if (commandSenderClass == platformSenderClass) {
                 @Suppress("UNCHECKED_CAST")
                 (command as Command<E, S>).structure
@@ -102,12 +102,12 @@ abstract class Stick<E : Environment, S : Any>(
                 }
             }
 
-        val structure: Structure<E, S> = structureElement(emptyContext)
+        val structure: Structure<E, S, *> = structureElement(emptyContext)
         registerCommand(structure)
     }
 
     context(env: E2, failureHandler: FailureHandler<E2, S>)
-    protected abstract fun <E2 : E> registerCommand(structure: Structure<E2, S>)
+    protected abstract fun <E2 : E> registerCommand(structure: Structure<E2, S, *>)
 }
 
 class StickScope<E : Environment, S : Any>
@@ -128,12 +128,12 @@ class StickScope<E : Environment, S : Any>
 
     context(env: E, failureHandler: FailureHandler<E, S>)
     inline fun <reified S2 : S> register(
-        block: CommandScope<E, S2>.() -> StructureElement<E, S2, Structure<E, S2>>
+        block: CommandScope<E, S2>.() -> StructureElement<E, S2, Structure<E, S2, *>>
     ) {
         val commandScope = object : CommandScope<E, S2> { }
         val structure = block(commandScope)
         val command = object : Command<E, S2> {
-            override val structure: StructureElement<E, S2, Structure<E, S2>> = structure
+            override val structure: StructureElement<E, S2, Structure<E, S2, *>> = structure
         }
         register(command)
     }

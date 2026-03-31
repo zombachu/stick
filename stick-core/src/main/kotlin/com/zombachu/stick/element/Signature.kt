@@ -9,13 +9,14 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.handleInternal
+import com.zombachu.stick.impl.Arguments
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 import kotlin.contracts.ExperimentalContracts
 
-internal sealed class Signature<E : Environment, S>(
+internal sealed class Signature<E : Environment, S, T_ : Arguments>(
     elements: List<SignatureConstraint<E, S, Any?>>
 ) {
     private val flags: List<IndexedElement<E, S, Flag<E, S, Any?>>>
@@ -30,13 +31,14 @@ internal sealed class Signature<E : Environment, S>(
         linearElements = partitioned.second
     }
 
-    protected abstract fun executeParsed(context: Invocation<E, S>, parsedValues: List<Any?>)
+    context(inv: Invocation<E, S>)
+    protected abstract fun executeParsed(parsedValues: List<Any?>): T_
 
     context(inv: InvocationImpl<E, S>)
-    fun execute(): CommandResult<*> {
-        val value = parse().valueOrPropagateError { return it }
-        executeParsed(inv, value)
-        return ParsingResult.success(Unit)
+    fun execute(): CommandResult<T_> {
+        val parsedValues = parse().valueOrPropagateError { return it }
+        val parsedValuesTuple = executeParsed(parsedValues)
+        return ParsingResult.success(parsedValuesTuple)
     }
 
     context(validationContext: ValidationContext<E, S>)

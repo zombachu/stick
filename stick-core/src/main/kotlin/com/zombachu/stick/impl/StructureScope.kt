@@ -28,7 +28,7 @@ class StructureScope<E : Environment, S>(
         )
     }
 
-    internal fun build(signature: Signature<E, S>): StructureImpl<E, S> {
+    internal fun <T_ : Arguments> build(signature: Signature<E, S, T_>): StructureImpl<E, S, T_> {
         return StructureImpl(
             this.name,
             this.aliases,

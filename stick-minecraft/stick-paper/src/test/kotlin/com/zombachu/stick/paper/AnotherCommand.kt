@@ -16,6 +16,6 @@ class AnotherCommand : BukkitCommand<CommandSender> {
     )
 }
 
-private enum class Block {
+enum class Block {
     Dirt, Grass, Stone
 }

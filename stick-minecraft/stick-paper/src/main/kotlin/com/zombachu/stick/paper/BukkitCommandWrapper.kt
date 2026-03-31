@@ -11,7 +11,7 @@ import org.bukkit.plugin.Plugin
 class BukkitCommandWrapper<E : BukkitEnvironment>(
     override val env: E,
     override val failureHandler: FailureHandler<E, CommandSender>,
-    override val structure: Structure<E, CommandSender>,
+    override val structure: Structure<E, CommandSender, *>,
 ) : Command(
     structure.label,
     structure.description,

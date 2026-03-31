@@ -14,6 +14,7 @@ import com.zombachu.stick.element.TransformedStructure
 import com.zombachu.stick.element.TransformedValueFlag
 import com.zombachu.stick.element.ValidatedParameter
 import com.zombachu.stick.element.ValueFlag
+import com.zombachu.stick.impl.Arguments
 import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.InvalidSenderDefault
 import com.zombachu.stick.impl.Requirement
@@ -88,12 +89,12 @@ fun <E : Environment, S : Any, S2 : Any, T> BuilderScope<E, S>.requireAs(
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireAsCommand")
-fun <E : Environment, S : Any, S2 : Any> BuilderScope<E, S>.requireAs(
+fun <E : Environment, S : Any, S2 : Any, T_ : Arguments> BuilderScope<E, S>.requireAs(
     transform: (S) -> S2,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    command: StructureElement<E, S2, StructureElement<E, S2, Structure<E, S2>>>,
-): StructureElement<E, S, Structure<E, S>> = {
+    command: StructureElement<E, S2, StructureElement<E, S2, Structure<E, S2, T_>>>,
+): StructureElement<E, S, Structure<E, S, T_>> = {
     val scope: StructureScope<E, S2> = this.forSender()
     TransformedStructure(
         command(scope)(scope),
@@ -166,12 +167,12 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> BuilderScope<E, S>.requ
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireIsCommand")
-inline fun <E : Environment, S : Any, reified S2 : S> BuilderScope<E, S>.requireIs(
+inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> BuilderScope<E, S>.requireIs(
     senderType: KClass<S2>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    noinline command: StructureElement<E, S2, StructureElement<E, S2, Structure<E, S2>>>,
-): StructureElement<E, S, Structure<E, S>> =
+    noinline command: StructureElement<E, S2, StructureElement<E, S2, Structure<E, S2, T_>>>,
+): StructureElement<E, S, Structure<E, S, T_>> =
     requireAs(
         { it as S2 },
         requirement + requirement(SenderValidationResult::failSenderType) { it.sender is S2 },
@@ -216,9 +217,9 @@ fun <E : Environment, S : Any, T> BuilderScope<E, S>.require(
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireCommand")
-fun <E : Environment, S : Any> BuilderScope<E, S>.require(
+fun <E : Environment, S : Any, T : Arguments> BuilderScope<E, S>.require(
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    command: StructureElement<E, S, StructureElement<E, S, Structure<E, S>>>,
-): StructureElement<E, S, Structure<E, S>> =
+    command: StructureElement<E, S, StructureElement<E, S, Structure<E, S, T>>>,
+): StructureElement<E, S, Structure<E, S, T>> =
     requireAs({ it }, requirement, command)

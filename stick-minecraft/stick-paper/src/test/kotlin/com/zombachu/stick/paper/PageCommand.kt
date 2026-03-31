@@ -11,6 +11,8 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.ValueFlag
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parameters.StringParameter
+import com.zombachu.stick.impl.Arguments
+import com.zombachu.stick.impl.Arguments0
 import com.zombachu.stick.impl.BuilderScope
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.impl.StructureElement
@@ -119,7 +121,7 @@ class TestFlag: BukkitCommand<CommandSender> {
 
 class SomeClass : BukkitCommand<CommandSender> {
 
-    override val structure: StructureElement<BukkitEnvironment, CommandSender, Structure<BukkitEnvironment, CommandSender>>
+    override val structure: StructureElement<BukkitEnvironment, CommandSender, Structure<BukkitEnvironment, CommandSender, Arguments0>>
         get() = TODO("Not yet implemented")
 
     init {
@@ -189,7 +191,7 @@ class PlayerRequiredUnknownInt(name: String) : Parameter.UnknownSize<BukkitEnvir
 }
 
 class OrangeCommand : BukkitCommand<CommandSender> {
-    override val structure: StructureElement<BukkitEnvironment, CommandSender, Structure<BukkitEnvironment, CommandSender>> =
+    override val structure: StructureElement<BukkitEnvironment, CommandSender, Structure<BukkitEnvironment, CommandSender, *>> =
         command("orange", requirement = permission("syn.orange"))(
             requireIs(Player::class) {
                     command("apple")(
@@ -199,9 +201,9 @@ class OrangeCommand : BukkitCommand<CommandSender> {
         )
 }
 
-fun <S : Any> BuilderScope<BukkitEnvironment, S>.mcpSender(
-    command: StructureElement<BukkitEnvironment, MinecraftProfile, StructureElement<BukkitEnvironment, MinecraftProfile, Structure<BukkitEnvironment, MinecraftProfile>>>,
-): StructureElement<BukkitEnvironment, S, Structure<BukkitEnvironment, S>> = requireAs<BukkitEnvironment, S, MinecraftProfile>(
+fun <S : Any, T_ : Arguments> BuilderScope<BukkitEnvironment, S>.mcpSender(
+    command: StructureElement<BukkitEnvironment, MinecraftProfile, StructureElement<BukkitEnvironment, MinecraftProfile, Structure<BukkitEnvironment, MinecraftProfile, T_>>>,
+): StructureElement<BukkitEnvironment, S, Structure<BukkitEnvironment, S, T_>> = requireAs<BukkitEnvironment, S, MinecraftProfile, T_>(
     { PlayerUtil.getProfile(it as Player) },
     command = command,
 )

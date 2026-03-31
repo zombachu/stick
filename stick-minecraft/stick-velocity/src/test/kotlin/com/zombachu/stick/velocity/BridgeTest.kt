@@ -21,6 +21,7 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
+import com.zombachu.stick.impl.Arguments1
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.structure.command
 import com.zombachu.stick.structure.invoke
@@ -71,7 +72,7 @@ class WrapperFailureHandler : FailureHandler<VelocityEnvironment, SourceWrapper>
 }
 
 class WrongEnvironmentCommand : Command<DisjointEnvironment, SourceWrapper> {
-    override val structure: StructureElement<DisjointEnvironment, SourceWrapper, Structure<DisjointEnvironment, SourceWrapper>> = command("hi")(stringParameter("hey"))
+    override val structure: StructureElement<DisjointEnvironment, SourceWrapper, Structure<DisjointEnvironment, SourceWrapper, Arguments1<String>>> = command("hi")(stringParameter("hey"))
 }
 
 class WrapperCommand : VelocityCommand<SourceWrapper> {

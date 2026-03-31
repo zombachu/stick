@@ -20,7 +20,7 @@ class VelocityStick(
 
     context(env: E, failureHandler: FailureHandler<E, CommandSource>)
     override fun <E : VelocityEnvironment> registerCommand(
-        structure: Structure<E, CommandSource>,
+        structure: Structure<E, CommandSource, *>,
     ) {
         val commandMeta = commandManager
             .metaBuilder(structure.name)

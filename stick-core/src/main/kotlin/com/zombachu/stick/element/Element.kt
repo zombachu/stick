@@ -8,6 +8,7 @@ import com.zombachu.stick.GroupResult
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.impl.Arguments
 import com.zombachu.stick.impl.Size
 
 sealed interface Element<E : Environment, S, out T> {
@@ -55,7 +56,7 @@ sealed interface Group<E : Environment, S, out G : GroupResult> : SyntaxElement<
     sealed interface UnknownSize<E : Environment, S, out G : GroupResult> : Group<E, S, G>, SignatureConstraint.Terminating<E, S, G>
     sealed interface FiniteSize<E : Environment, S, out G : GroupResult> : Group<E, S, G>, SignatureConstraint.NonTerminating<E, S, G>
 }
-sealed interface Structure<E : Environment, S> : Groupable.Terminating<E, S, Unit>, Aliasable, SenderValidator<E, S>
+sealed interface Structure<E : Environment, S, out T_ : Arguments> : Groupable.Terminating<E, S, T_>, Aliasable, SenderValidator<E, S>
 sealed interface ValidatedParameter<E : Environment, S, out T> : Groupable<E, S, T> {
     sealed interface UnknownSize<E : Environment, S, out T> : ValidatedParameter<E, S, T>, Groupable.Terminating<E, S, T>
     sealed interface FixedSize<E : Environment, S, out T> : ValidatedParameter<E, S, T>, Groupable.NonTerminating<E, S, T>
