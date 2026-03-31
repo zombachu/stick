@@ -1,5 +1,7 @@
 package com.zombachu.stick.feedback
 
+import kotlin.collections.joinToString
+
 sealed interface Feedback {
     val message: String
 
@@ -11,20 +13,20 @@ sealed interface Feedback {
         override val message get() = "An unknown error has occurred."
     }
 
-    data class NotAType(val expectedType: String, val actualValue: String) : Feedback {
-        override val message get() = "The argument provided is not a $expectedType: $actualValue."
+    data class TypeNotMatched(val expectedType: String, val provided: String) : Feedback {
+        override val message get() = "The argument provided is not a $expectedType: $provided."
     }
 
     data class InvalidSyntax(val usage: String) : Feedback {
         override val message get() = "Invalid syntax. Correct usage: $usage."
     }
 
-    data class OutOfRange(val min: String, val max: String, val actualValue: String) : Feedback {
-        override val message get() = "The number provided is not in the valid range of $min to $max: $actualValue."
+    data class OutOfRange(val min: String, val max: String, val provided: String) : Feedback {
+        override val message get() = "The number provided is not in the valid range of $min to $max: $provided."
     }
 
-    data class LiteralNotMatched(val choices: String, val actualValue: String, val allChoices: List<String> = emptyList()) : Feedback {
-        override val message get() = "The value provided is not one of $choices: $actualValue."
+    data class LiteralNotMatched(val validValues: List<String>, val provided: String) : Feedback {
+        override val message get() = "The value provided is not one of ${validValues.joinToString(", ")}: $provided."
     }
 
     object InvalidSender : Feedback {

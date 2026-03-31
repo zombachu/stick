@@ -32,8 +32,7 @@ sealed interface ParsingResult<out T> : CommandResult<T> {
     object HandledError : InternalFailure
     object TypeNotMatchedInternal : InternalFailure
 
-    class TypeNotMatchedError internal constructor(override val feedback: Feedback.NotAType) : Failure
-    class TypeNotMatchedSyntaxError internal constructor(override val feedback: Feedback.InvalidSyntax) : Failure
+    class TypeNotMatchedError internal constructor(override val feedback: Feedback.TypeNotMatched) : Failure
     class LiteralNotMatchedError internal constructor(override val feedback: Feedback.LiteralNotMatched) : Failure
 
     class InvalidSyntaxError internal constructor(override val feedback: Feedback.InvalidSyntax) : Failure
@@ -47,9 +46,8 @@ sealed interface ParsingResult<out T> : CommandResult<T> {
         fun failUnknown(): UnknownError = UnknownError(Feedback.Unknown)
         fun failHandled(): HandledError = HandledError
         internal fun failTypeInternal(): TypeNotMatchedInternal = TypeNotMatchedInternal
-        fun failType(type: String, arg: String): TypeNotMatchedError = TypeNotMatchedError(Feedback.NotAType(type, arg))
-        fun failTypeSyntax(syntax: String): TypeNotMatchedSyntaxError = TypeNotMatchedSyntaxError(Feedback.InvalidSyntax(syntax))
-        fun failLiteral(valid: List<String>, arg: String): LiteralNotMatchedError = LiteralNotMatchedError(Feedback.LiteralNotMatched(valid.joinToString(", "), arg, valid))
+        fun failType(type: String, arg: String): TypeNotMatchedError = TypeNotMatchedError(Feedback.TypeNotMatched(type, arg))
+        fun failLiteral(valid: List<String>, arg: String): LiteralNotMatchedError = LiteralNotMatchedError(Feedback.LiteralNotMatched(valid, arg))
         fun failSyntax(syntax: String): InvalidSyntaxError = InvalidSyntaxError(Feedback.InvalidSyntax(syntax))
         fun failRange(min: String, max: String, arg: String): OutOfRangeError = OutOfRangeError(Feedback.OutOfRange(min, max, arg))
     }

@@ -68,7 +68,6 @@ class CustomFailureHandler : FailureHandler<CustomBukkitEnvironment, CommandSend
             is ParsingResult.InvalidSyntaxError,
             is ParsingResult.LiteralNotMatchedError,
             is ParsingResult.TypeNotMatchedError,
-            is ParsingResult.TypeNotMatchedSyntaxError,
             is ParsingResult.UnknownError -> defaultProcess(failure)
             is SenderValidationResult.InvalidSenderError,
             is SenderValidationResult.InvalidSenderPermissionError,
