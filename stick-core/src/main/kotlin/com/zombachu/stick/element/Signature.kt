@@ -21,6 +21,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
 ) {
     private val flags: List<IndexedElement<E, S, Flag<E, S, Any?>>>
     private val linearElements: List<IndexedElement<E, S, Element<E, S, Any?>>>
+    private val terminatingElement: SyntaxElement<E, S, Any?>?
 
     init {
         val partitioned = elements
@@ -29,6 +30,9 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         @Suppress("UNCHECKED_CAST")
         flags = partitioned.first as List<IndexedElement<E, S, Flag<E, S, Any?>>>
         linearElements = partitioned.second
+        terminatingElement = elements.lastOrNull()?.let {
+            if (it is Element.NonTerminating) null else it as? SyntaxElement
+        }
     }
 
     context(inv: Invocation<E, S>)
@@ -43,28 +47,21 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
 
     context(validationContext: ValidationContext<E, S>)
     fun getSyntax(): String {
-        var linearSyntax: List<String> = linearElements
+        val linearSyntax: List<String> = linearElements
             .map { it.element }
             .filterIsInstance<SyntaxElement<E, S, *>>()
-            .filter { it.validateSender().isSuccess() }
+            .filter { it.validateSender().isSuccess() && it is Element.NonTerminating<*, *, *> }
             .map { it.getSyntax() }
         val flagSyntax: List<String> = flags
             .map { it.element }
-            .filter { it.validateSender().isSuccess() }
+            .filter { it.validateSender().isSuccess() && it is Element.NonTerminating<*, *, *> }
             .map { it.getSyntax() }
 
-        // Add terminating element after flags
-        val lastLinearElement = linearElements.lastOrNull()?.element
-        var terminatingElementSyntax: String? = null
-        if (lastLinearElement !is Element.NonTerminating) {
-            terminatingElementSyntax = linearSyntax.last()
-            linearSyntax = linearSyntax.subList(0, linearSyntax.size - 1)
-        }
-
-        val syntax = if (terminatingElementSyntax == null) {
+        // Add terminating element all other elements
+        val syntax = if (terminatingElement == null) {
             linearSyntax + flagSyntax
         } else {
-            linearSyntax + flagSyntax + terminatingElementSyntax
+            linearSyntax + flagSyntax + terminatingElement.getSyntax()
         }
 
         return syntax.joinToString(" ")
