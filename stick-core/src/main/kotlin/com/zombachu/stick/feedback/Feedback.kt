@@ -1,13 +1,7 @@
 package com.zombachu.stick.feedback
 
-import kotlin.collections.joinToString
-
 sealed interface Feedback {
     val message: String
-
-    object Empty : Feedback {
-        override val message = ""
-    }
 
     object Unknown : Feedback {
         override val message get() = "An unknown error has occurred."
@@ -40,4 +34,8 @@ sealed interface Feedback {
     object InvalidPermission : Feedback {
         override val message get() = "You do not have permission to use this command."
     }
+}
+
+open class CustomFeedback(private val _message: () -> String) : Feedback {
+    override val message get() = _message()
 }

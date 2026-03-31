@@ -21,6 +21,7 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
+import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.impl.Arguments1
 import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.structure.command
@@ -66,7 +67,7 @@ class BridgeTest {
 
 class WrapperFailureHandler : FailureHandler<VelocityEnvironment, SourceWrapper> {
     context(inv: Invocation<VelocityEnvironment, SourceWrapper>)
-    override fun onFailure(failure: CommandResult.Failure) {
+    override fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>) {
         TODO("Not yet implemented")
     }
 }

@@ -16,7 +16,7 @@ interface CommandWrapper<E : Environment, S> {
         context(env, inv) {
             val result = structure.parse(fullArgs)
             // Ignore InternalFailures
-            if (result is CommandResult.Failure) {
+            if (result is CommandResult.Failure<*>) {
                 failureHandler.onFailure(result)
             }
         }

@@ -4,6 +4,7 @@ import com.velocitypowered.api.command.CommandSource
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.feedback.FailureHandler
+import com.zombachu.stick.feedback.Feedback
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 
@@ -11,7 +12,7 @@ interface VelocityFailureHandler<E : VelocityEnvironment> : FailureHandler<E, Co
 
 open class BasicVelocityFailureHandler : VelocityFailureHandler<VelocityEnvironment> {
     context(inv: Invocation<VelocityEnvironment, CommandSource>)
-    override fun onFailure(failure: CommandResult.Failure) {
+    override fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>) {
         val message = failure.feedback.message
         if (message.isEmpty()) { return }
         inv.sender.sendMessage(Component.text(message, NamedTextColor.RED))
