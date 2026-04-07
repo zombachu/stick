@@ -29,11 +29,11 @@ internal open class StructureImpl<E : Environment, S, T_ : Arguments>(
     override fun parse(args: List<String>): CommandResult<T_> {
         val peeked = (inv as InvocationImpl).peek(Size(1))
         if (peeked !is PeekingResult.Success) {
-            return ParsingResult.failSyntax(inv.getSyntax())
+            return ParsingResult.failTypeInternal()
         }
         val label = peeked.value.first().lowercase()
         if (!matches(label)) {
-            return ParsingResult.failSyntax(inv.getSyntax())
+            return ParsingResult.failTypeInternal()
         }
         peeked.consume(1)
         validateSender().propagateError { return it }

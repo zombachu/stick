@@ -110,11 +110,11 @@ class TestFlag: BukkitCommand<CommandSender> {
                     "ints",
                     parameter = intParameter("int")
                 ),
-                ::execute,
+                awfulReference,
             )
         }
 
-    fun execute(context: Invocation<BukkitEnvironment, CommandSender>, f: String, ints: List<Int>) {
+    private val awfulReference: Invocation<BukkitEnvironment, CommandSender>.(String, List<Int>) -> Unit = { f, ints ->
         val id2: String by id<Int>("hello")
     }
 }

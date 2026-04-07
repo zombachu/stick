@@ -34,7 +34,7 @@ import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
 
 operator fun <E_ : Environment, S> StructureScope<E_, S>.invoke(
-    execute: Invocation<E_, S>.() -> Unit,
+    execute: Invocation<E_, S>.() -> Unit = { },
 ): StructureElement<E_, S, Structure<E_, S, Arguments0>> = {
     this@invoke.build(Signature0(execute, emptyList()))
 }
