@@ -8,8 +8,7 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.element.Element
 import com.zombachu.stick.impl.Arguments1
 import com.zombachu.stick.impl.Arguments3
-import com.zombachu.stick.impl.BuilderScope
-import com.zombachu.stick.impl.StructureElement
+import com.zombachu.stick.impl.StructureScope
 import com.zombachu.stick.paper.structure.permission
 import com.zombachu.stick.paper.structure.permissionedValue
 import com.zombachu.stick.paper.structure.playerParameter
@@ -34,6 +33,7 @@ import com.zombachu.stick.structure.requireIs
 import com.zombachu.stick.structure.requirement
 import com.zombachu.stick.structure.store
 import com.zombachu.stick.structure.stringParameter
+import com.zombachu.stick.structure.structure
 import com.zombachu.stick.structure.valueFlag
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -42,7 +42,7 @@ class WarpCommand : BukkitCommand<CommandSender> {
 
     private val warpParameterId = id<String>("warp")
 
-    override val structure =
+    override val structure by structure {
         command(
             name = "warp",
             aliases = setOf("home", "warps"),
@@ -66,7 +66,8 @@ class WarpCommand : BukkitCommand<CommandSender> {
             group(
                 requireIs(
                     Player::class,
-                    permission("syn.warp.tp")) {
+                    permission("syn.warp.tp")
+                ) {
                     command(
                         name = "tp",
                         aliases = setOf("teleport"),
@@ -91,7 +92,7 @@ class WarpCommand : BukkitCommand<CommandSender> {
                     requirement { it.sender is Player },
                 ) {
                     command("anothercommand")(
-                            mcpRequiredStringParameter("playerStringParameter")
+                        mcpRequiredStringParameter("playerStringParameter")
                     )
                 },
                 requireIs(Player::class) {
@@ -110,14 +111,19 @@ class WarpCommand : BukkitCommand<CommandSender> {
 //                    )
 //                },
             ),
-        ) { a: String,
-            b: String,
-            c: GroupResult5<
-                    Arguments3<String, Boolean, Player>,
-                    Arguments3<String, WeatherEnum, Int>,
-                    Arguments1<String>, String, Rgb> ->
+        ) {
+                a: String,
+                b: String,
+                c: GroupResult5<
+                        Arguments3<String, Boolean, Player>,
+                        Arguments3<String, WeatherEnum, Int>,
+                        Arguments1<String>,
+                        String,
+                        Rgb>,
+            ->
 
         }
+    }
 
     fun teleport(context: Invocation<BukkitEnvironment, Player>, warp: String, isRaw: Boolean, player: Player) {
         val warp: String = context.get(warpParameterId)
@@ -126,34 +132,36 @@ class WarpCommand : BukkitCommand<CommandSender> {
 
 class WarpInfoCommand: BukkitCommand<CommandSender> {
 
-    override val structure = mcpSender {
-        command(
-            name = "info",
-            aliases = setOf("i"),
-            description = "Displays information about a warp.",
-        )(
-            valueFlag(
-                "wg",
-                default = "",
-                stringParameter(
-                    "worldgroup"
+    override val structure by structure {
+        mcpSender {
+            command(
+                name = "info",
+                aliases = setOf("i"),
+                description = "Displays information about a warp.",
+            )(
+                valueFlag(
+                    "wg",
+                    default = "",
+                    stringParameter(
+                        "worldgroup"
+                    ),
                 ),
-            ),
-            enumParameter(
-                "weather",
-                WeatherEnum::class
-            ),
-            optionally(
-                ifAbsent = default(5),
-                parameter = { McpRequiredIntParameter("mcpRequired") }
-            ),
-        ) { wgFlag: String, weather: WeatherEnum, playerRequiredInt: Int ->
+                enumParameter(
+                    "weather",
+                    WeatherEnum::class
+                ),
+                optionally(
+                    ifAbsent = default(5),
+                    parameter = McpRequiredIntParameter("mcpRequired")
+                ),
+            ) { wgFlag: String, weather: WeatherEnum, playerRequiredInt: Int ->
+            }
         }
     }
 }
 
 class SomePlayerCommand: BukkitCommand<Player> {
-    override val structure =
+    override val structure by structure {
         command("hey")(
             stringParameter("hello").pipeline(
                 { ParsingResult.success(it.toInt()) },
@@ -182,6 +190,7 @@ class SomePlayerCommand: BukkitCommand<Player> {
         ) { hello: Double, there: Double, num: Float ->
 
         }
+    }
 }
 
 enum class WeatherEnum(
@@ -197,9 +206,9 @@ enum class Rgb {
     Red, Green, Blue
 }
 
-fun <E : BasicBukkitEnvironment> BuilderScope<E, CommandSender>.targetPlayer(
+fun <E : BasicBukkitEnvironment> StructureScope<E, CommandSender>.targetPlayer(
 
-): StructureElement<E, CommandSender, Element<E, CommandSender, Player>> =
+): Element<E, CommandSender, Player> =
     optionally(
         ifAbsent = defaultSender<E, CommandSender, Player>(),
         parameter = playerParameter("player", "The player to explode.").pipeline {
@@ -212,7 +221,7 @@ fun <E : BasicBukkitEnvironment> BuilderScope<E, CommandSender>.targetPlayer(
     )
 
 class ColorPlayerCommand: BukkitCommand<Player> {
-    override val structure =
+    override val structure by structure {
         command("asdf")(
             enumFlag(
                 Rgb.Red,
@@ -222,17 +231,18 @@ class ColorPlayerCommand: BukkitCommand<Player> {
                 enumParameter("otherColor", Rgb::class)
             ),
             require(
-                invalidDefault(false, permission("some_permission") )
+                invalidDefault(false, permission("some_permission"))
             ) {
                 flag("hi")
             }
         ) { color: Rgb, other: Rgb?, fl: Boolean ->
 
         }
+    }
 }
 
 class HybridFlagCommand: BukkitCommand<CommandSender> {
-    override val structure =
+    override val structure by structure {
         command("asdf")(
             hybridFlag(
                 "color",
@@ -245,10 +255,11 @@ class HybridFlagCommand: BukkitCommand<CommandSender> {
                 is HybridFlagResult.Value -> color.value.name
             }
         }
+    }
 }
 
 class HybridFlagRequireCommand: BukkitCommand<CommandSender> {
-    override val structure =
+    override val structure by structure {
         command("asdf")(
             requireIs(Player::class, invalidDefault(HybridFlagResult.Value(Rgb.Blue))) {
                 hybridFlag(
@@ -263,4 +274,5 @@ class HybridFlagRequireCommand: BukkitCommand<CommandSender> {
                 is HybridFlagResult.Value -> color.value.name
             }
         }
+    }
 }

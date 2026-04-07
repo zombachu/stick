@@ -4,16 +4,19 @@ import com.zombachu.stick.element.parameters.by
 import com.zombachu.stick.structure.command
 import com.zombachu.stick.structure.enumParameter
 import com.zombachu.stick.structure.invoke
+import com.zombachu.stick.structure.structure
 import org.bukkit.command.CommandSender
 
 class AnotherCommand : BukkitCommand<CommandSender> {
 
-    override val structure = command("testingEnums")(
-        enumParameter("someEnum", listOf(
-            Block.Dirt by "dirt",
-            Block.Grass by "grass" + setOf("mycellium", "podzol"),
-        ))
-    )
+    override val structure by structure {
+        command("testingEnums")(
+            enumParameter("someEnum", listOf(
+                Block.Dirt by "dirt",
+                Block.Grass by "grass" + setOf("mycellium", "podzol"),
+            ))
+        )
+    }
 }
 
 enum class Block {

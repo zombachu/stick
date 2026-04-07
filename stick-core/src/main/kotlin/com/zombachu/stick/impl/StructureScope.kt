@@ -5,8 +5,6 @@ import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.element.Signature
 import com.zombachu.stick.element.StructureImpl
 
-typealias StructureElement<E, S, T> = StructureScope<E, S>.() -> T
-
 class StructureScope<E : Environment, S>(
     val name: String,
     val aliases: Set<String>,

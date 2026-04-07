@@ -9,17 +9,17 @@ import com.zombachu.stick.feedback.CustomFeedback
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.handle
-import com.zombachu.stick.impl.BuilderScope
-import com.zombachu.stick.impl.StructureElement
+import com.zombachu.stick.impl.StructureScope
 import com.zombachu.stick.paper.structure.permissionedValue
 import com.zombachu.stick.structure.command
 import com.zombachu.stick.structure.invoke
 import com.zombachu.stick.structure.stringParameter
+import com.zombachu.stick.structure.structure
 import com.zombachu.stick.structure.valueFlag
 import org.bukkit.command.CommandSender
 
 class CustomCommand : Command<CustomBukkitEnvironment, CommandSender> {
-    override val structure =
+    override val structure by structure {
         command("hi")(
             translatedStringParameter("shouldntcompileifbukkitenv"),
             scopedTranslatedStringParameter("yo"),
@@ -34,6 +34,7 @@ class CustomCommand : Command<CustomBukkitEnvironment, CommandSender> {
             ),
             Invocation<CustomBukkitEnvironment, CommandSender>::doSomething,
         )
+    }
 }
 
 private fun Invocation<CustomBukkitEnvironment, CommandSender>.doSomething(string: String, secondString: String, flagValue: String) {
@@ -41,12 +42,13 @@ private fun Invocation<CustomBukkitEnvironment, CommandSender>.doSomething(strin
 }
 
 class UncustomCommand : Command<BukkitEnvironment, CommandSender> {
-    override val structure =
+    override val structure by structure {
         command("hi")(
             stringParameter("shouldntcompile"),
 //        scopedTranslatedStringParameter(id("yo")),
             Invocation<BukkitEnvironment, CommandSender>::doOtherThing,
         )
+    }
 }
 
 private fun Invocation<BukkitEnvironment, CommandSender>.doOtherThing(string: String) {
@@ -86,19 +88,17 @@ class CustomFailureHandler : FailureHandler<CustomBukkitEnvironment, CommandSend
     }
 }
 
-fun <E : Environment, S : Any> BuilderScope<E, S>.translatedStringParameter(
+fun <E : Environment, S : Any> StructureScope<E, S>.translatedStringParameter(
     name: String,
     description: String = "",
-): StructureElement<E, S, TranslatedStringParameter<S>> = {
+): TranslatedStringParameter<S> =
     TranslatedStringParameter(name, description)
-}
 
-fun <S : Any> BuilderScope<CustomBukkitEnvironment, S>.scopedTranslatedStringParameter(
+fun <S : Any> StructureScope<CustomBukkitEnvironment, S>.scopedTranslatedStringParameter(
     name: String,
     description: String = "",
-): StructureElement<CustomBukkitEnvironment, S, TranslatedStringParameter<S>> = {
+): TranslatedStringParameter<S> =
     TranslatedStringParameter(name, description)
-}
 
 class TranslatedStringParameter<S : Any>(
     name: String,

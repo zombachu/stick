@@ -23,10 +23,10 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.impl.Arguments1
-import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.structure.command
 import com.zombachu.stick.structure.invoke
 import com.zombachu.stick.structure.stringParameter
+import com.zombachu.stick.structure.structure
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import java.net.InetSocketAddress
@@ -73,23 +73,33 @@ class WrapperFailureHandler : FailureHandler<VelocityEnvironment, SourceWrapper>
 }
 
 class WrongEnvironmentCommand : Command<DisjointEnvironment, SourceWrapper> {
-    override val structure: StructureElement<DisjointEnvironment, SourceWrapper, Structure<DisjointEnvironment, SourceWrapper, Arguments1<String>>> = command("hi")(stringParameter("hey"))
+    override val structure: Structure<DisjointEnvironment, SourceWrapper, Arguments1<String>> by structure {
+        command("hi")(stringParameter("hey"))
+    }
 }
 
 class WrapperCommand : VelocityCommand<SourceWrapper> {
-    override val structure = command("hi")(stringParameter("hey"))
+    override val structure by structure {
+        command("hi")(stringParameter("hey"))
+    }
 }
 
 class Wrapper2Command : VelocityCommand<Source2Wrapper> {
-    override val structure = command("hi")(stringParameter("hey"))
+    override val structure by structure {
+        command("hi")(stringParameter("hey"))
+    }
 }
 
 class UnderCommand : Command<Environment, SourceWrapper> {
-    override val structure = command("hi")(stringParameter("hey"))
+    override val structure by structure {
+        command("hi")(stringParameter("hey"))
+    }
 }
 
 class WrongSenderCommand : Command<VelocityEnvironment, Int> {
-    override val structure = command("hi")(stringParameter("hey"))
+    override val structure by structure {
+        command("hi")(stringParameter("hey"))
+    }
 }
 
 

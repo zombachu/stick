@@ -4,9 +4,7 @@ import com.zombachu.stick.element.SenderValidator
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.feedback.TransformedFailureHandler
-import com.zombachu.stick.impl.CommandScope
 import com.zombachu.stick.impl.Requirement
-import com.zombachu.stick.impl.StructureElement
 import com.zombachu.stick.impl.StructureScope
 import com.zombachu.stick.structure.requireAs
 import com.zombachu.stick.structure.requirement
@@ -87,7 +85,7 @@ abstract class Stick<E : Environment, S : Any>(
         castSender: (S) -> S2,
     ) {
         val emptyContext: StructureScope<E, S> = StructureScope.empty()
-        val structureElement: StructureElement<E, S, Structure<E, S, *>> =
+        val structure: Structure<E, S, *> =
             if (commandSenderClass == platformSenderClass) {
                 @Suppress("UNCHECKED_CAST")
                 (command as Command<E, S>).structure
@@ -101,8 +99,6 @@ abstract class Stick<E : Environment, S : Any>(
                     }
                 }
             }
-
-        val structure: Structure<E, S, *> = structureElement(emptyContext)
         registerCommand(structure)
     }
 
@@ -128,12 +124,11 @@ class StickScope<E : Environment, S : Any>
 
     context(env: E, failureHandler: FailureHandler<E, S>)
     inline fun <reified S2 : S> register(
-        block: CommandScope<E, S2>.() -> StructureElement<E, S2, Structure<E, S2, *>>
+        noinline structure: StructureScope<E, S2>.() -> Structure<E, S2, *>
     ) {
-        val commandScope = object : CommandScope<E, S2> { }
-        val structure = block(commandScope)
+        val emptyContext = StructureScope.empty<E, S2>()
         val command = object : Command<E, S2> {
-            override val structure: StructureElement<E, S2, Structure<E, S2, *>> = structure
+            override val structure: Structure<E, S2, *> = structure(emptyContext)
         }
         register(command)
     }

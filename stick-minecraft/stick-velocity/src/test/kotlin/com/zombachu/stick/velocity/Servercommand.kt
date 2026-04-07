@@ -9,13 +9,14 @@ import com.zombachu.stick.structure.nullableValueFlag
 import com.zombachu.stick.structure.optionallyNullable
 import com.zombachu.stick.structure.store
 import com.zombachu.stick.structure.stringParameter
+import com.zombachu.stick.structure.structure
 
 class ServerCommand : VelocityCommand<CommandSource> {
 
     val nullableIntId = id<Int?>("null")
     val nonNullIntId = id<Int>("notnull")
 
-    override val structure =
+    override val structure by structure {
         command("test")(
             nullableValueFlag(
                 "int",
@@ -25,5 +26,5 @@ class ServerCommand : VelocityCommand<CommandSource> {
         ) { flag: Int?, optional: String? ->
             val result: Int? = this.get(nullableIntId)
         }
-
+    }
 }

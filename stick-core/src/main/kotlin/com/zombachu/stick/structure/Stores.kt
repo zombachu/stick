@@ -14,45 +14,29 @@ import com.zombachu.stick.element.StoredOptionalParameter
 import com.zombachu.stick.element.StoredUnknownSizeParameter
 import com.zombachu.stick.element.StoredValueFlag
 import com.zombachu.stick.element.ValueFlag
-import com.zombachu.stick.impl.StructureElement
 import kotlin.experimental.ExperimentalTypeInference
 
 @JvmName("storeFixedSizeParameter")
-fun <E : Environment, S, T> StructureElement<E, S, Parameter.FixedSize<E, S, T>>.store(
+fun <E : Environment, S, T> Parameter.FixedSize<E, S, T>.store(
     id: TypedIdentifier<T>,
-): StructureElement<E, S, Parameter.FixedSize<E, S, T>> = {
-    val resolvedParameter = this@store()
-    StoredFixedSizeParameter(resolvedParameter, id)
-}
+): Parameter.FixedSize<E, S, T> = StoredFixedSizeParameter(this, id)
 
 @JvmName("storeUnknownSizeParameter")
-fun <E : Environment, S, T> StructureElement<E, S, Parameter.UnknownSize<E, S, T>>.store(
+fun <E : Environment, S, T> Parameter.UnknownSize<E, S, T>.store(
     id: TypedIdentifier<T>,
-): StructureElement<E, S, Parameter.UnknownSize<E, S, T>> = {
-    val resolvedParameter = this@store()
-    StoredUnknownSizeParameter(resolvedParameter, id)
-}
+): Parameter.UnknownSize<E, S, T> = StoredUnknownSizeParameter(this, id)
 
 @JvmName("storeValueFlag")
-fun <E : Environment, S, T> StructureElement<E, S, ValueFlag<E, S, T>>.store(
+fun <E : Environment, S, T> ValueFlag<E, S, T>.store(
     id: TypedIdentifier<T>,
-): StructureElement<E, S, ValueFlag<E, S, T>> = {
-    val resolvedFlag = this@store()
-    StoredValueFlag(resolvedFlag, id)
-}
+): ValueFlag<E, S, T> = StoredValueFlag(this, id)
 
 @JvmName("storeHybridFlag")
-fun <E : Environment, S, T> StructureElement<E, S, HybridFlag<E, S, T>>.store(
+fun <E : Environment, S, T> HybridFlag<E, S, T>.store(
     id: TypedIdentifier<HybridFlagResult<T>>,
-): StructureElement<E, S, HybridFlag<E, S, T>> = {
-    val resolvedFlag = this@store()
-    StoredHybridFlag(resolvedFlag, id)
-}
+): HybridFlag<E, S, T> = StoredHybridFlag(this, id)
 
 @JvmName("storeOptionalParameter")
-fun <E : Environment, S, T> StructureElement<E, S, OptionalParameter<E, S, T>>.store(
+fun <E : Environment, S, T> OptionalParameter<E, S, T>.store(
     id: TypedIdentifier<T>,
-): StructureElement<E, S, OptionalParameter<E, S, T>> = {
-    val resolvedOptional = this@store()
-    StoredOptionalParameter(resolvedOptional, id)
-}
+): OptionalParameter<E, S, T> = StoredOptionalParameter(this, id)
