@@ -26,11 +26,11 @@ class VelocityCommandWrapper<E : VelocityEnvironment>(
         }
     }
 
-//    override fun suggest(invocation: RawCommand.Invocation?): List<String?>? {
-//        return super.suggest(invocation)
-//    }
-//
-//    override fun suggestAsync(invocation: RawCommand.Invocation?): CompletableFuture<List<String?>?>? {
-//        return super.suggestAsync(invocation)
-//    }
+    //    override fun suggest(invocation: RawCommand.Invocation?): List<String?>? {
+    //        return super.suggest(invocation)
+    //    }
+    //
+    //    override fun suggestAsync(invocation: RawCommand.Invocation?): CompletableFuture<List<String?>?>? {
+    //        return super.suggestAsync(invocation)
+    //    }
 }

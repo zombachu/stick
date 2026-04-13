@@ -28,44 +28,20 @@ open class NumberParameter<E : Environment, S, T>(
     }
 }
 
-open class ByteParameter<E : Environment, S>(
-    name: String,
-    description: String,
-    min: Byte,
-    max: Byte,
-) : NumberParameter<E, S, Byte>(name, description, String::toByteOrNull, min, max, "byte")
+open class ByteParameter<E : Environment, S>(name: String, description: String, min: Byte, max: Byte) :
+    NumberParameter<E, S, Byte>(name, description, String::toByteOrNull, min, max, "byte")
 
-open class ShortParameter<E : Environment, S>(
-    name: String,
-    description: String,
-    min: Short,
-    max: Short,
-) : NumberParameter<E, S, Short>(name, description, String::toShortOrNull, min, max, "short")
+open class ShortParameter<E : Environment, S>(name: String, description: String, min: Short, max: Short) :
+    NumberParameter<E, S, Short>(name, description, String::toShortOrNull, min, max, "short")
 
-open class IntParameter<E : Environment, S>(
-    name: String,
-    description: String,
-    min: Int,
-    max: Int,
-) : NumberParameter<E, S, Int>(name, description, String::toIntOrNull, min, max, "integer")
+open class IntParameter<E : Environment, S>(name: String, description: String, min: Int, max: Int) :
+    NumberParameter<E, S, Int>(name, description, String::toIntOrNull, min, max, "integer")
 
-open class LongParameter<E : Environment, S>(
-    name: String,
-    description: String,
-    min: Long,
-    max: Long,
-) : NumberParameter<E, S, Long>(name, description, String::toLongOrNull, min, max, "long")
+open class LongParameter<E : Environment, S>(name: String, description: String, min: Long, max: Long) :
+    NumberParameter<E, S, Long>(name, description, String::toLongOrNull, min, max, "long")
 
-open class FloatParameter<E : Environment, S>(
-    name: String,
-    description: String,
-    min: Float,
-    max: Float,
-) : NumberParameter<E, S, Float>(name, description, String::toFloatOrNull, min, max, "float")
+open class FloatParameter<E : Environment, S>(name: String, description: String, min: Float, max: Float) :
+    NumberParameter<E, S, Float>(name, description, String::toFloatOrNull, min, max, "float")
 
-open class DoubleParameter<E : Environment, S>(
-    name: String,
-    description: String,
-    min: Double,
-    max: Double,
-) : NumberParameter<E, S, Double>(name, description, String::toDoubleOrNull, min, max, "double")
+open class DoubleParameter<E : Environment, S>(name: String, description: String, min: Double, max: Double) :
+    NumberParameter<E, S, Double>(name, description, String::toDoubleOrNull, min, max, "double")

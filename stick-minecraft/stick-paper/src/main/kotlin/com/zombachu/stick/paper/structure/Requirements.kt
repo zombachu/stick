@@ -11,6 +11,4 @@ import org.bukkit.command.CommandSender
 fun <E : BukkitEnvironment, S : CommandSender> StructureScope<E, S>.permission(
     permission: String,
     failureResult: () -> CommandResult.Failure<*> = SenderValidationResult::failPermission,
-): Requirement<E, S> = requirement(failureResult) {
-    it.sender.hasPermission(permission)
-}
+): Requirement<E, S> = requirement(failureResult) { it.sender.hasPermission(permission) }

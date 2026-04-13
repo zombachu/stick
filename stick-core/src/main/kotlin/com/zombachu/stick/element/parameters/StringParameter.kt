@@ -7,10 +7,8 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
 
-open class StringParameter<E : Environment, S>(
-    name: String,
-    description: String,
-) : Parameter.Size1<E, S, String>(name, description) {
+open class StringParameter<E : Environment, S>(name: String, description: String) :
+    Parameter.Size1<E, S, String>(name, description) {
 
     override val type: ElementType = ElementType.Passthrough
 

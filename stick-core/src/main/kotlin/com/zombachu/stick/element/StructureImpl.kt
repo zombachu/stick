@@ -19,7 +19,7 @@ internal open class StructureImpl<E : Environment, S, T_ : Arguments>(
     override val description: String,
     internal val requirement: Requirement<E, S>,
     internal val signature: Signature<E, S, T_>,
-) : Structure<E, S, T_>  {
+) : Structure<E, S, T_> {
 
     override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Literal
@@ -36,8 +36,13 @@ internal open class StructureImpl<E : Environment, S, T_ : Arguments>(
             return ParsingResult.failTypeInternal()
         }
         peeked.consume(1)
-        validateSender().propagateError { return it }
-        val parsedValuesTuple = signature.execute().valueOrPropagateError { return it }
+        validateSender().propagateError {
+            return it
+        }
+        val parsedValuesTuple =
+            signature.execute().valueOrPropagateError {
+                return it
+            }
         return ParsingResult.success(parsedValuesTuple, Size(args.size - 1))
     }
 

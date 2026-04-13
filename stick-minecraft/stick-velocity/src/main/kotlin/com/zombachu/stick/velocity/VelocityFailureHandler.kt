@@ -14,7 +14,9 @@ open class BasicVelocityFailureHandler : VelocityFailureHandler<VelocityEnvironm
     context(inv: Invocation<VelocityEnvironment, CommandSource>)
     override fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>) {
         val message = failure.feedback.message
-        if (message.isEmpty()) { return }
+        if (message.isEmpty()) {
+            return
+        }
         inv.sender.sendMessage(Component.text(message, NamedTextColor.RED))
     }
 }

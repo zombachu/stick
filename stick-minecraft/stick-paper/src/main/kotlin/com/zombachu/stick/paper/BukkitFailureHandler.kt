@@ -14,7 +14,9 @@ open class BasicBukkitFailureHandler : BukkitFailureHandler<BukkitEnvironment> {
     context(inv: Invocation<BukkitEnvironment, CommandSender>)
     override fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>) {
         val message = failure.feedback.message
-        if (message.isEmpty()) { return }
+        if (message.isEmpty()) {
+            return
+        }
         inv.sender.sendMessage(Component.text(message, NamedTextColor.RED))
     }
 }

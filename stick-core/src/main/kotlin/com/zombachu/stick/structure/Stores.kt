@@ -17,26 +17,22 @@ import com.zombachu.stick.element.ValueFlag
 import kotlin.experimental.ExperimentalTypeInference
 
 @JvmName("storeFixedSizeParameter")
-fun <E : Environment, S, T> Parameter.FixedSize<E, S, T>.store(
-    id: TypedIdentifier<T>,
-): Parameter.FixedSize<E, S, T> = StoredFixedSizeParameter(this, id)
+fun <E : Environment, S, T> Parameter.FixedSize<E, S, T>.store(id: TypedIdentifier<T>): Parameter.FixedSize<E, S, T> =
+    StoredFixedSizeParameter(this, id)
 
 @JvmName("storeUnknownSizeParameter")
 fun <E : Environment, S, T> Parameter.UnknownSize<E, S, T>.store(
-    id: TypedIdentifier<T>,
+    id: TypedIdentifier<T>
 ): Parameter.UnknownSize<E, S, T> = StoredUnknownSizeParameter(this, id)
 
 @JvmName("storeValueFlag")
-fun <E : Environment, S, T> ValueFlag<E, S, T>.store(
-    id: TypedIdentifier<T>,
-): ValueFlag<E, S, T> = StoredValueFlag(this, id)
+fun <E : Environment, S, T> ValueFlag<E, S, T>.store(id: TypedIdentifier<T>): ValueFlag<E, S, T> =
+    StoredValueFlag(this, id)
 
 @JvmName("storeHybridFlag")
-fun <E : Environment, S, T> HybridFlag<E, S, T>.store(
-    id: TypedIdentifier<HybridFlagResult<T>>,
-): HybridFlag<E, S, T> = StoredHybridFlag(this, id)
+fun <E : Environment, S, T> HybridFlag<E, S, T>.store(id: TypedIdentifier<HybridFlagResult<T>>): HybridFlag<E, S, T> =
+    StoredHybridFlag(this, id)
 
 @JvmName("storeOptionalParameter")
-fun <E : Environment, S, T> OptionalParameter<E, S, T>.store(
-    id: TypedIdentifier<T>,
-): OptionalParameter<E, S, T> = StoredOptionalParameter(this, id)
+fun <E : Environment, S, T> OptionalParameter<E, S, T>.store(id: TypedIdentifier<T>): OptionalParameter<E, S, T> =
+    StoredOptionalParameter(this, id)

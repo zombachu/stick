@@ -28,12 +28,7 @@ fun <S : Any, S2 : Any, E : Environment, T> StructureScope<E, S>.requireAs(
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     parameter: StructureScope<E, S2>.() -> Parameter.UnknownSize<E, S2, T>,
-): ValidatedParameter.UnknownSize<E, S, T> =
-    TransformedParameter(
-        parameter(this.forSender()),
-        transform,
-        requirement,
-    )
+): ValidatedParameter.UnknownSize<E, S, T> = TransformedParameter(parameter(this.forSender()), transform, requirement)
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireAsFixedSize")
@@ -42,12 +37,7 @@ fun <S : Any, S2 : Any, E : Environment, T> StructureScope<E, S>.requireAs(
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     parameter: StructureScope<E, S2>.() -> Parameter.FixedSize<E, S2, T>,
-): ValidatedParameter.FixedSize<E, S, T> =
-    TransformedParameter(
-        parameter(this.forSender()),
-        transform,
-        requirement,
-    )
+): ValidatedParameter.FixedSize<E, S, T> = TransformedParameter(parameter(this.forSender()), transform, requirement)
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireAsValueFlag")
@@ -56,12 +46,7 @@ fun <E : Environment, S : Any, S2 : Any, T> StructureScope<E, S>.requireAs(
     invalidSenderDefault: InvalidSenderDefault<E, S, T>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     flag: StructureScope<E, S2>.() -> ValueFlag<E, S2, T>,
-): ValueFlag<E, S, T> =
-    TransformedValueFlag(
-        flag(this.forSender()),
-        transform,
-        invalidSenderDefault,
-    )
+): ValueFlag<E, S, T> = TransformedValueFlag(flag(this.forSender()), transform, invalidSenderDefault)
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireAsHybridFlag")
@@ -70,12 +55,7 @@ fun <E : Environment, S : Any, S2 : Any, T> StructureScope<E, S>.requireAs(
     invalidSenderDefault: InvalidSenderDefault<E, S, HybridFlagResult<T>>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     flag: StructureScope<E, S2>.() -> HybridFlag<E, S2, T>,
-): HybridFlag<E, S, T> =
-    TransformedHybridFlag(
-        flag(this.forSender()),
-        transform,
-        invalidSenderDefault,
-    )
+): HybridFlag<E, S, T> = TransformedHybridFlag(flag(this.forSender()), transform, invalidSenderDefault)
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireAsCommand")
@@ -84,12 +64,7 @@ fun <E : Environment, S : Any, S2 : Any, T_ : Arguments> StructureScope<E, S>.re
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     command: StructureScope<E, S2>.() -> Structure<E, S2, T_>,
-): Structure<E, S, T_> =
-    TransformedStructure(
-        command(this.forSender()),
-        transform,
-        requirement,
-    )
+): Structure<E, S, T_> = TransformedStructure(command(this.forSender()), transform, requirement)
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireIsUnknownSize")
@@ -102,7 +77,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
     requireAs(
         { it as S2 },
         requirement + requirement(SenderValidationResult::failSenderType) { it.sender is S2 },
-        parameter
+        parameter,
     )
 
 @OverloadResolutionByLambdaReturnType
@@ -116,7 +91,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
     requireAs(
         { it as S2 },
         requirement + requirement(SenderValidationResult::failSenderType) { it.sender is S2 },
-        parameter
+        parameter,
     )
 
 @OverloadResolutionByLambdaReturnType
@@ -131,9 +106,9 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
         { it as S2 },
         invalidDefault(
             invalidSenderDefault.value,
-            requirement(invalidSenderDefault) + requirement(SenderValidationResult::failSenderType) { it.sender is S2 }
+            requirement(invalidSenderDefault) + requirement(SenderValidationResult::failSenderType) { it.sender is S2 },
         ),
-        flag
+        flag,
     )
 
 @OverloadResolutionByLambdaReturnType
@@ -148,9 +123,9 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
         { it as S2 },
         invalidDefault(
             invalidSenderDefault.value,
-            requirement(invalidSenderDefault) + requirement(SenderValidationResult::failSenderType) { it.sender is S2 }
+            requirement(invalidSenderDefault) + requirement(SenderValidationResult::failSenderType) { it.sender is S2 },
         ),
-        flag
+        flag,
     )
 
 @OverloadResolutionByLambdaReturnType
@@ -164,7 +139,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureS
     requireAs(
         { it as S2 },
         requirement + requirement(SenderValidationResult::failSenderType) { it.sender is S2 },
-        command
+        command,
     )
 
 @OverloadResolutionByLambdaReturnType
@@ -173,8 +148,7 @@ fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
     requirement: Requirement<E, S>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     parameter: StructureScope<E, S>.() -> Parameter.UnknownSize<E, S, T>,
-): ValidatedParameter.UnknownSize<E, S, T> =
-    requireAs({ it }, requirement, parameter)
+): ValidatedParameter.UnknownSize<E, S, T> = requireAs({ it }, requirement, parameter)
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireFixedSize")
@@ -182,8 +156,7 @@ fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
     requirement: Requirement<E, S>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     parameter: StructureScope<E, S>.() -> Parameter.FixedSize<E, S, T>,
-): ValidatedParameter.FixedSize<E, S, T> =
-    requireAs({ it }, requirement, parameter)
+): ValidatedParameter.FixedSize<E, S, T> = requireAs({ it }, requirement, parameter)
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireValueFlag")
@@ -191,8 +164,7 @@ fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
     invalidSenderDefault: InvalidSenderDefault<E, S, T>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     flag: StructureScope<E, S>.() -> ValueFlag<E, S, T>,
-): ValueFlag<E, S, T> =
-    requireAs({ it }, invalidSenderDefault, flag)
+): ValueFlag<E, S, T> = requireAs({ it }, invalidSenderDefault, flag)
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireHybridFlag")
@@ -200,8 +172,7 @@ fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
     invalidSenderDefault: InvalidSenderDefault<E, S, HybridFlagResult<T>>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     flag: StructureScope<E, S>.() -> HybridFlag<E, S, T>,
-): HybridFlag<E, S, T> =
-    requireAs({ it }, invalidSenderDefault, flag)
+): HybridFlag<E, S, T> = requireAs({ it }, invalidSenderDefault, flag)
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireCommand")
@@ -209,5 +180,4 @@ fun <E : Environment, S : Any, T : Arguments> StructureScope<E, S>.require(
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     command: StructureScope<E, S>.() -> Structure<E, S, T>,
-): Structure<E, S, T> =
-    requireAs({ it }, requirement, command)
+): Structure<E, S, T> = requireAs({ it }, requirement, command)

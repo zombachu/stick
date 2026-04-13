@@ -68,13 +68,12 @@ internal open class InvocationImpl<E : Environment, S>(
                     PeekingResult.success(unparsed.subList(0, size.size))
                 }
             }
-            is Size.Deferred, is Size.Unbounded -> PeekingResult.success(unparsed)
+            is Size.Deferred,
+            is Size.Unbounded -> PeekingResult.success(unparsed)
         }
     }
 
-    internal fun <T> processElement(
-        element: Element<E, S, T>,
-    ): CommandResult<T> {
+    internal fun <T> processElement(element: Element<E, S, T>): CommandResult<T> {
         val peeked: PeekingResult = peek(element.size)
         if (peeked !is PeekingResult.Success) {
             @Suppress("UNCHECKED_CAST")
@@ -83,7 +82,9 @@ internal open class InvocationImpl<E : Environment, S>(
 
         context(this) {
             val result = element.parse(peeked.value)
-            result.propagateError { return it }
+            result.propagateError {
+                return it
+            }
             val consumed = result.consumed
             // Let containers manage their syntax element consumption
             if (element !is Group && element !is Structure && consumed is Size.Fixed) {
@@ -99,18 +100,16 @@ internal open class InvocationImpl<E : Environment, S>(
     }
 }
 
-private class TransformedInvocationImpl<E : Environment, S, S2>(
-    val base: InvocationImpl<E, S>,
-    transform: (S) -> S2,
-) : InvocationImpl<E, S2>(
-    transform(base.sender),
-    base.env,
-    base.label,
-    base.args,
-    // TransformedInvocationImpl forwards to structure of base invocation
-    StructureImpl("", setOf(), "", Requirement { SenderValidationResult.success() }, Signature0({ }, listOf())),
-    parent = base,
-) {
+private class TransformedInvocationImpl<E : Environment, S, S2>(val base: InvocationImpl<E, S>, transform: (S) -> S2) :
+    InvocationImpl<E, S2>(
+        transform(base.sender),
+        base.env,
+        base.label,
+        base.args,
+        // TransformedInvocationImpl forwards to structure of base invocation
+        StructureImpl("", setOf(), "", Requirement { SenderValidationResult.success() }, Signature0({}, listOf())),
+        parent = base,
+    ) {
     override var unparsed: MutableList<String> = base.unparsed
     override var parsed: MutableMap<TypedIdentifier<*>, Any?> = base.parsed
 

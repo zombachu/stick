@@ -8,10 +8,8 @@ import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.impl.Size
 
-open class TextParameter<E : Environment, S>(
-    name: String,
-    description: String,
-) : Parameter.UnknownSize<E, S, String>(Size.Unbounded, name, description) {
+open class TextParameter<E : Environment, S>(name: String, description: String) :
+    Parameter.UnknownSize<E, S, String>(Size.Unbounded, name, description) {
 
     override val type: ElementType = ElementType.Passthrough
 

@@ -9,7 +9,5 @@ import com.zombachu.stick.velocity.VelocityEnvironment
 fun <E : VelocityEnvironment, S : CommandSource, T> StructureScope<E, S>.permissionedValue(
     permission: String,
     default: T,
-    fallback: T
-): ContextualValue<E, S, T> = {
-    ParsingResult.success(if (sender.hasPermission(permission)) default else fallback)
-}
+    fallback: T,
+): ContextualValue<E, S, T> = { ParsingResult.success(if (sender.hasPermission(permission)) default else fallback) }

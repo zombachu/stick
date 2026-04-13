@@ -12,38 +12,36 @@ class BukkitCommandWrapper<E : BukkitEnvironment>(
     override val env: E,
     override val failureHandler: FailureHandler<E, CommandSender>,
     override val structure: Structure<E, CommandSender, *>,
-) : Command(
-    structure.label,
-    structure.description,
-    "/${structure.label}",
-    structure.aliases.toList()
-), PluginIdentifiableCommand, CommandWrapper<E, CommandSender> {
+) :
+    Command(structure.label, structure.description, "/${structure.label}", structure.aliases.toList()),
+    PluginIdentifiableCommand,
+    CommandWrapper<E, CommandSender> {
 
     override fun execute(sender: CommandSender, label: String, args: Array<String>): Boolean {
         execute(sender, listOf(label, *args))
         return true
     }
 
-//    override fun tabComplete(
-//        sender: CommandSender,
-//        alias: String,
-//        args: Array<String>,
-//    ): List<String> {
-//        TODO("Not yet implemented")
-//    }
+    //    override fun tabComplete(
+    //        sender: CommandSender,
+    //        alias: String,
+    //        args: Array<String>,
+    //    ): List<String> {
+    //        TODO("Not yet implemented")
+    //    }
 
-//    override fun tabComplete(
-//        sender: CommandSender,
-//        alias: String,
-//        args: Array<String>,
-//        location: Location?,
-//    ): List<String> {
-//        TODO("Not yet implemented")
-//    }
+    //    override fun tabComplete(
+    //        sender: CommandSender,
+    //        alias: String,
+    //        args: Array<String>,
+    //        location: Location?,
+    //    ): List<String> {
+    //        TODO("Not yet implemented")
+    //    }
 
-//    override fun testPermissionSilent(target: CommandSender): Boolean {
-//        TODO("Not yet implemented")
-//    }
+    //    override fun testPermissionSilent(target: CommandSender): Boolean {
+    //        TODO("Not yet implemented")
+    //    }
 
     override fun getPlugin(): Plugin = env.plugin
 }

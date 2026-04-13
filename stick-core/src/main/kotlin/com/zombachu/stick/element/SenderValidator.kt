@@ -15,8 +15,7 @@ internal fun <E : Environment, S, T> SyntaxElement<E, S, T>.validateSender(): Co
     return if (this !is SenderValidator<*, *>) {
         SenderValidationResult.success()
     } else {
-        @Suppress("UNCHECKED_CAST")
-        (this as SenderValidator<E, S>).validateSender()
+        @Suppress("UNCHECKED_CAST") (this as SenderValidator<E, S>).validateSender()
     }
 }
 

@@ -7,17 +7,16 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.valueOrPropagateError
 
-open class ListParameter<E : Environment, S, T>(
-    name: String,
-    description: String,
-    val parameter: Size1<E, S, T>,
-) : Parameter.Size1<E, S, List<T>>(name, description) {
+open class ListParameter<E : Environment, S, T>(name: String, description: String, val parameter: Size1<E, S, T>) :
+    Parameter.Size1<E, S, List<T>>(name, description) {
 
     context(inv: Invocation<E, S>)
     override fun parse(arg0: String): CommandResult<List<T>> {
         val args = arg0.split(",")
         val parsedValues = args.map { arg ->
-            parameter.parse(arg).valueOrPropagateError { return it }
+            parameter.parse(arg).valueOrPropagateError {
+                return it
+            }
         }
         return ParsingResult.success(parsedValues)
     }

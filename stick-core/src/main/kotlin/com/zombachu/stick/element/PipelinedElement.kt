@@ -133,10 +133,16 @@ private fun <E : Environment, S, A, T> parsePipeline(
     base: SyntaxElement<E, S, A>,
     operations: List<PipelineOperation<E, S, *, *>>,
 ): CommandResult<T> {
-    var value: Any? = base.parse(args).valueOrPropagateError { return it }
+    var value: Any? =
+        base.parse(args).valueOrPropagateError {
+            return it
+        }
     operations.forEach {
         val operation = it as PipelineOperation<E, S, Any?, Any?>
-        value = operation(inv, value).valueOrPropagateError { return it }
+        value =
+            operation(inv, value).valueOrPropagateError {
+                return it
+            }
     }
     val consumed = base.size as? Size.Fixed ?: Size(args.size)
     return ParsingResult.success(value as T, consumed)

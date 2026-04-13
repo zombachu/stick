@@ -6,10 +6,8 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.element.Parameter
 
-open class BooleanParameter<E : Environment, S>(
-    name: String,
-    description: String,
-) : Parameter.Size1<E, S, Boolean>(name, description) {
+open class BooleanParameter<E : Environment, S>(name: String, description: String) :
+    Parameter.Size1<E, S, Boolean>(name, description) {
 
     context(inv: Invocation<E, S>)
     override fun parse(arg0: String): CommandResult<Boolean> {

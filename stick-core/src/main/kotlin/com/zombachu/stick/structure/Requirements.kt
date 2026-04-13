@@ -15,24 +15,22 @@ import kotlin.experimental.ExperimentalTypeInference
 @JvmName("requirement")
 fun <E : Environment, S> StructureScope<E, S>.requirement(
     validate: (validationContext: ValidationContext<E, S>) -> CommandResult<Unit>
-): Requirement<E, S> =
-    Requirement(validate)
+): Requirement<E, S> = Requirement(validate)
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requirementBoolean")
 fun <E : Environment, S> StructureScope<E, S>.requirement(
     failureResult: () -> CommandResult.Failure<*> = SenderValidationResult::failSender,
     validate: (validationContext: ValidationContext<E, S>) -> Boolean,
-): Requirement<E, S> =
-    Requirement {
-        if (validate(it)) {
-            SenderValidationResult.success()
-        } else {
-            failureResult()
-        }
+): Requirement<E, S> = Requirement {
+    if (validate(it)) {
+        SenderValidationResult.success()
+    } else {
+        failureResult()
     }
+}
 
-fun <E : Environment, S> StructureScope<E, S>.requirement(
-    from: SenderValidator<E, S>
-): Requirement<E, S> =
-    Requirement { context(it) { from.validateSender() } }
+fun <E : Environment, S> StructureScope<E, S>.requirement(from: SenderValidator<E, S>): Requirement<E, S> =
+    Requirement {
+        context(it) { from.validateSender() }
+    }

@@ -21,7 +21,7 @@ fun <E : Environment, S> StructureScope<E, S>.flag(
     ValueFlagImpl(
         name,
         { ParsingResult.success(false) },
-        FlagParameter.PresenceFlagParameter(name, { ParsingResult.success(true) }, aliases.lowercase(), description)
+        FlagParameter.PresenceFlagParameter(name, { ParsingResult.success(true) }, aliases.lowercase(), description),
     )
 
 fun <E : Environment, S, T> StructureScope<E, S>.flag(
@@ -34,7 +34,7 @@ fun <E : Environment, S, T> StructureScope<E, S>.flag(
     ValueFlagImpl(
         name,
         default,
-        FlagParameter.PresenceFlagParameter(name, presentValue, aliases.lowercase(), description)
+        FlagParameter.PresenceFlagParameter(name, presentValue, aliases.lowercase(), description),
     )
 
 fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
@@ -43,19 +43,14 @@ fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     parameter: Parameter.FixedSize<E, S, T>,
     aliases: Set<String> = setOf(),
 ): ValueFlag<E, S, T> =
-    ValueFlagImpl(
-        name,
-        default,
-        FlagParameter.ParameterFlagParameter(parameter, aliases.lowercase())
-    )
+    ValueFlagImpl(name, default, FlagParameter.ParameterFlagParameter(parameter, aliases.lowercase()))
 
 fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     name: String,
     default: T,
     parameter: Parameter.FixedSize<E, S, T>,
     aliases: Set<String> = setOf(),
-): ValueFlag<E, S, T> =
-    valueFlag(name, { ParsingResult.success(default) }, parameter, aliases.lowercase())
+): ValueFlag<E, S, T> = valueFlag(name, { ParsingResult.success(default) }, parameter, aliases.lowercase())
 
 fun <E : Environment, S, T> StructureScope<E, S>.nullableValueFlag(
     name: String,
@@ -66,34 +61,32 @@ fun <E : Environment, S, T> StructureScope<E, S>.nullableValueFlag(
     ValueFlagImpl(
         name,
         { ParsingResult.success(null) },
-        FlagParameter.ParameterFlagParameter(parameter, aliases.lowercase()) as FlagParameter.ParameterFlagParameter<E, S, T?>
+        FlagParameter.ParameterFlagParameter(parameter, aliases.lowercase())
+            as FlagParameter.ParameterFlagParameter<E, S, T?>,
     )
 
 fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.enumFlag(
     default: ContextualValue<E, S, T>,
     from: EnumParameter<E, S, T>,
-): ValueFlag<E, S, T> =
-    ValueFlagImpl(from.name, default, FlagParameter.EnumFlagParameter(from))
+): ValueFlag<E, S, T> = ValueFlagImpl(from.name, default, FlagParameter.EnumFlagParameter(from))
 
 fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.enumFlag(
     default: T,
     from: EnumParameter<E, S, T>,
-): ValueFlag<E, S, T> =
-    enumFlag({ ParsingResult.success(default) }, from)
+): ValueFlag<E, S, T> = enumFlag({ ParsingResult.success(default) }, from)
 
 fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.nullableEnumFlag(
-    from: EnumParameter<E, S, T>,
+    from: EnumParameter<E, S, T>
 ): ValueFlag<E, S, T?> =
     @Suppress("UNCHECKED_CAST")
     ValueFlagImpl(
         from.name,
         { ParsingResult.success(null) },
-        FlagParameter.EnumFlagParameter(from) as FlagParameter.EnumFlagParameter<E, S, T?>
+        FlagParameter.EnumFlagParameter(from) as FlagParameter.EnumFlagParameter<E, S, T?>,
     )
 
 fun <E : Environment, S, T> StructureScope<E, S>.hybridFlag(
     name: String,
     parameter: Parameter.FixedSize<E, S, T>,
     aliases: Set<String> = setOf(),
-): HybridFlag<E, S, T> =
-    HybridFlagImpl(name, parameter, aliases)
+): HybridFlag<E, S, T> = HybridFlagImpl(name, parameter, aliases)

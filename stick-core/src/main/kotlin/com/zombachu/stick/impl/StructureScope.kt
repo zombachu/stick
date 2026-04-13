@@ -11,7 +11,7 @@ class StructureScope<E : Environment, S>(
     val description: String,
     val parent: StructureScope<*, *>?,
     internal val requirement: Requirement<E, S>,
-): BuilderScope<E, S> {
+) : BuilderScope<E, S> {
 
     private val root: StructureScope<*, *> = parent?.root ?: this
 
@@ -22,27 +22,22 @@ class StructureScope<E : Environment, S>(
             this.description,
             this.parent,
             // They must have already passed the previous requirement so should be safe to set to true
-            requirement = Requirement { SenderValidationResult.success() }
+            requirement = Requirement { SenderValidationResult.success() },
         )
     }
 
     internal fun <T_ : Arguments> build(signature: Signature<E, S, T_>): StructureImpl<E, S, T_> {
-        return StructureImpl(
-            this.name,
-            this.aliases,
-            this.description,
-            this.requirement,
-            signature
-        )
+        return StructureImpl(this.name, this.aliases, this.description, this.requirement, signature)
     }
 
     companion object {
-        fun <E : Environment, S> empty(): StructureScope<E, S> = StructureScope(
-            name = "",
-            aliases = setOf(),
-            description = "",
-            parent = null,
-            requirement = Requirement { SenderValidationResult.success() }
-        )
+        fun <E : Environment, S> empty(): StructureScope<E, S> =
+            StructureScope(
+                name = "",
+                aliases = setOf(),
+                description = "",
+                parent = null,
+                requirement = Requirement { SenderValidationResult.success() },
+            )
     }
 }

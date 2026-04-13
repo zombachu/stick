@@ -3,10 +3,14 @@ package com.zombachu.stick.element
 sealed class ElementType(internal val parsingPriority: Int) {
     // Implicitly used by signatures
     private class Helper : ElementType(0)
+
     private class Flag : ElementType(1)
+
     // Used by groups
     private class Literal : ElementType(2)
+
     private class Default : ElementType(3)
+
     private class Passthrough : ElementType(4)
 
     companion object {

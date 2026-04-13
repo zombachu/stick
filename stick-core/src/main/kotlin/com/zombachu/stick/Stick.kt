@@ -19,44 +19,36 @@ abstract class Stick<E : Environment, S : Any>(
     fun <E2 : E> withContext(
         env: E2,
         failureHandler: FailureHandler<in E2, S> = defaultFailureHandler.value,
-        block: context(E2, FailureHandler<E2, S>) StickScope<E2, S>.() -> Unit,
+        block:
+            context(E2, FailureHandler<E2, S>)
+            StickScope<E2, S>.() -> Unit,
     ) {
-        val transformedStick: TransformedStick<E, E2, S, S> = TransformedStick(
-            this,
-            { it },
-            Requirement { SenderValidationResult.success() }
-        )
+        val transformedStick: TransformedStick<E, E2, S, S> =
+            TransformedStick(this, { it }, Requirement { SenderValidationResult.success() })
         with(StickScope(transformedStick)) {
-            @Suppress("UNCHECKED_CAST")
-            context(env, failureHandler as FailureHandler<E2, S>) {
-                block()
-            }
+            @Suppress("UNCHECKED_CAST") context(env, failureHandler as FailureHandler<E2, S>) { block() }
         }
     }
 
     fun withContext(
         failureHandler: FailureHandler<in E, S> = defaultFailureHandler.value,
-        block: context(E, FailureHandler<E, S>) StickScope<E, S>.() -> Unit,
+        block:
+            context(E, FailureHandler<E, S>)
+            StickScope<E, S>.() -> Unit,
     ) = withContext(defaultEnvironment.value, failureHandler, block)
-
 
     fun <E2 : E, S2 : Any> withContext(
         env: E2,
         failureHandler: FailureHandler<in E2, S2>,
         transform: (S) -> S2,
         validate: (validationContext: ValidationContext<E2, S>) -> CommandResult<Unit>,
-        block: context(E2, FailureHandler<E2, S2>) StickScope<E2, S2>.() -> Unit,
+        block:
+            context(E2, FailureHandler<E2, S2>)
+            StickScope<E2, S2>.() -> Unit,
     ) {
-        val transformedStick: TransformedStick<E, E2, S, S2> = TransformedStick(
-            this,
-            transform,
-            Requirement(validate)
-        )
+        val transformedStick: TransformedStick<E, E2, S, S2> = TransformedStick(this, transform, Requirement(validate))
         with(StickScope(transformedStick)) {
-            @Suppress("UNCHECKED_CAST")
-            context(env, failureHandler as FailureHandler<E2, S2>) {
-                block()
-            }
+            @Suppress("UNCHECKED_CAST") context(env, failureHandler as FailureHandler<E2, S2>) { block() }
         }
     }
 
@@ -66,14 +58,16 @@ abstract class Stick<E : Environment, S : Any>(
         transform: (S) -> S2,
         failureResult: CommandResult<Unit>,
         validate: (validationContext: ValidationContext<E2, S>) -> Boolean,
-        block: context(E2, FailureHandler<E2, S2>) StickScope<E2, S2>.() -> Unit,
+        block:
+            context(E2, FailureHandler<E2, S2>)
+            StickScope<E2, S2>.() -> Unit,
     ) {
         withContext(
             env,
             failureHandler,
             transform,
             { if (validate(it)) SenderValidationResult.success() else failureResult },
-            block
+            block,
         )
     }
 
@@ -87,8 +81,7 @@ abstract class Stick<E : Environment, S : Any>(
         val emptyContext: StructureScope<E, S> = StructureScope.empty()
         val structure: Structure<E, S, *> =
             if (commandSenderClass == platformSenderClass) {
-                @Suppress("UNCHECKED_CAST")
-                (command as Command<E, S>).structure
+                @Suppress("UNCHECKED_CAST") (command as Command<E, S>).structure
             } else {
                 with(emptyContext) {
                     requireAs(
@@ -107,35 +100,26 @@ abstract class Stick<E : Environment, S : Any>(
 }
 
 class StickScope<E : Environment, S : Any>
-@PublishedApi internal constructor(
-    @PublishedApi internal val stick: CommandRegistrar<E, S>
-) {
+@PublishedApi
+internal constructor(@PublishedApi internal val stick: CommandRegistrar<E, S>) {
 
     context(env: E, failureHandler: FailureHandler<E, S>)
     inline fun <reified S2 : S> register(command: Command<in E, S2>) {
         @Suppress("UNCHECKED_CAST")
-        stick.internalRegister(
-            S2::class,
-            command as Command<E, S2>,
-            { it is S2 },
-            { it as S2 }
-        )
+        stick.internalRegister(S2::class, command as Command<E, S2>, { it is S2 }, { it as S2 })
     }
 
     context(env: E, failureHandler: FailureHandler<E, S>)
-    inline fun <reified S2 : S> register(
-        structure: Structure<E, S2, *>
-    ) {
-        val command = object : Command<E, S2> {
-            override val structure: Structure<E, S2, *> = structure
-        }
+    inline fun <reified S2 : S> register(structure: Structure<E, S2, *>) {
+        val command =
+            object : Command<E, S2> {
+                override val structure: Structure<E, S2, *> = structure
+            }
         register(command)
     }
 
     context(env: E, failureHandler: FailureHandler<E, S>)
-    inline fun <reified S2 : S> register(
-        noinline structure: StructureScope<E, S2>.() -> Structure<E, S2, *>
-    ) {
+    inline fun <reified S2 : S> register(noinline structure: StructureScope<E, S2>.() -> Structure<E, S2, *>) {
         val emptyContext = StructureScope.empty<E, S2>()
         register(structure(emptyContext))
     }

@@ -14,13 +14,11 @@ fun <E : Environment, S : Any, T_ : Arguments> structure(
     envType: KClass<E>,
     senderType: KClass<S>,
     structure: StructureScope<E, S>.() -> Structure<E, S, T_>,
-): Structure<E, S, T_> =
-    structure(StructureScope.empty())
+): Structure<E, S, T_> = structure(StructureScope.empty())
 
 fun <E : Environment, S : Any, T_ : Arguments> CommandScope<E, S>.structure(
-    structure: StructureScope<E, S>.() -> Structure<E, S, T_>,
-): Structure<E, S, T_> =
-    structure(StructureScope.empty())
+    structure: StructureScope<E, S>.() -> Structure<E, S, T_>
+): Structure<E, S, T_> = structure(StructureScope.empty())
 
 fun <E : Environment, S> StructureScope<E, S>.command(
     name: String,

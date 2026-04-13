@@ -8,11 +8,8 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.element.Parameter
 
-open class LiteralParameter<E : Environment, S>(
-    name: String,
-    override val aliases: Set<String>,
-    description: String,
-) : Parameter.Size1<E, S, String>(name, description), Aliasable {
+open class LiteralParameter<E : Environment, S>(name: String, override val aliases: Set<String>, description: String) :
+    Parameter.Size1<E, S, String>(name, description), Aliasable {
 
     override val label: String = name
     override val type: ElementType = ElementType.Literal

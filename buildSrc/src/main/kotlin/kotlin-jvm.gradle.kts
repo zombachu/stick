@@ -41,5 +41,7 @@ tasks {
                 TestLogEvent.SKIPPED
             )
         }
+
+        failOnNoDiscoveredTests = false
     }
 }

@@ -18,7 +18,7 @@ internal open class ValueFlagImpl<E : Environment, S, T>(
     override val name: String,
     override val default: ContextualValue<E, S, T>,
     private val flagParameter: FlagParameter<E, S, T>,
-): ValueFlag<E, S, T> {
+) : ValueFlag<E, S, T> {
 
     override val size: Size.Fixed = flagParameter.size
     override val type: ElementType = ElementType.Flag
@@ -80,13 +80,14 @@ internal sealed class FlagParameter<E : Environment, S, T>(
     }
 
     internal class EnumFlagParameter<E : Environment, S, T : Enum<T>>(
-        private val enumParameter: EnumParameter<E, S, T>,
-    ) : FlagParameter<E, S, T>(
-        enumParameter.size,
-        enumParameter.name,
-        enumParameter.primaryValues.keys + enumParameter.aliasedValues.keys,
-        enumParameter.description,
-    ) {
+        private val enumParameter: EnumParameter<E, S, T>
+    ) :
+        FlagParameter<E, S, T>(
+            enumParameter.size,
+            enumParameter.name,
+            enumParameter.primaryValues.keys + enumParameter.aliasedValues.keys,
+            enumParameter.description,
+        ) {
         private val primaryValues = enumParameter.primaryValues.keys.toList().map { "-$it" }
 
         context(inv: Invocation<E, S>)

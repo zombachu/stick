@@ -7,6 +7,4 @@ interface VelocityEnvironment : Environment {
     val proxy: ProxyServer
 }
 
-open class BasicVelocityEnvironment(
-    override val proxy: ProxyServer
-) : VelocityEnvironment
+open class BasicVelocityEnvironment(override val proxy: ProxyServer) : VelocityEnvironment

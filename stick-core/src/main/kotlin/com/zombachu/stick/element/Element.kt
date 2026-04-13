@@ -40,21 +40,31 @@ sealed interface Helper<E : Environment, S, out T> : Element.NonTerminating<E, S
 
 sealed interface Flag<E : Environment, S, out T> : SyntaxElement<E, S, T> {
     val default: ContextualValue<E, S, T>
- 
-    sealed interface Validated<E : Environment, S, out T>: Flag<E, S, T>, SenderValidator<E, S> {
+
+    sealed interface Validated<E : Environment, S, out T> : Flag<E, S, T>, SenderValidator<E, S> {
         val invalidDefault: ContextualValue<E, S, T>
     }
 }
+
 sealed interface ValueFlag<E : Environment, S, out T> : Flag<E, S, T>, Element.NonTerminating<E, S, T>
+
 sealed interface HybridFlag<E : Environment, S, out T> : Flag<E, S, HybridFlagResult<T>>
- 
+
 sealed interface Group<E : Environment, S, out G : GroupResult> : SyntaxElement<E, S, G> {
     sealed interface UnknownSize<E : Environment, S, out G : GroupResult> : Group<E, S, G>
-    sealed interface FiniteSize<E : Environment, S, out G : GroupResult> : Group<E, S, G>, Element.NonTerminating<E, S, G>
+
+    sealed interface FiniteSize<E : Environment, S, out G : GroupResult> :
+        Group<E, S, G>, Element.NonTerminating<E, S, G>
 }
-sealed interface Structure<E : Environment, S, out T_ : Arguments> : Groupable<E, S, T_>, Aliasable, SenderValidator<E, S>
+
+sealed interface Structure<E : Environment, S, out T_ : Arguments> :
+    Groupable<E, S, T_>, Aliasable, SenderValidator<E, S>
+
 sealed interface ValidatedParameter<E : Environment, S, out T> : Groupable<E, S, T> {
     sealed interface UnknownSize<E : Environment, S, out T> : ValidatedParameter<E, S, T>, Groupable<E, S, T>
-    sealed interface FixedSize<E : Environment, S, out T> : ValidatedParameter<E, S, T>, Groupable.NonTerminating<E, S, T>
+
+    sealed interface FixedSize<E : Environment, S, out T> :
+        ValidatedParameter<E, S, T>, Groupable.NonTerminating<E, S, T>
 }
+
 sealed interface OptionalParameter<E : Environment, S, out T> : SyntaxElement<E, S, T>

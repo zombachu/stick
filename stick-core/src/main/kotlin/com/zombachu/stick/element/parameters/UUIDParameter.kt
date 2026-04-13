@@ -7,10 +7,8 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.element.Parameter
 import java.util.*
 
-open class UUIDParameter<E : Environment, S>(
-    name: String,
-    description: String,
-) : Parameter.Size1<E, S, UUID>(name, description) {
+open class UUIDParameter<E : Environment, S>(name: String, description: String) :
+    Parameter.Size1<E, S, UUID>(name, description) {
 
     context(inv: Invocation<E, S>)
     override fun parse(arg0: String): CommandResult<UUID> {

@@ -75,7 +75,9 @@ private fun <E : Environment, S, T> parseAndStore(
     args: List<String>,
 ): CommandResult<T> {
     val result = base.parse(args)
-    val value = result.valueOrPropagateError { return it }
+    val value = result.valueOrPropagateError {
+        return it
+    }
     inv.put(id, value)
     return result
 }

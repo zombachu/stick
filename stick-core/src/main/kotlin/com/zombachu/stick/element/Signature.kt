@@ -16,23 +16,18 @@ import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 import kotlin.contracts.ExperimentalContracts
 
-internal sealed class Signature<E : Environment, S, T_ : Arguments>(
-    elements: List<Element<E, S, Any?>>
-) {
+internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: List<Element<E, S, Any?>>) {
     private val flags: List<IndexedElement<E, S, Flag<E, S, Any?>>>
     private val linearElements: List<IndexedElement<E, S, Element<E, S, Any?>>>
     private val terminatingElement: SyntaxElement<E, S, Any?>?
 
     init {
-        val partitioned = elements
-            .mapIndexed { i, e -> IndexedElement(i, e) }
-            .partition { it.element is Flag<*, *, *> }
+        val partitioned = elements.mapIndexed { i, e -> IndexedElement(i, e) }.partition { it.element is Flag<*, *, *> }
         @Suppress("UNCHECKED_CAST")
         flags = partitioned.first as List<IndexedElement<E, S, Flag<E, S, Any?>>>
         linearElements = partitioned.second
-        terminatingElement = elements.lastOrNull()?.let {
-            if (it is Element.NonTerminating) null else it as? SyntaxElement
-        }
+        terminatingElement =
+            elements.lastOrNull()?.let { if (it is Element.NonTerminating) null else it as? SyntaxElement }
     }
 
     context(inv: Invocation<E, S>)
@@ -40,29 +35,35 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
 
     context(inv: InvocationImpl<E, S>)
     fun execute(): CommandResult<T_> {
-        val parsedValues = parse().valueOrPropagateError { return it }
+        val parsedValues =
+            parse().valueOrPropagateError {
+                return it
+            }
         val parsedValuesTuple = executeParsed(parsedValues)
         return ParsingResult.success(parsedValuesTuple)
     }
 
     context(validationContext: ValidationContext<E, S>)
     fun getSyntax(): String {
-        val linearSyntax: List<String> = linearElements
-            .map { it.element }
-            .filterIsInstance<SyntaxElement<E, S, *>>()
-            .filter { it.validateSender().isSuccess() && it is Element.NonTerminating<*, *, *> }
-            .map { it.getSyntax() }
-        val flagSyntax: List<String> = flags
-            .map { it.element }
-            .filter { it.validateSender().isSuccess() && it is Element.NonTerminating<*, *, *> }
-            .map { it.getSyntax() }
+        val linearSyntax: List<String> =
+            linearElements
+                .map { it.element }
+                .filterIsInstance<SyntaxElement<E, S, *>>()
+                .filter { it.validateSender().isSuccess() && it is Element.NonTerminating<*, *, *> }
+                .map { it.getSyntax() }
+        val flagSyntax: List<String> =
+            flags
+                .map { it.element }
+                .filter { it.validateSender().isSuccess() && it is Element.NonTerminating<*, *, *> }
+                .map { it.getSyntax() }
 
         // Add terminating element all other elements
-        val syntax = if (terminatingElement == null) {
-            linearSyntax + flagSyntax
-        } else {
-            linearSyntax + flagSyntax + terminatingElement.getSyntax()
-        }
+        val syntax =
+            if (terminatingElement == null) {
+                linearSyntax + flagSyntax
+            } else {
+                linearSyntax + flagSyntax + terminatingElement.getSyntax()
+            }
 
         return syntax.joinToString(" ")
     }
@@ -87,7 +88,9 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         var parameterIndex = 0
 
         while (parameterIndex < linearElements.size) {
-            processFlags(unprocessedFlags, values).propagateError { return it }
+            processFlags(unprocessedFlags, values).propagateError {
+                return it
+            }
 
             // Parse with the element as a syntax element
             processElement(values, linearElements[parameterIndex]).propagateError {
@@ -97,7 +100,9 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
             parameterIndex++
         }
 
-        processFlags(unprocessedFlags, values).propagateError { return it }
+        processFlags(unprocessedFlags, values).propagateError {
+            return it
+        }
 
         // If there are unused args then the sender used invalid syntax
         if (inv.unparsed.isNotEmpty()) return ParsingResult.failSyntax(inv.getSyntax())
@@ -106,11 +111,16 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         for (indexedFlag in unprocessedFlags) {
             val flag = indexedFlag.element
 
-            val default = flag.validateSender().handleInternal(
-                onSuccess = { flag.default(inv) },
-                onFailure = { (flag as Flag.Validated<E, S, *>).invalidDefault(inv) }
-            )
-            val value = default.valueOrPropagateError { return it }
+            val default =
+                flag
+                    .validateSender()
+                    .handleInternal(
+                        onSuccess = { flag.default(inv) },
+                        onFailure = { (flag as Flag.Validated<E, S, *>).invalidDefault(inv) },
+                    )
+            val value = default.valueOrPropagateError {
+                return it
+            }
             values[indexedFlag.index] = value
         }
 
@@ -138,7 +148,8 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
                 processElement(values, indexedFlag).propagateError {
                     when (it) {
                         // Ignore type errors (flag didn't match)
-                        is ParsingResult.TypeNotMatchedInternal, is PeekingResult.InvalidSizeError -> continue
+                        is ParsingResult.TypeNotMatchedInternal,
+                        is PeekingResult.InvalidSizeError -> continue
                         // If the flag matched and an error occurred in parsing then propagate it up
                         else -> return it
                     }
@@ -150,8 +161,5 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         return ParsingResult.success(Unit)
     }
 
-    data class IndexedElement<E : Environment, S, out L : Element<E, S, *>>(
-        val index: Int,
-        val element: L
-    )
+    data class IndexedElement<E : Environment, S, out L : Element<E, S, *>>(val index: Int, val element: L)
 }

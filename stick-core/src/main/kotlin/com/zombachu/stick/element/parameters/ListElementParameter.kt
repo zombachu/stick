@@ -12,12 +12,15 @@ open class ListElementParameter<E : Environment, S, T>(
     name: String,
     description: String,
     val list: ContextualValue<E, S, List<T>>,
-    val onEmpty: Invocation<E, S>.() -> Unit
+    val onEmpty: Invocation<E, S>.() -> Unit,
 ) : Parameter.Size1<E, S, T>(name, description) {
 
     context(inv: Invocation<E, S>)
     override fun parse(arg0: String): CommandResult<T> {
-        val list = list(inv).valueOrPropagateError { return it }
+        val list =
+            list(inv).valueOrPropagateError {
+                return it
+            }
         if (list.isEmpty()) {
             onEmpty(inv)
             return ParsingResult.failHandled()

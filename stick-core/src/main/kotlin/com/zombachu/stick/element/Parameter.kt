@@ -20,11 +20,9 @@ sealed class Parameter<E : Environment, S, T>(
     context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String = "<${name}>"
 
-    sealed class FixedSize<E : Environment, S, T>(
-        override val size: Size.Fixed,
-        name: String,
-        description: String,
-    ) : Parameter<E, S, T>(size, name, description), Groupable.NonTerminating<E, S, T>
+    sealed class FixedSize<E : Environment, S, T>(override val size: Size.Fixed, name: String, description: String) :
+        Parameter<E, S, T>(size, name, description), Groupable.NonTerminating<E, S, T>
+
     abstract class Size1<E : Environment, S, T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(1), name, description) {
 
@@ -36,6 +34,7 @@ sealed class Parameter<E : Environment, S, T>(
         context(inv: Invocation<E, S>)
         abstract fun parse(arg0: String): CommandResult<T>
     }
+
     abstract class Size2<E : Environment, S, T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(2), name, description) {
 
@@ -47,6 +46,7 @@ sealed class Parameter<E : Environment, S, T>(
         context(inv: Invocation<E, S>)
         abstract fun parse(arg0: String, arg1: String): CommandResult<T>
     }
+
     abstract class Size3<E : Environment, S, T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(3), name, description) {
 
@@ -58,6 +58,7 @@ sealed class Parameter<E : Environment, S, T>(
         context(inv: Invocation<E, S>)
         abstract fun parse(arg0: String, arg1: String, arg2: String): CommandResult<T>
     }
+
     abstract class Size4<E : Environment, S, T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(4), name, description) {
 
@@ -69,6 +70,7 @@ sealed class Parameter<E : Environment, S, T>(
         context(inv: Invocation<E, S>)
         abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String): CommandResult<T>
     }
+
     abstract class Size5<E : Environment, S, T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(5), name, description) {
 
@@ -80,6 +82,7 @@ sealed class Parameter<E : Environment, S, T>(
         context(inv: Invocation<E, S>)
         abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String): CommandResult<T>
     }
+
     abstract class Size6<E : Environment, S, T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(6), name, description) {
 
@@ -89,9 +92,16 @@ sealed class Parameter<E : Environment, S, T>(
         }
 
         context(inv: Invocation<E, S>)
-        abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String,
-                           arg5: String): CommandResult<T>
+        abstract fun parse(
+            arg0: String,
+            arg1: String,
+            arg2: String,
+            arg3: String,
+            arg4: String,
+            arg5: String,
+        ): CommandResult<T>
     }
+
     abstract class Size7<E : Environment, S, T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(7), name, description) {
 
@@ -101,9 +111,17 @@ sealed class Parameter<E : Environment, S, T>(
         }
 
         context(inv: Invocation<E, S>)
-        abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String, arg5: String,
-                           arg6: String): CommandResult<T>
+        abstract fun parse(
+            arg0: String,
+            arg1: String,
+            arg2: String,
+            arg3: String,
+            arg4: String,
+            arg5: String,
+            arg6: String,
+        ): CommandResult<T>
     }
+
     abstract class Size8<E : Environment, S, T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(8), name, description) {
 
@@ -113,15 +131,20 @@ sealed class Parameter<E : Environment, S, T>(
         }
 
         context(inv: Invocation<E, S>)
-        abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String, arg5: String,
-                           arg6: String, arg7: String): CommandResult<T>
+        abstract fun parse(
+            arg0: String,
+            arg1: String,
+            arg2: String,
+            arg3: String,
+            arg4: String,
+            arg5: String,
+            arg6: String,
+            arg7: String,
+        ): CommandResult<T>
     }
 
-    abstract class UnknownSize<E : Environment, S, T>(
-        size: Size,
-        name: String,
-        description: String,
-    ) : Parameter<E, S, T>(size, name, description)
+    abstract class UnknownSize<E : Environment, S, T>(size: Size, name: String, description: String) :
+        Parameter<E, S, T>(size, name, description)
 }
 
 internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T>(

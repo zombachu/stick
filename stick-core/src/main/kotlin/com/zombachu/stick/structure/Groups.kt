@@ -27,23 +27,14 @@ import com.zombachu.stick.impl.StructureScope
 fun <E_ : Environment, S, A> StructureScope<E_, S>.group(
     element: Groupable.NonTerminating<E_, S, A>,
     description: String = "",
-): Group.FiniteSize<E_, S, GroupResult1<A>> = createGroup {
-    Group1Impl(name, description,
-        element,
-    )
-}
+): Group.FiniteSize<E_, S, GroupResult1<A>> = createGroup { Group1Impl(name, description, element) }
 
 @JvmName("groupNonTerminating")
 fun <E_ : Environment, S, A, B> StructureScope<E_, S>.group(
     elementA: Groupable.NonTerminating<E_, S, A>,
     elementB: Groupable.NonTerminating<E_, S, B>,
     description: String = "",
-): Group.FiniteSize<E_, S, GroupResult2<A, B>> = createGroup {
-    Group2Impl(name, description,
-        elementA,
-        elementB,
-    )
-}
+): Group.FiniteSize<E_, S, GroupResult2<A, B>> = createGroup { Group2Impl(name, description, elementA, elementB) }
 
 @JvmName("groupNonTerminating")
 fun <E_ : Environment, S, A, B, C> StructureScope<E_, S>.group(
@@ -52,11 +43,7 @@ fun <E_ : Environment, S, A, B, C> StructureScope<E_, S>.group(
     elementC: Groupable.NonTerminating<E_, S, C>,
     description: String = "",
 ): Group.FiniteSize<E_, S, GroupResult3<A, B, C>> = createGroup {
-    Group3Impl(name, description,
-        elementA,
-        elementB,
-        elementC,
-    )
+    Group3Impl(name, description, elementA, elementB, elementC)
 }
 
 @JvmName("groupNonTerminating")
@@ -67,12 +54,7 @@ fun <E_ : Environment, S, A, B, C, D> StructureScope<E_, S>.group(
     elementD: Groupable.NonTerminating<E_, S, D>,
     description: String = "",
 ): Group.FiniteSize<E_, S, GroupResult4<A, B, C, D>> = createGroup {
-    Group4Impl(name, description,
-        elementA,
-        elementB,
-        elementC,
-        elementD,
-    )
+    Group4Impl(name, description, elementA, elementB, elementC, elementD)
 }
 
 @JvmName("groupNonTerminating")
@@ -84,13 +66,7 @@ fun <E_ : Environment, S, A, B, C, D, E> StructureScope<E_, S>.group(
     elementE: Groupable.NonTerminating<E_, S, E>,
     description: String = "",
 ): Group.FiniteSize<E_, S, GroupResult5<A, B, C, D, E>> = createGroup {
-    Group5Impl(name, description,
-        elementA,
-        elementB,
-        elementC,
-        elementD,
-        elementE,
-    )
+    Group5Impl(name, description, elementA, elementB, elementC, elementD, elementE)
 }
 
 @JvmName("groupNonTerminating")
@@ -103,14 +79,7 @@ fun <E_ : Environment, S, A, B, C, D, E, F> StructureScope<E_, S>.group(
     elementF: Groupable.NonTerminating<E_, S, F>,
     description: String = "",
 ): Group.FiniteSize<E_, S, GroupResult6<A, B, C, D, E, F>> = createGroup {
-    Group6Impl(name, description,
-        elementA,
-        elementB,
-        elementC,
-        elementD,
-        elementE,
-        elementF,
-    )
+    Group6Impl(name, description, elementA, elementB, elementC, elementD, elementE, elementF)
 }
 
 @JvmName("groupNonTerminating")
@@ -124,15 +93,7 @@ fun <E_ : Environment, S, A, B, C, D, E, F, G> StructureScope<E_, S>.group(
     elementG: Groupable.NonTerminating<E_, S, G>,
     description: String = "",
 ): Group.FiniteSize<E_, S, GroupResult7<A, B, C, D, E, F, G>> = createGroup {
-    Group7Impl(name, description,
-        elementA,
-        elementB,
-        elementC,
-        elementD,
-        elementE,
-        elementF,
-        elementG,
-    )
+    Group7Impl(name, description, elementA, elementB, elementC, elementD, elementE, elementF, elementG)
 }
 
 @JvmName("groupNonTerminating")
@@ -147,39 +108,21 @@ fun <E_ : Environment, S, A, B, C, D, E, F, G, H> StructureScope<E_, S>.group(
     elementH: Groupable.NonTerminating<E_, S, H>,
     description: String = "",
 ): Group.FiniteSize<E_, S, GroupResult8<A, B, C, D, E, F, G, H>> = createGroup {
-    Group8Impl(name, description,
-        elementA,
-        elementB,
-        elementC,
-        elementD,
-        elementE,
-        elementF,
-        elementG,
-        elementH,
-    )
+    Group8Impl(name, description, elementA, elementB, elementC, elementD, elementE, elementF, elementG, elementH)
 }
 
 @JvmName("groupTerminating")
 fun <E_ : Environment, S, A> StructureScope<E_, S>.group(
     element: Groupable<E_, S, A>,
     description: String = "",
-): Group.UnknownSize<E_, S, GroupResult1<A>> = createGroup {
-    Group1Impl(name, description,
-        element,
-    )
-}
+): Group.UnknownSize<E_, S, GroupResult1<A>> = createGroup { Group1Impl(name, description, element) }
 
 @JvmName("groupTerminating")
 fun <E_ : Environment, S, A, B> StructureScope<E_, S>.group(
     elementA: Groupable<E_, S, A>,
     elementB: Groupable<E_, S, B>,
     description: String = "",
-): Group.UnknownSize<E_, S, GroupResult2<A, B>> = createGroup {
-    Group2Impl(name, description,
-        elementA,
-        elementB,
-    )
-}
+): Group.UnknownSize<E_, S, GroupResult2<A, B>> = createGroup { Group2Impl(name, description, elementA, elementB) }
 
 @JvmName("groupTerminating")
 fun <E_ : Environment, S, A, B, C> StructureScope<E_, S>.group(
@@ -188,11 +131,7 @@ fun <E_ : Environment, S, A, B, C> StructureScope<E_, S>.group(
     elementC: Groupable<E_, S, C>,
     description: String = "",
 ): Group.UnknownSize<E_, S, GroupResult3<A, B, C>> = createGroup {
-    Group3Impl(name, description,
-        elementA,
-        elementB,
-        elementC,
-    )
+    Group3Impl(name, description, elementA, elementB, elementC)
 }
 
 @JvmName("groupTerminating")
@@ -203,12 +142,7 @@ fun <E_ : Environment, S, A, B, C, D> StructureScope<E_, S>.group(
     elementD: Groupable<E_, S, D>,
     description: String = "",
 ): Group.UnknownSize<E_, S, GroupResult4<A, B, C, D>> = createGroup {
-    Group4Impl(name, description,
-        elementA,
-        elementB,
-        elementC,
-        elementD,
-    )
+    Group4Impl(name, description, elementA, elementB, elementC, elementD)
 }
 
 @JvmName("groupTerminating")
@@ -220,13 +154,7 @@ fun <E_ : Environment, S, A, B, C, D, E> StructureScope<E_, S>.group(
     elementE: Groupable<E_, S, E>,
     description: String = "",
 ): Group.UnknownSize<E_, S, GroupResult5<A, B, C, D, E>> = createGroup {
-    Group5Impl(name, description,
-        elementA,
-        elementB,
-        elementC,
-        elementD,
-        elementE,
-    )
+    Group5Impl(name, description, elementA, elementB, elementC, elementD, elementE)
 }
 
 @JvmName("groupTerminating")
@@ -239,14 +167,7 @@ fun <E_ : Environment, S, A, B, C, D, E, F> StructureScope<E_, S>.group(
     elementF: Groupable<E_, S, F>,
     description: String = "",
 ): Group.UnknownSize<E_, S, GroupResult6<A, B, C, D, E, F>> = createGroup {
-    Group6Impl(name, description,
-        elementA,
-        elementB,
-        elementC,
-        elementD,
-        elementE,
-        elementF,
-    )
+    Group6Impl(name, description, elementA, elementB, elementC, elementD, elementE, elementF)
 }
 
 @JvmName("groupTerminating")
@@ -260,15 +181,7 @@ fun <E_ : Environment, S, A, B, C, D, E, F, G> StructureScope<E_, S>.group(
     elementG: Groupable<E_, S, G>,
     description: String = "",
 ): Group.UnknownSize<E_, S, GroupResult7<A, B, C, D, E, F, G>> = createGroup {
-    Group7Impl(name, description,
-        elementA,
-        elementB,
-        elementC,
-        elementD,
-        elementE,
-        elementF,
-        elementG,
-    )
+    Group7Impl(name, description, elementA, elementB, elementC, elementD, elementE, elementF, elementG)
 }
 
 @JvmName("groupTerminating")
@@ -283,27 +196,19 @@ fun <E_ : Environment, S, A, B, C, D, E, F, G, H> StructureScope<E_, S>.group(
     elementH: Groupable<E_, S, H>,
     description: String = "",
 ): Group.UnknownSize<E_, S, GroupResult8<A, B, C, D, E, F, G, H>> = createGroup {
-    Group8Impl(name, description,
-        elementA,
-        elementB,
-        elementC,
-        elementD,
-        elementE,
-        elementF,
-        elementG,
-        elementH,
-    )
+    Group8Impl(name, description, elementA, elementB, elementC, elementD, elementE, elementF, elementG, elementH)
 }
 
 private fun <E : Environment, S, R : GroupResult, G : Group<E, S, R>> StructureScope<E, S>.createGroup(
     block: StructureScope<E, S>.() -> G
 ): G {
-    val scope = StructureScope<E, S>(
-        name = "${this.name}_group",
-        aliases = setOf(),
-        description = "",
-        parent = this,
-        requirement = requirement { SenderValidationResult.success() },
-    )
+    val scope =
+        StructureScope<E, S>(
+            name = "${this.name}_group",
+            aliases = setOf(),
+            description = "",
+            parent = this,
+            requirement = requirement { SenderValidationResult.success() },
+        )
     return block(scope)
 }

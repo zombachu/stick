@@ -10,8 +10,6 @@ interface BukkitEnvironment : Environment {
     val server: Server
 }
 
-open class BasicBukkitEnvironment(
-    override val plugin: Plugin
-) : BukkitEnvironment {
+open class BasicBukkitEnvironment(override val plugin: Plugin) : BukkitEnvironment {
     override val server: Server = Bukkit.getServer()
 }

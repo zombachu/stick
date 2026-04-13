@@ -18,12 +18,14 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
     override val name: String,
     private val parameter: FixedSize<E, S, T>,
     aliases: Set<String>,
-): HybridFlag<E, S, T>, Aliasable {
+) : HybridFlag<E, S, T>, Aliasable {
 
     override val size: Size = Size.Deferred
     override val type: ElementType = ElementType.Flag
     override val description: String = parameter.description
-    override val default: ContextualValue<E, S, HybridFlagResult<T>> = { ParsingResult.success(HybridFlagResult.Absent()) }
+    override val default: ContextualValue<E, S, HybridFlagResult<T>> = {
+        ParsingResult.success(HybridFlagResult.Absent())
+    }
     override val label: String = "-${name}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
 
@@ -35,7 +37,9 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
                 return ParsingResult.success(HybridFlagResult.Present(), Size(1))
             } else {
                 val result = parameter.parse(args.subList(1, args.size))
-                result.propagateError { return it }
+                result.propagateError {
+                    return it
+                }
                 return ParsingResult.success(HybridFlagResult.Value(result.value), Size(1) + result.consumed)
             }
         }
@@ -57,7 +61,9 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
     override val name: String = base.name
     override val description: String = base.description
     override val invalidDefault: ContextualValue<E, S, HybridFlagResult<T>> = invalidSenderDefault.value
-    override val default: ContextualValue<E, S, HybridFlagResult<T>> = { ParsingResult.success(HybridFlagResult.Absent()) }
+    override val default: ContextualValue<E, S, HybridFlagResult<T>> = {
+        ParsingResult.success(HybridFlagResult.Absent())
+    }
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<HybridFlagResult<T>> {

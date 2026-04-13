@@ -22,34 +22,53 @@ sealed interface CommandResult<out T> {
 }
 
 sealed interface ParsingResult<out T> : CommandResult<T> {
-    class Success<out T> internal constructor(override val value: T, override val consumed: Size.Fixed) : ParsingResult<T>, CommandResult.Success<T>
+    class Success<out T> internal constructor(override val value: T, override val consumed: Size.Fixed) :
+        ParsingResult<T>, CommandResult.Success<T>
 
+    class UnknownError internal constructor(override val feedback: Feedback.Unknown) :
+        ParsingResult<Nothing>, CommandResult.Failure<Feedback.Unknown>
 
-    class UnknownError internal constructor(override val feedback: Feedback.Unknown) : ParsingResult<Nothing>, CommandResult.Failure<Feedback.Unknown>
     sealed interface InternalFailure : ParsingResult<Nothing>, CommandResult.InternalFailure
+
     sealed interface Failure<out F : Feedback> : ParsingResult<Nothing>, CommandResult.Failure<F>
 
     object HandledError : InternalFailure
+
     object TypeNotMatchedInternal : InternalFailure
 
-    class TypeNotMatchedError internal constructor(override val feedback: Feedback.TypeNotMatched) : Failure<Feedback.TypeNotMatched>
-    class LiteralNotMatchedError internal constructor(override val feedback: Feedback.LiteralNotMatched) : Failure<Feedback.LiteralNotMatched>
+    class TypeNotMatchedError internal constructor(override val feedback: Feedback.TypeNotMatched) :
+        Failure<Feedback.TypeNotMatched>
 
-    class InvalidSyntaxError internal constructor(override val feedback: Feedback.InvalidSyntax) : Failure<Feedback.InvalidSyntax>
+    class LiteralNotMatchedError internal constructor(override val feedback: Feedback.LiteralNotMatched) :
+        Failure<Feedback.LiteralNotMatched>
 
-    class OutOfRangeError internal constructor(override val feedback: Feedback.OutOfRange) : Failure<Feedback.OutOfRange>
+    class InvalidSyntaxError internal constructor(override val feedback: Feedback.InvalidSyntax) :
+        Failure<Feedback.InvalidSyntax>
+
+    class OutOfRangeError internal constructor(override val feedback: Feedback.OutOfRange) :
+        Failure<Feedback.OutOfRange>
 
     interface CustomError<out F : Feedback> : Failure<F>
 
     companion object {
         fun <T> success(value: T, consumed: Size.Fixed = Size(0)): Success<T> = Success(value, consumed)
+
         fun failUnknown(): UnknownError = UnknownError(Feedback.Unknown)
+
         fun failHandled(): HandledError = HandledError
+
         internal fun failTypeInternal(): TypeNotMatchedInternal = TypeNotMatchedInternal
-        fun failType(type: String, arg: String): TypeNotMatchedError = TypeNotMatchedError(Feedback.TypeNotMatched(type, arg))
-        fun failLiteral(valid: List<String>, arg: String): LiteralNotMatchedError = LiteralNotMatchedError(Feedback.LiteralNotMatched(valid, arg))
+
+        fun failType(type: String, arg: String): TypeNotMatchedError =
+            TypeNotMatchedError(Feedback.TypeNotMatched(type, arg))
+
+        fun failLiteral(valid: List<String>, arg: String): LiteralNotMatchedError =
+            LiteralNotMatchedError(Feedback.LiteralNotMatched(valid, arg))
+
         fun failSyntax(syntax: String): InvalidSyntaxError = InvalidSyntaxError(Feedback.InvalidSyntax(syntax))
-        fun failRange(min: String, max: String, arg: String): OutOfRangeError = OutOfRangeError(Feedback.OutOfRange(min, max, arg))
+
+        fun failRange(min: String, max: String, arg: String): OutOfRangeError =
+            OutOfRangeError(Feedback.OutOfRange(min, max, arg))
     }
 }
 
@@ -61,37 +80,49 @@ sealed interface SenderValidationResult {
 
     sealed interface Failure<out F : Feedback> : SenderValidationResult, CommandResult.Failure<F>
 
-    class InvalidSenderError internal constructor(override val feedback: Feedback.InvalidSender): Failure<Feedback.InvalidSender>
-    class InvalidSenderPermissionError internal constructor(override val feedback: Feedback.InvalidPermission): Failure<Feedback.InvalidPermission>
-    class InvalidSenderTypeError internal constructor(override val feedback: Feedback.InvalidSenderType): Failure<Feedback.InvalidSenderType>
+    class InvalidSenderError internal constructor(override val feedback: Feedback.InvalidSender) :
+        Failure<Feedback.InvalidSender>
+
+    class InvalidSenderPermissionError internal constructor(override val feedback: Feedback.InvalidPermission) :
+        Failure<Feedback.InvalidPermission>
+
+    class InvalidSenderTypeError internal constructor(override val feedback: Feedback.InvalidSenderType) :
+        Failure<Feedback.InvalidSenderType>
 
     companion object {
         fun success(): Success = Success
+
         fun failSender(): InvalidSenderError = InvalidSenderError(Feedback.InvalidSender)
+
         fun failPermission(): InvalidSenderPermissionError = InvalidSenderPermissionError(Feedback.InvalidPermission)
+
         fun failSenderType(): InvalidSenderTypeError = InvalidSenderTypeError(Feedback.InvalidSenderType)
     }
 }
 
 internal sealed interface PeekingResult {
-    data class Success internal constructor(private val mutableArgs: MutableList<String>): PeekingResult, CommandResult.Success<List<String>> {
+    data class Success internal constructor(private val mutableArgs: MutableList<String>) :
+        PeekingResult, CommandResult.Success<List<String>> {
         override val value: List<String> = mutableArgs
         override val consumed: Size.Fixed = Size(0)
+
         fun consume(count: Int) {
             mutableArgs.subList(0, count).clear()
         }
     }
+
     object InvalidSizeError : PeekingResult, CommandResult.InternalFailure
 
     companion object {
         fun success(mutableArgs: MutableList<String>): Success = Success(mutableArgs)
+
         fun failSize(): InvalidSizeError = InvalidSizeError
     }
 }
 
 internal inline fun <T, R> CommandResult<T>.handleInternal(
     onSuccess: (CommandResult.Success<T>) -> R,
-    onFailure: (CommandResult.InternalFailure) -> R
+    onFailure: (CommandResult.InternalFailure) -> R,
 ): R {
     return if (isSuccess()) onSuccess(this) else onFailure(this)
 }
@@ -124,7 +155,9 @@ fun <T> CommandResult<T>.isSuccess(): Boolean {
 }
 
 fun <T> CommandResult<T>.withSize(size: Size.Fixed): CommandResult<T> {
-    this.propagateError { return it }
+    this.propagateError {
+        return it
+    }
     return ParsingResult.success(this.value, size)
 }
 
