@@ -9,7 +9,7 @@ import org.bukkit.command.CommandSender
 
 class AnotherCommand : BukkitCommand<CommandSender> {
 
-    override val structure by structure {
+    override val structure = structure {
         command("testingEnums")(
             enumParameter("someEnum", listOf(
                 Block.Dirt by "dirt",

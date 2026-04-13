@@ -58,6 +58,8 @@ class Playground {
         stick.withContext {
             register(WarpCommand())
             register(PageCommand())
+            register(PageCommand().structure)
+            register(orphanStructure)
         }
 
         stick.withContext(CustomBukkitEnvironment(), CustomFailureHandler()) {

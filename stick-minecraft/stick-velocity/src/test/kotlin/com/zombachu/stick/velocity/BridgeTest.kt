@@ -73,31 +73,31 @@ class WrapperFailureHandler : FailureHandler<VelocityEnvironment, SourceWrapper>
 }
 
 class WrongEnvironmentCommand : Command<DisjointEnvironment, SourceWrapper> {
-    override val structure: Structure<DisjointEnvironment, SourceWrapper, Arguments1<String>> by structure {
+    override val structure: Structure<DisjointEnvironment, SourceWrapper, Arguments1<String>> = structure {
         command("hi")(stringParameter("hey"))
     }
 }
 
 class WrapperCommand : VelocityCommand<SourceWrapper> {
-    override val structure by structure {
+    override val structure = structure {
         command("hi")(stringParameter("hey"))
     }
 }
 
 class Wrapper2Command : VelocityCommand<Source2Wrapper> {
-    override val structure by structure {
+    override val structure = structure {
         command("hi")(stringParameter("hey"))
     }
 }
 
 class UnderCommand : Command<Environment, SourceWrapper> {
-    override val structure by structure {
+    override val structure = structure {
         command("hi")(stringParameter("hey"))
     }
 }
 
 class WrongSenderCommand : Command<VelocityEnvironment, Int> {
-    override val structure by structure {
+    override val structure = structure {
         command("hi")(stringParameter("hey"))
     }
 }

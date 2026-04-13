@@ -8,12 +8,19 @@ import com.zombachu.stick.impl.CommandScope
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.StructureScope
 import com.zombachu.stick.lowercase
-import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KClass
 
-fun <E : Environment, S, T_ : Arguments> CommandScope<E, S>.structure(
+fun <E : Environment, S : Any, T_ : Arguments> structure(
+    envType: KClass<E>,
+    senderType: KClass<S>,
     structure: StructureScope<E, S>.() -> Structure<E, S, T_>,
-): ReadOnlyProperty<Any?, Structure<E, S, T_>> =
-    ReadOnlyProperty { _, _, -> structure(StructureScope.empty()) }
+): Structure<E, S, T_> =
+    structure(StructureScope.empty())
+
+fun <E : Environment, S : Any, T_ : Arguments> CommandScope<E, S>.structure(
+    structure: StructureScope<E, S>.() -> Structure<E, S, T_>,
+): Structure<E, S, T_> =
+    structure(StructureScope.empty())
 
 fun <E : Environment, S> StructureScope<E, S>.command(
     name: String,

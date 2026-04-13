@@ -16,7 +16,7 @@ class ServerCommand : VelocityCommand<CommandSource> {
     val nullableIntId = id<Int?>("null")
     val nonNullIntId = id<Int>("notnull")
 
-    override val structure by structure {
+    override val structure = structure {
         command("test")(
             nullableValueFlag(
                 "int",

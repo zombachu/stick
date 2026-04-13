@@ -124,13 +124,20 @@ class StickScope<E : Environment, S : Any>
 
     context(env: E, failureHandler: FailureHandler<E, S>)
     inline fun <reified S2 : S> register(
+        structure: Structure<E, S2, *>
+    ) {
+        val command = object : Command<E, S2> {
+            override val structure: Structure<E, S2, *> = structure
+        }
+        register(command)
+    }
+
+    context(env: E, failureHandler: FailureHandler<E, S>)
+    inline fun <reified S2 : S> register(
         noinline structure: StructureScope<E, S2>.() -> Structure<E, S2, *>
     ) {
         val emptyContext = StructureScope.empty<E, S2>()
-        val command = object : Command<E, S2> {
-            override val structure: Structure<E, S2, *> = structure(emptyContext)
-        }
-        register(command)
+        register(structure(emptyContext))
     }
 }
 

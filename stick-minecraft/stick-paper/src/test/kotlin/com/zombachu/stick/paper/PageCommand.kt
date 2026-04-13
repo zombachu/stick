@@ -41,7 +41,7 @@ class PageCommand: BukkitCommand<CommandSender> {
 
     val pageId = id<Int>("page")
 
-    override val structure by structure {
+    override val structure = structure {
         requireIs(Player::class) {
             command(
                 name = "page",
@@ -94,7 +94,7 @@ fun <S> StructureScope<BukkitEnvironment, S>.mcpRequiredStringParameter(name: St
 
 class TestFlag: BukkitCommand<CommandSender> {
 
-    override val structure by structure {
+    override val structure = structure {
         require(permission("syn.hi")) {
             command("hi")(
                 requireIs(
@@ -191,7 +191,7 @@ class PlayerRequiredUnknownInt(name: String) : Parameter.UnknownSize<BukkitEnvir
 }
 
 class OrangeCommand : BukkitCommand<CommandSender> {
-    override val structure: Structure<BukkitEnvironment, CommandSender, *> by structure {
+    override val structure: Structure<BukkitEnvironment, CommandSender, *> = structure {
         command("orange", requirement = permission("syn.orange"))(
             requireIs(Player::class) {
                 command("apple")(
@@ -226,7 +226,7 @@ class PlayerUtil {
 }
 
 class ExampleCommand : BukkitCommand<CommandSender> {
-    override val structure by structure {
+    override val structure = structure {
         command("example")(
             group(
                 intParameter("someInt"),
@@ -245,7 +245,7 @@ class ExampleCommand : BukkitCommand<CommandSender> {
 }
 
 class Example2Command : BukkitCommand<CommandSender> {
-    override val structure by structure {
+    override val structure = structure {
         command("example")(
             intParameter("postGroupInt"),
             group(
@@ -259,6 +259,23 @@ class Example2Command : BukkitCommand<CommandSender> {
                 is GroupResult.ResultB -> println(groupArg.value.lowercase())
                 is GroupResult.ResultC -> println(if (groupArg.value) true else false)
             }
+        }
+    }
+}
+
+val orphanStructure = structure(BukkitEnvironment::class, CommandSender::class) {
+    command("example")(
+        intParameter("postGroupInt"),
+        group(
+            intParameter("someInt"),
+            textParameter("unboundedArg"),
+            booleanParameter("someBoolean"),
+        ),
+    ) { postGroupIntArg, groupArg ->
+        when (groupArg) {
+            is GroupResult.ResultA -> println(groupArg.value + 1)
+            is GroupResult.ResultB -> println(groupArg.value.lowercase())
+            is GroupResult.ResultC -> println(if (groupArg.value) true else false)
         }
     }
 }

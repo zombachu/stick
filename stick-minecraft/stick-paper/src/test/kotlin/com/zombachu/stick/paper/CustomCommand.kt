@@ -19,7 +19,7 @@ import com.zombachu.stick.structure.valueFlag
 import org.bukkit.command.CommandSender
 
 class CustomCommand : Command<CustomBukkitEnvironment, CommandSender> {
-    override val structure by structure {
+    override val structure = structure {
         command("hi")(
             translatedStringParameter("shouldntcompileifbukkitenv"),
             scopedTranslatedStringParameter("yo"),
@@ -42,7 +42,7 @@ private fun Invocation<CustomBukkitEnvironment, CommandSender>.doSomething(strin
 }
 
 class UncustomCommand : Command<BukkitEnvironment, CommandSender> {
-    override val structure by structure {
+    override val structure = structure {
         command("hi")(
             stringParameter("shouldntcompile"),
 //        scopedTranslatedStringParameter(id("yo")),

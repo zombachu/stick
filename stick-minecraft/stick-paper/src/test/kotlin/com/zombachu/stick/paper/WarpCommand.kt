@@ -42,7 +42,7 @@ class WarpCommand : BukkitCommand<CommandSender> {
 
     private val warpParameterId = id<String>("warp")
 
-    override val structure by structure {
+    override val structure = structure {
         command(
             name = "warp",
             aliases = setOf("home", "warps"),
@@ -132,7 +132,7 @@ class WarpCommand : BukkitCommand<CommandSender> {
 
 class WarpInfoCommand: BukkitCommand<CommandSender> {
 
-    override val structure by structure {
+    override val structure = structure {
         mcpSender {
             command(
                 name = "info",
@@ -161,7 +161,7 @@ class WarpInfoCommand: BukkitCommand<CommandSender> {
 }
 
 class SomePlayerCommand: BukkitCommand<Player> {
-    override val structure by structure {
+    override val structure = structure {
         command("hey")(
             stringParameter("hello").pipeline(
                 { ParsingResult.success(it.toInt()) },
@@ -221,7 +221,7 @@ fun <E : BasicBukkitEnvironment> StructureScope<E, CommandSender>.targetPlayer(
     )
 
 class ColorPlayerCommand: BukkitCommand<Player> {
-    override val structure by structure {
+    override val structure = structure {
         command("asdf")(
             enumFlag(
                 Rgb.Red,
@@ -242,7 +242,7 @@ class ColorPlayerCommand: BukkitCommand<Player> {
 }
 
 class HybridFlagCommand: BukkitCommand<CommandSender> {
-    override val structure by structure {
+    override val structure = structure {
         command("asdf")(
             hybridFlag(
                 "color",
@@ -259,7 +259,7 @@ class HybridFlagCommand: BukkitCommand<CommandSender> {
 }
 
 class HybridFlagRequireCommand: BukkitCommand<CommandSender> {
-    override val structure by structure {
+    override val structure = structure {
         command("asdf")(
             requireIs(Player::class, invalidDefault(HybridFlagResult.Value(Rgb.Blue))) {
                 hybridFlag(
