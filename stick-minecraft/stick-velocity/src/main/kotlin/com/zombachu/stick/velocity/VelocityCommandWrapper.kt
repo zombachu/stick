@@ -17,10 +17,11 @@ class VelocityCommandWrapper<E : VelocityEnvironment>(
 
     override fun execute(invocation: RawCommand.Invocation) {
         val args = invocation.arguments().split(' ').filter { it.isNotEmpty() }
-        val fullArgs = buildList(args.size + 1) {
-            add(invocation.alias())
-            addAll(args)
-        }
+        val fullArgs =
+            buildList(args.size + 1) {
+                add(invocation.alias())
+                addAll(args)
+            }
         execute(invocation.source(), fullArgs)
     }
 
