@@ -24,6 +24,9 @@ subprojects {
     tasks.withType<com.ncorti.ktfmt.gradle.tasks.KtfmtCheckTask> {
         enabled = false
     }
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        dependsOn("ktfmtFormat")
+    }
 }
 
 tasks.dokkaHtmlMultiModule {
@@ -32,4 +35,7 @@ tasks.dokkaHtmlMultiModule {
 tasks.findByName("ktfmtFormatScripts")?.enabled = false
 tasks.withType<com.ncorti.ktfmt.gradle.tasks.KtfmtCheckTask> {
     enabled = false
+}
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    dependsOn("ktfmtFormat")
 }
