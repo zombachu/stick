@@ -5,7 +5,6 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.TypedIdentifier
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.valueOrPropagateError
 
 internal class StoredFixedSizeParameter<E : Environment, S, T>(
@@ -15,9 +14,6 @@ internal class StoredFixedSizeParameter<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parseAndStore(base, id, args)
-
-    context(validationContext: ValidationContext<E, S>)
-    override fun getSyntax(): String = base.getSyntax()
 }
 
 internal class StoredUnknownSizeParameter<E : Environment, S, T>(
@@ -27,9 +23,6 @@ internal class StoredUnknownSizeParameter<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parseAndStore(base, id, args)
-
-    context(validationContext: ValidationContext<E, S>)
-    override fun getSyntax(): String = base.getSyntax()
 }
 
 internal class StoredValueFlag<E : Environment, S, T>(
@@ -39,9 +32,6 @@ internal class StoredValueFlag<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parseAndStore(base, id, args)
-
-    context(validationContext: ValidationContext<E, S>)
-    override fun getSyntax(): String = base.getSyntax()
 }
 
 internal class StoredHybridFlag<E : Environment, S, T>(
@@ -51,9 +41,6 @@ internal class StoredHybridFlag<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<HybridFlagResult<T>> = parseAndStore(base, id, args)
-
-    context(validationContext: ValidationContext<E, S>)
-    override fun getSyntax(): String = base.getSyntax()
 }
 
 internal class StoredOptionalParameter<E : Environment, S, T>(
@@ -63,9 +50,6 @@ internal class StoredOptionalParameter<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parseAndStore(base, id, args)
-
-    context(validationContext: ValidationContext<E, S>)
-    override fun getSyntax(): String = base.getSyntax()
 }
 
 context(inv: Invocation<E, S>)
