@@ -6,13 +6,13 @@ plugins {
 
 subprojects {
     apply(plugin = "org.jetbrains.dokka")
-    //  apply(plugin = "io.gitlab.arturbosch.detekt").also {
-    //    detekt {
-    //      buildUponDefaultConfig = true
-    //      allRules = false
-    //      source.setFrom(files("src/main/kotlin"))
-    //    }
-    //  }
+    apply(plugin = "io.gitlab.arturbosch.detekt").also {
+        detekt {
+            buildUponDefaultConfig = true
+            allRules = false
+            source.setFrom(files("src/main/kotlin"))
+        }
+    }
     apply(plugin = "com.ncorti.ktfmt.gradle").also {
         ktfmt {
             kotlinLangStyle()

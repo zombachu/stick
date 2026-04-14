@@ -69,7 +69,7 @@ fun <E : Environment, S : Any, S2 : Any, T_ : Arguments> StructureScope<E, S>.re
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireIsUnknownSize")
 inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireIs(
-    senderType: KClass<S2>,
+    @Suppress("UnusedParameter") senderType: KClass<S2>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline parameter: StructureScope<E, S2>.() -> Parameter.UnknownSize<E, S2, T>,
@@ -83,7 +83,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireIsFixedSize")
 inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireIs(
-    senderType: KClass<S2>,
+    @Suppress("UnusedParameter") senderType: KClass<S2>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline parameter: StructureScope<E, S2>.() -> Parameter.FixedSize<E, S2, T>,
@@ -97,7 +97,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireIsValueFlag")
 inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireIs(
-    senderType: KClass<S2>,
+    @Suppress("UnusedParameter") senderType: KClass<S2>,
     invalidSenderDefault: InvalidSenderDefault<E, S, T>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline flag: StructureScope<E, S2>.() -> ValueFlag<E, S2, T>,
@@ -114,7 +114,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireIsHybridFlag")
 inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireIs(
-    senderType: KClass<S2>,
+    @Suppress("UnusedParameter") senderType: KClass<S2>,
     invalidSenderDefault: InvalidSenderDefault<E, S, HybridFlagResult<T>>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline flag: StructureScope<E, S2>.() -> HybridFlag<E, S2, T>,
@@ -131,7 +131,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireIsCommand")
 inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureScope<E, S>.requireIs(
-    senderType: KClass<S2>,
+    @Suppress("UnusedParameter") senderType: KClass<S2>,
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline command: StructureScope<E, S2>.() -> Structure<E, S2, T_>,

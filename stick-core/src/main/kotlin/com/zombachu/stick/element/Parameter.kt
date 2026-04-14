@@ -1,3 +1,5 @@
+@file:Suppress("MagicNumber")
+
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult

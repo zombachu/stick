@@ -18,6 +18,7 @@ class VelocityStick(private val plugin: Any, proxy: ProxyServer) :
 
     context(env: E, failureHandler: FailureHandler<E, CommandSource>)
     override fun <E : VelocityEnvironment> registerCommand(structure: Structure<E, CommandSource, *>) {
+        @Suppress("SpreadOperator")
         val commandMeta =
             commandManager.metaBuilder(structure.name).aliases(*structure.aliases.toTypedArray()).plugin(plugin).build()
         commandManager.register(commandMeta, VelocityCommandWrapper(env, failureHandler, structure))

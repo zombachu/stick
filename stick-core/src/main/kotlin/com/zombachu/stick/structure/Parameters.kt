@@ -90,7 +90,7 @@ fun <E : Environment, S> StructureScope<E, S>.textParameter(
 
 inline fun <E : Environment, S, reified T : Enum<T>> StructureScope<E, S>.enumParameter(
     name: String,
-    enum: KClass<T>,
+    @Suppress("UnusedParameter") enum: KClass<T>,
     description: String = "",
 ): EnumParameter<E, S, T> =
     EnumParameter(name, description, enumEntries<T>().associateBy { it.name.lowercase() }, mapOf())
@@ -98,7 +98,7 @@ inline fun <E : Environment, S, reified T : Enum<T>> StructureScope<E, S>.enumPa
 @JvmName("aliasableEnumParameter")
 inline fun <E : Environment, S, reified T> StructureScope<E, S>.enumParameter(
     name: String,
-    enum: KClass<T>,
+    @Suppress("UnusedParameter") enum: KClass<T>,
     description: String = "",
 ): EnumParameter<E, S, T> where T : Enum<T>, T : Aliasable =
     EnumParameter(

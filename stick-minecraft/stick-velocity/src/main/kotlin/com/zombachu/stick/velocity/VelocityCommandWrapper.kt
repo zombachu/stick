@@ -7,6 +7,7 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.impl.CommandWrapper
 import com.zombachu.stick.isSuccess
+import kotlin.collections.addAll
 
 class VelocityCommandWrapper<E : VelocityEnvironment>(
     override val env: E,
@@ -16,7 +17,11 @@ class VelocityCommandWrapper<E : VelocityEnvironment>(
 
     override fun execute(invocation: RawCommand.Invocation) {
         val args = invocation.arguments().split(' ').filter { it.isNotEmpty() }
-        execute(invocation.source(), listOf(invocation.alias(), *args.toTypedArray()))
+        val fullArgs = buildList(args.size + 1) {
+            add(invocation.alias())
+            addAll(args)
+        }
+        execute(invocation.source(), fullArgs)
     }
 
     override fun hasPermission(invocation: RawCommand.Invocation): Boolean {

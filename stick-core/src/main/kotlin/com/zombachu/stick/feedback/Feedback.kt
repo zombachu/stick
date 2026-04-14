@@ -44,7 +44,7 @@ sealed interface Feedback {
     }
 }
 
-open class CustomFeedback(private val _message: () -> String) : Feedback {
+open class CustomFeedback(private val getMessage: () -> String) : Feedback {
     override val message
-        get() = _message()
+        get() = getMessage()
 }

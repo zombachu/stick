@@ -11,8 +11,8 @@ import com.zombachu.stick.lowercase
 import kotlin.reflect.KClass
 
 fun <E : Environment, S : Any, T_ : Arguments> structure(
-    envType: KClass<E>,
-    senderType: KClass<S>,
+    @Suppress("UnusedParameter") envType: KClass<E>,
+    @Suppress("UnusedParameter") senderType: KClass<S>,
     structure: StructureScope<E, S>.() -> Structure<E, S, T_>,
 ): Structure<E, S, T_> = structure(StructureScope.empty())
 

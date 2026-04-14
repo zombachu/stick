@@ -18,7 +18,11 @@ class BukkitCommandWrapper<E : BukkitEnvironment>(
     CommandWrapper<E, CommandSender> {
 
     override fun execute(sender: CommandSender, label: String, args: Array<String>): Boolean {
-        execute(sender, listOf(label, *args))
+        val fullArgs = buildList(args.size + 1) {
+            add(label)
+            addAll(args)
+        }
+        execute(sender, fullArgs)
         return true
     }
 

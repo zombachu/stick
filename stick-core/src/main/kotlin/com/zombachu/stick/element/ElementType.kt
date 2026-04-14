@@ -1,3 +1,5 @@
+@file:Suppress("MagicNumber")
+
 package com.zombachu.stick.element
 
 sealed class ElementType(internal val parsingPriority: Int) {
