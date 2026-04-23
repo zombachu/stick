@@ -15,6 +15,6 @@ open class TextParameter<E : Environment, S>(name: String, description: String) 
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<String> {
-        return ParsingResult.success(args.joinToString(" "))
+        return ParsingResult.success(args.joinToString(" "), Size(args.size))
     }
 }
