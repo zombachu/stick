@@ -134,6 +134,7 @@ fun <E : Environment, S, T> StructureScope<E, S>.listParameter(
 fun <E : Environment, S, T> StructureScope<E, S>.listElementParameter(
     name: String,
     list: ContextualValue<E, S, List<T>>,
-    onEmpty: Invocation<E, S>.() -> Unit,
+    oneIndexed: Boolean = false,
+    onEmpty: (Invocation<E, S>.() -> Unit)? = null,
     description: String = "",
-): ListElementParameter<E, S, T> = ListElementParameter(name, description, list, onEmpty)
+): ListElementParameter<E, S, T> = ListElementParameter(name, description, list, oneIndexed, onEmpty)

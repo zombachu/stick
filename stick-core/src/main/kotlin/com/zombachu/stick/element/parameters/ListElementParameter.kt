@@ -11,30 +11,35 @@ import com.zombachu.stick.valueOrPropagateError
 open class ListElementParameter<E : Environment, S, T>(
     name: String,
     description: String,
-    val list: ContextualValue<E, S, List<T>>,
-    val onEmpty: Invocation<E, S>.() -> Unit,
-) : Parameter.Size1<E, S, T>(name, description) {
+    private val list: ContextualValue<E, S, List<T>>,
+    private val oneIndexed: Boolean,
+    private val onEmpty: (Invocation<E, S>.() -> Unit)? = null,
+) : Parameter.Size1<E, S, ListElementResult<T>>(name, description) {
 
     context(inv: Invocation<E, S>)
-    override fun parse(arg0: String): CommandResult<T> {
+    override fun parse(arg0: String): CommandResult<ListElementResult<T>> {
         val list =
             list(inv).valueOrPropagateError {
                 return it
             }
-        if (list.isEmpty()) {
+        if (onEmpty != null && list.isEmpty()) {
             onEmpty(inv)
             return ParsingResult.failHandled()
         }
 
-        val index = arg0.toIntOrNull() ?: return ParsingResult.failType("index", arg0)
+        val userIndex = arg0.toIntOrNull() ?: return ParsingResult.failType("index", arg0)
 
         // If the given number is not in the valid range then give the sender an error
-        val min = 0
-        val max = list.size - 1
-        if (index !in min..max) {
+        val oneIndexedAdjustment = if (oneIndexed) 1 else 0
+        val min = 0 + oneIndexedAdjustment
+        val max = list.size - 1 + oneIndexedAdjustment
+        if (userIndex !in min..max) {
             return ParsingResult.failRange(min.toString(), max.toString(), arg0)
         }
+        val index = userIndex - oneIndexedAdjustment
 
-        return ParsingResult.success(list[index])
+        return ParsingResult.success(ListElementResult(list[index], list, index))
     }
 }
+
+data class ListElementResult<T>(val result: T, val list: List<T>, val index: Int)

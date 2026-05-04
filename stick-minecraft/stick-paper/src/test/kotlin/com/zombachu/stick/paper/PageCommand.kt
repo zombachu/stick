@@ -10,6 +10,7 @@ import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.ValueFlag
 import com.zombachu.stick.element.parameters.IntParameter
+import com.zombachu.stick.element.parameters.ListElementResult
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.impl.Arguments
 import com.zombachu.stick.impl.Arguments0
@@ -73,7 +74,7 @@ class PageCommand: BukkitCommand<CommandSender> {
         }
     }
 
-    fun goToPage(context: Invocation<BukkitEnvironment, Player>, flagValue: String, intElement: Int, result: GroupResult2<String, Int>) {
+    fun goToPage(context: Invocation<BukkitEnvironment, Player>, flagValue: String, intElement: ListElementResult<Int>, result: GroupResult2<String, Int>) {
         when (result) {
             is GroupResult.ResultA -> result.value.lowercase()
             is GroupResult.ResultB -> result.value + 10
