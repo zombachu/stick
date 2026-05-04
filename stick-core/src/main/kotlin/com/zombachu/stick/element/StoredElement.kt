@@ -7,6 +7,15 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.valueOrPropagateError
 
+internal class StoredHelper<E : Environment, S, T>(
+    private val base: Helper<E, S, T>,
+    private val id: TypedIdentifier<T>,
+) : Helper<E, S, T> by base {
+
+    context(inv: Invocation<E, S>)
+    override fun parse(args: List<String>): CommandResult<T> = parseAndStore(base, id, args)
+}
+
 internal class StoredFixedSizeParameter<E : Environment, S, T>(
     private val base: FixedSize<E, S, T>,
     private val id: TypedIdentifier<T>,
@@ -54,7 +63,7 @@ internal class StoredOptionalParameter<E : Environment, S, T>(
 
 context(inv: Invocation<E, S>)
 private fun <E : Environment, S, T> parseAndStore(
-    base: SyntaxElement<E, S, T>,
+    base: Element<E, S, T>,
     id: TypedIdentifier<T>,
     args: List<String>,
 ): CommandResult<T> {

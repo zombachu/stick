@@ -5,16 +5,21 @@ package com.zombachu.stick.structure
 import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.TypedIdentifier
+import com.zombachu.stick.element.Helper
 import com.zombachu.stick.element.HybridFlag
 import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.StoredFixedSizeParameter
+import com.zombachu.stick.element.StoredHelper
 import com.zombachu.stick.element.StoredHybridFlag
 import com.zombachu.stick.element.StoredOptionalParameter
 import com.zombachu.stick.element.StoredUnknownSizeParameter
 import com.zombachu.stick.element.StoredValueFlag
 import com.zombachu.stick.element.ValueFlag
 import kotlin.experimental.ExperimentalTypeInference
+
+@JvmName("storeHelper")
+fun <E : Environment, S, T> Helper<E, S, T>.store(id: TypedIdentifier<T>): Helper<E, S, T> = StoredHelper(this, id)
 
 @JvmName("storeFixedSizeParameter")
 fun <E : Environment, S, T> Parameter.FixedSize<E, S, T>.store(id: TypedIdentifier<T>): Parameter.FixedSize<E, S, T> =
