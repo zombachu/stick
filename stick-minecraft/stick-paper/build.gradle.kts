@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     // Apply the shared build logic from a convention plugin.
     // The shared code is located in `buildSrc/src/main/kotlin/kotlin-jvm.gradle.kts`.
@@ -20,13 +18,4 @@ dependencies {
     paperweight.paperDevBundle("1.21.11-R0.1-SNAPSHOT")
 
     testImplementation(kotlin("test"))
-}
-
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.compilerOptions {
-    freeCompilerArgs.set(listOf("-Xcontext-parameters"))
-}
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.compilerOptions {
-    freeCompilerArgs.set(listOf("-Xcontext-parameters"))
 }
