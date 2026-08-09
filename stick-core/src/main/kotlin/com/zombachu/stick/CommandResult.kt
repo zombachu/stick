@@ -101,6 +101,8 @@ sealed interface SenderValidationResult {
 }
 
 internal sealed interface PeekingResult {
+
+    @ConsistentCopyVisibility
     data class Success internal constructor(private val mutableArgs: MutableList<String>) :
         PeekingResult, CommandResult.Success<List<String>> {
         override val value: List<String> = mutableArgs

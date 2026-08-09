@@ -82,7 +82,7 @@ fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.nullableEnumFlag(
     ValueFlagImpl(
         from.name,
         { ParsingResult.success(null) },
-        FlagParameter.EnumFlagParameter(from) as FlagParameter.EnumFlagParameter<E, S, T?>,
+        FlagParameter.EnumFlagParameter(from) as FlagParameter<E, S, T?>,
     )
 
 fun <E : Environment, S, T> StructureScope<E, S>.hybridFlag(
