@@ -1,20 +1,20 @@
-// The code in this file is a convention plugin - a Gradle mechanism for sharing reusable build logic.
-// `buildSrc` is a Gradle-recognized directory and every plugin there will be easily available in the rest of the build.
 package buildsrc.convention
 
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `maven-publish`
-    // Apply the Kotlin JVM plugin to add support for Kotlin in JVM projects.
     kotlin("jvm")
+    id("org.jetbrains.dokka")
+    id("io.gitlab.arturbosch.detekt")
+    id("com.ncorti.ktfmt.gradle")
 }
 
 group = "com.zombachu.stick"
 version = "0.3.0"
 
 kotlin {
-    // Use a specific Java version to make it easier to work in different environments.
     jvmToolchain(21)
 }
 
@@ -28,12 +28,40 @@ publishing {
     }
 }
 
-tasks {
-    withType<Test>().configureEach {
-        // Configure all test Gradle tasks to use JUnitPlatform.
-        useJUnitPlatform()
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    source.setFrom(files("src/main/kotlin"))
+}
 
-        // Log information about all test results, not only the failed ones.
+ktfmt {
+    kotlinLangStyle()
+    maxWidth = 120
+    srcSetPathExclusionPattern = Regex(".*test.*")
+}
+
+dependencies {
+    testImplementation(kotlin("test"))
+}
+
+tasks {
+    findByName("ktfmtFormatScripts")?.enabled = false
+    withType<com.ncorti.ktfmt.gradle.tasks.KtfmtCheckTask>().configureEach {
+        enabled = false
+    }
+
+    withType<KotlinCompile>().configureEach {
+        compilerOptions {
+            freeCompilerArgs.set(listOf(
+                "-Xcollection-literals",
+                "-Xreturn-value-checker=full",
+            ))
+        }
+        dependsOn("ktfmtFormat")
+    }
+
+    withType<Test>().configureEach {
+        useJUnitPlatform()
         testLogging {
             events(
                 TestLogEvent.FAILED,
