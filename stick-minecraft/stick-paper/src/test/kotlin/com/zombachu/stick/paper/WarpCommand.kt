@@ -45,7 +45,7 @@ class WarpCommand : BukkitCommand<CommandSender> {
     override val structure = structure {
         command(
             name = "warp",
-            aliases = setOf("home", "warps"),
+            aliases = ["home", "warps"],
             description = "The main command for warps",
         )(
             stringParameter(
@@ -70,7 +70,7 @@ class WarpCommand : BukkitCommand<CommandSender> {
                 ) {
                     command(
                         name = "tp",
-                        aliases = setOf("teleport"),
+                        aliases = ["teleport"],
                         description = "Teleports you to a warp. If you have access to multiple warps with the same name, " +
                                 "you will need to provide the full owner#warp name of the warp.",
                     )(
@@ -136,7 +136,7 @@ class WarpInfoCommand: BukkitCommand<CommandSender> {
         mcpSender {
             command(
                 name = "info",
-                aliases = setOf("i"),
+                aliases = ["i"],
                 description = "Displays information about a warp.",
             )(
                 valueFlag(
@@ -170,7 +170,7 @@ class SomePlayerCommand: BukkitCommand<Player> {
             ),
             flag(
                 name = "there",
-                aliases = setOf("a", "b", "c", "d"),
+                aliases = ["a", "b", "c", "d"],
                 description = "yup",
             ).pipeline(
                 { ParsingResult.success(if (it) 1 else 0) },
@@ -197,9 +197,9 @@ enum class WeatherEnum(
     override val label: String,
     override val aliases: Set<String>,
 ) : Aliasable {
-    Sun("sun", setOf("dryaf", "hot")),
-    Rain("rain", setOf("rainy", "wet")),
-    Storm("storm", setOf("stormy", "qgir7ewfubausdbf")),
+    Sun("sun", ["dryaf", "hot"]),
+    Rain("rain", ["rainy", "wet"]),
+    Storm("storm", ["stormy", "qgir7ewfubausdbf"]),
 }
 
 enum class Rgb {

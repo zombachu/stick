@@ -34,7 +34,7 @@ class StructureScope<E : Environment, S>(
         fun <E : Environment, S> empty(): StructureScope<E, S> =
             StructureScope(
                 name = "",
-                aliases = setOf(),
+                aliases = [],
                 description = "",
                 parent = null,
                 requirement = Requirement { SenderValidationResult.success() },

@@ -33,11 +33,11 @@ open class EnumParameter<E : Environment, S, T : Enum<T>>(
     override fun getSyntax(): String = "<${primaryValues.keys.joinToString("|")}>"
 }
 
-class EnumEntry<T : Enum<T>>(val enumValue: T, label: String, aliases: Set<String> = setOf()) : Aliasable {
+class EnumEntry<T : Enum<T>>(val enumValue: T, label: String, aliases: Set<String> = []) : Aliasable {
     override val label: String = label.lowercase()
     override val aliases: Set<String> = aliases.lowercase()
 }
 
-infix fun <T : Enum<T>> T.by(label: String): EnumEntry<T> = EnumEntry(this, label, setOf())
+infix fun <T : Enum<T>> T.by(label: String): EnumEntry<T> = EnumEntry(this, label, [])
 
 infix fun <T : Enum<T>> T.by(entry: AliasEntry): EnumEntry<T> = EnumEntry(this, entry.label, entry.aliases)

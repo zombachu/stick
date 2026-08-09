@@ -17,7 +17,7 @@ open class LiteralParameter<E : Environment, S>(name: String, override val alias
     context(inv: Invocation<E, S>)
     override fun parse(arg0: String): CommandResult<String> {
         if (!matches(arg0.lowercase())) {
-            return ParsingResult.failLiteral(listOf(label), arg0)
+            return ParsingResult.failLiteral([label], arg0)
         }
         return ParsingResult.success(arg0)
     }

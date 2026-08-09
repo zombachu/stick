@@ -121,14 +121,14 @@ internal class GroupElement<E : Environment, S, T, G : GroupResult>(
 }
 
 internal class Group1Impl<E_ : Environment, S, A>(name: String, description: String, element: Groupable<E_, S, A>) :
-    GroupImpl<E_, S, GroupResult1<A>>(name, description, listOf(element to ::ResultA))
+    GroupImpl<E_, S, GroupResult1<A>>(name, description, [element to ::ResultA])
 
 internal class Group2Impl<E_ : Environment, S, A, B>(
     name: String,
     description: String,
     elementA: Groupable<E_, S, A>,
     elementB: Groupable<E_, S, B>,
-) : GroupImpl<E_, S, GroupResult2<A, B>>(name, description, listOf(elementA to ::ResultA, elementB to ::ResultB))
+) : GroupImpl<E_, S, GroupResult2<A, B>>(name, description, [elementA to ::ResultA, elementB to ::ResultB])
 
 internal class Group3Impl<E_ : Environment, S, A, B, C>(
     name: String,
@@ -140,7 +140,7 @@ internal class Group3Impl<E_ : Environment, S, A, B, C>(
     GroupImpl<E_, S, GroupResult3<A, B, C>>(
         name,
         description,
-        listOf(elementA to ::ResultA, elementB to ::ResultB, elementC to ::ResultC),
+        [elementA to ::ResultA, elementB to ::ResultB, elementC to ::ResultC],
     )
 
 internal class Group4Impl<E_ : Environment, S, A, B, C, D>(
@@ -154,7 +154,7 @@ internal class Group4Impl<E_ : Environment, S, A, B, C, D>(
     GroupImpl<E_, S, GroupResult4<A, B, C, D>>(
         name,
         description,
-        listOf(elementA to ::ResultA, elementB to ::ResultB, elementC to ::ResultC, elementD to ::ResultD),
+        [elementA to ::ResultA, elementB to ::ResultB, elementC to ::ResultC, elementD to ::ResultD],
     )
 
 internal class Group5Impl<E_ : Environment, S, A, B, C, D, E>(
@@ -169,13 +169,13 @@ internal class Group5Impl<E_ : Environment, S, A, B, C, D, E>(
     GroupImpl<E_, S, GroupResult5<A, B, C, D, E>>(
         name,
         description,
-        listOf(
+        [
             elementA to ::ResultA,
             elementB to ::ResultB,
             elementC to ::ResultC,
             elementD to ::ResultD,
             elementE to ::ResultE,
-        ),
+        ],
     )
 
 internal class Group6Impl<E_ : Environment, S, A, B, C, D, E, F>(
@@ -191,14 +191,14 @@ internal class Group6Impl<E_ : Environment, S, A, B, C, D, E, F>(
     GroupImpl<E_, S, GroupResult6<A, B, C, D, E, F>>(
         name,
         description,
-        listOf(
+        [
             elementA to ::ResultA,
             elementB to ::ResultB,
             elementC to ::ResultC,
             elementD to ::ResultD,
             elementE to ::ResultE,
             elementF to ::ResultF,
-        ),
+        ],
     )
 
 internal class Group7Impl<E_ : Environment, S, A, B, C, D, E, F, G>(
@@ -215,7 +215,7 @@ internal class Group7Impl<E_ : Environment, S, A, B, C, D, E, F, G>(
     GroupImpl<E_, S, GroupResult7<A, B, C, D, E, F, G>>(
         name,
         description,
-        listOf(
+        [
             elementA to ::ResultA,
             elementB to ::ResultB,
             elementC to ::ResultC,
@@ -223,7 +223,7 @@ internal class Group7Impl<E_ : Environment, S, A, B, C, D, E, F, G>(
             elementE to ::ResultE,
             elementF to ::ResultF,
             elementG to ::ResultG,
-        ),
+        ],
     )
 
 internal class Group8Impl<E_ : Environment, S, A, B, C, D, E, F, G, H>(
@@ -241,7 +241,7 @@ internal class Group8Impl<E_ : Environment, S, A, B, C, D, E, F, G, H>(
     GroupImpl<E_, S, GroupResult8<A, B, C, D, E, F, G, H>>(
         name,
         description,
-        listOf(
+        [
             elementA to ::ResultA,
             elementB to ::ResultB,
             elementC to ::ResultC,
@@ -250,5 +250,5 @@ internal class Group8Impl<E_ : Environment, S, A, B, C, D, E, F, G, H>(
             elementF to ::ResultF,
             elementG to ::ResultG,
             elementH to ::ResultH,
-        ),
+        ],
     )

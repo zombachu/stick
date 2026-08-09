@@ -107,7 +107,7 @@ private class TransformedInvocationImpl<E : Environment, S, S2>(val base: Invoca
         base.label,
         base.args,
         // TransformedInvocationImpl forwards to structure of base invocation
-        StructureImpl("", setOf(), "", Requirement { SenderValidationResult.success() }, Signature0({}, listOf())),
+        StructureImpl("", [], "", Requirement { SenderValidationResult.success() }, Signature0({}, [])),
         parent = base,
     ) {
     override var unparsed: MutableList<String> = base.unparsed

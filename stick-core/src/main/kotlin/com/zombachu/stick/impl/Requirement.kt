@@ -11,8 +11,7 @@ class Requirement<E : Environment, S>
 @PublishedApi
 internal constructor(validate: (env: ValidationContext<E, S>) -> CommandResult<Unit>) : SenderValidator<E, S> {
 
-    private val validations: MutableList<(env: ValidationContext<E, S>) -> CommandResult<Unit>> =
-        mutableListOf(validate)
+    private val validations: MutableList<(env: ValidationContext<E, S>) -> CommandResult<Unit>> = [validate]
 
     context(validationContext: ValidationContext<E, S>)
     override fun validateSender(): CommandResult<Unit> {

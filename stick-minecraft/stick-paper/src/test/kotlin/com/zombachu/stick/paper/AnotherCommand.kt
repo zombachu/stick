@@ -11,10 +11,10 @@ class AnotherCommand : BukkitCommand<CommandSender> {
 
     override val structure = structure {
         command("testingEnums")(
-            enumParameter("someEnum", listOf(
+            enumParameter("someEnum", [
                 Block.Dirt by "dirt",
-                Block.Grass by "grass" + setOf("mycellium", "podzol"),
-            ))
+                Block.Grass by "grass" + ["mycellium", "podzol"],
+            ])
         )
     }
 }

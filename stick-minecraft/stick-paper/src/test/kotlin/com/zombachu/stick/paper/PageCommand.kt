@@ -55,7 +55,7 @@ class PageCommand: BukkitCommand<CommandSender> {
                 listElementParameter(
                     "intElement",
                     list = {
-                        ParsingResult.success(listOf(1, 2, 3))
+                        ParsingResult.success([1, 2, 3])
                     },
                     onEmpty = {
                         sender.sendMessage("No pages")

@@ -19,9 +19,7 @@ abstract class Stick<E : Environment, S : Any>(
     fun <E2 : E> withContext(
         env: E2,
         failureHandler: FailureHandler<in E2, S> = defaultFailureHandler.value,
-        block:
-            context(E2, FailureHandler<E2, S>)
-            StickScope<E2, S>.() -> Unit,
+        block: context(E2, FailureHandler<E2, S>) StickScope<E2, S>.() -> Unit,
     ) {
         val transformedStick: TransformedStick<E, E2, S, S> =
             TransformedStick(this, { it }, Requirement { SenderValidationResult.success() })
@@ -32,9 +30,7 @@ abstract class Stick<E : Environment, S : Any>(
 
     fun withContext(
         failureHandler: FailureHandler<in E, S> = defaultFailureHandler.value,
-        block:
-            context(E, FailureHandler<E, S>)
-            StickScope<E, S>.() -> Unit,
+        block: context(E, FailureHandler<E, S>) StickScope<E, S>.() -> Unit,
     ) = withContext(defaultEnvironment.value, failureHandler, block)
 
     fun <E2 : E, S2 : Any> withContext(
@@ -42,9 +38,7 @@ abstract class Stick<E : Environment, S : Any>(
         failureHandler: FailureHandler<in E2, S2>,
         transform: (S) -> S2,
         validate: (validationContext: ValidationContext<E2, S>) -> CommandResult<Unit>,
-        block:
-            context(E2, FailureHandler<E2, S2>)
-            StickScope<E2, S2>.() -> Unit,
+        block: context(E2, FailureHandler<E2, S2>) StickScope<E2, S2>.() -> Unit,
     ) {
         val transformedStick: TransformedStick<E, E2, S, S2> = TransformedStick(this, transform, Requirement(validate))
         with(StickScope(transformedStick)) {
@@ -58,9 +52,7 @@ abstract class Stick<E : Environment, S : Any>(
         transform: (S) -> S2,
         failureResult: CommandResult<Unit>,
         validate: (validationContext: ValidationContext<E2, S>) -> Boolean,
-        block:
-            context(E2, FailureHandler<E2, S2>)
-            StickScope<E2, S2>.() -> Unit,
+        block: context(E2, FailureHandler<E2, S2>) StickScope<E2, S2>.() -> Unit,
     ) {
         withContext(
             env,

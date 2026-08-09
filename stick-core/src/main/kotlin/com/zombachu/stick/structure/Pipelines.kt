@@ -21,92 +21,92 @@ import kotlin.experimental.ExperimentalTypeInference
 @JvmName("pipelineFixedSizeParameter")
 fun <E_ : Environment, S, A, B> Parameter.FixedSize<E_, S, A>.pipeline(
     operation: PipelineOperation<E_, S, A, B>
-): Parameter.FixedSize<E_, S, B> = PipelinedFixedSizeParameter(this, listOf(operation))
+): Parameter.FixedSize<E_, S, B> = PipelinedFixedSizeParameter(this, [operation])
 
 @JvmName("pipelineFixedSizeParameter")
 fun <E_ : Environment, S, A, B, C> Parameter.FixedSize<E_, S, A>.pipeline(
     operationA: PipelineOperation<E_, S, A, B>,
     operationB: PipelineOperation<E_, S, B, C>,
-): Parameter.FixedSize<E_, S, C> = PipelinedFixedSizeParameter(this, listOf(operationA, operationB))
+): Parameter.FixedSize<E_, S, C> = PipelinedFixedSizeParameter(this, [operationA, operationB])
 
 @JvmName("pipelineFixedSizeParameter")
 fun <E_ : Environment, S, A, B, C, D> Parameter.FixedSize<E_, S, A>.pipeline(
     operationA: PipelineOperation<E_, S, A, B>,
     operationB: PipelineOperation<E_, S, B, C>,
     operationC: PipelineOperation<E_, S, C, D>,
-): Parameter.FixedSize<E_, S, D> = PipelinedFixedSizeParameter(this, listOf(operationA, operationB, operationC))
+): Parameter.FixedSize<E_, S, D> = PipelinedFixedSizeParameter(this, [operationA, operationB, operationC])
 
 @JvmName("pipelineUnknownSizeParameter")
 fun <E_ : Environment, S, A, B> Parameter.UnknownSize<E_, S, A>.pipeline(
     operation: PipelineOperation<E_, S, A, B>
-): Parameter.UnknownSize<E_, S, B> = PipelinedUnknownSizeParameter(this, listOf(operation))
+): Parameter.UnknownSize<E_, S, B> = PipelinedUnknownSizeParameter(this, [operation])
 
 @JvmName("pipelineUnknownSizeParameter")
 fun <E_ : Environment, S, A, B, C> Parameter.UnknownSize<E_, S, A>.pipeline(
     operationA: PipelineOperation<E_, S, A, B>,
     operationB: PipelineOperation<E_, S, B, C>,
-): Parameter.UnknownSize<E_, S, C> = PipelinedUnknownSizeParameter(this, listOf(operationA, operationB))
+): Parameter.UnknownSize<E_, S, C> = PipelinedUnknownSizeParameter(this, [operationA, operationB])
 
 @JvmName("pipelineUnknownSizeParameter")
 fun <E_ : Environment, S, A, B, C, D> Parameter.UnknownSize<E_, S, A>.pipeline(
     operationA: PipelineOperation<E_, S, A, B>,
     operationB: PipelineOperation<E_, S, B, C>,
     operationC: PipelineOperation<E_, S, C, D>,
-): Parameter.UnknownSize<E_, S, D> = PipelinedUnknownSizeParameter(this, listOf(operationA, operationB, operationC))
+): Parameter.UnknownSize<E_, S, D> = PipelinedUnknownSizeParameter(this, [operationA, operationB, operationC])
 
 @JvmName("pipelineValueFlag")
 fun <E_ : Environment, S, A, B> ValueFlag<E_, S, A>.pipeline(
     operation: PipelineOperation<E_, S, A, B>
-): ValueFlag<E_, S, B> = PipelinedValueFlag(this, listOf(operation))
+): ValueFlag<E_, S, B> = PipelinedValueFlag(this, [operation])
 
 @JvmName("pipelineValueFlag")
 fun <E_ : Environment, S, A, B, C> ValueFlag<E_, S, A>.pipeline(
     operationA: PipelineOperation<E_, S, A, B>,
     operationB: PipelineOperation<E_, S, B, C>,
-): ValueFlag<E_, S, C> = PipelinedValueFlag(this, listOf(operationA, operationB))
+): ValueFlag<E_, S, C> = PipelinedValueFlag(this, [operationA, operationB])
 
 @JvmName("pipelineValueFlag")
 fun <E_ : Environment, S, A, B, C, D> ValueFlag<E_, S, A>.pipeline(
     operationA: PipelineOperation<E_, S, A, B>,
     operationB: PipelineOperation<E_, S, B, C>,
     operationC: PipelineOperation<E_, S, C, D>,
-): ValueFlag<E_, S, D> = PipelinedValueFlag(this, listOf(operationA, operationB, operationC))
+): ValueFlag<E_, S, D> = PipelinedValueFlag(this, [operationA, operationB, operationC])
 
 @JvmName("pipelineHybridFlag")
 fun <E_ : Environment, S, A, B> HybridFlag<E_, S, A>.pipeline(
     operation: PipelineOperation<E_, S, A, B>
-): HybridFlag<E_, S, B> = PipelinedHybridFlag(this, listOf(operation))
+): HybridFlag<E_, S, B> = PipelinedHybridFlag(this, [operation])
 
 @JvmName("pipelineHybridFlag")
 fun <E_ : Environment, S, A, B, C> HybridFlag<E_, S, A>.pipeline(
     operationA: PipelineOperation<E_, S, A, B>,
     operationB: PipelineOperation<E_, S, B, C>,
-): HybridFlag<E_, S, C> = PipelinedHybridFlag(this, listOf(operationA, operationB))
+): HybridFlag<E_, S, C> = PipelinedHybridFlag(this, [operationA, operationB])
 
 @JvmName("pipelineHybridFlag")
 fun <E_ : Environment, S, A, B, C, D> HybridFlag<E_, S, A>.pipeline(
     operationA: PipelineOperation<E_, S, A, B>,
     operationB: PipelineOperation<E_, S, B, C>,
     operationC: PipelineOperation<E_, S, C, D>,
-): HybridFlag<E_, S, D> = PipelinedHybridFlag(this, listOf(operationA, operationB, operationC))
+): HybridFlag<E_, S, D> = PipelinedHybridFlag(this, [operationA, operationB, operationC])
 
 @JvmName("pipelineOptional")
 fun <E_ : Environment, S, A, B> OptionalParameter<E_, S, A>.pipeline(
     operation: PipelineOperation<E_, S, A, B>
-): OptionalParameter<E_, S, B> = PipelinedOptionalParameter(this, listOf(operation))
+): OptionalParameter<E_, S, B> = PipelinedOptionalParameter(this, [operation])
 
 @JvmName("pipelineOptional")
 fun <E_ : Environment, S, A, B, C> OptionalParameter<E_, S, A>.pipeline(
     operationA: PipelineOperation<E_, S, A, B>,
     operationB: PipelineOperation<E_, S, B, C>,
-): OptionalParameter<E_, S, C> = PipelinedOptionalParameter(this, listOf(operationA, operationB))
+): OptionalParameter<E_, S, C> = PipelinedOptionalParameter(this, [operationA, operationB])
 
 @JvmName("pipelineOptional")
 fun <E_ : Environment, S, A, B, C, D> OptionalParameter<E_, S, A>.pipeline(
     operationA: PipelineOperation<E_, S, A, B>,
     operationB: PipelineOperation<E_, S, B, C>,
     operationC: PipelineOperation<E_, S, C, D>,
-): OptionalParameter<E_, S, D> = PipelinedOptionalParameter(this, listOf(operationA, operationB, operationC))
+): OptionalParameter<E_, S, D> = PipelinedOptionalParameter(this, [operationA, operationB, operationC])
 
 fun <E : Environment, S, A, B> StructureScope<E, S>.map(
     block: Invocation<E, S>.(A) -> B

@@ -22,7 +22,7 @@ fun <E : Environment, S : Any, T_ : Arguments> CommandScope<E, S>.structure(
 
 fun <E : Environment, S> StructureScope<E, S>.command(
     name: String,
-    aliases: Set<String> = setOf(),
+    aliases: Set<String> = [],
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     description: String = "",
 ): StructureScope<E, S> {

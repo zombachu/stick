@@ -205,7 +205,7 @@ private fun <E : Environment, S, R : GroupResult, G : Group<E, S, R>> StructureS
     val scope =
         StructureScope<E, S>(
             name = "${this.name}_group",
-            aliases = setOf(),
+            aliases = [],
             description = "",
             parent = this,
             requirement = requirement { SenderValidationResult.success() },

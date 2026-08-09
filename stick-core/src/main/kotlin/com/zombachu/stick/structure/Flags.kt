@@ -15,7 +15,7 @@ import com.zombachu.stick.lowercase
 
 fun <E : Environment, S> StructureScope<E, S>.flag(
     name: String,
-    aliases: Set<String> = setOf(),
+    aliases: Set<String> = [],
     description: String = "",
 ): ValueFlag<E, S, Boolean> =
     ValueFlagImpl(
@@ -28,7 +28,7 @@ fun <E : Environment, S, T> StructureScope<E, S>.flag(
     name: String,
     default: ContextualValue<E, S, T>,
     presentValue: ContextualValue<E, S, T>,
-    aliases: Set<String> = setOf(),
+    aliases: Set<String> = [],
     description: String = "",
 ): ValueFlag<E, S, T> =
     ValueFlagImpl(
@@ -41,7 +41,7 @@ fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     name: String,
     default: ContextualValue<E, S, T>,
     parameter: Parameter.FixedSize<E, S, T>,
-    aliases: Set<String> = setOf(),
+    aliases: Set<String> = [],
 ): ValueFlag<E, S, T> =
     ValueFlagImpl(name, default, FlagParameter.ParameterFlagParameter(parameter, aliases.lowercase()))
 
@@ -49,13 +49,13 @@ fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     name: String,
     default: T,
     parameter: Parameter.FixedSize<E, S, T>,
-    aliases: Set<String> = setOf(),
+    aliases: Set<String> = [],
 ): ValueFlag<E, S, T> = valueFlag(name, { ParsingResult.success(default) }, parameter, aliases.lowercase())
 
 fun <E : Environment, S, T> StructureScope<E, S>.nullableValueFlag(
     name: String,
     parameter: Parameter.FixedSize<E, S, T>,
-    aliases: Set<String> = setOf(),
+    aliases: Set<String> = [],
 ): ValueFlag<E, S, T?> =
     @Suppress("UNCHECKED_CAST")
     ValueFlagImpl(
@@ -88,5 +88,5 @@ fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.nullableEnumFlag(
 fun <E : Environment, S, T> StructureScope<E, S>.hybridFlag(
     name: String,
     parameter: Parameter.FixedSize<E, S, T>,
-    aliases: Set<String> = setOf(),
+    aliases: Set<String> = [],
 ): HybridFlag<E, S, T> = HybridFlagImpl(name, parameter, aliases)

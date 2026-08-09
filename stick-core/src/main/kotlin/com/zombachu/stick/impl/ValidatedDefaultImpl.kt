@@ -16,9 +16,7 @@ sealed interface InvalidSenderDefault<E : Environment, S, T> : ValidatedDefault<
 
 internal class ValidatedDefaultImpl<E : Environment, S, T>(
     override val value: ContextualValue<E, S, T>,
-    private val validate:
-        context(ValidationContext<E, S>)
-        () -> CommandResult<Unit>,
+    private val validate: context(ValidationContext<E, S>) () -> CommandResult<Unit>,
 ) : ValidSenderDefault<E, S, T>, InvalidSenderDefault<E, S, T> {
     context(validationContext: ValidationContext<E, S>)
     override fun validateSender(): CommandResult<Unit> = this.validate()

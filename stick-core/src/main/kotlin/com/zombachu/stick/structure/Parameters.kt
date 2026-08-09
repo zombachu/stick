@@ -74,7 +74,7 @@ fun <E : Environment, S> StructureScope<E, S>.doubleParameter(
 
 fun <E : Environment, S> StructureScope<E, S>.literalParameter(
     name: String,
-    aliases: Set<String> = setOf(),
+    aliases: Set<String> = [],
     description: String = "",
 ): LiteralParameter<E, S> = LiteralParameter(name, aliases.lowercase(), description)
 
