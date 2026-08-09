@@ -87,7 +87,7 @@ internal open class InvocationImpl<E : Environment, S>(
             }
             val consumed = result.consumed
             // Let containers manage their syntax element consumption
-            if (element !is Group && element !is Structure && consumed is Size.Fixed) {
+            if (element !is Group && element !is Structure) {
                 if (consumed.size > peeked.value.size) {
                     // Bug in element implementation
                     return ParsingResult.failUnknown()
