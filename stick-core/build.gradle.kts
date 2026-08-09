@@ -12,9 +12,15 @@ dependencies {
 
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.compilerOptions {
-    freeCompilerArgs.set(listOf("-Xcollection-literals"))
+    freeCompilerArgs.set(listOf(
+        "-Xcollection-literals",
+        "-Xreturn-value-checker=full",
+    ))
 }
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.compilerOptions {
-    freeCompilerArgs.set(listOf("-Xcollection-literals"))
+    freeCompilerArgs.set(listOf(
+        "-Xcollection-literals",
+        "-Xreturn-value-checker=full",
+    ))
 }
