@@ -1,7 +1,7 @@
 plugins {
-    id("org.jetbrains.dokka") version "2.0.0"
+    id("org.jetbrains.dokka") version "2.2.0"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
-    id("com.ncorti.ktfmt.gradle") version "0.26.0"
+    id("com.ncorti.ktfmt.gradle") version "0.27.0"
 }
 
 subprojects {
