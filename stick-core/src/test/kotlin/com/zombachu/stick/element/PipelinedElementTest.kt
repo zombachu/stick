@@ -10,6 +10,7 @@ import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.element.parameters.TextParameter
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.isSuccess
+import com.zombachu.stick.presenceFlagParameter
 import com.zombachu.stick.testInvocation
 import com.zombachu.stick.withInvocation
 import kotlin.test.Test
@@ -94,9 +95,7 @@ class PipelinedElementTest {
 
     @Test
     fun `PipelinedValueFlag default runs pipeline on default value`() {
-        val flagParameter =
-            FlagParameter.PresenceFlagParameter<TestEnv, Unit, Int>("", { ParsingResult.success(1) }, [], "")
-        val base = ValueFlagImpl("", { ParsingResult.success(5) }, flagParameter)
+        val base = ValueFlagImpl("", { ParsingResult.success(5) }, presenceFlagParameter<TestEnv, Unit, Int>("", 1))
         val op: PipelineOperation<TestEnv, Unit, Int, Int> = { ParsingResult.success(it * 10) }
         val pipelined = PipelinedValueFlag<TestEnv, Unit, Int, Int>(base, [op])
 
@@ -107,14 +106,7 @@ class PipelinedElementTest {
 
     @Test
     fun `PipelinedValueFlag default short-circuits if operation fails`() {
-        val flagParameter =
-            FlagParameter.PresenceFlagParameter<TestEnv, Unit, Int>(
-                "",
-                { ParsingResult.success(1) },
-                [],
-                "",
-            )
-        val base = ValueFlagImpl("", { ParsingResult.success(5) }, flagParameter)
+        val base = ValueFlagImpl("", { ParsingResult.success(5) }, presenceFlagParameter<TestEnv, Unit, Int>("", 1))
         val op: PipelineOperation<TestEnv, Unit, Int, Int> = { ParsingResult.failUnknown() }
         val pipelined = PipelinedValueFlag<TestEnv, Unit, Int, Int>(base, [op])
 

@@ -7,6 +7,7 @@ import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.isSuccess
+import com.zombachu.stick.presenceFlagParameter
 import com.zombachu.stick.structure.id
 import com.zombachu.stick.testInvocation
 import kotlin.test.Test
@@ -48,9 +49,8 @@ class StoredElementTest {
 
     @Test
     fun `StoredValueFlag stores parsed value`() {
-        val flagParameter =
-            FlagParameter.PresenceFlagParameter<TestEnv, Unit, Boolean>("loud", { ParsingResult.success(true) }, [], "")
-        val base = ValueFlagImpl("loud", { ParsingResult.success(false) }, flagParameter)
+        val base =
+            ValueFlagImpl("loud", { ParsingResult.success(false) }, presenceFlagParameter<TestEnv, Unit, Boolean>("loud", true))
         val identifier = id<Boolean>("loud")
         val stored = StoredValueFlag(base, identifier)
 

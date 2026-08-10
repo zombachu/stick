@@ -7,8 +7,8 @@ import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.expectSuccessValue
-import com.zombachu.stick.impl.InvalidSenderDefault
-import com.zombachu.stick.impl.ValidatedDefaultImpl
+import com.zombachu.stick.invalidSenderDefault
+import com.zombachu.stick.presenceFlagParameter
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.testInvocation
 import com.zombachu.stick.withInvocation
@@ -28,19 +28,19 @@ class ValueFlagTest {
 
     @Test
     fun `PresenceFlagParameter returns present value on match`() {
-        val result = withInvocation { presenceFlagParameter<Unit>().parse(["-silent"]) }
+        val result = withInvocation { presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true).parse(["-silent"]) }
         assertEquals(true, result.expectSuccessValue())
     }
 
     @Test
     fun `PresenceFlagParameter mismatch fails with TypeNotMatchedInternal`() {
-        val result = withInvocation { presenceFlagParameter<Unit>().parse(["-other"]) }
+        val result = withInvocation { presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true).parse(["-other"]) }
         assertSame(ParsingResult.TypeNotMatchedInternal, result)
     }
 
     @Test
     fun `PresenceFlagParameter getSyntax brackets label`() {
-        val syntax = withValidationContext { presenceFlagParameter<Unit>().getSyntax() }
+        val syntax = withValidationContext { presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true).getSyntax() }
         assertEquals("[-silent]", syntax)
     }
 
@@ -85,7 +85,7 @@ class ValueFlagTest {
 
     @Test
     fun `ValueFlagImpl delegates to flag parameter`() {
-        val flag = ValueFlagImpl("silent", { ParsingResult.success(false) }, presenceFlagParameter<Unit>())
+        val flag = ValueFlagImpl("silent", { ParsingResult.success(false) }, presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true))
 
         assertEquals(true, withInvocation { flag.parse(["-silent"]) }.expectSuccessValue())
         assertEquals("[-silent]", withValidationContext { flag.getSyntax() })
@@ -94,10 +94,8 @@ class ValueFlagTest {
 
     @Test
     fun `TransformedValueFlag delegates to flag parameter`() {
-        val base = ValueFlagImpl("silent", { ParsingResult.success(false) }, presenceFlagParameter<String>())
-        val invalidSenderDefault: InvalidSenderDefault<TestEnv, Int, Boolean> =
-            ValidatedDefaultImpl({ ParsingResult.success(false) }) { SenderValidationResult.success() }
-        val transformed = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidSenderDefault)
+        val base = ValueFlagImpl("silent", { ParsingResult.success(false) }, presenceFlagParameter<TestEnv, String, Boolean>("silent", true))
+        val transformed = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidSenderDefault(false))
 
         val result = withInvocationSender(1) { transformed.parse(["-silent"]) }
 
@@ -107,22 +105,19 @@ class ValueFlagTest {
     @Test
     fun `TransformedValueFlag validateSender delegates to invalid sender default`() {
         var validated = false
-        val base = ValueFlagImpl("silent", { ParsingResult.success(false) }, presenceFlagParameter<String>())
-        val invalidSenderDefault: InvalidSenderDefault<TestEnv, Int, Boolean> =
-            ValidatedDefaultImpl({ ParsingResult.success(false) }) {
+        val base = ValueFlagImpl("silent", { ParsingResult.success(false) }, presenceFlagParameter<TestEnv, String, Boolean>("silent", true))
+        val invalidDefault =
+            invalidSenderDefault<TestEnv, Int, Boolean>(false) {
                 validated = true
                 SenderValidationResult.success()
             }
-        val transformed = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidSenderDefault)
+        val transformed = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidDefault)
 
         val result = withValidationContext(1) { transformed.validateSender() }
 
         assertTrue(result.isSuccess())
         assertTrue(validated)
     }
-
-    private fun <S> presenceFlagParameter(): FlagParameter.PresenceFlagParameter<TestEnv, S, Boolean> =
-        FlagParameter.PresenceFlagParameter("silent", { ParsingResult.success(true) }, [], "")
 
     private enum class Color {
         RED,

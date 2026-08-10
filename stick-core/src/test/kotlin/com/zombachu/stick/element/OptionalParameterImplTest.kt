@@ -1,6 +1,6 @@
 package com.zombachu.stick.element
 
-import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.StringParameter
@@ -9,7 +9,8 @@ import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.impl.InvalidSenderDefault
 import com.zombachu.stick.impl.ValidSenderDefault
-import com.zombachu.stick.impl.ValidatedDefaultImpl
+import com.zombachu.stick.invalidSenderDefault
+import com.zombachu.stick.validSenderDefault
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
@@ -117,12 +118,11 @@ class OptionalParameterImplTest {
     }
 
     private fun invalidDefault(value: String, allowed: Boolean): InvalidSenderDefault<TestEnv, Unit, String> =
-        ValidatedDefaultImpl({ ParsingResult.success(value) }) {
-            if (allowed) SenderValidationResult.success() else SenderValidationResult.failSender()
-        }
+        invalidSenderDefault(value) { validation(allowed) }
 
     private fun validDefault(value: String, allowed: Boolean): ValidSenderDefault<TestEnv, Unit, String> =
-        ValidatedDefaultImpl({ ParsingResult.success(value) }) {
-            if (allowed) SenderValidationResult.success() else SenderValidationResult.failSender()
-        }
+        validSenderDefault(value) { validation(allowed) }
+
+    private fun validation(allowed: Boolean): CommandResult<Unit> =
+        if (allowed) SenderValidationResult.success() else SenderValidationResult.failSender()
 }

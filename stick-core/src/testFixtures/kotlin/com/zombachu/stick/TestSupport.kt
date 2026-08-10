@@ -1,11 +1,18 @@
 package com.zombachu.stick
 
+import com.zombachu.stick.element.FlagParameter
 import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
+import com.zombachu.stick.feedback.CustomFeedback
+import com.zombachu.stick.feedback.FailureHandler
+import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.impl.InvalidSenderDefault
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.StructureScope
+import com.zombachu.stick.impl.ValidSenderDefault
+import com.zombachu.stick.impl.ValidatedDefaultImpl
 import kotlin.test.fail
 
 object TestEnv : Environment
@@ -63,6 +70,33 @@ internal inline fun <S, T> withInvocationSender(
         return block()
     }
 }
+
+fun <E : Environment, S> noopFailureHandler(): FailureHandler<E, S> =
+    object : FailureHandler<E, S> {
+        context(inv: Invocation<E, S>)
+        override fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>) {}
+    }
+
+fun customFailure(message: String): CommandResult.Failure<CustomFeedback> =
+    object : ParsingResult.CustomError<CustomFeedback> {
+        override val feedback = CustomFeedback { message }
+    }
+
+fun <E : Environment, S, T> validSenderDefault(
+    value: T,
+    validate: context(ValidationContext<E, S>) () -> CommandResult<Unit> = { SenderValidationResult.success() },
+): ValidSenderDefault<E, S, T> = ValidatedDefaultImpl({ ParsingResult.success(value) }, validate)
+
+fun <E : Environment, S, T> invalidSenderDefault(
+    value: T,
+    validate: context(ValidationContext<E, S>) () -> CommandResult<Unit> = { SenderValidationResult.success() },
+): InvalidSenderDefault<E, S, T> = ValidatedDefaultImpl({ ParsingResult.success(value) }, validate)
+
+internal fun <E : Environment, S, T> presenceFlagParameter(
+    name: String,
+    presentValue: T,
+): FlagParameter.PresenceFlagParameter<E, S, T> =
+    FlagParameter.PresenceFlagParameter(name, { ParsingResult.success(presentValue) }, [], "")
 
 fun <T> CommandResult<T>.expectSuccessValue(): T {
     val success = this as? CommandResult.Success<T> ?: fail("Expected success but was $this")

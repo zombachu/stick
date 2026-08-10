@@ -9,8 +9,8 @@ import com.zombachu.stick.element.parameters.TextParameter
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.feedback.Feedback
-import com.zombachu.stick.impl.InvalidSenderDefault
-import com.zombachu.stick.impl.ValidatedDefaultImpl
+import com.zombachu.stick.invalidSenderDefault
+import com.zombachu.stick.presenceFlagParameter
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
@@ -60,12 +60,10 @@ class SignatureTest {
 
     @Test
     fun `inaccessible flag parses invalidDefault value`() {
-        val flagParameter =
-            FlagParameter.PresenceFlagParameter<TestEnv, String, Boolean>("loud", { ParsingResult.success(true) }, [], "")
-        val base = ValueFlagImpl("loud", { ParsingResult.success(false) }, flagParameter)
-        val invalidSenderDefault: InvalidSenderDefault<TestEnv, Unit, Boolean> =
-            ValidatedDefaultImpl({ ParsingResult.success(true) }) { SenderValidationResult.failSender() }
-        val gatedFlag = TransformedValueFlag(base, { _: Unit -> "x" }, invalidSenderDefault)
+        val base =
+            ValueFlagImpl("loud", { ParsingResult.success(false) }, presenceFlagParameter<TestEnv, String, Boolean>("loud", true))
+        val invalidDefault = invalidSenderDefault<TestEnv, Unit, Boolean>(true) { SenderValidationResult.failSender() }
+        val gatedFlag = TransformedValueFlag(base, { _: Unit -> "x" }, invalidDefault)
         val signature = Signature1<TestEnv, Unit, Boolean>({ loud -> }, [gatedFlag])
 
         val args = withInvocation { signature.execute() }.expectSuccessValue()
@@ -114,9 +112,6 @@ class SignatureTest {
         assertEquals("<str> [-loud] <text>", syntax)
     }
 
-    private fun loudFlag(): ValueFlagImpl<TestEnv, Unit, Boolean> {
-        val flagParameter =
-            FlagParameter.PresenceFlagParameter<TestEnv, Unit, Boolean>("loud", { ParsingResult.success(true) }, [], "")
-        return ValueFlagImpl("loud", { ParsingResult.success(false) }, flagParameter)
-    }
+    private fun loudFlag(): ValueFlagImpl<TestEnv, Unit, Boolean> =
+        ValueFlagImpl("loud", { ParsingResult.success(false) }, presenceFlagParameter("loud", true))
 }

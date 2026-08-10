@@ -8,8 +8,7 @@ import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.feedback.Feedback
-import com.zombachu.stick.impl.InvalidSenderDefault
-import com.zombachu.stick.impl.ValidatedDefaultImpl
+import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.testInvocation
 import com.zombachu.stick.withInvocation
@@ -71,11 +70,8 @@ class HybridFlagTest {
 
     @Test
     fun `TransformedHybridFlag delegates parse to flag parameter`() {
-        val invalidSenderDefault: InvalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>> =
-            ValidatedDefaultImpl({ ParsingResult.success(HybridFlagResult.Absent()) }) {
-                SenderValidationResult.success()
-            }
-        val transformed = TransformedHybridFlag(flag, { }, invalidSenderDefault)
+        val invalidDefault = invalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>>(HybridFlagResult.Absent())
+        val transformed = TransformedHybridFlag(flag, { }, invalidDefault)
 
         val result = withInvocationSender(1) { transformed.parse(["-boost", "5"]) }
 
@@ -87,12 +83,12 @@ class HybridFlagTest {
     @Test
     fun `TransformedHybridFlag validateSender delegates to invalid sender default`() {
         var validated = false
-        val invalidSenderDefault: InvalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>> =
-            ValidatedDefaultImpl({ ParsingResult.success(HybridFlagResult.Absent()) }) {
+        val invalidDefault =
+            invalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>>(HybridFlagResult.Absent()) {
                 validated = true
                 SenderValidationResult.success()
             }
-        val transformed = TransformedHybridFlag(flag, { }, invalidSenderDefault)
+        val transformed = TransformedHybridFlag(flag, { }, invalidDefault)
 
         val result = withValidationContext(1) { transformed.validateSender() }
 
