@@ -60,7 +60,7 @@ class OptionalsTest {
     @Test
     fun `optionally evaluates and defaults correctly`() = structureTest<String> {
         val invalidDefault = invalidDefault(-1, requirement { it.sender == "correct" })
-        val optional = optionally(ifInvalid = invalidDefault, ifAbsent = default(0), parameter = intParameter)
+        val optional = optionally(invalidDefault, default(0), intParameter)
 
         assertEquals(0, withInvocationSender("correct") { optional.parse([]) }.expectSuccessValue())
         assertEquals(99, withInvocationSender("correct", "99") { optional.parse(["99"]) }.expectSuccessValue())
@@ -73,7 +73,7 @@ class OptionalsTest {
 
     @Test
     fun `optionally defaults without ifInvalid`() = structureTest<String> {
-        val optional = optionally(ifAbsent = default(7), parameter = intParameter)
+        val optional = optionally(default(7), intParameter)
         assertEquals(7, withInvocationSender("sender") { optional.parse([]) }.expectSuccessValue())
     }
 
