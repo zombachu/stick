@@ -1,4 +1,4 @@
-package com.zombachu.stick.velocity
+package com.zombachu.stick.velocity.legacy
 
 import com.velocitypowered.api.command.CommandSource
 import com.zombachu.stick.structure.command
@@ -10,6 +10,7 @@ import com.zombachu.stick.structure.optionallyNullable
 import com.zombachu.stick.structure.store
 import com.zombachu.stick.structure.stringParameter
 import com.zombachu.stick.structure.structure
+import com.zombachu.stick.velocity.VelocityCommand
 
 class ServerCommand : VelocityCommand<CommandSource> {
 

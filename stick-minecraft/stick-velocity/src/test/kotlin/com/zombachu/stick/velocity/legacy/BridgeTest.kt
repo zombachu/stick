@@ -1,4 +1,4 @@
-package com.zombachu.stick.velocity
+package com.zombachu.stick.velocity.legacy
 
 import com.velocitypowered.api.command.CommandManager
 import com.velocitypowered.api.command.CommandSource
@@ -27,6 +27,11 @@ import com.zombachu.stick.structure.command
 import com.zombachu.stick.structure.invoke
 import com.zombachu.stick.structure.stringParameter
 import com.zombachu.stick.structure.structure
+import com.zombachu.stick.velocity.BasicVelocityEnvironment
+import com.zombachu.stick.velocity.BasicVelocityFailureHandler
+import com.zombachu.stick.velocity.VelocityCommand
+import com.zombachu.stick.velocity.VelocityEnvironment
+import com.zombachu.stick.velocity.VelocityStick
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import java.net.InetSocketAddress

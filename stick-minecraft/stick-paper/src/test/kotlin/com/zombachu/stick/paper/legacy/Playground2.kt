@@ -1,4 +1,4 @@
-package com.zombachu.stick.paper
+package com.zombachu.stick.paper.legacy
 
 class Logger
 

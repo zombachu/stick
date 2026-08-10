@@ -1,4 +1,4 @@
-package com.zombachu.stick.paper
+package com.zombachu.stick.paper.legacy
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.GroupResult
@@ -16,6 +16,8 @@ import com.zombachu.stick.impl.Arguments
 import com.zombachu.stick.impl.Arguments0
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.impl.StructureScope
+import com.zombachu.stick.paper.BukkitCommand
+import com.zombachu.stick.paper.BukkitEnvironment
 import com.zombachu.stick.paper.structure.permission
 import com.zombachu.stick.structure.booleanParameter
 import com.zombachu.stick.structure.command

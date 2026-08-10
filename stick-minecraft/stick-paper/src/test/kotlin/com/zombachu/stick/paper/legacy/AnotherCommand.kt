@@ -1,6 +1,7 @@
-package com.zombachu.stick.paper
+package com.zombachu.stick.paper.legacy
 
 import com.zombachu.stick.element.parameters.by
+import com.zombachu.stick.paper.BukkitCommand
 import com.zombachu.stick.structure.command
 import com.zombachu.stick.structure.enumParameter
 import com.zombachu.stick.structure.invoke

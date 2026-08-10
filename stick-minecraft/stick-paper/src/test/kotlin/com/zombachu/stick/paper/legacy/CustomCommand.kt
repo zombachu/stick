@@ -1,4 +1,4 @@
-package com.zombachu.stick.paper
+package com.zombachu.stick.paper.legacy
 
 import com.zombachu.stick.Command
 import com.zombachu.stick.CommandResult
@@ -10,6 +10,8 @@ import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.handle
 import com.zombachu.stick.impl.StructureScope
+import com.zombachu.stick.paper.BasicBukkitEnvironment
+import com.zombachu.stick.paper.BukkitEnvironment
 import com.zombachu.stick.paper.structure.permissionedValue
 import com.zombachu.stick.structure.command
 import com.zombachu.stick.structure.invoke

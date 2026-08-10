@@ -1,4 +1,4 @@
-package com.zombachu.stick.paper
+package com.zombachu.stick.paper.legacy
 
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.GroupResult5
@@ -9,6 +9,9 @@ import com.zombachu.stick.element.Element
 import com.zombachu.stick.impl.Arguments1
 import com.zombachu.stick.impl.Arguments3
 import com.zombachu.stick.impl.StructureScope
+import com.zombachu.stick.paper.BasicBukkitEnvironment
+import com.zombachu.stick.paper.BukkitCommand
+import com.zombachu.stick.paper.BukkitEnvironment
 import com.zombachu.stick.paper.structure.permission
 import com.zombachu.stick.paper.structure.permissionedValue
 import com.zombachu.stick.paper.structure.playerParameter
