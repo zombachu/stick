@@ -6,4 +6,5 @@ plugins {
 dependencies {
     implementation(project(":stick-core"))
     paperweight.paperDevBundle(libs.versions.paperDevBundle.get())
+    testImplementation(testFixtures(project(":stick-core")))
 }

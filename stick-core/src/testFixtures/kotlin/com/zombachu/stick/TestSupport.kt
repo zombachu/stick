@@ -87,3 +87,11 @@ fun <T> structureTest(block: StructureScope<TestEnv, T>.() -> Unit) {
         block()
     }
 }
+
+@JvmName("structureTestEnvironment")
+fun <E : Environment, S> structureTest(block: StructureScope<E, S>.() -> Unit) {
+    val scope = StructureScope.empty<E, S>()
+    with(scope) {
+        block()
+    }
+}

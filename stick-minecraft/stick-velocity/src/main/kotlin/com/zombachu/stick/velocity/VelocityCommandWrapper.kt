@@ -7,7 +7,6 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.impl.CommandWrapper
 import com.zombachu.stick.isSuccess
-import kotlin.collections.addAll
 
 class VelocityCommandWrapper<E : VelocityEnvironment>(
     override val env: E,
