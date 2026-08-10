@@ -7,7 +7,7 @@ import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.Group1Impl
 import com.zombachu.stick.element.Parameter
-import com.zombachu.sick.element.parameters.StringParameter
+import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.structure.id
@@ -87,7 +87,7 @@ class InvocationImplTest {
     }
 
     @Test
-    fun `map methods`() {
+    fun `get put and getOrPut round-trip`() {
         val inv = testInvocation()
         val identifier = id<String>("name")
 

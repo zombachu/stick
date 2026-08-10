@@ -16,33 +16,34 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class StructureImplTest {
 
     @Test
     fun `matches name case-insensitively`() {
-        val struct = structure(name = "cmd")
+        val structure = structure(name = "cmd")
 
-        val result = withInvocation("CMD") { struct.parse(["CMD"]) }
+        val result = withInvocation("CMD") { structure.parse(["CMD"]) }
 
         assertTrue(result.isSuccess())
     }
 
     @Test
     fun `matches alias case-insensitively`() {
-        val struct = structure(name = "cmd", aliases = ["c"])
+        val structure = structure(name = "cmd", aliases = ["c"])
 
-        val result = withInvocation("C") { struct.parse(["C"]) }
+        val result = withInvocation("C") { structure.parse(["C"]) }
 
         assertTrue(result.isSuccess())
     }
 
     @Test
     fun `mismatch fails with TypeNotMatchedInternal`() {
-        val struct = structure(name = "cmd")
+        val structure = structure(name = "cmd")
 
-        val result = withInvocation("other") { struct.parse(["other"]) }
+        val result = withInvocation("other") { structure.parse(["other"]) }
 
         assertIs<ParsingResult.TypeNotMatchedInternal>(result)
     }
@@ -50,30 +51,30 @@ class StructureImplTest {
     @Test
     fun `failing requirement short-circuits executing signature`() {
         var executed = false
-        val struct =
+        val structure =
             structure(
                 name = "cmd",
                 requirement = Requirement { SenderValidationResult.failSender() },
                 onExecute = { executed = true },
             )
 
-        val result = withInvocation("cmd") { struct.parse(["cmd"]) }
+        val result = withInvocation("cmd") { structure.parse(["cmd"]) }
 
-        assertEquals(Feedback.InvalidSender, result.expectFailure().feedback)
+        assertSame(Feedback.InvalidSender, result.expectFailure().feedback)
         assertFalse(executed)
     }
 
     @Test
     fun `getSyntax returns name when signature has no syntax`() {
-        val struct = structure(name = "cmd")
-        assertEquals("cmd", withValidationContext { struct.getSyntax() })
+        val structure = structure(name = "cmd")
+        assertEquals("cmd", withValidationContext { structure.getSyntax() })
     }
 
     @Test
     fun `getSyntax returns signature syntax`() {
         val parameter = StringParameter<TestEnv, Unit>("arg", "")
         val signature = Signature1<TestEnv, Unit, String>({}, [parameter])
-        val struct =
+        val structure =
             StructureImpl(
                 "cmd",
                 [],
@@ -82,7 +83,7 @@ class StructureImplTest {
                 signature,
             )
 
-        assertEquals("cmd <arg>", withValidationContext { struct.getSyntax() })
+        assertEquals("cmd <arg>", withValidationContext { structure.getSyntax() })
     }
 
     @Test

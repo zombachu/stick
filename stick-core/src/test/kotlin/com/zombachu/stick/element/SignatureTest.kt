@@ -10,7 +10,7 @@ import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.invalidSenderDefault
-import com.zombachu.stick.presenceFlagParameter
+import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
@@ -60,8 +60,7 @@ class SignatureTest {
 
     @Test
     fun `inaccessible flag parses invalidDefault value`() {
-        val base =
-            ValueFlagImpl("loud", { ParsingResult.success(false) }, presenceFlagParameter<TestEnv, String, Boolean>("loud", true))
+        val base = presenceValueFlag<TestEnv, String, Boolean>("loud", false, true)
         val invalidDefault = invalidSenderDefault<TestEnv, Unit, Boolean>(true) { SenderValidationResult.failSender() }
         val gatedFlag = TransformedValueFlag(base, { _: Unit -> "x" }, invalidDefault)
         val signature = Signature1<TestEnv, Unit, Boolean>({ loud -> }, [gatedFlag])
@@ -112,6 +111,5 @@ class SignatureTest {
         assertEquals("<str> [-loud] <text>", syntax)
     }
 
-    private fun loudFlag(): ValueFlagImpl<TestEnv, Unit, Boolean> =
-        ValueFlagImpl("loud", { ParsingResult.success(false) }, presenceFlagParameter("loud", true))
+    private fun loudFlag(): ValueFlagImpl<TestEnv, Unit, Boolean> = presenceValueFlag("loud", false, true)
 }

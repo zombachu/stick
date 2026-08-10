@@ -49,7 +49,10 @@ class CommandWrapperTest {
         assertIs<Feedback.InvalidSyntax>(handler.lastFeedback)
     }
 
-    private fun <T_ : Arguments> structure(label: String, signature: Signature<TestEnv, Unit, T_>): StructureImpl<TestEnv, Unit, T_> =
+    private fun <T_ : Arguments> structure(
+        label: String,
+        signature: Signature<TestEnv, Unit, T_>,
+    ): StructureImpl<TestEnv, Unit, T_> =
         StructureImpl(label, [], "", Requirement { SenderValidationResult.success() }, signature)
 
     private fun <T_ : Arguments> wrapper(

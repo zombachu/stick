@@ -29,7 +29,7 @@ class AliasableTest {
     }
 
     @Test
-    fun `matching is case sensitive`() {
+    fun `matching is case-sensitive`() {
         val entry = AliasEntry("foo", ["bar"])
         assertFalse(entry.matches("Foo"))
         assertFalse(entry.matches("BAR"))

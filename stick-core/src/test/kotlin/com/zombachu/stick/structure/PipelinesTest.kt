@@ -21,7 +21,8 @@ class PipelinesTest {
     @Test
     fun `pipeline chains two operations in order`() = structureTest {
         val piped =
-            stringParameter("").pipeline({ s -> ParsingResult.success(s.length) }, { n -> ParsingResult.success(n * 2) })
+            stringParameter("")
+                .pipeline({ s -> ParsingResult.success(s.length) }, { n -> ParsingResult.success(n * 2) })
         val result = withInvocation { piped.parse(["hello"]) }
         assertEquals(10, result.expectSuccessValue())
     }

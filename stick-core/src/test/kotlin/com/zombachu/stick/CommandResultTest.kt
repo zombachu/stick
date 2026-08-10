@@ -56,9 +56,9 @@ class CommandResultTest {
 
     @Test
     fun `failLiteral feedback wraps valid values and arg`() {
-        val result = ParsingResult.failLiteral(listOf("a", "b"), "c")
+        val result = ParsingResult.failLiteral(["a", "b"], "c")
         assertFalse(result.isSuccess())
-        assertEquals(Feedback.LiteralNotMatched(listOf("a", "b"), "c"), result.feedback)
+        assertEquals(Feedback.LiteralNotMatched(["a", "b"], "c"), result.feedback)
     }
 
     @Test
@@ -84,9 +84,9 @@ class CommandResultTest {
 
     @Test
     fun `senderValidationResult wraps expected feedback`() {
-        assertEquals(Feedback.InvalidSender, SenderValidationResult.failSender().feedback)
-        assertEquals(Feedback.InvalidPermission, SenderValidationResult.failPermission().feedback)
-        assertEquals(Feedback.InvalidSenderType, SenderValidationResult.failSenderType().feedback)
+        assertSame(Feedback.InvalidSender, SenderValidationResult.failSender().feedback)
+        assertSame(Feedback.InvalidPermission, SenderValidationResult.failPermission().feedback)
+        assertSame(Feedback.InvalidSenderType, SenderValidationResult.failSenderType().feedback)
     }
 
     @Test
@@ -176,7 +176,7 @@ class CommandResultTest {
     }
 
     @Test
-    fun `PeekingResult failSize is a singleton internal failure`() {
+    fun `PeekingResult failSize returns InvalidSizeError`() {
         val result = PeekingResult.failSize()
         assertFalse(result.isSuccess())
         assertSame(PeekingResult.InvalidSizeError, result)

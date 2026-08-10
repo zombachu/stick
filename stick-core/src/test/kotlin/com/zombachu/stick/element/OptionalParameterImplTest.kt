@@ -16,6 +16,7 @@ import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertSame
 
 class OptionalParameterImplTest {
 
@@ -42,7 +43,7 @@ class OptionalParameterImplTest {
                 parameter = parameter,
             )
         val result = withInvocation { optional.parse([]) }
-        assertEquals(Feedback.InvalidSender, result.expectFailure().feedback)
+        assertSame(Feedback.InvalidSender, result.expectFailure().feedback)
     }
 
     @Test
@@ -66,7 +67,7 @@ class OptionalParameterImplTest {
                 parameter = parameter,
             )
         val result = withInvocation("value") { optional.parse(["value"]) }
-        assertEquals(Feedback.InvalidSender, result.expectFailure().feedback)
+        assertSame(Feedback.InvalidSender, result.expectFailure().feedback)
     }
 
     @Test

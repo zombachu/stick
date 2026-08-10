@@ -17,19 +17,19 @@ import kotlin.test.assertEquals
 class ContextualValuesTest {
 
     private val env = BasicVelocityEnvironment(FakeProxyServer())
-    private val struct = velocityStructure { command("cmd")() }
+    private val structure = velocityStructure { command("cmd")() }
 
     @Test
     fun `permissionedValue resolves permitted value`() = structureTest<VelocityEnvironment, CommandSource> {
         val permissionedValue = permissionedValue("stick.perm", "yes", "no")
-        val allowed = Invocation(FakeCommandSource(["stick.perm"]), env, "cmd", ["cmd"], struct)
+        val allowed = Invocation(FakeCommandSource(["stick.perm"]), env, "cmd", ["cmd"], structure)
         assertEquals("yes", permissionedValue(allowed).expectSuccessValue())
     }
 
     @Test
     fun `permissionedValue resolves fallback value`() = structureTest<VelocityEnvironment, CommandSource> {
         val permissionedValue = permissionedValue("stick.perm", "yes", "no")
-        val denied = Invocation(FakeCommandSource([]), env, "cmd", ["cmd"], struct)
+        val denied = Invocation(FakeCommandSource([]), env, "cmd", ["cmd"], structure)
         assertEquals("no", permissionedValue(denied).expectSuccessValue())
     }
 }

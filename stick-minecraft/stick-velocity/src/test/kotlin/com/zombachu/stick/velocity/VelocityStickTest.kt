@@ -13,9 +13,9 @@ class VelocityStickTest {
         val manager = FakeCommandManager()
         val plugin = Any()
         val stick = VelocityStick(plugin, FakeProxyServer(manager))
-        val built = velocityStructure { command("cmd", aliases = ["c"])() }
+        val structure = velocityStructure { command("cmd", aliases = ["c"])() }
 
-        stick.withContext { register(built) }
+        stick.withContext { register(structure) }
 
         assertEquals(1, manager.registerCalls)
         assertEquals(["cmd", "c"], manager.registeredMeta?.aliases?.toList())

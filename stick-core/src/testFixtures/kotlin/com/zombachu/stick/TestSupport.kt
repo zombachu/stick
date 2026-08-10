@@ -4,6 +4,7 @@ import com.zombachu.stick.element.FlagParameter
 import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
+import com.zombachu.stick.element.ValueFlagImpl
 import com.zombachu.stick.feedback.CustomFeedback
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.feedback.Feedback
@@ -91,6 +92,13 @@ fun <E : Environment, S, T> invalidSenderDefault(
     value: T,
     validate: context(ValidationContext<E, S>) () -> CommandResult<Unit> = { SenderValidationResult.success() },
 ): InvalidSenderDefault<E, S, T> = ValidatedDefaultImpl({ ParsingResult.success(value) }, validate)
+
+internal fun <E : Environment, S, T> presenceValueFlag(
+    name: String,
+    default: T,
+    presentValue: T,
+): ValueFlagImpl<E, S, T> =
+    ValueFlagImpl(name, { ParsingResult.success(default) }, presenceFlagParameter(name, presentValue))
 
 internal fun <E : Environment, S, T> presenceFlagParameter(
     name: String,

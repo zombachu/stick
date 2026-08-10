@@ -58,7 +58,7 @@ class OptionalsTest {
     }
 
     @Test
-    fun `optionally evaluates and defaults correctly`() = structureTest<String> {
+    fun `optionally resolves defaults by sender validity`() = structureTest<String> {
         val invalidDefault = invalidDefault(-1, requirement { it.sender == "correct" })
         val optional = optionally(invalidDefault, default(0), intParameter)
 

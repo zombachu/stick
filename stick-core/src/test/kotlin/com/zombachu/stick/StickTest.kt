@@ -21,9 +21,9 @@ class StickTest {
                     registered = true
                 }
             }
-        val testStructure = structure(TestEnv::class, String::class) { command("cmd")() {} }
+        val structure = structure(TestEnv::class, String::class) { command("cmd")() {} }
 
-        stick.withContext { register(testStructure) }
+        stick.withContext { register(structure) }
 
         assertTrue(stick.registered)
     }

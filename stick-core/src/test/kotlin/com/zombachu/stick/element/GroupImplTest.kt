@@ -22,9 +22,9 @@ class GroupImplTest {
 
     @Test
     fun `matches are tried in priority order, not declaration order`() {
-        val stringParam = StringParameter<TestEnv, Unit>("str", "")
-        val literalParam = LiteralParameter<TestEnv, Unit>("foo", [], "")
-        val group = Group2Impl("", "", stringParam, literalParam)
+        val stringParameter = StringParameter<TestEnv, Unit>("str", "")
+        val literalParameter = LiteralParameter<TestEnv, Unit>("foo", [], "")
+        val group = Group2Impl("", "", stringParameter, literalParameter)
 
         val result = withInvocation("foo") { group.parse(["foo"]) }
 

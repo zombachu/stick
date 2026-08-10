@@ -2,7 +2,7 @@ package com.zombachu.stick
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
+import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 
 class ValidationContextTest {
@@ -24,16 +24,16 @@ class ValidationContextTest {
 
         assertSame(TestEnv, transformed.env)
         assertEquals(6, transformed.sender)
-        assertFalse(context === transformed)
+        assertNotSame<Any>(context, transformed)
     }
 
     @Test
     fun `forSender does not mutate original context`() {
         val context = ValidationContext(TestEnv, "sender")
 
-        val ignored = context.forSender { it.length }
+        val transformed = context.forSender { it.length }
 
         assertEquals("sender", context.sender)
-        assertEquals(6, ignored.sender)
+        assertEquals(6, transformed.sender)
     }
 }

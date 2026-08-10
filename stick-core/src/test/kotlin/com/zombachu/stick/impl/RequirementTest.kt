@@ -25,7 +25,7 @@ class RequirementTest {
     fun `failure passes through`() {
         val requirement = Requirement<TestEnv, Unit> { SenderValidationResult.failSender() }
         val result = withValidationContext { requirement.validateSender() }
-        assertEquals(Feedback.InvalidSender, result.expectFailure().feedback)
+        assertSame(Feedback.InvalidSender, result.expectFailure().feedback)
     }
 
     @Test
@@ -60,7 +60,7 @@ class RequirementTest {
 
         val result = withValidationContext { (a + b).validateSender() }
 
-        assertEquals(Feedback.InvalidSender, result.expectFailure().feedback)
+        assertSame(Feedback.InvalidSender, result.expectFailure().feedback)
         assertFalse(bCalled)
     }
 

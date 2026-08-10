@@ -170,4 +170,5 @@ class FakeProxyServer(private val manager: CommandManager = FakeCommandManager()
 
 fun <T_ : Arguments> velocityStructure(
     block: StructureScope<VelocityEnvironment, CommandSource>.() -> Structure<VelocityEnvironment, CommandSource, T_>
-): Structure<VelocityEnvironment, CommandSource, T_> = structure(VelocityEnvironment::class, CommandSource::class, block)
+): Structure<VelocityEnvironment, CommandSource, T_> =
+    structure(VelocityEnvironment::class, CommandSource::class, block)

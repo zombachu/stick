@@ -32,14 +32,14 @@ class StructureScopeTest {
     @Test
     fun `forSender preserves fields and resets requirement`() {
         val parent = StructureScope.empty<TestEnv, Unit>()
-        val scope = StructureScope<TestEnv, Unit>(
-            "sub",
-            ["s"],
-            "desc",
-            parent,
-            Requirement
-            { SenderValidationResult.failSender() }
-        )
+        val scope =
+            StructureScope<TestEnv, Unit>(
+                "sub",
+                ["s"],
+                "desc",
+                parent,
+                Requirement { SenderValidationResult.failSender() },
+            )
 
         val forSender = scope.forSender<TestEnv, String>()
 
@@ -52,13 +52,14 @@ class StructureScopeTest {
 
     @Test
     fun `build copies fields into StructureImpl`() {
-        val scope = StructureScope<TestEnv, Unit>(
-            "sub",
-            ["s"],
-            "desc",
-            null,
-            Requirement { SenderValidationResult.success() }
-        )
+        val scope =
+            StructureScope<TestEnv, Unit>(
+                "sub",
+                ["s"],
+                "desc",
+                null,
+                Requirement { SenderValidationResult.success() },
+            )
 
         val structure = scope.build(Signature0({}, []))
 

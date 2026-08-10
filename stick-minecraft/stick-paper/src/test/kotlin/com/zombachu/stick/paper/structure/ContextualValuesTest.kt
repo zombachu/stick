@@ -16,19 +16,19 @@ import kotlin.test.assertEquals
 class ContextualValuesTest {
 
     private val env = FakeBukkitEnvironment()
-    private val struct = bukkitStructure { command("cmd")() }
+    private val structure = bukkitStructure { command("cmd")() }
 
     @Test
     fun `permissionedValue resolves permitted value`() = structureTest<BukkitEnvironment, CommandSender> {
         val permissionedValue = permissionedValue("stick.perm", "yes", "no")
-        val allowed = Invocation(FakeCommandSender(["stick.perm"]), env, "cmd", ["cmd"], struct)
+        val allowed = Invocation(FakeCommandSender(["stick.perm"]), env, "cmd", ["cmd"], structure)
         assertEquals("yes", permissionedValue(allowed).expectSuccessValue())
     }
 
     @Test
     fun `permissionedValue resolves fallback value`() = structureTest<BukkitEnvironment, CommandSender> {
         val permissionedValue = permissionedValue("stick.perm", "yes", "no")
-        val denied = Invocation(FakeCommandSender([]), env, "cmd", ["cmd"], struct)
+        val denied = Invocation(FakeCommandSender([]), env, "cmd", ["cmd"], structure)
         assertEquals("no", permissionedValue(denied).expectSuccessValue())
     }
 }

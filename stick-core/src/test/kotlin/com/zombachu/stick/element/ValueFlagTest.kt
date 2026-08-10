@@ -10,6 +10,7 @@ import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.presenceFlagParameter
+import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.testInvocation
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withInvocationSender
@@ -85,7 +86,7 @@ class ValueFlagTest {
 
     @Test
     fun `ValueFlagImpl delegates to flag parameter`() {
-        val flag = ValueFlagImpl("silent", { ParsingResult.success(false) }, presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true))
+        val flag = presenceValueFlag<TestEnv, Unit, Boolean>("silent", false, true)
 
         assertEquals(true, withInvocation { flag.parse(["-silent"]) }.expectSuccessValue())
         assertEquals("[-silent]", withValidationContext { flag.getSyntax() })
@@ -94,7 +95,7 @@ class ValueFlagTest {
 
     @Test
     fun `TransformedValueFlag delegates to flag parameter`() {
-        val base = ValueFlagImpl("silent", { ParsingResult.success(false) }, presenceFlagParameter<TestEnv, String, Boolean>("silent", true))
+        val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
         val transformed = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidSenderDefault(false))
 
         val result = withInvocationSender(1) { transformed.parse(["-silent"]) }
@@ -105,7 +106,7 @@ class ValueFlagTest {
     @Test
     fun `TransformedValueFlag validateSender delegates to invalid sender default`() {
         var validated = false
-        val base = ValueFlagImpl("silent", { ParsingResult.success(false) }, presenceFlagParameter<TestEnv, String, Boolean>("silent", true))
+        val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
         val invalidDefault =
             invalidSenderDefault<TestEnv, Int, Boolean>(false) {
                 validated = true
