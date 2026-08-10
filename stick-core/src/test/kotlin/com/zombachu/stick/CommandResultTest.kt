@@ -167,8 +167,8 @@ class CommandResultTest {
 
         peeked.consume(2)
 
-        assertEquals(listOf("c"), valueRef)
-        assertEquals(listOf("c"), backing)
+        assertEquals(["c"], valueRef)
+        assertEquals(["c"], backing)
     }
 
     @Test

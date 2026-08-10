@@ -11,26 +11,26 @@ class AliasableTest {
 
     @Test
     fun `matches label exactly`() {
-        val entry = AliasEntry("foo", setOf("bar"))
+        val entry = AliasEntry("foo", ["bar"])
         assertTrue(entry.matches("foo"))
     }
 
     @Test
     fun `matches any alias`() {
-        val entry = AliasEntry("foo", setOf("bar", "baz"))
+        val entry = AliasEntry("foo", ["bar", "baz"])
         assertTrue(entry.matches("bar"))
         assertTrue(entry.matches("baz"))
     }
 
     @Test
     fun `does not match unrelated input`() {
-        val entry = AliasEntry("foo", setOf("bar"))
+        val entry = AliasEntry("foo", ["bar"])
         assertFalse(entry.matches("qux"))
     }
 
     @Test
     fun `matching is case sensitive`() {
-        val entry = AliasEntry("foo", setOf("bar"))
+        val entry = AliasEntry("foo", ["bar"])
         assertFalse(entry.matches("Foo"))
         assertFalse(entry.matches("BAR"))
     }
@@ -58,6 +58,6 @@ class AliasableTest {
     @Test
     fun `AliasEntry defaults to no aliases`() {
         val entry = AliasEntry("foo")
-        assertEquals(emptySet(), entry.aliases)
+        assertEquals([], entry.aliases)
     }
 }

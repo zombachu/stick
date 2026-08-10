@@ -12,26 +12,52 @@ object TestEnv : Environment
 private fun <E : Environment, S> emptyStructure(): Structure<E, S, *> =
     StructureImpl("", [], "", Requirement { SenderValidationResult.success() }, Signature0({}, []))
 
-internal fun <S> testInvocation(
-    sender: S,
-    args: List<String> = [],
-): InvocationImpl<TestEnv, S> {
-    return Invocation(sender, TestEnv, "test", args, emptyStructure()) as InvocationImpl<TestEnv, S>
+internal fun testInvocation(
+    vararg args: String = [],
+): InvocationImpl<TestEnv, Unit> {
+    return testInvocationSender(Unit, *args)
 }
 
-internal inline fun <S, T> withValidationContext(sender: S, block: context(ValidationContext<TestEnv, S>) () -> T): T {
+internal fun <S> testInvocationSender(
+    sender: S,
+    vararg args: String = [],
+): InvocationImpl<TestEnv, S> {
+    return Invocation(sender, TestEnv, "", args.asList(), emptyStructure()) as InvocationImpl<TestEnv, S>
+}
+
+internal inline fun <T> withValidationContext(
+    block: context(ValidationContext<TestEnv, Unit>) () -> T
+): T {
+    withValidationContext(Unit) {
+        return block()
+    }
+}
+
+internal inline fun <S, T> withValidationContext(
+    sender: S,
+    block: context(ValidationContext<TestEnv, S>) () -> T
+): T {
     val ctx = ValidationContext(TestEnv, sender)
     context(ctx) {
         return block()
     }
 }
 
-internal inline fun <S, T> withInvocation(
+internal inline fun <T> withInvocation(
+    vararg args: String = [],
+    block: context(InvocationImpl<TestEnv, Unit>) () -> T,
+): T {
+    withInvocationSender(Unit, *args) {
+        return block()
+    }
+}
+
+internal inline fun <S, T> withInvocationSender(
     sender: S,
-    args: List<String> = emptyList(),
+    vararg args: String = [],
     block: context(InvocationImpl<TestEnv, S>) () -> T,
 ): T {
-    val inv = testInvocation(sender, args)
+    val inv = testInvocationSender(sender, *args)
     context(inv) {
         return block()
     }
