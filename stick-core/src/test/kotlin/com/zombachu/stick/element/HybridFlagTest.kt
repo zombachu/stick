@@ -39,6 +39,7 @@ class HybridFlagTest {
     @Test
     fun `matches with trailing value parses value`() {
         val result = withInvocation { flag.parse(["-boost", "5"]) }
+
         val value = result.expectSuccessValue()
         assertIs<HybridFlagResult.Value<Int>>(value)
         assertEquals(5, value.value)

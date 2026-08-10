@@ -13,6 +13,7 @@ class CommandResultTest {
     @Test
     fun `success wraps value and consumes`() {
         val result = ParsingResult.success("value", Size(3))
+
         assertTrue(result.isSuccess())
         assertEquals("value", result.value)
         assertEquals(3, result.consumed.size)
@@ -96,6 +97,7 @@ class CommandResultTest {
             called = true
             error("shouldn't be called")
         }
+
         assertFalse(called)
     }
 
@@ -133,6 +135,7 @@ class CommandResultTest {
     fun `handleInternal dispatches based on success`() {
         val successResult: CommandResult<String> = ParsingResult.success("ok")
         val failureResult: CommandResult<String> = ParsingResult.failUnknown()
+
         assertEquals("s", successResult.handleInternal(onSuccess = { "s" }, onFailure = { "f" }))
         assertEquals("f", failureResult.handleInternal(onSuccess = { "s" }, onFailure = { "f" }))
     }
@@ -140,6 +143,7 @@ class CommandResultTest {
     @Test
     fun `withSize sets result size on success`() {
         val result = ParsingResult.success("ok", Size(1)).withSize(Size(5))
+
         assertTrue(result.isSuccess())
         assertEquals("ok", result.value)
         assertEquals(5, result.consumed.size)

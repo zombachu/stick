@@ -11,6 +11,7 @@ class SizeTest {
     @Test
     fun `Fixed only matches exact size`() {
         val size = Size(3)
+
         assertTrue(size.matches(3))
         assertFalse(size.matches(2))
         assertFalse(size.matches(4))
@@ -37,6 +38,7 @@ class SizeTest {
     fun `Unbounded plus Fixed yields Unbounded`() {
         val unbounded = Size.Unbounded
         val fixed = Size(3)
+
         assertSame(Size.Unbounded, unbounded + fixed)
         assertSame(Size.Unbounded, fixed + unbounded)
     }
@@ -58,6 +60,7 @@ class SizeTest {
         val fixed = Size(1)
         val unbounded = Size.Unbounded
         val deferred = Size.Deferred
+
         assertTrue(fixed.parsingPriority < unbounded.parsingPriority)
         assertTrue(unbounded.parsingPriority < deferred.parsingPriority)
     }

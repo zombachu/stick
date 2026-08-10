@@ -7,7 +7,7 @@ import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.Group1Impl
 import com.zombachu.stick.element.Parameter
-import com.zombachu.stick.element.parameters.StringParameter
+import com.zombachu.sick.element.parameters.StringParameter
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.structure.id
@@ -30,7 +30,9 @@ class InvocationImplTest {
     @Test
     fun `peek with Fixed size returns requested arguments`() {
         val inv = testInvocation("a", "b", "c")
+
         val peeked = inv.peek(Size(2))
+
         assertIs<PeekingResult.Success>(peeked)
         assertEquals(["a", "b"], peeked.value)
     }

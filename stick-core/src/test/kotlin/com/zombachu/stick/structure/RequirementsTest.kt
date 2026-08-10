@@ -50,7 +50,9 @@ class RequirementsTest {
                 override fun validateSender() = SenderValidationResult.failPermission()
             }
         val requirement = requirement(validator)
+
         val result = withValidationContext { requirement.validateSender() }
+
         assertSame(Feedback.InvalidPermission, result.expectFailure().feedback)
     }
 }

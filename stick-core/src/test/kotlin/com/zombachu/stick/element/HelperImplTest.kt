@@ -21,6 +21,7 @@ class HelperImplTest {
     @Test
     fun `has correct properties`() {
         val helper = HelperImpl<TestEnv, Unit, String>({ ParsingResult.success("x") })
+
         assertIs<Size.Fixed>(helper.size)
         assertEquals(0, helper.size.size)
         assertEquals(ElementType.Helper, helper.type)

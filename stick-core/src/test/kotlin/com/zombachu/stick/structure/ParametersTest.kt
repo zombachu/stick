@@ -15,10 +15,13 @@ class ParametersTest {
     fun `integer parameters default to type bounds`() = structureTest {
         assertEquals(Byte.MIN_VALUE, byteParameter("").min)
         assertEquals(Byte.MAX_VALUE, byteParameter("").max)
+
         assertEquals(Short.MIN_VALUE, shortParameter("").min)
         assertEquals(Short.MAX_VALUE, shortParameter("").max)
+
         assertEquals(Int.MIN_VALUE, intParameter("").min)
         assertEquals(Int.MAX_VALUE, intParameter("").max)
+
         assertEquals(Long.MIN_VALUE, longParameter("").min)
         assertEquals(Long.MAX_VALUE, longParameter("").max)
     }
@@ -27,6 +30,7 @@ class ParametersTest {
     fun `float and double default to type bounds`() = structureTest {
         assertEquals(-Float.MAX_VALUE, floatParameter("").min)
         assertEquals(Float.MAX_VALUE, floatParameter("").max)
+
         assertEquals(-Double.MAX_VALUE, doubleParameter("").min)
         assertEquals(Double.MAX_VALUE, doubleParameter("").max)
     }
@@ -54,6 +58,7 @@ class ParametersTest {
     fun `enumParameter from EnumEntry list derives values`() = structureTest {
         val entries = [EnumEntry(Color.RED, "red", ["r"]), EnumEntry(Color.GREEN, "green")]
         val parameter = enumParameter("", entries)
+
         assertEquals(mapOf("red" to Color.RED, "green" to Color.GREEN), parameter.primaryValues)
         assertEquals(mapOf("r" to Color.RED), parameter.aliasedValues)
     }
