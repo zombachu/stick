@@ -5,6 +5,7 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
 import com.zombachu.stick.impl.InvocationImpl
 import com.zombachu.stick.impl.Requirement
+import com.zombachu.stick.impl.StructureScope
 import kotlin.test.fail
 
 object TestEnv : Environment
@@ -70,4 +71,19 @@ fun <T> CommandResult<T>.expectSuccessValue(): T {
 
 fun <T> CommandResult<T>.expectFailure(): CommandResult.Failure<*> {
     return this as? CommandResult.Failure<*> ?: fail("Expected failure but was $this")
+}
+
+fun structureTest(block: StructureScope<TestEnv, Unit>.() -> Unit) {
+    val scope = StructureScope.empty<TestEnv, Unit>()
+    with(scope) {
+        block()
+    }
+}
+
+@JvmName("structureTestSender")
+fun <T> structureTest(block: StructureScope<TestEnv, T>.() -> Unit) {
+    val scope = StructureScope.empty<TestEnv, T>()
+    with(scope) {
+        block()
+    }
 }
