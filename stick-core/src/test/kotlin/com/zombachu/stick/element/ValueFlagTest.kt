@@ -8,8 +8,8 @@ import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.invalidSenderDefault
-import com.zombachu.stick.presenceFlagParameter
 import com.zombachu.stick.isSuccess
+import com.zombachu.stick.presenceFlagParameter
 import com.zombachu.stick.testInvocation
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withInvocationSender

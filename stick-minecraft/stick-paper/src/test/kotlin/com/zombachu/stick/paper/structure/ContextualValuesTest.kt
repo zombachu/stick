@@ -3,12 +3,11 @@ package com.zombachu.stick.paper.structure
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.paper.BukkitEnvironment
-import com.zombachu.stick.paper.bukkitStructure
 import com.zombachu.stick.paper.FakeBukkitEnvironment
 import com.zombachu.stick.paper.FakeCommandSender
+import com.zombachu.stick.paper.bukkitStructure
 import com.zombachu.stick.structure.command
 import com.zombachu.stick.structure.invoke
-import com.zombachu.stick.structure.structure
 import com.zombachu.stick.structureTest
 import org.bukkit.command.CommandSender
 import kotlin.test.Test

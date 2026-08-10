@@ -6,10 +6,6 @@ import com.zombachu.stick.impl.StructureScope
 import com.zombachu.stick.structure.structure
 import io.papermc.paper.plugin.configuration.PluginMeta
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager
-import java.io.File
-import java.io.InputStream
-import java.util.*
-import java.util.logging.Logger
 import net.kyori.adventure.text.Component
 import org.bukkit.Server
 import org.bukkit.command.Command
@@ -23,6 +19,10 @@ import org.bukkit.permissions.PermissionAttachmentInfo
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.PluginDescriptionFile
 import org.bukkit.plugin.PluginLoader
+import java.io.File
+import java.io.InputStream
+import java.util.*
+import java.util.logging.Logger
 
 @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
 class FakeCommandSender(private val permissions: Set<String> = []) : CommandSender {
