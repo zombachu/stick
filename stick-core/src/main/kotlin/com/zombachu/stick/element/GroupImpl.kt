@@ -91,12 +91,17 @@ internal open class GroupImpl<E : Environment, S, G : GroupResult>(
         // Ignore elements unable to be accessed by the sender
         groupElement.groupable.validateSender().propagateError { onElementMismatch() }
 
+        val invocation = inv as InvocationImpl
+        val remaining = invocation.unparsed.size
         val value =
-            (inv as InvocationImpl).processElement(groupElement.groupable).valueOrPropagateError {
+            invocation.processElement(groupElement.groupable).valueOrPropagateError {
+                // If element consumed args then it matched, so error is real and not a matching error
+                if (invocation.unparsed.size != remaining) onError(it)
                 when (it) {
-                    // Ignore type errors (element didn't match)
+                    // Ignore matching errors
                     is ParsingResult.TypeNotMatchedInternal,
                     is ParsingResult.TypeNotMatchedError,
+                    is ParsingResult.LiteralNotMatchedError,
                     is PeekingResult.InvalidSizeError -> onElementMismatch()
                     // If the element matched and an error occurred in parsing then propagate it up
                     else -> onError(it)

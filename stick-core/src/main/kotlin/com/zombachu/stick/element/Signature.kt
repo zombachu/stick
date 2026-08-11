@@ -147,7 +147,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
 
                 processElement(values, indexedFlag).propagateError {
                     when (it) {
-                        // Ignore type errors (flag didn't match)
+                        // Ignore matching errors
                         is ParsingResult.TypeNotMatchedInternal,
                         is PeekingResult.InvalidSizeError -> continue
                         // If the flag matched and an error occurred in parsing then propagate it up

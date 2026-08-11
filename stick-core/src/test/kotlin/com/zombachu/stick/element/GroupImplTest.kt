@@ -11,6 +11,7 @@ import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.impl.Arguments1
 import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withValidationContext
@@ -88,17 +89,8 @@ class GroupImplTest {
         assertEquals(Feedback.OutOfRange("0", "10", "x"), result.expectFailure().feedback)
     }
 
-    // TODO
     @Test
-    fun `KNOWN BUG - multiple literalParameter alternatives in a group do not fall through`() {
-        // LiteralParameter's mismatch (LiteralNotMatchedError) is NOT one of GroupImpl's three
-        // "try next" exempted failure types (TypeNotMatchedInternal/TypeNotMatchedError/InvalidSizeError).
-        // So group(literalParameter("give"), literalParameter("take")) - a natural, expected use case for
-        // sub-command-name alternation - only ever gets a chance at its highest-priority (here: first
-        // declared, since all literals tie on priority) alternative: if THAT doesn't match, the whole
-        // group hard-fails with that literal's own LiteralNotMatchedError instead of trying the next
-        // literal. This test documents the INTENDED try-each-literal behavior and is expected to fail
-        // against the current source - do not "fix" this test to match the current behavior.
+    fun `LiteralNotMatchedError falls through to next element`() {
         val give = LiteralParameter<TestEnv, Unit>("give", [], "")
         val take = LiteralParameter<TestEnv, Unit>("take", [], "")
         val group = Group2Impl("", "", give, take)
@@ -106,6 +98,24 @@ class GroupImplTest {
         val result = withInvocation("take") { group.parse(["take"]) }
 
         assertIs<GroupResult.ResultB<String>>(result.expectSuccessValue())
+    }
+
+    @Test
+    fun `error from matched groupable propagates`() {
+        val committing =
+            StructureImpl<TestEnv, Unit, Arguments1<String>>(
+                "info",
+                [],
+                "",
+                Requirement { SenderValidationResult.success() },
+                Signature1({ _ -> }, [LiteralParameter("sun", [], "")]),
+            )
+        val neverTried = StringParameter<TestEnv, Unit>("ok", "")
+        val group = Group2Impl("", "", committing, neverTried)
+
+        val result = withInvocation("info", "moon") { group.parse(["info", "moon"]) }
+
+        assertEquals(Feedback.LiteralNotMatched(["sun"], "moon"), result.expectFailure().feedback)
     }
 
     @Test
