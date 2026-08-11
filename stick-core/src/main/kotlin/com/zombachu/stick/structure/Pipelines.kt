@@ -5,12 +5,10 @@ package com.zombachu.stick.structure
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.element.HybridFlag
 import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.PipelineOperation
 import com.zombachu.stick.element.PipelinedFixedSizeParameter
-import com.zombachu.stick.element.PipelinedHybridFlag
 import com.zombachu.stick.element.PipelinedOptionalParameter
 import com.zombachu.stick.element.PipelinedUnknownSizeParameter
 import com.zombachu.stick.element.PipelinedValueFlag
@@ -71,24 +69,6 @@ fun <E_ : Environment, S, A, B, C, D> ValueFlag<E_, S, A>.pipeline(
     operationB: PipelineOperation<E_, S, B, C>,
     operationC: PipelineOperation<E_, S, C, D>,
 ): ValueFlag<E_, S, D> = PipelinedValueFlag(this, [operationA, operationB, operationC])
-
-@JvmName("pipelineHybridFlag")
-fun <E_ : Environment, S, A, B> HybridFlag<E_, S, A>.pipeline(
-    operation: PipelineOperation<E_, S, A, B>
-): HybridFlag<E_, S, B> = PipelinedHybridFlag(this, [operation])
-
-@JvmName("pipelineHybridFlag")
-fun <E_ : Environment, S, A, B, C> HybridFlag<E_, S, A>.pipeline(
-    operationA: PipelineOperation<E_, S, A, B>,
-    operationB: PipelineOperation<E_, S, B, C>,
-): HybridFlag<E_, S, C> = PipelinedHybridFlag(this, [operationA, operationB])
-
-@JvmName("pipelineHybridFlag")
-fun <E_ : Environment, S, A, B, C, D> HybridFlag<E_, S, A>.pipeline(
-    operationA: PipelineOperation<E_, S, A, B>,
-    operationB: PipelineOperation<E_, S, B, C>,
-    operationC: PipelineOperation<E_, S, C, D>,
-): HybridFlag<E_, S, D> = PipelinedHybridFlag(this, [operationA, operationB, operationC])
 
 @JvmName("pipelineOptional")
 fun <E_ : Environment, S, A, B> OptionalParameter<E_, S, A>.pipeline(

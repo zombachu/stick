@@ -1,11 +1,9 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
-import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.element.parameters.TextParameter
 import com.zombachu.stick.expectSuccessValue
@@ -17,7 +15,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
 
 class PipelinedElementTest {
 
@@ -113,22 +110,5 @@ class PipelinedElementTest {
         val result = pipelined.default(testInvocation())
 
         assertFalse(result.isSuccess())
-    }
-
-    @Test
-    fun `PipelinedHybridFlag default runs pipeline on Absent default`() {
-        val inner = IntParameter<TestEnv, Unit>("", "", Int.MIN_VALUE, Int.MAX_VALUE)
-        val base = HybridFlagImpl("", inner, [])
-        var opCalled = false
-        val op: PipelineOperation<TestEnv, Unit, HybridFlagResult<Int>, HybridFlagResult<Int>> = {
-            opCalled = true
-            ParsingResult.success(it)
-        }
-        val pipelined = PipelinedHybridFlag<TestEnv, Unit, Int, Int>(base, [op])
-
-        val result = pipelined.default(testInvocation())
-
-        assertTrue(opCalled)
-        assertIs<HybridFlagResult.Absent<Int>>(result.expectSuccessValue())
     }
 }
