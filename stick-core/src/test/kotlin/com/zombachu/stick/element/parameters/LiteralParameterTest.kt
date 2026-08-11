@@ -36,17 +36,11 @@ class LiteralParameterTest {
         assertEquals(Feedback.LiteralNotMatched(["foo"], "qux"), result.expectFailure().feedback)
     }
 
-    // TODO
     @Test
-    fun `KNOWN BUG - a mixed-case name can never match, not even its own exact casing`() {
-        // parse() always lowercases the incoming arg before comparing, but `label` (= the raw `name`
-        // constructor argument) is never lowercased itself. So LiteralParameter("Foo", ...) can never
-        // match ANY input, including the literal string "Foo", because "foo" (lowered input) != "Foo" (label).
-        // This test documents the INTENDED case-insensitive behavior and is expected to fail against the
-        // current source - do not "fix" this test to match the bug, the source needs the fix instead.
+    fun `matches a mixed-case name`() {
         val mixedCase = LiteralParameter<TestEnv, Unit>("Foo", [], "")
-        val result = withInvocation { mixedCase.parse("Foo") }
-        assertEquals("Foo", result.expectSuccessValue())
+        assertEquals("Foo", withInvocation { mixedCase.parse("Foo") }.expectSuccessValue())
+        assertEquals("foo", withInvocation { mixedCase.parse("foo") }.expectSuccessValue())
     }
 
     @Test

@@ -11,7 +11,7 @@ open class BooleanParameter<E : Environment, S>(name: String, description: Strin
 
     context(inv: Invocation<E, S>)
     override fun parse(arg0: String): CommandResult<Boolean> {
-        val bool = arg0.toBooleanStrictOrNull() ?: return ParsingResult.failType("boolean", arg0)
+        val bool = arg0.lowercase().toBooleanStrictOrNull() ?: return ParsingResult.failType("boolean", arg0)
         return ParsingResult.success(bool)
     }
 }

@@ -22,9 +22,10 @@ open class EnumParameter<E : Environment, S, T : Enum<T>>(
 
     context(inv: Invocation<E, S>)
     override fun parse(arg0: String): CommandResult<T> {
+        val label = arg0.lowercase()
         val enumValue =
-            primaryValues[arg0]
-                ?: aliasedValues[arg0]
+            primaryValues[label]
+                ?: aliasedValues[label]
                 ?: return ParsingResult.failLiteral(primaryValues.keys.toList(), arg0)
         return ParsingResult.success(enumValue)
     }

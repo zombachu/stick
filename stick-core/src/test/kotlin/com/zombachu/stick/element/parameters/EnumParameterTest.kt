@@ -29,9 +29,9 @@ class EnumParameterTest {
     }
 
     @Test
-    fun `matching is case-sensitive`() {
-        val result = withInvocation { parameter.parse("RED") }
-        assertEquals(Feedback.LiteralNotMatched(["red", "green", "blue"], "RED"), result.expectFailure().feedback)
+    fun `matching is case-insensitive`() {
+        assertEquals(Color.RED, withInvocation { parameter.parse("RED") }.expectSuccessValue())
+        assertEquals(Color.RED, withInvocation { parameter.parse("R") }.expectSuccessValue())
     }
 
     @Test

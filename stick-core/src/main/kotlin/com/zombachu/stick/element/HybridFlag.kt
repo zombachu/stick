@@ -26,7 +26,7 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
     override val default: ContextualValue<E, S, HybridFlagResult<T>> = {
         ParsingResult.success(HybridFlagResult.Absent())
     }
-    override val label: String = "-${name}"
+    override val label: String = "-${name.lowercase()}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
 
     context(inv: Invocation<E, S>)

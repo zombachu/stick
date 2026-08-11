@@ -19,9 +19,9 @@ class BooleanParameterTest {
     }
 
     @Test
-    fun `rejects mixed case input`() {
-        val result = withInvocation { parameter.parse("True") }
-        assertEquals(Feedback.TypeNotMatched("boolean", "True"), result.expectFailure().feedback)
+    fun `parses mixed case true and false`() {
+        assertEquals(true, withInvocation { parameter.parse("True") }.expectSuccessValue())
+        assertEquals(false, withInvocation { parameter.parse("FALSE") }.expectSuccessValue())
     }
 
     @Test

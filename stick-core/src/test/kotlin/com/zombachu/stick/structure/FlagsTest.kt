@@ -57,6 +57,11 @@ class FlagsTest {
         // bug, the source needs the fix instead.
         val valueFlag = valueFlag("n", 0, intParameter("amount"))
         assertEquals(5, withInvocation { valueFlag.parse(["-n", "5"]) }.expectSuccessValue())
+
+    @Test
+    fun `flag matches a mixed-case name`() = structureTest {
+        val basicFlag = flag("Loud")
+        assertEquals(true, withInvocation { basicFlag.parse(["-loud"]) }.expectSuccessValue())
     }
 
     @Test

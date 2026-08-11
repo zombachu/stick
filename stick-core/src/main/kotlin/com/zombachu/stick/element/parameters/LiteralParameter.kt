@@ -11,7 +11,7 @@ import com.zombachu.stick.element.Parameter
 open class LiteralParameter<E : Environment, S>(name: String, override val aliases: Set<String>, description: String) :
     Parameter.Size1<E, S, String>(name, description), Aliasable {
 
-    override val label: String = name
+    override val label: String = name.lowercase()
     override val type: ElementType = ElementType.Literal
 
     context(inv: Invocation<E, S>)
