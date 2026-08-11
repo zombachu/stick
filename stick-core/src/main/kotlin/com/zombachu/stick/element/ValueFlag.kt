@@ -40,7 +40,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
     description: String,
 ) : Parameter.FixedSize<E, S, T>(size, name, description), Aliasable {
 
-    override val label: String = "-${name}"
+    override val label: String = "-${name.lowercase()}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
 
     internal class PresenceFlagParameter<E : Environment, S, T>(
@@ -63,9 +63,10 @@ internal sealed class FlagParameter<E : Environment, S, T>(
     }
 
     internal class ParameterFlagParameter<E : Environment, S, T>(
+        name: String,
         private val parameter: FixedSize<E, S, T>,
         aliases: Set<String>,
-    ) : FlagParameter<E, S, T>(Size(1) + parameter.size, parameter.name, aliases, parameter.description) {
+    ) : FlagParameter<E, S, T>(Size(1) + parameter.size, name, aliases, parameter.description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {

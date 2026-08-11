@@ -43,7 +43,7 @@ fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     parameter: Parameter.FixedSize<E, S, T>,
     aliases: Set<String> = [],
 ): ValueFlag<E, S, T> =
-    ValueFlagImpl(name, default, FlagParameter.ParameterFlagParameter(parameter, aliases.lowercase()))
+    ValueFlagImpl(name, default, FlagParameter.ParameterFlagParameter(name, parameter, aliases.lowercase()))
 
 fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     name: String,
@@ -61,7 +61,7 @@ fun <E : Environment, S, T> StructureScope<E, S>.nullableValueFlag(
     ValueFlagImpl(
         name,
         { ParsingResult.success(null) },
-        FlagParameter.ParameterFlagParameter(parameter, aliases.lowercase())
+        FlagParameter.ParameterFlagParameter(name, parameter, aliases.lowercase())
             as FlagParameter.ParameterFlagParameter<E, S, T?>,
     )
 

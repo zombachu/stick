@@ -81,7 +81,7 @@ class SignatureTest {
 
     @Test
     fun `flag parsing error propagates`() {
-        val flagParameter = FlagParameter.ParameterFlagParameter(amount, [])
+        val flagParameter = FlagParameter.ParameterFlagParameter("amount", amount, [])
         val flag = ValueFlagImpl("amount", { ParsingResult.success(0) }, flagParameter)
         val signature = Signature1<TestEnv, Unit, Int>({}, [flag])
 

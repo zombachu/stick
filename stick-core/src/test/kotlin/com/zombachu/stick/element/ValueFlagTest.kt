@@ -47,7 +47,7 @@ class ValueFlagTest {
 
     @Test
     fun `ParameterFlagParameter delegates to parameter and sums consumed size`() {
-        val flagParameter = FlagParameter.ParameterFlagParameter(amountParameter, [])
+        val flagParameter = FlagParameter.ParameterFlagParameter("amount", amountParameter, [])
 
         val result = withInvocation { flagParameter.parse(["-amount", "42"]) }
 
@@ -58,7 +58,7 @@ class ValueFlagTest {
 
     @Test
     fun `ParameterFlagParameter invalid argument fails with TypeNotMatchedInternal`() {
-        val flagParameter = FlagParameter.ParameterFlagParameter(amountParameter, [])
+        val flagParameter = FlagParameter.ParameterFlagParameter("amount", amountParameter, [])
         val result = withInvocation { flagParameter.parse(["-other", "42"]) }
         assertSame(ParsingResult.TypeNotMatchedInternal, result)
     }
