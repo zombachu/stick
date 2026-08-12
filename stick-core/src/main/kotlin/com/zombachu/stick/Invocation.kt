@@ -3,7 +3,7 @@ package com.zombachu.stick
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.impl.InvocationImpl
 
-interface Invocation<E : Environment, S> : ValidationContext<E, S> {
+interface Invocation<out E : Environment, S> : ValidationContext<E, S> {
     val label: String
     val args: List<String>
 

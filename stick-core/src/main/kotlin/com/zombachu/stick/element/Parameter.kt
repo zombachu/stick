@@ -11,7 +11,7 @@ import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.impl.Size
 import com.zombachu.stick.withSize
 
-sealed class Parameter<E : Environment, S, T>(
+sealed class Parameter<in E : Environment, S, out T>(
     override val size: Size,
     override val name: String,
     override val description: String,
@@ -22,10 +22,13 @@ sealed class Parameter<E : Environment, S, T>(
     context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String = "<${name}>"
 
-    sealed class FixedSize<E : Environment, S, T>(override val size: Size.Fixed, name: String, description: String) :
-        Parameter<E, S, T>(size, name, description), Groupable.NonTerminating<E, S, T>
+    sealed class FixedSize<in E : Environment, S, out T>(
+        override val size: Size.Fixed,
+        name: String,
+        description: String,
+    ) : Parameter<E, S, T>(size, name, description), Groupable.NonTerminating<E, S, T>
 
-    abstract class Size1<E : Environment, S, T>(name: String, description: String) :
+    abstract class Size1<in E : Environment, S, out T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(1), name, description) {
 
         context(inv: Invocation<E, S>)
@@ -37,7 +40,7 @@ sealed class Parameter<E : Environment, S, T>(
         abstract fun parse(arg0: String): CommandResult<T>
     }
 
-    abstract class Size2<E : Environment, S, T>(name: String, description: String) :
+    abstract class Size2<in E : Environment, S, out T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(2), name, description) {
 
         context(inv: Invocation<E, S>)
@@ -49,7 +52,7 @@ sealed class Parameter<E : Environment, S, T>(
         abstract fun parse(arg0: String, arg1: String): CommandResult<T>
     }
 
-    abstract class Size3<E : Environment, S, T>(name: String, description: String) :
+    abstract class Size3<in E : Environment, S, out T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(3), name, description) {
 
         context(inv: Invocation<E, S>)
@@ -61,7 +64,7 @@ sealed class Parameter<E : Environment, S, T>(
         abstract fun parse(arg0: String, arg1: String, arg2: String): CommandResult<T>
     }
 
-    abstract class Size4<E : Environment, S, T>(name: String, description: String) :
+    abstract class Size4<in E : Environment, S, out T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(4), name, description) {
 
         context(inv: Invocation<E, S>)
@@ -73,7 +76,7 @@ sealed class Parameter<E : Environment, S, T>(
         abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String): CommandResult<T>
     }
 
-    abstract class Size5<E : Environment, S, T>(name: String, description: String) :
+    abstract class Size5<in E : Environment, S, out T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(5), name, description) {
 
         context(inv: Invocation<E, S>)
@@ -85,7 +88,7 @@ sealed class Parameter<E : Environment, S, T>(
         abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String): CommandResult<T>
     }
 
-    abstract class Size6<E : Environment, S, T>(name: String, description: String) :
+    abstract class Size6<in E : Environment, S, out T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(6), name, description) {
 
         context(inv: Invocation<E, S>)
@@ -104,7 +107,7 @@ sealed class Parameter<E : Environment, S, T>(
         ): CommandResult<T>
     }
 
-    abstract class Size7<E : Environment, S, T>(name: String, description: String) :
+    abstract class Size7<in E : Environment, S, out T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(7), name, description) {
 
         context(inv: Invocation<E, S>)
@@ -124,7 +127,7 @@ sealed class Parameter<E : Environment, S, T>(
         ): CommandResult<T>
     }
 
-    abstract class Size8<E : Environment, S, T>(name: String, description: String) :
+    abstract class Size8<in E : Environment, S, out T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(8), name, description) {
 
         context(inv: Invocation<E, S>)
@@ -145,7 +148,7 @@ sealed class Parameter<E : Environment, S, T>(
         ): CommandResult<T>
     }
 
-    abstract class UnknownSize<E : Environment, S, T>(size: Size, name: String, description: String) :
+    abstract class UnknownSize<in E : Environment, S, out T>(size: Size, name: String, description: String) :
         Parameter<E, S, T>(size, name, description)
 }
 

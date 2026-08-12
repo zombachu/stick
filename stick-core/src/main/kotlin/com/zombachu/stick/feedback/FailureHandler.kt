@@ -5,7 +5,7 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.impl.InvocationImpl
 
-interface FailureHandler<E : Environment, S> {
+interface FailureHandler<in E : Environment, S> {
     context(inv: Invocation<E, S>)
     fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>)
 }

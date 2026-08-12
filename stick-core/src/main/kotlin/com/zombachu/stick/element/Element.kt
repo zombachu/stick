@@ -11,17 +11,17 @@ import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.impl.Arguments
 import com.zombachu.stick.impl.Size
 
-sealed interface Element<E : Environment, S, out T> {
+sealed interface Element<in E : Environment, S, out T> {
     val size: Size
     val type: ElementType
 
     context(inv: Invocation<E, S>)
     fun parse(args: List<String>): CommandResult<T>
 
-    sealed interface NonTerminating<E : Environment, S, out T> : Element<E, S, T>
+    sealed interface NonTerminating<in E : Environment, S, out T> : Element<E, S, T>
 }
 
-sealed interface SyntaxElement<E : Environment, S, out T> : Element<E, S, T> {
+sealed interface SyntaxElement<in E : Environment, S, out T> : Element<E, S, T> {
     val name: String
     val description: String
 
@@ -29,42 +29,42 @@ sealed interface SyntaxElement<E : Environment, S, out T> : Element<E, S, T> {
     fun getSyntax(): String
 }
 
-sealed interface Groupable<E : Environment, S, out T> : SyntaxElement<E, S, T> {
+sealed interface Groupable<in E : Environment, S, out T> : SyntaxElement<E, S, T> {
     context(validationContext: ValidationContext<E, S>)
     fun getGroupedSyntax(): String = name
 
-    sealed interface NonTerminating<E : Environment, S, out T> : Groupable<E, S, T>, Element.NonTerminating<E, S, T>
+    sealed interface NonTerminating<in E : Environment, S, out T> : Groupable<E, S, T>, Element.NonTerminating<E, S, T>
 }
 
-sealed interface Helper<E : Environment, S, out T> : Element.NonTerminating<E, S, T>
+sealed interface Helper<in E : Environment, S, out T> : Element.NonTerminating<E, S, T>
 
-sealed interface Flag<E : Environment, S, out T> : SyntaxElement<E, S, T> {
+sealed interface Flag<in E : Environment, S, out T> : SyntaxElement<E, S, T> {
     val default: ContextualValue<E, S, T>
 
-    sealed interface Validated<E : Environment, S, out T> : Flag<E, S, T>, SenderValidator<E, S> {
+    sealed interface Validated<in E : Environment, S, out T> : Flag<E, S, T>, SenderValidator<E, S> {
         val invalidDefault: ContextualValue<E, S, T>
     }
 }
 
-sealed interface ValueFlag<E : Environment, S, out T> : Flag<E, S, T>, Element.NonTerminating<E, S, T>
+sealed interface ValueFlag<in E : Environment, S, out T> : Flag<E, S, T>, Element.NonTerminating<E, S, T>
 
-sealed interface HybridFlag<E : Environment, S, out T> : Flag<E, S, HybridFlagResult<T>>
+sealed interface HybridFlag<in E : Environment, S, out T> : Flag<E, S, HybridFlagResult<T>>
 
-sealed interface Group<E : Environment, S, out G : GroupResult> : SyntaxElement<E, S, G> {
-    sealed interface UnknownSize<E : Environment, S, out G : GroupResult> : Group<E, S, G>
+sealed interface Group<in E : Environment, S, out G : GroupResult> : SyntaxElement<E, S, G> {
+    sealed interface UnknownSize<in E : Environment, S, out G : GroupResult> : Group<E, S, G>
 
-    sealed interface FiniteSize<E : Environment, S, out G : GroupResult> :
+    sealed interface FiniteSize<in E : Environment, S, out G : GroupResult> :
         Group<E, S, G>, Element.NonTerminating<E, S, G>
 }
 
-sealed interface Structure<E : Environment, S, out T_ : Arguments> :
+sealed interface Structure<in E : Environment, S, out T_ : Arguments> :
     Groupable<E, S, T_>, Aliasable, SenderValidator<E, S>
 
-sealed interface ValidatedParameter<E : Environment, S, out T> : Groupable<E, S, T> {
-    sealed interface UnknownSize<E : Environment, S, out T> : ValidatedParameter<E, S, T>, Groupable<E, S, T>
+sealed interface ValidatedParameter<in E : Environment, S, out T> : Groupable<E, S, T> {
+    sealed interface UnknownSize<in E : Environment, S, out T> : ValidatedParameter<E, S, T>, Groupable<E, S, T>
 
-    sealed interface FixedSize<E : Environment, S, out T> :
+    sealed interface FixedSize<in E : Environment, S, out T> :
         ValidatedParameter<E, S, T>, Groupable.NonTerminating<E, S, T>
 }
 
-sealed interface OptionalParameter<E : Environment, S, out T> : SyntaxElement<E, S, T>
+sealed interface OptionalParameter<in E : Environment, S, out T> : SyntaxElement<E, S, T>

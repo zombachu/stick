@@ -55,11 +55,10 @@ fun <E : Environment, S, T> StructureScope<E, S>.optionally(
     )
 
 fun <E : Environment, S, T> StructureScope<E, S>.optionallyNullable(
-    parameter: Parameter<E, S, out T>
+    parameter: Parameter<E, S, T>
 ): OptionalParameter<E, S, T?> =
-    @Suppress("UNCHECKED_CAST")
     OptionalParameterImpl(
         requirementDefault = invalidDefault(null),
         presenceDefault = default(null),
-        parameter = parameter as Parameter<E, S, T?>,
+        parameter = parameter,
     )

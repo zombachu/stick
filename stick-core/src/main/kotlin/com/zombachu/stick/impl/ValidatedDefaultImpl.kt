@@ -6,13 +6,13 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.SenderValidator
 
-sealed interface ValidatedDefault<E : Environment, S, T> : SenderValidator<E, S> {
+sealed interface ValidatedDefault<in E : Environment, S, out T> : SenderValidator<E, S> {
     val value: ContextualValue<E, S, T>
 }
 
-sealed interface ValidSenderDefault<E : Environment, S, T> : ValidatedDefault<E, S, T>
+sealed interface ValidSenderDefault<in E : Environment, S, out T> : ValidatedDefault<E, S, T>
 
-sealed interface InvalidSenderDefault<E : Environment, S, T> : ValidatedDefault<E, S, T>
+sealed interface InvalidSenderDefault<in E : Environment, S, out T> : ValidatedDefault<E, S, T>
 
 internal class ValidatedDefaultImpl<E : Environment, S, T>(
     override val value: ContextualValue<E, S, T>,
