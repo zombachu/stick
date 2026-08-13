@@ -6,6 +6,7 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.EnumEntry
 import com.zombachu.stick.structureTest
+import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -55,6 +56,17 @@ class ParametersTest {
     }
 
     @Test
+    fun `enumParameter keys Aliasable enums by label`() = structureTest {
+        val parameter = enumParameter("", RelabeledColor::class)
+
+        assertEquals(
+            mapOf("darkred" to RelabeledColor.DARK_RED, "darkgreen" to RelabeledColor.DARK_GREEN),
+            parameter.primaryValues,
+        )
+        assertEquals("<darkred|darkgreen>", withValidationContext { parameter.getSyntax() })
+    }
+
+    @Test
     fun `enumParameter from EnumEntry list derives values`() = structureTest {
         val entries = [EnumEntry(Color.RED, "red", ["r"]), EnumEntry(Color.GREEN, "green")]
         val parameter = enumParameter("", entries)
@@ -87,5 +99,10 @@ class ParametersTest {
     private enum class AliasedColor(override val label: String, override val aliases: Set<String>) : Aliasable {
         RED("red", ["r"]),
         GREEN("green", ["g"]),
+    }
+
+    private enum class RelabeledColor(override val label: String, override val aliases: Set<String>) : Aliasable {
+        DARK_RED("darkred", ["dr"]),
+        DARK_GREEN("DarkGreen", ["dg"]),
     }
 }

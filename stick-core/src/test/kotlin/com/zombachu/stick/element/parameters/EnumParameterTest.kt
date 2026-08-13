@@ -36,8 +36,8 @@ class EnumParameterTest {
 
     @Test
     fun `failure reports primary keys, not aliases`() {
-        val result = withInvocation { parameter.parse("unknown") }
-        assertEquals(Feedback.LiteralNotMatched(["red", "green", "blue"], "unknown"), result.expectFailure().feedback)
+        val result = withInvocation { parameter.parse("Unknown") }
+        assertEquals(Feedback.LiteralNotMatched(["red", "green", "blue"], "Unknown"), result.expectFailure().feedback)
     }
 
     private enum class Color {

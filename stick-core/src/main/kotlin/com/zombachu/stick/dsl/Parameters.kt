@@ -104,7 +104,7 @@ inline fun <E : Environment, S, reified T> StructureScope<E, S>.enumParameter(
     EnumParameter(
         name,
         description,
-        enumEntries<T>().associateBy { it.name.lowercase() },
+        enumEntries<T>().associateBy { it.label.lowercase() },
         enumEntries<T>().flatMap { e -> e.aliases.lowercase().map { n -> Pair(n, e) } }.toMap(),
     )
 
