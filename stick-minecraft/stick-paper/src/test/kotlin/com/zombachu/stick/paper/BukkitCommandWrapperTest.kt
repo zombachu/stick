@@ -1,9 +1,9 @@
 package com.zombachu.stick.paper
 
+import com.zombachu.stick.dsl.command
+import com.zombachu.stick.dsl.invoke
+import com.zombachu.stick.dsl.textParameter
 import com.zombachu.stick.noopFailureHandler
-import com.zombachu.stick.structure.command
-import com.zombachu.stick.structure.invoke
-import com.zombachu.stick.structure.textParameter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame

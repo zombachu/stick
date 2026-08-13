@@ -5,25 +5,25 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SenderValidationResult
+import com.zombachu.stick.StructureScope
+import com.zombachu.stick.dsl.command
+import com.zombachu.stick.dsl.default
+import com.zombachu.stick.dsl.group
+import com.zombachu.stick.dsl.invalidDefault
+import com.zombachu.stick.dsl.invoke
+import com.zombachu.stick.dsl.optionally
+import com.zombachu.stick.dsl.stringParameter
+import com.zombachu.stick.dsl.valueFlag
 import com.zombachu.stick.element.Element
 import com.zombachu.stick.element.Groupable
+import com.zombachu.stick.element.InvalidSenderDefault
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
+import com.zombachu.stick.element.ValidSenderDefault
 import com.zombachu.stick.element.ValueFlag
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.feedback.Feedback
-import com.zombachu.stick.impl.InvalidSenderDefault
-import com.zombachu.stick.impl.StructureScope
-import com.zombachu.stick.impl.ValidSenderDefault
 import com.zombachu.stick.paper.BasicBukkitEnvironment
-import com.zombachu.stick.structure.command
-import com.zombachu.stick.structure.default
-import com.zombachu.stick.structure.group
-import com.zombachu.stick.structure.invalidDefault
-import com.zombachu.stick.structure.invoke
-import com.zombachu.stick.structure.optionally
-import com.zombachu.stick.structure.stringParameter
-import com.zombachu.stick.structure.valueFlag
 import org.bukkit.command.CommandSender
 
 // Scratch space for the variance of E across the element hierarchy. Element, Structure, Group, Flag,

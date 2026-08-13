@@ -1,7 +1,6 @@
 package com.zombachu.stick
 
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.impl.InvocationImpl
 
 interface Invocation<out E : Environment, S> : ValidationContext<E, S> {
     val label: String

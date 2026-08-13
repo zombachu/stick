@@ -2,21 +2,21 @@
 
 package com.zombachu.stick.element
 
+import com.zombachu.stick.Arguments0
+import com.zombachu.stick.Arguments1
+import com.zombachu.stick.Arguments10
+import com.zombachu.stick.Arguments11
+import com.zombachu.stick.Arguments12
+import com.zombachu.stick.Arguments2
+import com.zombachu.stick.Arguments3
+import com.zombachu.stick.Arguments4
+import com.zombachu.stick.Arguments5
+import com.zombachu.stick.Arguments6
+import com.zombachu.stick.Arguments7
+import com.zombachu.stick.Arguments8
+import com.zombachu.stick.Arguments9
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.impl.Arguments0
-import com.zombachu.stick.impl.Arguments1
-import com.zombachu.stick.impl.Arguments10
-import com.zombachu.stick.impl.Arguments11
-import com.zombachu.stick.impl.Arguments12
-import com.zombachu.stick.impl.Arguments2
-import com.zombachu.stick.impl.Arguments3
-import com.zombachu.stick.impl.Arguments4
-import com.zombachu.stick.impl.Arguments5
-import com.zombachu.stick.impl.Arguments6
-import com.zombachu.stick.impl.Arguments7
-import com.zombachu.stick.impl.Arguments8
-import com.zombachu.stick.impl.Arguments9
 
 internal class Signature0<E_ : Environment, S>(
     private val execute: Invocation<E_, S>.() -> Unit,

@@ -4,20 +4,20 @@ import com.zombachu.stick.Command
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.StructureScope
+import com.zombachu.stick.dsl.command
+import com.zombachu.stick.dsl.invoke
+import com.zombachu.stick.dsl.stringParameter
+import com.zombachu.stick.dsl.structure
+import com.zombachu.stick.dsl.valueFlag
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.feedback.CustomFeedback
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.handle
-import com.zombachu.stick.impl.StructureScope
 import com.zombachu.stick.paper.BasicBukkitEnvironment
 import com.zombachu.stick.paper.BukkitEnvironment
-import com.zombachu.stick.paper.structure.permissionedValue
-import com.zombachu.stick.structure.command
-import com.zombachu.stick.structure.invoke
-import com.zombachu.stick.structure.stringParameter
-import com.zombachu.stick.structure.structure
-import com.zombachu.stick.structure.valueFlag
+import com.zombachu.stick.paper.dsl.permissionedValue
 import org.bukkit.command.CommandSender
 
 class CustomCommand : Command<CustomBukkitEnvironment, CommandSender> {

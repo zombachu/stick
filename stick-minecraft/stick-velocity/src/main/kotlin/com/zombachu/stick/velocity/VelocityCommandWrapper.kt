@@ -2,10 +2,10 @@ package com.zombachu.stick.velocity
 
 import com.velocitypowered.api.command.CommandSource
 import com.velocitypowered.api.command.RawCommand
+import com.zombachu.stick.CommandWrapper
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
-import com.zombachu.stick.impl.CommandWrapper
 import com.zombachu.stick.isSuccess
 
 class VelocityCommandWrapper<E : VelocityEnvironment>(

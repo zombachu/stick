@@ -1,9 +1,11 @@
 package com.zombachu.stick.element
 
+import com.zombachu.stick.Arguments1
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.LiteralParameter
@@ -11,8 +13,6 @@ import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.feedback.Feedback
-import com.zombachu.stick.impl.Arguments1
-import com.zombachu.stick.impl.Requirement
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test

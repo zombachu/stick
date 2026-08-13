@@ -3,7 +3,7 @@ package com.zombachu.stick.feedback
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.impl.InvocationImpl
+import com.zombachu.stick.InvocationImpl
 
 interface FailureHandler<in E : Environment, S> {
     context(inv: Invocation<E, S>)

@@ -1,7 +1,5 @@
 package com.zombachu.stick
 
-import com.zombachu.stick.impl.ValidationContextImpl
-
 interface ValidationContext<out E : Environment, S> : SenderContext<S> {
     val env: E
 

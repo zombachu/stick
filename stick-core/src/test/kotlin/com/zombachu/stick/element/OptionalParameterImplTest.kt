@@ -7,8 +7,6 @@ import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.feedback.Feedback
-import com.zombachu.stick.impl.InvalidSenderDefault
-import com.zombachu.stick.impl.ValidSenderDefault
 import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.validSenderDefault
 import com.zombachu.stick.withInvocation

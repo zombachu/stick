@@ -3,8 +3,8 @@ package com.zombachu.stick.paper
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.customFailure
-import com.zombachu.stick.structure.command
-import com.zombachu.stick.structure.invoke
+import com.zombachu.stick.dsl.command
+import com.zombachu.stick.dsl.invoke
 import org.bukkit.command.CommandSender
 import kotlin.test.Test
 import kotlin.test.assertEquals

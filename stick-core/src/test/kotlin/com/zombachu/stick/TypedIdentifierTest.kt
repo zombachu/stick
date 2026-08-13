@@ -1,6 +1,6 @@
 package com.zombachu.stick
 
-import com.zombachu.stick.structure.id
+import com.zombachu.stick.dsl.id
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals

@@ -4,11 +4,11 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.dsl.id
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.presenceValueFlag
-import com.zombachu.stick.structure.id
 import com.zombachu.stick.testInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals

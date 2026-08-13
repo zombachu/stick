@@ -4,10 +4,8 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
-import com.zombachu.stick.impl.InvalidSenderDefault
-import com.zombachu.stick.impl.Size
-import com.zombachu.stick.impl.ValidSenderDefault
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 

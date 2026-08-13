@@ -1,19 +1,16 @@
 package com.zombachu.stick
 
 import com.zombachu.stick.element.FlagParameter
+import com.zombachu.stick.element.InvalidSenderDefault
 import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
+import com.zombachu.stick.element.ValidSenderDefault
+import com.zombachu.stick.element.ValidatedDefaultImpl
 import com.zombachu.stick.element.ValueFlagImpl
 import com.zombachu.stick.feedback.CustomFeedback
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.feedback.Feedback
-import com.zombachu.stick.impl.InvalidSenderDefault
-import com.zombachu.stick.impl.InvocationImpl
-import com.zombachu.stick.impl.Requirement
-import com.zombachu.stick.impl.StructureScope
-import com.zombachu.stick.impl.ValidSenderDefault
-import com.zombachu.stick.impl.ValidatedDefaultImpl
 import kotlin.test.fail
 
 object TestEnv : Environment

@@ -1,10 +1,10 @@
 package com.zombachu.stick.velocity
 
+import com.zombachu.stick.dsl.command
+import com.zombachu.stick.dsl.invoke
+import com.zombachu.stick.dsl.textParameter
 import com.zombachu.stick.noopFailureHandler
-import com.zombachu.stick.structure.command
-import com.zombachu.stick.structure.invoke
-import com.zombachu.stick.structure.textParameter
-import com.zombachu.stick.velocity.structure.permission
+import com.zombachu.stick.velocity.dsl.permission
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

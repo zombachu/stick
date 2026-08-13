@@ -1,7 +1,6 @@
 package com.zombachu.stick
 
 import com.zombachu.stick.feedback.Feedback
-import com.zombachu.stick.impl.Size
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

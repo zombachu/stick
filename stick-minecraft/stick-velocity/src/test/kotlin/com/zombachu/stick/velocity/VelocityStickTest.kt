@@ -1,7 +1,7 @@
 package com.zombachu.stick.velocity
 
-import com.zombachu.stick.structure.command
-import com.zombachu.stick.structure.invoke
+import com.zombachu.stick.dsl.command
+import com.zombachu.stick.dsl.invoke
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs

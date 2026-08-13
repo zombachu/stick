@@ -1,15 +1,15 @@
 package com.zombachu.stick.element
 
+import com.zombachu.stick.Arguments
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
+import com.zombachu.stick.Requirement
+import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
-import com.zombachu.stick.impl.Arguments
-import com.zombachu.stick.impl.InvocationImpl
-import com.zombachu.stick.impl.Requirement
-import com.zombachu.stick.impl.Size
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 

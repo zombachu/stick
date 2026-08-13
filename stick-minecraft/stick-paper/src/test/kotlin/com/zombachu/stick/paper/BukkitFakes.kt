@@ -1,9 +1,9 @@
 package com.zombachu.stick.paper
 
+import com.zombachu.stick.Arguments
+import com.zombachu.stick.StructureScope
+import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.impl.Arguments
-import com.zombachu.stick.impl.StructureScope
-import com.zombachu.stick.structure.structure
 import io.papermc.paper.plugin.configuration.PluginMeta
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager
 import net.kyori.adventure.text.Component

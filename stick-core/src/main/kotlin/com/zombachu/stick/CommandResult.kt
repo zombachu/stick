@@ -3,7 +3,6 @@
 package com.zombachu.stick
 
 import com.zombachu.stick.feedback.Feedback
-import com.zombachu.stick.impl.Size
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract

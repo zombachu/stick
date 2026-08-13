@@ -1,13 +1,10 @@
 package com.zombachu.stick
 
-import com.zombachu.stick.element.SenderValidator
+import com.zombachu.stick.dsl.requireAs
+import com.zombachu.stick.dsl.requirement
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.feedback.TransformedFailureHandler
-import com.zombachu.stick.impl.Requirement
-import com.zombachu.stick.impl.StructureScope
-import com.zombachu.stick.structure.requireAs
-import com.zombachu.stick.structure.requirement
 import kotlin.reflect.KClass
 
 abstract class Stick<E : Environment, S : Any>(

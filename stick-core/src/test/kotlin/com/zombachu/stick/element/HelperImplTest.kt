@@ -1,9 +1,9 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.expectSuccessValue
-import com.zombachu.stick.impl.Size
 import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals

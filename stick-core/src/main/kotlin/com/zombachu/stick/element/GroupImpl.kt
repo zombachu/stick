@@ -20,12 +20,12 @@ import com.zombachu.stick.GroupResult6
 import com.zombachu.stick.GroupResult7
 import com.zombachu.stick.GroupResult8
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
+import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.GroupElement.Companion.to
-import com.zombachu.stick.impl.InvocationImpl
-import com.zombachu.stick.impl.Size
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError

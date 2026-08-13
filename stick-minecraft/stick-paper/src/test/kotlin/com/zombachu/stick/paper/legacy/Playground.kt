@@ -3,9 +3,9 @@ package com.zombachu.stick.paper.legacy
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TypedIdentifier
+import com.zombachu.stick.dsl.id
 import com.zombachu.stick.paper.BukkitStick
 import com.zombachu.stick.paper.legacy.P2.*
-import com.zombachu.stick.structure.id
 import io.papermc.paper.plugin.configuration.PluginMeta
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager
 import org.bukkit.Server

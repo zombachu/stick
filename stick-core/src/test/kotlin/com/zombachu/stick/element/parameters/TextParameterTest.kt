@@ -1,10 +1,10 @@
 package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.expectSuccessValue
-import com.zombachu.stick.impl.Size
 import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals

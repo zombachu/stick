@@ -1,15 +1,16 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.Aliasable
+import com.zombachu.stick.Arguments
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.SenderValidator
+import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
-import com.zombachu.stick.impl.Arguments
-import com.zombachu.stick.impl.Size
 
 sealed interface Element<in E : Environment, S, out T> {
     val size: Size

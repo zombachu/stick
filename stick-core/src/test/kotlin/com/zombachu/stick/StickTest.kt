@@ -1,10 +1,10 @@
 package com.zombachu.stick
 
+import com.zombachu.stick.dsl.command
+import com.zombachu.stick.dsl.invoke
+import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
-import com.zombachu.stick.structure.command
-import com.zombachu.stick.structure.invoke
-import com.zombachu.stick.structure.structure
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
