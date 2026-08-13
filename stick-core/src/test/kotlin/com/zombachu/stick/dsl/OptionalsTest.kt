@@ -3,6 +3,7 @@ package com.zombachu.stick.dsl
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue
@@ -75,6 +76,19 @@ class OptionalsTest {
     fun `optionally defaults without ifInvalid`() = structureTest<String> {
         val optional = optionally(default(7), intParameter)
         assertEquals(7, withInvocationSender("sender") { optional.parse([]) }.expectSuccessValue())
+    }
+
+    @Test
+    fun `optionally infers nullable type from null defaults`() = structureTest<String> {
+        val optional =
+            optionally(
+                ifInvalid = invalidDefault(null, requirement { it.sender == "correct" }),
+                ifAbsent = default(null),
+                parameter = intParameter,
+            )
+
+        assertNull(withInvocationSender("correct") { optional.parse([]) }.expectSuccessValue())
+        assertEquals(1, withInvocationSender("correct") { optional.parse(["1"]) }.expectSuccessValue())
     }
 
     @Test
