@@ -5,7 +5,6 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.ParsingResult.LiteralNotMatchedError
 import com.zombachu.stick.Size
@@ -106,41 +105,4 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         context(validationContext: ValidationContext<E, S>)
         override fun getSyntax(): String = "[${primaryValues.joinToString("|")}]"
     }
-}
-
-internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
-    private val base: ValueFlag<E, S2, T>,
-    private val transform: (S) -> S2,
-    private val invalidSenderDefault: InvalidSenderDefault<E, S, T>,
-) : ValueFlag<E, S, T>, Flag.Validated<E, S, T> {
-
-    override val default: ContextualValue<E, S, T> = {
-        val transformedInvocation = (this as InvocationImpl).forSender(transform)
-        base.default(transformedInvocation)
-    }
-
-    override val size: Size = base.size
-    override val type: ElementType = ElementType.Flag
-    override val name: String = base.name
-    override val description: String = base.description
-    override val invalidDefault: ContextualValue<E, S, T> = invalidSenderDefault.value
-
-    context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<T> {
-        val transformedInvocation = (inv as InvocationImpl).forSender(transform)
-        context(transformedInvocation) {
-            return base.parse(args)
-        }
-    }
-
-    context(validationContext: ValidationContext<E, S>)
-    override fun getSyntax(): String {
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
-            return base.getSyntax()
-        }
-    }
-
-    context(validationContext: ValidationContext<E, S>)
-    override fun validateSender(): CommandResult<Unit> = invalidSenderDefault.validateSender()
 }

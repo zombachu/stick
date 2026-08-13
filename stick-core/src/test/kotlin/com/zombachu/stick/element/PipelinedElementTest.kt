@@ -16,7 +16,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 
-class PipelinedElementImplTest {
+class PipelinedElementTest {
 
     @Test
     fun `operations chain in order`() {

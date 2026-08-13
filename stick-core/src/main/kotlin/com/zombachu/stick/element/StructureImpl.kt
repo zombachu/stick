@@ -59,36 +59,3 @@ internal open class StructureImpl<E : Environment, S, T_ : Arguments>(
     context(validationContext: ValidationContext<E, S>)
     override fun validateSender(): CommandResult<Unit> = requirement.validateSender()
 }
-
-internal class TransformedStructure<E : Environment, S, S2 : Any, T_ : Arguments>(
-    private val base: Structure<E, S2, T_>,
-    private val transform: (S) -> S2,
-    private val requirement: Requirement<E, S>,
-) : Structure<E, S, T_> {
-
-    override val name: String = base.name
-    override val aliases: Set<String> = base.aliases
-    override val description: String = base.description
-    override val size: Size = base.size
-    override val type: ElementType = base.type
-    override val label: String = base.label
-
-    context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<T_> {
-        val transformedInvocation = (inv as InvocationImpl).forSender(transform)
-        context(transformedInvocation) {
-            return base.parse(args)
-        }
-    }
-
-    context(validationContext: ValidationContext<E, S>)
-    override fun getSyntax(): String {
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
-            return base.getSyntax()
-        }
-    }
-
-    context(validationContext: ValidationContext<E, S>)
-    override fun validateSender(): CommandResult<Unit> = requirement.validateSender()
-}

@@ -3,14 +3,7 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
-import com.zombachu.stick.GroupResult.ResultA
-import com.zombachu.stick.GroupResult.ResultB
-import com.zombachu.stick.GroupResult.ResultC
-import com.zombachu.stick.GroupResult.ResultD
-import com.zombachu.stick.GroupResult.ResultE
-import com.zombachu.stick.GroupResult.ResultF
-import com.zombachu.stick.GroupResult.ResultG
-import com.zombachu.stick.GroupResult.ResultH
+import com.zombachu.stick.GroupResult.*
 import com.zombachu.stick.GroupResult1
 import com.zombachu.stick.GroupResult2
 import com.zombachu.stick.GroupResult3
