@@ -38,7 +38,7 @@ open class Player(
 }
 
 class SocialData(val player: Player) {
-    val friends: MutableList<String> = mutableListOf()
+    val bio: MutableList<String> = mutableListOf()
     val nicknames: MutableMap<String, String> = mutableMapOf()
 }
 

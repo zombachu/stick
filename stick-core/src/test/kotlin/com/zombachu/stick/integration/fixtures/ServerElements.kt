@@ -65,38 +65,37 @@ fun <E : Server> StructureScope<E, Sender>.targetPlayerParameter(
 class WarpParameter<E : WarpableServer, S>(name: String) : Parameter.Size1<E, S, Warp>(name, "") {
     context(inv: Invocation<E, S>)
     override fun parse(arg0: String): CommandResult<Warp> {
-        val warp = inv.env.warps[arg0] ?: return CustomError("Unknown warp: $arg0.")
+        val warp = inv.env.warps[arg0] ?: return CustomError("Unknown warp: $arg0")
         return ParsingResult.success(warp)
     }
 }
 
 fun <E : WarpableServer, S> StructureScope<E, S>.warpParameter(name: String): WarpParameter<E, S> = WarpParameter(name)
 
-class HomeNameParameter<E : Environment>(name: String) : Parameter.Size1<E, SocialData, String>(name, "") {
+class RealNameParameter<E : Environment>(name: String) : Parameter.Size1<E, SocialData, String>(name, "") {
     context(inv: Invocation<E, SocialData>)
     override fun parse(arg0: String): CommandResult<String> {
-        val world = inv.sender.nicknames[arg0] ?: return CustomError("Unknown home: $arg0.")
-        return ParsingResult.success(world)
+        val nicknameEntry = inv.sender.nicknames.entries.find { it.value == arg0 }
+            ?: return CustomError("Unknown nickname: $arg0")
+        return ParsingResult.success(nicknameEntry.key)
     }
 }
 
-fun <E : Environment, S> StructureScope<E, S>.homeNameParameter(
+fun <E : Environment, S> StructureScope<E, S>.realNameParameter(
     name: String,
-): HomeNameParameter<E> = HomeNameParameter(name)
+): RealNameParameter<E> = RealNameParameter(name)
 
-class ReportParameter<E : Environment>(name: String) :
+class BioParameter<E : Environment>(name: String) :
     Parameter.UnknownSize<E, SocialData, String>(Size.Unbounded, name, "") {
 
     context(inv: Invocation<E, SocialData>)
     override fun parse(args: List<String>): CommandResult<String> {
-        if (args.isEmpty()) return CustomError("Reports cannot be empty.")
-        val note = args.joinToString(" ")
-        if (note in inv.sender.friends) return CustomError("You have already reported that.")
-        return ParsingResult.success(note, Size(args.size))
+        val bioLine = args.joinToString(" ")
+        return ParsingResult.success(bioLine, Size(args.size))
     }
 }
 
-fun <E : Environment, S> StructureScope<E, S>.reportParameter(name: String): ReportParameter<E> = ReportParameter(name)
+fun <E : Environment, S> StructureScope<E, S>.bioParameter(name: String): BioParameter<E> = BioParameter(name)
 
 // --- requires -----------------------------------------------------------------------------------------------------
 
