@@ -44,8 +44,8 @@ import kotlin.test.assertEquals
 
 class EnvironmentTest {
 
-    private val zombachu = Player("zombachu", ["server.warp", "server.world.set"])
-    private val steve = Player("Steve", ["server.warp"])
+    private val zombachu = Player("zombachu", ["server.world.set"])
+    private val steve = Player("Steve")
     private val server = SynergyServer([zombachu, steve], WarpRegistry([Warp("shop", "zombachu", "nether")]))
 
     @Test
