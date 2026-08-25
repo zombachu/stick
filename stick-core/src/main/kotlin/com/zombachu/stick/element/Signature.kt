@@ -65,7 +65,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
                 linearSyntax + flagSyntax + terminatingElement.getSyntax()
             }
 
-        return syntax.joinToString(" ")
+        return syntax.filter { it.isNotEmpty() }.joinToString(" ")
     }
 
     context(inv: InvocationImpl<E, S>)
