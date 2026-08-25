@@ -67,7 +67,7 @@ class FlagTest {
     }
 
     @Test
-    fun `give - flags parse anywhere`() {
+    fun `give - flag parses anywhere`() {
         val giveCommand = structure(Server::class, Sender::class) {
             command("give")(
                 flag("silent"),
@@ -123,7 +123,7 @@ class FlagTest {
     }
 
     @Test
-    fun `prefix - value flags accept contextual defaults`() {
+    fun `prefix - value flag accepts contextual defaults`() {
         val prefixCommand = structure(Server::class, Sender::class) {
             command("me")(
                 valueFlag(
@@ -151,7 +151,7 @@ class FlagTest {
     }
 
     @Test
-    fun `mail - value flags can have nullable default`() {
+    fun `mail - value flag can have nullable default`() {
         val mailCommand = structure(Server::class, Sender::class) {
             command("mail")(
                 nullableValueFlag(
@@ -171,7 +171,7 @@ class FlagTest {
     }
 
     @Test
-    fun `weather - enum flags match to enum values`() {
+    fun `weather - enum flag matches to enum values`() {
         val weatherCommand = structure(Server::class, Sender::class) {
             command("weather")(
                 enumFlag(
@@ -194,7 +194,7 @@ class FlagTest {
     }
 
     @Test
-    fun `list - enum flags can have nullable default`() {
+    fun `list - enum flag can have nullable default`() {
         val listCommand = structure(Server::class, Sender::class) {
             command("list")(
                 nullableEnumFlag(enumParameter("mode", GameMode::class))
@@ -211,7 +211,7 @@ class FlagTest {
     }
 
     @Test
-    fun `music - hybrid flags parse`() {
+    fun `music - hybrid flag parses`() {
         val musicCommand = structure(Server::class, Sender::class) {
             command("music")(
                 hybridFlag("volume", intParameter("level", min = 1, max = 10))
@@ -274,7 +274,7 @@ class FlagTest {
     }
 
     @Test
-    fun `broadcast - flags can be gated by requirement`() {
+    fun `broadcast - flag can be gated by requirement`() {
         val broadcastCommand = structure(Server::class, Sender::class) {
             command("broadcast")(
                 require(invalidDefault("Player", permission("server.broadcast.raw"))) {
@@ -300,7 +300,7 @@ class FlagTest {
     }
 
     @Test
-    fun `profile -  flags can be gated by sender type`() {
+    fun `profile -  flag can be gated by sender type`() {
         val profileCommand = structure(Server::class, Sender::class) {
             command("profile")(
                 requireIs(Player::class, invalidDefault("*")) {
