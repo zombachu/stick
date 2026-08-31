@@ -86,6 +86,8 @@ enum class Material {
     Bedrock,
 }
 
+val WORLDS = ["overworld", "nether", "end"]
+
 data class Warp(val name: String, val owner: String, val world: String)
 
 class WarpRegistry(warps: List<Warp> = []) {
