@@ -16,7 +16,6 @@ import com.zombachu.stick.dsl.defaultSender
 import com.zombachu.stick.dsl.helper
 import com.zombachu.stick.dsl.optionally
 import com.zombachu.stick.dsl.requireAs
-import com.zombachu.stick.dsl.requireIs
 import com.zombachu.stick.dsl.requirement
 import com.zombachu.stick.element.Groupable
 import com.zombachu.stick.element.Helper
@@ -98,14 +97,6 @@ class BioParameter<E : Environment>(name: String) :
 fun <E : Environment, S> StructureScope<E, S>.bioParameter(name: String): BioParameter<E> = BioParameter(name)
 
 // --- requires -----------------------------------------------------------------------------------------------------
-
-fun <E : Environment, T> StructureScope<E, Sender>.requirePlayer(
-    parameter: StructureScope<E, Player>.() -> Parameter.FixedSize<E, Player, T>
-): Groupable<E, Sender, T> =
-    requireIs(
-        Player::class,
-        parameter = parameter
-    )
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, T_ : Arguments> StructureScope<E, Sender>.requireSocialData(
