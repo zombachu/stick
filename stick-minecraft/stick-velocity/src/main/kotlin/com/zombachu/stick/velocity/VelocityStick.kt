@@ -6,12 +6,13 @@ import com.velocitypowered.api.proxy.ProxyServer
 import com.zombachu.stick.Stick
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
+import org.slf4j.Logger
 
-class VelocityStick(private val plugin: Any, proxy: ProxyServer) :
+class VelocityStick(private val plugin: Any, proxy: ProxyServer, logger: Logger) :
     Stick<VelocityEnvironment, CommandSource>(
         CommandSource::class,
         lazy(LazyThreadSafetyMode.NONE) { BasicVelocityEnvironment(proxy) },
-        lazy(LazyThreadSafetyMode.NONE) { BasicVelocityFailureHandler() },
+        lazy(LazyThreadSafetyMode.NONE) { BasicVelocityFailureHandler(logger) },
     ) {
 
     private val commandManager: CommandManager = proxy.commandManager

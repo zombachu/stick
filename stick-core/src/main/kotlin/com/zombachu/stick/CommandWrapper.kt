@@ -8,11 +8,17 @@ interface CommandWrapper<E : Environment, S> {
     val failureHandler: FailureHandler<E, S>
     val structure: Structure<E, S, *>
 
+    @Suppress("TooGenericExceptionCaught")
     fun execute(sender: S, fullArgs: List<String>) {
         val inv = Invocation(sender, env, fullArgs.first(), fullArgs, structure)
         context(env, inv) {
-            val validationResult = structure.validateSender()
-            val result = if (validationResult.isSuccess()) structure.parse(fullArgs) else validationResult
+            val result =
+                try {
+                    val validationResult = structure.validateSender()
+                    if (validationResult.isSuccess()) structure.parse(fullArgs) else validationResult
+                } catch (e: Exception) {
+                    ParsingResult.failUnknown(e)
+                }
             // Ignore InternalFailures
             if (result is CommandResult.Failure<*>) {
                 failureHandler.onFailure(result)

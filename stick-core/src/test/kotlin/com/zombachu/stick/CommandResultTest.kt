@@ -26,10 +26,17 @@ class CommandResultTest {
     }
 
     @Test
-    fun `failUnknown returns Unknown singleton`() {
+    fun `failUnknown defaults to no cause`() {
         val result = ParsingResult.failUnknown()
         assertFalse(result.isSuccess())
-        assertSame(Feedback.Unknown, result.feedback)
+        assertEquals(Feedback.Unknown(), result.feedback)
+    }
+
+    @Test
+    fun `failUnknown carries its cause`() {
+        val cause = IllegalStateException("boom")
+        val result = ParsingResult.failUnknown(cause)
+        assertSame(cause, result.feedback.cause)
     }
 
     @Test

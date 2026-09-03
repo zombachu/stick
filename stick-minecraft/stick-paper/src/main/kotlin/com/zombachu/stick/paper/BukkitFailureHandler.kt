@@ -4,6 +4,7 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.feedback.Feedback
+import java.util.logging.Level
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.command.CommandSender
@@ -13,7 +14,11 @@ interface BukkitFailureHandler<E : BukkitEnvironment> : FailureHandler<E, Comman
 open class BasicBukkitFailureHandler : BukkitFailureHandler<BukkitEnvironment> {
     context(inv: Invocation<BukkitEnvironment, CommandSender>)
     override fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>) {
-        val message = failure.feedback.message
+        val feedback = failure.feedback
+        if (feedback is Feedback.Unknown && feedback.cause != null) {
+            inv.env.plugin.logger.log(Level.SEVERE, "Command /${inv.label} threw", feedback.cause)
+        }
+        val message = feedback.message
         if (message.isEmpty()) {
             return
         }

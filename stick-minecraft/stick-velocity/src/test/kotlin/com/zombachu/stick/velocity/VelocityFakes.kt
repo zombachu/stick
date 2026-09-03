@@ -20,6 +20,9 @@ import com.velocitypowered.api.util.ProxyVersion
 import com.zombachu.stick.Arguments
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.dsl.structure
+import org.slf4j.Marker
+import org.slf4j.event.Level
+import org.slf4j.helpers.LegacyAbstractLogger
 import com.zombachu.stick.element.Structure
 import net.kyori.adventure.text.Component
 import java.net.InetSocketAddress
@@ -172,3 +175,39 @@ fun <T_ : Arguments> velocityStructure(
     block: StructureScope<VelocityEnvironment, CommandSource>.() -> Structure<VelocityEnvironment, CommandSource, T_>
 ): Structure<VelocityEnvironment, CommandSource, T_> =
     structure(VelocityEnvironment::class, CommandSource::class, block)
+
+class FakeLogger : LegacyAbstractLogger() {
+    val logged: MutableList<Pair<String?, Throwable?>> = mutableListOf()
+
+    override fun isTraceEnabled(): Boolean = false
+
+    override fun isTraceEnabled(marker: Marker?): Boolean = false
+
+    override fun isDebugEnabled(): Boolean = false
+
+    override fun isDebugEnabled(marker: Marker?): Boolean = false
+
+    override fun isInfoEnabled(): Boolean = false
+
+    override fun isInfoEnabled(marker: Marker?): Boolean = false
+
+    override fun isWarnEnabled(): Boolean = false
+
+    override fun isWarnEnabled(marker: Marker?): Boolean = false
+
+    override fun isErrorEnabled(): Boolean = true
+
+    override fun isErrorEnabled(marker: Marker?): Boolean = true
+
+    override fun getFullyQualifiedCallerName(): String? = null
+
+    override fun handleNormalizedLoggingCall(
+        level: Level,
+        marker: Marker?,
+        messagePattern: String?,
+        arguments: Array<out Any>?,
+        throwable: Throwable?,
+    ) {
+        logged += messagePattern to throwable
+    }
+}

@@ -9,6 +9,8 @@ import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.listElementParameter
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.structure
+import com.zombachu.stick.element.ElementType
+import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.feedback.CustomFeedback
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.feedback.Feedback
@@ -20,11 +22,13 @@ import com.zombachu.stick.integration.fixtures.SynergyServer
 import com.zombachu.stick.integration.fixtures.Warp
 import com.zombachu.stick.integration.fixtures.WarpRegistry
 import com.zombachu.stick.integration.fixtures.WarpableServer
+import com.zombachu.stick.integration.fixtures.executeExpectingError
 import com.zombachu.stick.integration.fixtures.executeWithHandler
 import com.zombachu.stick.integration.fixtures.permission
 import com.zombachu.stick.integration.fixtures.warpParameter
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class FailureHandlingTest {
 
@@ -104,13 +108,49 @@ class FailureHandlingTest {
         assertEquals(["You have no mail"], zombachu.logs)
     }
 
+    @Test
+    fun `throw - handler catches exception from element`() {
+        class ThrowingParameter(name: String) : Parameter.Size1<Server, Sender, String>(name, "") {
+            override val type: ElementType = ElementType.Passthrough
+
+            context(inv: Invocation<Server, Sender>)
+            override fun parse(arg0: String): CommandResult<String> = error("this is an exception")
+        }
+        val throwCommand = structure(Server::class, Sender::class) {
+            command("throw")(
+                ThrowingParameter("egg")
+            ) {
+                sender.log("this is not an exception")
+            }
+        }
+
+        val feedback = throwCommand.executeExpectingError(server, zombachu, "/throw blah")
+
+        assertIs<Feedback.Unknown>(feedback)
+        assertEquals("this is an exception", feedback.cause?.message)
+    }
+
+    @Test
+    fun `throw - handler catches exception from command body`() {
+        val throwCommand = structure(Server::class, Sender::class) {
+            command("throw")() {
+                error("this is an exception")
+            }
+        }
+
+        val feedback = throwCommand.executeExpectingError(server, zombachu, "/throw")
+
+        assertIs<Feedback.Unknown>(feedback)
+        assertEquals("this is an exception", feedback.cause?.message)
+    }
+
     private class TestFailureHandler<S : Sender> : FailureHandler<Server, S> {
         context(inv: Invocation<Server, S>)
         override fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>) {
             val message =
                 failure.handle {
                     when (this) {
-                        Feedback.Unknown -> "SOMETHING BROKE"
+                        is Feedback.Unknown -> "SOMETHING BROKE"
                         Feedback.InvalidPermission -> "PERMISSION DENIED"
                         Feedback.InvalidSender,
                         Feedback.InvalidSenderType -> "NOT FOR YOU"

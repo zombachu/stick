@@ -52,7 +52,7 @@ sealed interface ParsingResult<out T> : CommandResult<T> {
     companion object {
         fun <T> success(value: T, consumed: Size.Fixed = Size(0)): Success<T> = Success(value, consumed)
 
-        fun failUnknown(): UnknownError = UnknownError(Feedback.Unknown)
+        fun failUnknown(cause: Throwable? = null): UnknownError = UnknownError(Feedback.Unknown(cause))
 
         fun failHandled(): HandledError = HandledError
 

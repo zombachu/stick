@@ -7,7 +7,7 @@ class FeedbackTest {
 
     @Test
     fun `Unknown message`() {
-        assertEquals("An unknown error has occurred.", Feedback.Unknown.message)
+        assertEquals("An unknown error has occurred.", Feedback.Unknown().message)
     }
 
     @Test

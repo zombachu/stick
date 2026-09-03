@@ -119,7 +119,7 @@ object FakePlugin : Plugin {
     override fun getDefaultBiomeProvider(worldName: String, id: String?): BiomeProvider =
         error("unused")
 
-    override fun getLogger(): Logger = error("unused")
+    override fun getLogger(): Logger = Logger.getLogger("fake-plugin")
 
     override fun getName(): String = "fake-plugin"
 

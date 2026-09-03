@@ -29,6 +29,7 @@ import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.velocity.BasicVelocityEnvironment
 import com.zombachu.stick.velocity.BasicVelocityFailureHandler
+import com.zombachu.stick.velocity.FakeLogger
 import com.zombachu.stick.velocity.VelocityCommand
 import com.zombachu.stick.velocity.VelocityEnvironment
 import com.zombachu.stick.velocity.VelocityStick
@@ -41,8 +42,8 @@ class BridgeTest {
 
     fun test() {
         val env = BasicVelocityEnvironment(fakeProxyServer)
-        val failureHandler = BasicVelocityFailureHandler()
-        val bridge = VelocityStick(Any(), fakeProxyServer)
+        val failureHandler = BasicVelocityFailureHandler(FakeLogger())
+        val bridge = VelocityStick(Any(), fakeProxyServer, FakeLogger())
         bridge.withContext(env, failureHandler) {
             register {
                 command("hi")(

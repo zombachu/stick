@@ -82,7 +82,7 @@ class ListElementParameterTest {
     fun `ContextualValue failure propagates`() {
         val failingList: ContextualValue<TestEnv, Unit, List<String>> = { ParsingResult.failUnknown() }
         val parameter = ListElementParameter("", "", failingList, oneIndexed = false)
-        assertSame(Feedback.Unknown, failure(parameter, "0"))
+        assertEquals(Feedback.Unknown(), failure(parameter, "0"))
     }
 
     private fun failure(parameter: ListElementParameter<TestEnv, Unit, String>, arg: String): Feedback =

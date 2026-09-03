@@ -3,7 +3,7 @@ package com.zombachu.stick.feedback
 sealed interface Feedback {
     val message: String
 
-    object Unknown : Feedback {
+    data class Unknown(val cause: Throwable? = null) : Feedback {
         override val message
             get() = "An unknown error has occurred."
     }

@@ -76,7 +76,7 @@ class CustomFailureHandler : FailureHandler<CustomBukkitEnvironment, CommandSend
                 Feedback.InvalidSenderType,
                 is Feedback.LiteralNotMatched,
                 is Feedback.TypeNotMatched,
-                Feedback.Unknown -> defaultProcess(failure)
+                is Feedback.Unknown -> defaultProcess(failure)
                 is CustomFeedback -> TODO()
             }
         }

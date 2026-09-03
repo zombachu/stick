@@ -12,7 +12,7 @@ class VelocityStickTest {
     fun `registerCommand registers wrapper with command meta`() {
         val manager = FakeCommandManager()
         val plugin = Any()
-        val stick = VelocityStick(plugin, FakeProxyServer(manager))
+        val stick = VelocityStick(plugin, FakeProxyServer(manager), FakeLogger())
         val structure = velocityStructure { command("cmd", aliases = ["c"])() }
 
         stick.withContext { register(structure) }
