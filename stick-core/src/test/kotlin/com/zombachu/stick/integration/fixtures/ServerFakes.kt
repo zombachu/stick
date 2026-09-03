@@ -91,7 +91,7 @@ val WORLDS = ["overworld", "nether", "end"]
 data class Warp(val name: String, val owner: String, val world: String)
 
 class WarpRegistry(warps: List<Warp> = []) {
-    private val warps: MutableMap<String, Warp> = warps.associateByTo(mutableMapOf()) { it.name.lowercase() }
+    val warps: MutableMap<String, Warp> = warps.associateByTo(mutableMapOf()) { it.name.lowercase() }
 
     val names: List<String>
         get() = warps.values.map { it.name }

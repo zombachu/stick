@@ -136,6 +136,6 @@ fun <E : Environment, S : Player> StructureScope<E, S>.socialDataHelper(): Helpe
     ParsingResult.success(sender.socialData)
 }
 
-fun <E : Environment, S : Sender> StructureScope<E, S>.worldHelper(): Helper<E, S, String> = helper {
-    ParsingResult.success((sender as? Player)?.world ?: "overworld")
+fun <E : Environment, S : Player> StructureScope<E, S>.worldHelper(): Helper<E, S, String> = helper {
+    ParsingResult.success(sender.world)
 }
