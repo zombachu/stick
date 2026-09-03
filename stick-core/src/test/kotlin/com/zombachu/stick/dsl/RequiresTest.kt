@@ -64,17 +64,16 @@ class RequiresTest {
     }
 
     @Test
-    fun `KNOWN LIMITATION - requirement mutates when composing`() = structureTest<BaseSender> {
+    fun `composing a requirement does not mutate it`() = structureTest<BaseSender> {
         val shared = requirement { true }
         val console = BaseSender("console")
 
+        val narrowed = requireIs(Player::class, shared) { stringParameter("") }
+
         assertTrue(withValidationContext(console) { shared.validateSender() }.isSuccess())
-
-        val ignored = requireIs(Player::class, shared) { stringParameter("") }
-
         assertSame(
             Feedback.InvalidSenderType,
-            withValidationContext(console) { shared.validateSender() }.expectFailure().feedback,
+            withValidationContext(console) { narrowed.validateSender() }.expectFailure().feedback,
         )
     }
 
