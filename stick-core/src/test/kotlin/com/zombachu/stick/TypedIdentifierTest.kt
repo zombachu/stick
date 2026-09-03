@@ -21,14 +21,10 @@ class TypedIdentifierTest {
     }
 
     @Test
-    fun `KNOWN LIMITATION - identifiers with the same name but different types collide`() {
-        // T::class.hashCode() erases to List::class for any List<...>, so id<List<String>> and
-        // id<List<Int>> with the same name are indistinguishable - a real, documented type-erasure
-        // limitation of the id() scheme, not something a test can "fix". This test locks in the
-        // CURRENT (colliding) behavior so a future change here doesn't happen unnoticed.
+    fun `identifiers with same name and different types are not equal`() {
         val stringList: TypedIdentifier<*> = id<List<String>>("items")
         val intList: TypedIdentifier<*> = id<List<Int>>("items")
-        assertEquals(stringList, intList)
+        assertNotEquals(stringList, intList)
     }
 
     @Test
