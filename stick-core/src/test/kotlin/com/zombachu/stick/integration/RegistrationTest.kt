@@ -30,6 +30,7 @@ import com.zombachu.stick.integration.fixtures.executeWithHandler
 import com.zombachu.stick.noopFailureHandler
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.fail
 
 class RegistrationTest {
 
@@ -40,7 +41,7 @@ class RegistrationTest {
     private val stick = TestStick(server)
 
     @Test
-    fun `version - command with base environment and platform sender registers`() {
+    fun `version + author - commands with base environment and platform sender register`() {
         class VersionCommand : Command<Environment, Sender> {
             override val structure = structure {
                 command("version")() {
@@ -48,18 +49,28 @@ class RegistrationTest {
                 }
             }
         }
+        class AuthorCommand : Command<Environment, Sender> {
+            override val structure = structure {
+                command("author")() {
+                    sender.log("zombachu")
+                }
+            }
+        }
 
         stick.withContext(server) { register(VersionCommand()) }
         assertEquals(1, stick.registered.size)
 
-        stick.withContext(server) { register(VersionCommand().structure) }
+        stick.withContext(server) { register(AuthorCommand().structure) }
         assertEquals(2, stick.registered.size)
 
-        stick.registered.last().execute(server, zombachu, "/version")
+        stick.execute(zombachu, "/version")
         assertEquals(["Stick 0.4.0"], zombachu.logs)
 
-        stick.registered.last().execute(server, console, "/version")
+        stick.execute(console, "/version")
         assertEquals(["Stick 0.4.0"], console.logs)
+
+        stick.execute(zombachu, "/author")
+        assertEquals(["zombachu"], zombachu.logs)
     }
 
     @Test
@@ -72,7 +83,7 @@ class RegistrationTest {
             }
         }
 
-        stick.registered.single().execute(server, zombachu, "/version")
+        stick.execute(zombachu, "/version")
         assertEquals(["Stick 0.4.0"], zombachu.logs)
     }
 
@@ -88,7 +99,7 @@ class RegistrationTest {
 
         stick.withContext(server) { register(MeCommand()) }
 
-        stick.registered.single().execute(server, zombachu, "/me")
+        stick.execute(zombachu, "/me")
         assertEquals(["zombachu: Hi"], zombachu.logs)
     }
 
@@ -106,7 +117,7 @@ class RegistrationTest {
             register(ProfileCommand())
         }
 
-        stick.registered.single().execute(server, zombachu, "/profile")
+        stick.execute(zombachu, "/profile")
         assertEquals(["Profile for zombachu"], zombachu.logs)
     }
 
@@ -139,18 +150,18 @@ class RegistrationTest {
 
         assertEquals(2, stick.registered.size)
 
-        stick.registered.first().execute(server, zombachu, "/profile")
+        stick.execute(zombachu, "/profile")
         assertEquals(["Profile for zombachu"], zombachu.logs)
 
-        stick.registered.first().execute(server, steve, "/profile")
+        stick.execute(steve, "/profile")
         assertEquals(["Profile for Steve"], steve.logs)
 
-        stick.registered.last().execute(server, zombachu, "/adminprofile")
+        stick.execute(zombachu, "/adminprofile")
         assertEquals(["Admin profile for zombachu"], zombachu.logs)
 
         assertEquals(
             Feedback.InvalidSenderType,
-            stick.registered.last().executeExpectingError(server, steve, "/adminprofile"),
+            stick.executeExpectingError(steve, "/adminprofile"),
         )
     }
 
@@ -194,14 +205,14 @@ class RegistrationTest {
 
         assertEquals(2, stick.registered.size)
 
-        stick.registered.first().execute(server, zombachu, "/warps")
+        stick.execute(zombachu, "/warps")
         assertEquals(["Warps in overworld: 1"], zombachu.logs)
 
-        stick.registered.first().executeWithHandler(stick.handler!!, server, console, "/warps nether")
+        stick.executeWithHandler(console, "/warps nether")
         assertEquals(Feedback.LiteralNotMatched(["overworld"], "nether"), handler.feedback)
         assertEquals(1, handler.warps)
 
-        stick.registered.last().execute(server, console, "/ping")
+        stick.execute(console, "/ping")
         assertEquals(["Pong!"], console.logs)
     }
 
@@ -232,7 +243,7 @@ class RegistrationTest {
             register(SelfBanCommand())
         }
 
-        stick.registered.single().executeWithHandler(stick.handler!!, server, zombachu, "/selfban 99")
+        stick.executeWithHandler(zombachu, "/selfban 99")
         assertEquals(Feedback.OutOfRange("1", "60", "99"), handler.feedback)
         assertEquals("zombachu", handler.name)
     }
@@ -279,21 +290,21 @@ class RegistrationTest {
 
         stick.withContext(server) { register(VanishCommand()) }
 
-        stick.registered.single().execute(server, zombachu, "/vanish")
+        stick.execute(zombachu, "/vanish")
         assertEquals(["Toggled vanish state"], zombachu.logs)
 
         assertEquals(
             Feedback.InvalidSenderType,
-            stick.registered.single().executeExpectingError(server, console, "/vanish"),
+            stick.executeExpectingError(console, "/vanish"),
         )
     }
 
-    private class TestStick(env: Server) :
+    private class TestStick(private val env: SynergyServer) :
         Stick<Server, Sender>(Sender::class, lazyOf(env), lazy { noopFailureHandler() }) {
 
         val registered: MutableList<Structure<SynergyServer, Sender, *>> = mutableListOf()
 
-        var handler: FailureHandler<SynergyServer, Sender>? = null
+        private var handler: FailureHandler<SynergyServer, Sender>? = null
 
         context(env: E2, failureHandler: FailureHandler<E2, Sender>)
         override fun <E2 : Server> registerCommand(structure: Structure<E2, Sender, *>) {
@@ -301,6 +312,21 @@ class RegistrationTest {
             registered += structure as Structure<SynergyServer, Sender, *>
             @Suppress("UNCHECKED_CAST")
             handler = failureHandler as FailureHandler<SynergyServer, Sender>
+        }
+
+        fun execute(sender: Sender, command: String) = commandFor(command).execute(env, sender, command)
+
+        fun executeExpectingError(sender: Sender, command: String): Feedback =
+            commandFor(command).executeExpectingError(env, sender, command)
+
+        fun executeWithHandler(sender: Sender, command: String) =
+            commandFor(command).executeWithHandler(handler!!, env, sender, command)
+
+        private fun commandFor(command: String): Structure<SynergyServer, Sender, *> {
+            val label = command.removePrefix("/").substringBefore(" ").lowercase()
+            val matching = registered.filter { it.matches(label) }
+            if (matching.size != 1) fail("Multiple commands matched for /$label: $matching")
+            return matching.single()
         }
     }
 
