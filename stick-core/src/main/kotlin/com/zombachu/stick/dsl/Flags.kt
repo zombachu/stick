@@ -89,4 +89,4 @@ fun <E : Environment, S, T> StructureScope<E, S>.hybridFlag(
     name: String,
     parameter: Parameter.FixedSize<E, S, T>,
     aliases: Set<String> = [],
-): HybridFlag<E, S, T> = HybridFlagImpl(name, parameter, aliases)
+): HybridFlag<E, S, T> = HybridFlagImpl(name, parameter, aliases.lowercase())

@@ -115,7 +115,7 @@ class FlagsTest {
     fun `hybridFlag parses with parameter`() = structureTest {
         val hybridFlag = hybridFlag("boost", intParameter)
 
-        val valueResult = withInvocation { hybridFlag.parse(["-boost", "5"]) }.expectSuccessValue()
+        val valueResult = withInvocation { hybridFlag.parse(["-bOOst", "5"]) }.expectSuccessValue()
         assertIs<HybridFlagResult.Value<Int>>(valueResult)
         assertEquals(5, valueResult.value)
 
