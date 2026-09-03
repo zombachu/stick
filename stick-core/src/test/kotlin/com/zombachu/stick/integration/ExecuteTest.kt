@@ -9,11 +9,13 @@ import com.zombachu.stick.dsl.requireIs
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.textParameter
+import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.integration.fixtures.Player
 import com.zombachu.stick.integration.fixtures.Sender
 import com.zombachu.stick.integration.fixtures.Server
 import com.zombachu.stick.integration.fixtures.SynergyServer
 import com.zombachu.stick.integration.fixtures.execute
+import com.zombachu.stick.integration.fixtures.executeExpectingError
 import com.zombachu.stick.integration.fixtures.permission
 import com.zombachu.stick.integration.fixtures.targetPlayerParameter
 import kotlin.test.Test
@@ -41,6 +43,9 @@ class ExecuteTest {
 
         echoCommand.execute(server, zombachu, "/echo 3 Hello there")
         assertEquals(["Hello there", "Hello there", "Hello there"], zombachu.logs)
+
+        val feedback = echoCommand.executeExpectingError(server, zombachu, "/echo 3")
+        assertEquals(Feedback.InvalidSyntax("/echo <times> <message>"), feedback)
     }
 
     @Test
