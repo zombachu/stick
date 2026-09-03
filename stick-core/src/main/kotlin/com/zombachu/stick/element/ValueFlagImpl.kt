@@ -91,11 +91,11 @@ internal sealed class FlagParameter<E : Environment, S, T>(
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            if (args.isEmpty()) return ParsingResult.failTypeInternal()
+            val flagArg = args.firstOrNull()
+            if (flagArg == null || !flagArg.startsWith("-")) return ParsingResult.failTypeInternal()
 
             // Ignore the - before passing it to the enum parameter
-            val arg = args.first().substring(1)
-            val result = enumParameter.parse(arg)
+            val result = enumParameter.parse(flagArg.substring(1))
             if (result is LiteralNotMatchedError) {
                 return ParsingResult.failTypeInternal()
             }
