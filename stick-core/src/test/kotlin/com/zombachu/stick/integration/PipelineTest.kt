@@ -148,7 +148,7 @@ class PipelineTest {
     }
 
     @Test
-    fun `KNOWN LIMITATION stop - pipeline does not apply to default values`() {
+    fun `stop - pipeline inside optional does not apply to default`() {
         val stopCommand = structure(Server::class, Sender::class) {
             command("stop")(
                 optionally(
@@ -167,6 +167,26 @@ class PipelineTest {
 
         stopCommand.execute(server, zombachu, "/stop")
         assertEquals(["Stopping: server shutting down"], zombachu.logs)
+    }
+
+    @Test
+    fun `stop - pipeline outside optional applies to default`() {
+        val restartCommand = structure(Server::class, Sender::class) {
+            command("stop")(
+                optionally(
+                    ifAbsent = default("server shutting down"),
+                    parameter = stringParameter("reason"),
+                ).pipeline(map { it.replaceFirstChar(Char::uppercase) })
+            ) { reason ->
+                sender.log("Stopping: $reason")
+            }
+        }
+
+        restartCommand.execute(server, zombachu, "/stop maintenance")
+        assertEquals(["Stopping: Maintenance"], zombachu.logs)
+
+        restartCommand.execute(server, zombachu, "/stop")
+        assertEquals(["Stopping: Server shutting down"], zombachu.logs)
     }
 
     @Test
