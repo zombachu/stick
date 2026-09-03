@@ -1,6 +1,7 @@
 package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.ElementType
@@ -9,6 +10,7 @@ import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertSame
 
 class TextParameterTest {
 
@@ -28,9 +30,9 @@ class TextParameterTest {
     }
 
     @Test
-    fun `empty args produce empty string`() {
+    fun `empty args fail with InvalidSizeError`() {
         val result = withInvocation { parameter.parse([]) }
-        assertEquals("", result.expectSuccessValue())
+        assertSame(PeekingResult.InvalidSizeError, result)
     }
 
     @Test
