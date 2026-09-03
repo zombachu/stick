@@ -10,5 +10,5 @@ import com.zombachu.stick.velocity.VelocityEnvironment
 
 fun <E : VelocityEnvironment, S : CommandSource> StructureScope<E, S>.permission(
     permission: String,
-    failureResult: () -> CommandResult.Failure<*> = SenderValidationResult::failPermission,
+    failureResult: () -> CommandResult.Failure<*> = { SenderValidationResult.failPermission() },
 ): Requirement<E, S> = requirement(failureResult) { it.sender.hasPermission(permission) }

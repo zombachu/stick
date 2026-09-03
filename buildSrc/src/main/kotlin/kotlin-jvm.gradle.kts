@@ -55,6 +55,8 @@ tasks {
             freeCompilerArgs.set(listOf(
                 "-Xcollection-literals",
                 "-Xreturn-value-checker=full",
+                "-Xno-param-assertions",
+                "-jvm-default=no-compatibility",
             ))
         }
         dependsOn("ktfmtFormat")

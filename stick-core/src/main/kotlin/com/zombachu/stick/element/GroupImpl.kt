@@ -126,14 +126,14 @@ internal class GroupElement<E : Environment, S, T, G : GroupResult>(
 }
 
 internal class Group1Impl<E_ : Environment, S, A>(name: String, description: String, element: Groupable<E_, S, A>) :
-    GroupImpl<E_, S, GroupResult1<A>>(name, description, [element to ::ResultA])
+    GroupImpl<E_, S, GroupResult1<A>>(name, description, [element to { ResultA(it) }])
 
 internal class Group2Impl<E_ : Environment, S, A, B>(
     name: String,
     description: String,
     elementA: Groupable<E_, S, A>,
     elementB: Groupable<E_, S, B>,
-) : GroupImpl<E_, S, GroupResult2<A, B>>(name, description, [elementA to ::ResultA, elementB to ::ResultB])
+) : GroupImpl<E_, S, GroupResult2<A, B>>(name, description, [elementA to { ResultA(it) }, elementB to { ResultB(it) }])
 
 internal class Group3Impl<E_ : Environment, S, A, B, C>(
     name: String,
@@ -145,7 +145,7 @@ internal class Group3Impl<E_ : Environment, S, A, B, C>(
     GroupImpl<E_, S, GroupResult3<A, B, C>>(
         name,
         description,
-        [elementA to ::ResultA, elementB to ::ResultB, elementC to ::ResultC],
+        [elementA to { ResultA(it) }, elementB to { ResultB(it) }, elementC to { ResultC(it) }],
     )
 
 internal class Group4Impl<E_ : Environment, S, A, B, C, D>(
@@ -159,7 +159,12 @@ internal class Group4Impl<E_ : Environment, S, A, B, C, D>(
     GroupImpl<E_, S, GroupResult4<A, B, C, D>>(
         name,
         description,
-        [elementA to ::ResultA, elementB to ::ResultB, elementC to ::ResultC, elementD to ::ResultD],
+        [
+            elementA to { ResultA(it) },
+            elementB to { ResultB(it) },
+            elementC to { ResultC(it) },
+            elementD to { ResultD(it) },
+        ],
     )
 
 internal class Group5Impl<E_ : Environment, S, A, B, C, D, E>(
@@ -175,11 +180,11 @@ internal class Group5Impl<E_ : Environment, S, A, B, C, D, E>(
         name,
         description,
         [
-            elementA to ::ResultA,
-            elementB to ::ResultB,
-            elementC to ::ResultC,
-            elementD to ::ResultD,
-            elementE to ::ResultE,
+            elementA to { ResultA(it) },
+            elementB to { ResultB(it) },
+            elementC to { ResultC(it) },
+            elementD to { ResultD(it) },
+            elementE to { ResultE(it) },
         ],
     )
 
@@ -197,12 +202,12 @@ internal class Group6Impl<E_ : Environment, S, A, B, C, D, E, F>(
         name,
         description,
         [
-            elementA to ::ResultA,
-            elementB to ::ResultB,
-            elementC to ::ResultC,
-            elementD to ::ResultD,
-            elementE to ::ResultE,
-            elementF to ::ResultF,
+            elementA to { ResultA(it) },
+            elementB to { ResultB(it) },
+            elementC to { ResultC(it) },
+            elementD to { ResultD(it) },
+            elementE to { ResultE(it) },
+            elementF to { ResultF(it) },
         ],
     )
 
@@ -221,13 +226,13 @@ internal class Group7Impl<E_ : Environment, S, A, B, C, D, E, F, G>(
         name,
         description,
         [
-            elementA to ::ResultA,
-            elementB to ::ResultB,
-            elementC to ::ResultC,
-            elementD to ::ResultD,
-            elementE to ::ResultE,
-            elementF to ::ResultF,
-            elementG to ::ResultG,
+            elementA to { ResultA(it) },
+            elementB to { ResultB(it) },
+            elementC to { ResultC(it) },
+            elementD to { ResultD(it) },
+            elementE to { ResultE(it) },
+            elementF to { ResultF(it) },
+            elementG to { ResultG(it) },
         ],
     )
 
@@ -247,13 +252,13 @@ internal class Group8Impl<E_ : Environment, S, A, B, C, D, E, F, G, H>(
         name,
         description,
         [
-            elementA to ::ResultA,
-            elementB to ::ResultB,
-            elementC to ::ResultC,
-            elementD to ::ResultD,
-            elementE to ::ResultE,
-            elementF to ::ResultF,
-            elementG to ::ResultG,
-            elementH to ::ResultH,
+            elementA to { ResultA(it) },
+            elementB to { ResultB(it) },
+            elementC to { ResultC(it) },
+            elementD to { ResultD(it) },
+            elementE to { ResultE(it) },
+            elementF to { ResultF(it) },
+            elementG to { ResultG(it) },
+            elementH to { ResultH(it) },
         ],
     )

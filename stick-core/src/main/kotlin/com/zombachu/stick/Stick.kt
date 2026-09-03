@@ -71,7 +71,7 @@ abstract class Stick<E : Environment, S : Any>(
                 with(emptyContext) {
                     requireAs(
                         castSender,
-                        requirement(SenderValidationResult::failSenderType) { isSenderRequiredType(it.sender) },
+                        requirement({ SenderValidationResult.failSenderType() }) { isSenderRequiredType(it.sender) },
                     ) {
                         command.structure
                     }
