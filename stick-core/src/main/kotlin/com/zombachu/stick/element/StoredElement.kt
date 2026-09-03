@@ -1,6 +1,7 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
@@ -39,6 +40,8 @@ internal class StoredValueFlag<E : Environment, S, T>(
     private val id: TypedIdentifier<T>,
 ) : ValueFlag<E, S, T> by base {
 
+    override val default: ContextualValue<E, S, T> = { defaultAndStore(base.default, id) }
+
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parseAndStore(base, id, args)
 }
@@ -47,6 +50,8 @@ internal class StoredHybridFlag<E : Environment, S, T>(
     private val base: HybridFlag<E, S, T>,
     private val id: TypedIdentifier<HybridFlagResult<T>>,
 ) : HybridFlag<E, S, T> by base {
+
+    override val default: ContextualValue<E, S, HybridFlagResult<T>> = { defaultAndStore(base.default, id) }
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<HybridFlagResult<T>> = parseAndStore(base, id, args)
@@ -59,6 +64,18 @@ internal class StoredOptionalParameter<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parseAndStore(base, id, args)
+}
+
+private fun <E : Environment, S, T> Invocation<E, S>.defaultAndStore(
+    default: ContextualValue<E, S, T>,
+    id: TypedIdentifier<T>,
+): CommandResult<T> {
+    val result = default(this)
+    val value = result.valueOrPropagateError {
+        return it
+    }
+    put(id, value)
+    return result
 }
 
 context(inv: Invocation<E, S>)
