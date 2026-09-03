@@ -17,6 +17,7 @@ import com.zombachu.stick.withInvocationSender
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -82,6 +83,12 @@ class ValueFlagImplTest {
         val flagParameter = FlagParameter.EnumFlagParameter(colorParameter)
         val result = withInvocation { flagParameter.parse([]) }
         assertSame(ParsingResult.TypeNotMatchedInternal, result)
+    }
+
+    @Test
+    fun `KNOWN LIMITATION - EnumFlagParameter for empty argument throws StringIndexOutOfBoundsException`() {
+        val flagParameter = FlagParameter.EnumFlagParameter(colorParameter)
+        assertFailsWith<StringIndexOutOfBoundsException> { withInvocation { flagParameter.parse([""]) } }
     }
 
     @Test

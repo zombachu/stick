@@ -3,17 +3,21 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.dsl.id
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectSuccessValue
+import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.testInvocation
+import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class StoredElementTest {
 
@@ -58,6 +62,21 @@ class StoredElementTest {
 
         assertEquals(true, result.expectSuccessValue())
         assertEquals(true, inv.get(identifier))
+    }
+
+    @Test
+    fun `KNOWN LIMITATION - StoredValueFlag ignores base requirement`() {
+        val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
+        val validated =
+            TransformedValueFlag(
+                base,
+                { it: Int -> it.toString() },
+                invalidSenderDefault(false) { SenderValidationResult.failSenderType() },
+            )
+        val stored = StoredValueFlag(validated, id<Boolean>("silent"))
+
+        assertFalse(withValidationContext(1) { validated.validateSender() }.isSuccess())
+        assertTrue(withValidationContext(1) { stored.validateSender() }.isSuccess())
     }
 
     @Test

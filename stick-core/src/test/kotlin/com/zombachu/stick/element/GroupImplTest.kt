@@ -119,6 +119,17 @@ class GroupImplTest {
     }
 
     @Test
+    fun `KNOWN LIMITATION - groups allow duplicate literals`() {
+        val first = LiteralParameter<TestEnv, Unit>("foo", [], "")
+        val second = LiteralParameter<TestEnv, Unit>("foo", [], "")
+        val group = Group2Impl("", "", first, second)
+
+        val result = withInvocation("foo") { group.parse(["foo"]) }
+
+        assertIs<GroupResult.ResultA<String>>(result.expectSuccessValue())
+    }
+
+    @Test
     fun `getSyntax returns only sender-visible syntax`() {
         val visible = StringParameter<TestEnv, Unit>("str", "")
         val requirement = Requirement<TestEnv, Unit> { SenderValidationResult.failSender() }
