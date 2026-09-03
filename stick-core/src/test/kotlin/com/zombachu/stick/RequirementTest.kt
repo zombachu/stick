@@ -4,6 +4,7 @@ import com.zombachu.stick.feedback.Feedback
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -60,7 +61,7 @@ class RequirementTest {
     }
 
     @Test
-    fun `plus mutates left-hand requirement in place`() {
+    fun `plus does not mutate operands operands`() {
         var bCalled = false
         val a = Requirement<TestEnv, Unit> { SenderValidationResult.success() }
         val b =
@@ -69,9 +70,13 @@ class RequirementTest {
                 SenderValidationResult.success()
             }
 
-        assertSame(a, a + b)
+        val combined = a + b
 
+        assertNotSame(a, combined)
         assertTrue(withValidationContext { a.validateSender() }.isSuccess())
+        assertFalse(bCalled)
+
+        assertTrue(withValidationContext { combined.validateSender() }.isSuccess())
         assertTrue(bCalled)
     }
 }

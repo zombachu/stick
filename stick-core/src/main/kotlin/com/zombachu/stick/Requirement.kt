@@ -1,10 +1,11 @@
 package com.zombachu.stick
 
 class Requirement<E : Environment, S>
-@PublishedApi
-internal constructor(validate: (env: ValidationContext<E, S>) -> CommandResult<Unit>) : SenderValidator<E, S> {
+private constructor(private val validations: List<(env: ValidationContext<E, S>) -> CommandResult<Unit>>) :
+    SenderValidator<E, S> {
 
-    private val validations: MutableList<(env: ValidationContext<E, S>) -> CommandResult<Unit>> = [validate]
+    @PublishedApi
+    internal constructor(validate: (env: ValidationContext<E, S>) -> CommandResult<Unit>) : this([validate])
 
     context(validationContext: ValidationContext<E, S>)
     override fun validateSender(): CommandResult<Unit> {
@@ -16,8 +17,5 @@ internal constructor(validate: (env: ValidationContext<E, S>) -> CommandResult<U
         return SenderValidationResult.success()
     }
 
-    operator fun plus(other: Requirement<E, S>): Requirement<E, S> {
-        validations += other.validations
-        return this
-    }
+    operator fun plus(other: Requirement<E, S>): Requirement<E, S> = Requirement(validations + other.validations)
 }
