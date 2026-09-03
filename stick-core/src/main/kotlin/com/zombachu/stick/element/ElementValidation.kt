@@ -7,7 +7,7 @@ import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.ValidationContext
 
 context(validationContext: ValidationContext<E, S>)
-internal fun <E : Environment, S, T> SyntaxElement<E, S, T>.validateSender(): CommandResult<Unit> {
+internal fun <E : Environment, S, T> Element<E, S, T>.validateSender(): CommandResult<Unit> {
     return if (this !is SenderValidator<*, *>) {
         SenderValidationResult.success()
     } else {

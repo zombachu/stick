@@ -59,7 +59,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
 
         // Add terminating element all other elements
         val syntax =
-            if (terminatingElement == null) {
+            if (terminatingElement == null || !terminatingElement.validateSender().isSuccess()) {
                 linearSyntax + flagSyntax
             } else {
                 linearSyntax + flagSyntax + terminatingElement.getSyntax()
@@ -89,6 +89,10 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
 
         while (parameterIndex < linearElements.size) {
             processFlags(unprocessedFlags, values).propagateError {
+                return it
+            }
+
+            linearElements[parameterIndex].element.validateSender().propagateError {
                 return it
             }
 

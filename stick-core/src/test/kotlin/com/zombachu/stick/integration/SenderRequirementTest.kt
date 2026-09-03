@@ -32,7 +32,6 @@ import com.zombachu.stick.integration.fixtures.realNameParameter
 import com.zombachu.stick.integration.fixtures.requireSocialData
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 class SenderRequirementTest {
 
@@ -234,6 +233,11 @@ class SenderRequirementTest {
 
         realNameCommand.execute(server, console, "/realname")
         assertEquals(["Your name is Console"], console.logs)
+
+        assertEquals(
+            Feedback.InvalidSyntax("/realname"),
+            realNameCommand.executeExpectingError(server, console, "/realname -nickname"),
+        )
     }
 
     @Test
@@ -254,7 +258,7 @@ class SenderRequirementTest {
     }
 
     @Test
-    fun `KNOWN LIMITATION - echo - require on linear element does not gate it`() {
+    fun `echo - require gates linear element`() {
         val echoCommand = structure(Server::class, Sender::class) {
             command("echo")(
                 require(permission("server.echo")) { stringParameter("text") }
@@ -263,12 +267,14 @@ class SenderRequirementTest {
             }
         }
 
-        echoCommand.execute(server, steve, "/echo hello")
-        assertEquals(["hello"], steve.logs)
+        echoCommand.execute(server, zombachu, "/echo hello")
+        assertEquals(["hello"], zombachu.logs)
+
+        assertEquals(Feedback.InvalidPermission, echoCommand.executeExpectingError(server, steve, "/echo hello"))
     }
 
     @Test
-    fun `KNOWN LIMITATION - echo - requireIs on linear element throws for wrong sender type`() {
+    fun `echo - requireIs gates linear element`() {
         val echoCommand = structure(Server::class, Sender::class) {
             command("echo")(
                 requireIs(Player::class) { stringParameter("text") }
@@ -277,11 +283,14 @@ class SenderRequirementTest {
             }
         }
 
-        assertFailsWith<ClassCastException> { echoCommand.execute(server, console, "/echo hello") }
+        echoCommand.execute(server, zombachu, "/echo hello")
+        assertEquals(["hello"], zombachu.logs)
+
+        assertEquals(Feedback.InvalidSenderType, echoCommand.executeExpectingError(server, console, "/echo hello"))
     }
 
     @Test
-    fun `KNOWN LIMITATION - echo - require on root does not gate it`() {
+    fun `echo - require gates command`() {
         val echoCommand = structure(Server::class, Sender::class) {
             require(permission("server.echo")) {
                 command("echo")(
@@ -292,12 +301,14 @@ class SenderRequirementTest {
             }
         }
 
-        echoCommand.execute(server, steve, "/echo hello")
-        assertEquals(["hello"], steve.logs)
+        echoCommand.execute(server, zombachu, "/echo hello")
+        assertEquals(["hello"], zombachu.logs)
+
+        assertEquals(Feedback.InvalidPermission, echoCommand.executeExpectingError(server, steve, "/echo hello"))
     }
 
     @Test
-    fun `KNOWN LIMITATION - echo - requireIs on root throws for wrong sender type`() {
+    fun `echo - requireIs gates command`() {
         val echoCommand = structure(Server::class, Sender::class) {
             requireIs(Player::class) {
                 command("echo")(
@@ -308,11 +319,14 @@ class SenderRequirementTest {
             }
         }
 
-        assertFailsWith<ClassCastException> { echoCommand.execute(server, console, "/echo hello") }
+        echoCommand.execute(server, zombachu, "/echo hello")
+        assertEquals(["hello"], zombachu.logs)
+
+        assertEquals(Feedback.InvalidSenderType, echoCommand.executeExpectingError(server, console, "/echo hello"))
     }
 
     @Test
-    fun `KNOWN LIMITATION - echo - requireIs on subcommand used outside group throws for wrong sender type`() {
+    fun `echo - requireIs gates subcommand`() {
         val echoCommand = structure(Server::class, Sender::class) {
             command("echo")(
                 requireIs(Player::class) {
@@ -325,28 +339,12 @@ class SenderRequirementTest {
             )
         }
 
-        assertFailsWith<ClassCastException> { echoCommand.execute(server, console, "/echo raw hello") }
-    }
+        echoCommand.execute(server, zombachu, "/echo raw hello")
+        assertEquals(["hello"], zombachu.logs)
 
-    @Test
-    fun `KNOWN LIMITATION - nick - requireAs on hybrid flag throws for wrong sender type`() {
-        val nickCommand = structure(Server::class, Sender::class) {
-            command("nick")(
-                requireAs<Server, Sender, SocialData, String>(
-                    { (it as Player).socialData },
-                    invalidDefault(HybridFlagResult.Absent(), requirement { it.sender is Player }),
-                ) {
-                    hybridFlag("nickname", stringParameter("name"))
-                }
-            ) { nickname ->
-                when (nickname) {
-                    is HybridFlagResult.Absent<*> -> sender.log("Your name is ${sender.name}")
-                    is HybridFlagResult.Present<*> -> sender.log("Your nickname is *")
-                    is HybridFlagResult.Value<*> -> sender.log("Setting nickname: ${nickname.value}")
-                }
-            }
-        }
-
-        assertFailsWith<ClassCastException> { nickCommand.execute(server, console, "/nick -nickname") }
+        assertEquals(
+            Feedback.InvalidSenderType,
+            echoCommand.executeExpectingError(server, console, "/echo raw hello"),
+        )
     }
 }

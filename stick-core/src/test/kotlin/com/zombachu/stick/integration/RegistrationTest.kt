@@ -25,15 +25,16 @@ import com.zombachu.stick.integration.fixtures.Warp
 import com.zombachu.stick.integration.fixtures.WarpRegistry
 import com.zombachu.stick.integration.fixtures.WarpableServer
 import com.zombachu.stick.integration.fixtures.execute
+import com.zombachu.stick.integration.fixtures.executeExpectingError
 import com.zombachu.stick.integration.fixtures.executeWithHandler
 import com.zombachu.stick.noopFailureHandler
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 class RegistrationTest {
 
-    private val zombachu = Player("zombachu")
+    private val zombachu = Player("zombachu", ["server.admin"])
+    private val steve = Player("Steve")
     private val console = Console()
     private val server = SynergyServer([zombachu], WarpRegistry([Warp("spawn", "Console", "overworld")]))
     private val stick = TestStick(server)
@@ -110,7 +111,14 @@ class RegistrationTest {
     }
 
     @Test
-    fun `adminprofile - command with narrower custom sender registers`() {
+    fun `profile + adminprofile - commands with custom sender subtypes register`() {
+        class ProfileCommand : Command<Server, Profile> {
+            override val structure = structure {
+                command("profile")() {
+                    sender.sender.log("Profile for ${sender.sender.name}")
+                }
+            }
+        }
         class AdminProfileCommand : Command<Server, AdminProfile> {
             override val structure = structure {
                 command("adminprofile")() {
@@ -119,12 +127,31 @@ class RegistrationTest {
             }
         }
 
-        stick.withContext(server, noopFailureHandler(), { AdminProfile(it) }, { SenderValidationResult.success() }) {
+        stick.withContext(
+            server,
+            noopFailureHandler(),
+            { if (it.hasPermission("server.admin")) AdminProfile(it) else Profile(it) },
+            { SenderValidationResult.success() }
+        ) {
+            register(ProfileCommand())
             register(AdminProfileCommand())
         }
 
-        stick.registered.single().execute(server, zombachu, "/adminprofile")
+        assertEquals(2, stick.registered.size)
+
+        stick.registered.first().execute(server, zombachu, "/profile")
+        assertEquals(["Profile for zombachu"], zombachu.logs)
+
+        stick.registered.first().execute(server, steve, "/profile")
+        assertEquals(["Profile for Steve"], steve.logs)
+
+        stick.registered.last().execute(server, zombachu, "/adminprofile")
         assertEquals(["Admin profile for zombachu"], zombachu.logs)
+
+        assertEquals(
+            Feedback.InvalidSenderType,
+            stick.registered.last().executeExpectingError(server, steve, "/adminprofile"),
+        )
     }
 
     @Test
@@ -241,7 +268,7 @@ class RegistrationTest {
     }
 
     @Test
-    fun `KNOWN LIMITATION - vanish - command for narrower platform sender throws for wrong sender type`() {
+    fun `vanish - command for narrower platform sender rejects wrong sender type`() {
         class VanishCommand : Command<Server, Player> {
             override val structure = structure {
                 command("vanish")() {
@@ -252,24 +279,13 @@ class RegistrationTest {
 
         stick.withContext(server) { register(VanishCommand()) }
 
-        assertFailsWith<ClassCastException> { stick.registered.single().execute(server, console, "/vanish") }
-    }
+        stick.registered.single().execute(server, zombachu, "/vanish")
+        assertEquals(["Toggled vanish state"], zombachu.logs)
 
-    @Test
-    fun `KNOWN LIMITATION - adminprofile - command for narrower custom sender throws for wrong sender type`() {
-        class AdminProfileCommand : Command<Server, AdminProfile> {
-            override val structure = structure {
-                command("adminprofile")() {
-                    sender.sender.log("Admin profile for ${sender.sender.name}")
-                }
-            }
-        }
-
-        stick.withContext(server, noopFailureHandler(), { Profile(it) }, { SenderValidationResult.success() }) {
-            register(AdminProfileCommand())
-        }
-
-        assertFailsWith<ClassCastException> { stick.registered.single().execute(server, zombachu, "/audit") }
+        assertEquals(
+            Feedback.InvalidSenderType,
+            stick.registered.single().executeExpectingError(server, console, "/vanish"),
+        )
     }
 
     private class TestStick(env: Server) :

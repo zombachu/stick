@@ -11,7 +11,8 @@ interface CommandWrapper<E : Environment, S> {
     fun execute(sender: S, fullArgs: List<String>) {
         val inv = Invocation(sender, env, fullArgs.first(), fullArgs, structure)
         context(env, inv) {
-            val result = structure.parse(fullArgs)
+            val validationResult = structure.validateSender()
+            val result = if (validationResult.isSuccess()) structure.parse(fullArgs) else validationResult
             // Ignore InternalFailures
             if (result is CommandResult.Failure<*>) {
                 failureHandler.onFailure(result)

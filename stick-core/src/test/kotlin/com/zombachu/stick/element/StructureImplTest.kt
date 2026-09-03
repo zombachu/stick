@@ -98,7 +98,7 @@ class StructureImplTest {
     }
 
     @Test
-    fun `TransformedStructure validateSender uses outer requirement, not base`() {
+    fun `KNOWN LIMITATION - TransformedStructure validateSender ignores base requirement`() {
         val base = structure(name = "cmd", requirement = Requirement { SenderValidationResult.failSender() })
         val requirement = Requirement<TestEnv, Int> { SenderValidationResult.success() }
         val transformed = TransformedStructure(base, { _: Int -> }, requirement)
