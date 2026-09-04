@@ -24,7 +24,7 @@ internal class Signature0<E_ : Environment, S>(
 ) : Signature<E_, S, Arguments0>(elements) {
     context(inv: Invocation<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments0 {
-        return Arguments0().also { inv.execute() }
+        return Arguments0().apply { inv.execute() }
     }
 }
 
@@ -34,7 +34,7 @@ internal class Signature1<E_ : Environment, S, A>(
 ) : Signature<E_, S, Arguments1<A>>(elements) {
     context(inv: Invocation<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments1<A> {
-        return Arguments1(parsedValues[0] as A).also { it.execute(execute) }
+        return Arguments1(parsedValues[0] as A).apply { inv.execute(a) }
     }
 }
 
@@ -44,7 +44,7 @@ internal class Signature2<E_ : Environment, S, A, B>(
 ) : Signature<E_, S, Arguments2<A, B>>(elements) {
     context(inv: Invocation<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments2<A, B> {
-        return Arguments2(parsedValues[0] as A, parsedValues[1] as B).also { it.execute(execute) }
+        return Arguments2(parsedValues[0] as A, parsedValues[1] as B).apply { inv.execute(a, b) }
     }
 }
 
@@ -54,7 +54,9 @@ internal class Signature3<E_ : Environment, S, A, B, C>(
 ) : Signature<E_, S, Arguments3<A, B, C>>(elements) {
     context(inv: Invocation<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments3<A, B, C> {
-        return Arguments3(parsedValues[0] as A, parsedValues[1] as B, parsedValues[2] as C).also { it.execute(execute) }
+        return Arguments3(parsedValues[0] as A, parsedValues[1] as B, parsedValues[2] as C).apply {
+            inv.execute(a, b, c)
+        }
     }
 }
 
@@ -64,9 +66,8 @@ internal class Signature4<E_ : Environment, S, A, B, C, D>(
 ) : Signature<E_, S, Arguments4<A, B, C, D>>(elements) {
     context(inv: Invocation<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments4<A, B, C, D> {
-        return Arguments4(parsedValues[0] as A, parsedValues[1] as B, parsedValues[2] as C, parsedValues[3] as D).also {
-            it.execute(execute)
-        }
+        return Arguments4(parsedValues[0] as A, parsedValues[1] as B, parsedValues[2] as C, parsedValues[3] as D)
+            .apply { inv.execute(a, b, c, d) }
     }
 }
 
@@ -83,7 +84,7 @@ internal class Signature5<E_ : Environment, S, A, B, C, D, E>(
                 parsedValues[3] as D,
                 parsedValues[4] as E,
             )
-            .also { it.execute(execute) }
+            .apply { inv.execute(a, b, c, d, e) }
     }
 }
 
@@ -101,7 +102,7 @@ internal class Signature6<E_ : Environment, S, A, B, C, D, E, F>(
                 parsedValues[4] as E,
                 parsedValues[5] as F,
             )
-            .also { it.execute(execute) }
+            .apply { inv.execute(a, b, c, d, e, f) }
     }
 }
 
@@ -120,7 +121,7 @@ internal class Signature7<E_ : Environment, S, A, B, C, D, E, F, G>(
                 parsedValues[5] as F,
                 parsedValues[6] as G,
             )
-            .also { it.execute(execute) }
+            .apply { inv.execute(a, b, c, d, e, f, g) }
     }
 }
 
@@ -140,7 +141,7 @@ internal class Signature8<E_ : Environment, S, A, B, C, D, E, F, G, H>(
                 parsedValues[6] as G,
                 parsedValues[7] as H,
             )
-            .also { it.execute(execute) }
+            .apply { inv.execute(a, b, c, d, e, f, g, h) }
     }
 }
 
@@ -161,7 +162,7 @@ internal class Signature9<E_ : Environment, S, A, B, C, D, E, F, G, H, I>(
                 parsedValues[7] as H,
                 parsedValues[8] as I,
             )
-            .also { it.execute(execute) }
+            .apply { inv.execute(a, b, c, d, e, f, g, h, i) }
     }
 }
 
@@ -183,7 +184,7 @@ internal class Signature10<E_ : Environment, S, A, B, C, D, E, F, G, H, I, J>(
                 parsedValues[8] as I,
                 parsedValues[9] as J,
             )
-            .also { it.execute(execute) }
+            .apply { inv.execute(a, b, c, d, e, f, g, h, i, j) }
     }
 }
 
@@ -206,7 +207,7 @@ internal class Signature11<E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K>
                 parsedValues[9] as J,
                 parsedValues[10] as K,
             )
-            .also { it.execute(execute) }
+            .apply { inv.execute(a, b, c, d, e, f, g, h, i, j, k) }
     }
 }
 
@@ -230,6 +231,6 @@ internal class Signature12<E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K,
                 parsedValues[10] as K,
                 parsedValues[11] as L,
             )
-            .also { it.execute(execute) }
+            .apply { inv.execute(a, b, c, d, e, f, g, h, i, j, k, l) }
     }
 }
