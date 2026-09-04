@@ -46,7 +46,16 @@ internal open class GroupImpl<E : Environment, S, G : GroupResult>(
                 .thenByDescending { (it.groupable.size as? Size.Fixed)?.size ?: 0 }
         )
 
-    override val size: Size = Size.Deferred
+    override val size: Size =
+        elements
+            .map { it.groupable.size }
+            .reduce { a, b ->
+                if (a is Size.Bounded && b is Size.Bounded) {
+                    Size.between(minOf(a.min, b.min), maxOf(a.max, b.max))
+                } else {
+                    Size.atLeast(minOf(a.min, b.min))
+                }
+            }
     override val type: ElementType = ElementType.Default
 
     context(inv: Invocation<E, S>)

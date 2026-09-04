@@ -78,7 +78,7 @@ class CustomElementTest {
     @Test
     fun `setspawn - unbounded size parameter`() {
         class LocationParameter<E : Environment, S : Player>(name: String) :
-            Parameter.UnknownSize<E, S, Location>(Size.Unbounded, name, "") {
+            Parameter.UnknownSize<E, S, Location>(Size.between(1, 3), name, "") {
             context(inv: Invocation<E, S>)
             override fun parse(args: List<String>): CommandResult<Location> {
                 if (args.firstOrNull()?.lowercase() == "here") {

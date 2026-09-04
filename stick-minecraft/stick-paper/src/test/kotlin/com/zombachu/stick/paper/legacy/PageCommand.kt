@@ -185,7 +185,7 @@ class SomeClass : BukkitCommand<CommandSender> {
 
 class McpRequiredIntParameter(name: String) : IntParameter<BukkitEnvironment, MinecraftProfile>(name, "", 0, 10)
 
-class PlayerRequiredUnknownInt(name: String) : Parameter.UnknownSize<BukkitEnvironment, Player, Int>(Size.Unbounded,
+class PlayerRequiredUnknownInt(name: String) : Parameter.UnknownSize<BukkitEnvironment, Player, Int>(Size.atLeast(1),
     "", "") {
     context(inv: Invocation<BukkitEnvironment, Player>)
     override fun parse(args: List<String>): CommandResult<Int> {

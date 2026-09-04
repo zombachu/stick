@@ -52,17 +52,11 @@ internal open class InvocationImpl<E : Environment, S>(
     }
 
     internal fun peek(size: Size): PeekingResult {
-        return when (size) {
-            is Size.Fixed -> {
-                if (unparsed.size < size.size) {
-                    PeekingResult.failSize()
-                } else {
-                    PeekingResult.success(unparsed.subList(0, size.size))
-                }
-            }
-            is Size.Deferred,
-            is Size.Unbounded -> PeekingResult.success(unparsed)
+        if (size.matches(unparsed.size)) return PeekingResult.success(unparsed)
+        if (size is Size.Bounded && unparsed.size > size.max) {
+            return PeekingResult.success(unparsed.subList(0, size.max))
         }
+        return PeekingResult.failSize()
     }
 
     internal fun <T> processElement(element: Element<E, S, T>): CommandResult<T> {

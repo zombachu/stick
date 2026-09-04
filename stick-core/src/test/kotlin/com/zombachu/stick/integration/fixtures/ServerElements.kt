@@ -85,7 +85,7 @@ fun <E : Environment, S> StructureScope<E, S>.realNameParameter(
 ): RealNameParameter<E> = RealNameParameter(name)
 
 class BioParameter<E : Environment>(name: String) :
-    Parameter.UnknownSize<E, SocialData, String>(Size.Unbounded, name, "") {
+    Parameter.UnknownSize<E, SocialData, String>(Size.atLeast(1), name, "") {
 
     context(inv: Invocation<E, SocialData>)
     override fun parse(args: List<String>): CommandResult<String> {

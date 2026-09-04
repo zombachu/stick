@@ -18,7 +18,7 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
     aliases: Set<String>,
 ) : HybridFlag<E, S, T>, Aliasable {
 
-    override val size: Size = Size.Deferred
+    override val size: Size = Size.between(1, 1 + parameter.size.size)
     override val type: ElementType = ElementType.Flag
     override val description: String = parameter.description
     override val default: ContextualValue<E, S, HybridFlagResult<T>> = {

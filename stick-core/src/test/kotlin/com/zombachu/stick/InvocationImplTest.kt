@@ -16,10 +16,12 @@ class InvocationImplTest {
     fun `peek with too large size fails with InvalidSizeError`() {
         val inv = testInvocation("a")
         assertSame(PeekingResult.InvalidSizeError, inv.peek(Size(2)))
+        assertSame(PeekingResult.InvalidSizeError, inv.peek(Size.between(2, 4)))
+        assertSame(PeekingResult.InvalidSizeError, inv.peek(Size.atLeast(2)))
     }
 
     @Test
-    fun `peek with Fixed size returns requested arguments`() {
+    fun `peek with fixed size returns requested arguments`() {
         val inv = testInvocation("a", "b", "c")
 
         val peeked = inv.peek(Size(2))
@@ -29,16 +31,26 @@ class InvocationImplTest {
     }
 
     @Test
-    fun `peek with non-Fixed size returns all args`() {
+    fun `peek with unbounded size returns all args`() {
         val inv = testInvocation("a", "b", "c")
 
-        val unbounded = inv.peek(Size.Unbounded)
-        val deferred = inv.peek(Size.Deferred)
+        val peeked = inv.peek(Size.atLeast(0))
 
-        assertIs<PeekingResult.Success>(unbounded)
-        assertEquals(["a", "b", "c"], unbounded.value)
-        assertIs<PeekingResult.Success>(deferred)
-        assertEquals(["a", "b", "c"], deferred.value)
+        assertIs<PeekingResult.Success>(peeked)
+        assertEquals(["a", "b", "c"], peeked.value)
+    }
+
+    @Test
+    fun `peek with bounded size returns at most max args`() {
+        val inv = testInvocation("a", "b", "c")
+
+        val smallPeek = inv.peek(Size.between(0, 2))
+        assertIs<PeekingResult.Success>(smallPeek)
+        assertEquals(["a", "b"], smallPeek.value)
+
+        val largePeek = inv.peek(Size.between(0, 5))
+        assertIs<PeekingResult.Success>(largePeek)
+        assertEquals(["a", "b", "c"], largePeek.value)
     }
 
     @Test

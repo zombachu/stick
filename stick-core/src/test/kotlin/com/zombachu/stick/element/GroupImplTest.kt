@@ -7,9 +7,11 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
+import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
+import com.zombachu.stick.element.parameters.TextParameter
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.feedback.Feedback
@@ -139,5 +141,27 @@ class GroupImplTest {
         val syntax = withValidationContext { group.getSyntax() }
 
         assertEquals("<str>", syntax)
+    }
+
+    @Test
+    fun `size constrains to elements for bounded sizes`() {
+        val twoArgParam =
+            object : Parameter.Size2<TestEnv, Unit, String>("two", "") {
+                context(inv: Invocation<TestEnv, Unit>)
+                override fun parse(arg0: String, arg1: String): CommandResult<String> = ParsingResult.success("")
+            }
+        val group = Group2Impl("", "", twoArgParam, StringParameter("one", ""))
+
+        assertEquals(1, group.size.min)
+        assertEquals(2, assertIs<Size.Bounded>(group.size).max)
+    }
+
+    @Test
+    fun `size is unbounded with unbounded element`() {
+        val group =
+            Group2Impl("", "", StringParameter<TestEnv, Unit>("one", ""), TextParameter<TestEnv, Unit>("rest", ""))
+
+        assertIs<Size.Unbounded>(group.size)
+        assertEquals(1, group.size.min)
     }
 }

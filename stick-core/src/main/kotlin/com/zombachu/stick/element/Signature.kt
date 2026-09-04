@@ -9,6 +9,7 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
+import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.handleInternal
 import com.zombachu.stick.isSuccess
@@ -26,8 +27,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
         @Suppress("UNCHECKED_CAST")
         flags = partitioned.first as List<IndexedElement<E, S, Flag<E, S, Any?>>>
         linearElements = partitioned.second
-        terminatingElement =
-            elements.lastOrNull()?.let { if (it is Element.NonTerminating) null else it as? SyntaxElement }
+        terminatingElement = elements.lastOrNull()?.let { if (it.size is Size.Bounded) null else it as? SyntaxElement }
     }
 
     context(inv: Invocation<E, S>)
@@ -49,12 +49,12 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
             linearElements
                 .map { it.element }
                 .filterIsInstance<SyntaxElement<E, S, *>>()
-                .filter { it.validateSender().isSuccess() && it is Element.NonTerminating<*, *, *> }
+                .filter { it.validateSender().isSuccess() && it.size is Size.Bounded }
                 .map { it.getSyntax() }
         val flagSyntax: List<String> =
             flags
                 .map { it.element }
-                .filter { it.validateSender().isSuccess() && it is Element.NonTerminating<*, *, *> }
+                .filter { it.validateSender().isSuccess() && it.size is Size.Bounded }
                 .map { it.getSyntax() }
 
         // Add terminating element all other elements

@@ -21,7 +21,7 @@ internal open class StructureImpl<E : Environment, S, T_ : Arguments>(
     internal val signature: Signature<E, S, T_>,
 ) : Structure<E, S, T_> {
 
-    override val size: Size = Size.Deferred
+    override val size: Size = Size.atLeast(1)
     override val type: ElementType = ElementType.Literal
     override val label: String = name
 
@@ -43,7 +43,7 @@ internal open class StructureImpl<E : Environment, S, T_ : Arguments>(
             signature.execute().valueOrPropagateError {
                 return it
             }
-        return ParsingResult.success(parsedValuesTuple, Size(args.size - 1))
+        return ParsingResult.success(parsedValuesTuple)
     }
 
     context(validationContext: ValidationContext<E, S>)
