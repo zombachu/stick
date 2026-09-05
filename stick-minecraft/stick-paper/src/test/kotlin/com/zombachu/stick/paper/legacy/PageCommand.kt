@@ -8,6 +8,7 @@ import com.zombachu.stick.GroupResult2
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Size
+import com.zombachu.stick.Position
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.dsl.booleanParameter
 import com.zombachu.stick.dsl.command
@@ -163,7 +164,7 @@ class SomeClass : BukkitCommand<CommandSender> {
                 "name",
                 "description",
             )
-            val structureElement2: Parameter.FixedSize<BukkitEnvironment, CommandSender, String> = stringParameter<BukkitEnvironment, CommandSender>(
+            val structureElement2: Parameter.Bounded<BukkitEnvironment, CommandSender, String> = stringParameter<BukkitEnvironment, CommandSender>(
                 "1234"
             )
             val structureElement3: StringParameter<BukkitEnvironment, CommandSender> = stringParameter<BukkitEnvironment, CommandSender>(
@@ -185,7 +186,7 @@ class SomeClass : BukkitCommand<CommandSender> {
 
 class McpRequiredIntParameter(name: String) : IntParameter<BukkitEnvironment, MinecraftProfile>(name, "", 0, 10)
 
-class PlayerRequiredUnknownInt(name: String) : Parameter.UnknownSize<BukkitEnvironment, Player, Int>(Size.atLeast(1),
+class PlayerRequiredUnknownInt(name: String) : Parameter.Unbounded<BukkitEnvironment, Player, Int>(Size.atLeast(1),
     "", "") {
     context(inv: Invocation<BukkitEnvironment, Player>)
     override fun parse(args: List<String>): CommandResult<Int> {
@@ -214,9 +215,9 @@ fun <S : Any, T_ : Arguments> StructureScope<BukkitEnvironment, S>.mcpSender(
 
 fun <T> StructureScope<BukkitEnvironment, CommandSender>.playerSender(
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    element: StructureScope<BukkitEnvironment, Player>.() -> Parameter.FixedSize<BukkitEnvironment, Player, T>,
+    element: StructureScope<BukkitEnvironment, Player>.() -> Parameter.Bounded<BukkitEnvironment, Player, T>,
 ): Groupable<BukkitEnvironment, CommandSender, T> =
-    requireIs<BukkitEnvironment, CommandSender, Player, T>(Player::class, parameter = element)
+    requireIs<BukkitEnvironment, CommandSender, Player, T, Position.Leading>(Player::class, parameter = element)
 
 class MinecraftProfile
 

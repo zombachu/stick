@@ -8,78 +8,50 @@ import com.zombachu.stick.StructureScope
 import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.PipelineOperation
-import com.zombachu.stick.element.PipelinedFixedSizeParameter
 import com.zombachu.stick.element.PipelinedOptionalParameter
-import com.zombachu.stick.element.PipelinedUnknownSizeParameter
+import com.zombachu.stick.element.PipelinedParameter
 import com.zombachu.stick.element.PipelinedValueFlag
 import com.zombachu.stick.element.ValueFlag
 
-@JvmName("pipelineFixedSizeParameter")
-fun <E_ : Environment, S, A, B> Parameter.FixedSize<E_, S, A>.pipeline(
+fun <E_ : Environment, S, A, B, P : Position> Parameter<E_, S, A, P>.pipeline(
     operation: PipelineOperation<E_, S, A, B>
-): Parameter.FixedSize<E_, S, B> = PipelinedFixedSizeParameter(this, [operation])
+): Parameter<E_, S, B, P> = PipelinedParameter(this, [operation])
 
-@JvmName("pipelineFixedSizeParameter")
-fun <E_ : Environment, S, A, B, C> Parameter.FixedSize<E_, S, A>.pipeline(
+fun <E_ : Environment, S, A, B, C, P : Position> Parameter<E_, S, A, P>.pipeline(
     operationA: PipelineOperation<E_, S, A, B>,
     operationB: PipelineOperation<E_, S, B, C>,
-): Parameter.FixedSize<E_, S, C> = PipelinedFixedSizeParameter(this, [operationA, operationB])
+): Parameter<E_, S, C, P> = PipelinedParameter(this, [operationA, operationB])
 
-@JvmName("pipelineFixedSizeParameter")
-fun <E_ : Environment, S, A, B, C, D> Parameter.FixedSize<E_, S, A>.pipeline(
+fun <E_ : Environment, S, A, B, C, D, P : Position> Parameter<E_, S, A, P>.pipeline(
     operationA: PipelineOperation<E_, S, A, B>,
     operationB: PipelineOperation<E_, S, B, C>,
     operationC: PipelineOperation<E_, S, C, D>,
-): Parameter.FixedSize<E_, S, D> = PipelinedFixedSizeParameter(this, [operationA, operationB, operationC])
+): Parameter<E_, S, D, P> = PipelinedParameter(this, [operationA, operationB, operationC])
 
-@JvmName("pipelineUnknownSizeParameter")
-fun <E_ : Environment, S, A, B> Parameter.UnknownSize<E_, S, A>.pipeline(
-    operation: PipelineOperation<E_, S, A, B>
-): Parameter.UnknownSize<E_, S, B> = PipelinedUnknownSizeParameter(this, [operation])
-
-@JvmName("pipelineUnknownSizeParameter")
-fun <E_ : Environment, S, A, B, C> Parameter.UnknownSize<E_, S, A>.pipeline(
-    operationA: PipelineOperation<E_, S, A, B>,
-    operationB: PipelineOperation<E_, S, B, C>,
-): Parameter.UnknownSize<E_, S, C> = PipelinedUnknownSizeParameter(this, [operationA, operationB])
-
-@JvmName("pipelineUnknownSizeParameter")
-fun <E_ : Environment, S, A, B, C, D> Parameter.UnknownSize<E_, S, A>.pipeline(
-    operationA: PipelineOperation<E_, S, A, B>,
-    operationB: PipelineOperation<E_, S, B, C>,
-    operationC: PipelineOperation<E_, S, C, D>,
-): Parameter.UnknownSize<E_, S, D> = PipelinedUnknownSizeParameter(this, [operationA, operationB, operationC])
-
-@JvmName("pipelineValueFlag")
 fun <E_ : Environment, S, A, B> ValueFlag<E_, S, A>.pipeline(
     operation: PipelineOperation<E_, S, A, B>
 ): ValueFlag<E_, S, B> = PipelinedValueFlag(this, [operation])
 
-@JvmName("pipelineValueFlag")
 fun <E_ : Environment, S, A, B, C> ValueFlag<E_, S, A>.pipeline(
     operationA: PipelineOperation<E_, S, A, B>,
     operationB: PipelineOperation<E_, S, B, C>,
 ): ValueFlag<E_, S, C> = PipelinedValueFlag(this, [operationA, operationB])
 
-@JvmName("pipelineValueFlag")
 fun <E_ : Environment, S, A, B, C, D> ValueFlag<E_, S, A>.pipeline(
     operationA: PipelineOperation<E_, S, A, B>,
     operationB: PipelineOperation<E_, S, B, C>,
     operationC: PipelineOperation<E_, S, C, D>,
 ): ValueFlag<E_, S, D> = PipelinedValueFlag(this, [operationA, operationB, operationC])
 
-@JvmName("pipelineOptional")
 fun <E_ : Environment, S, A, B, P : Position> OptionalParameter<E_, S, A, P>.pipeline(
     operation: PipelineOperation<E_, S, A, B>
 ): OptionalParameter<E_, S, B, P> = PipelinedOptionalParameter(this, [operation])
 
-@JvmName("pipelineOptional")
 fun <E_ : Environment, S, A, B, C, P : Position> OptionalParameter<E_, S, A, P>.pipeline(
     operationA: PipelineOperation<E_, S, A, B>,
     operationB: PipelineOperation<E_, S, B, C>,
 ): OptionalParameter<E_, S, C, P> = PipelinedOptionalParameter(this, [operationA, operationB])
 
-@JvmName("pipelineOptional")
 fun <E_ : Environment, S, A, B, C, D, P : Position> OptionalParameter<E_, S, A, P>.pipeline(
     operationA: PipelineOperation<E_, S, A, B>,
     operationB: PipelineOperation<E_, S, B, C>,

@@ -86,7 +86,7 @@ fun <E : Environment, S> StructureScope<E, S>.realNameParameter(
 ): RealNameParameter<E> = RealNameParameter(name)
 
 class BioParameter<E : Environment>(name: String) :
-    Parameter.UnknownSize<E, SocialData, String>(Size.atLeast(1), name, "") {
+    Parameter.Unbounded<E, SocialData, String>(Size.atLeast(1), name, "") {
 
     context(inv: Invocation<E, SocialData>)
     override fun parse(args: List<String>): CommandResult<String> {
@@ -110,21 +110,9 @@ fun <E : Environment, T_ : Arguments> StructureScope<E, Sender>.requireSocialDat
     )
 
 @OverloadResolutionByLambdaReturnType
-@JvmName("requireSocialDataUnknownSizeParameter")
-fun <E : Environment, T> StructureScope<E, Sender>.requireSocialData(
-    parameter: StructureScope<E, SocialData>.() -> Parameter.UnknownSize<E, SocialData, T>
-): ValidatedParameter<E, Sender, T, Position.Last> =
-    requireAs(
-        { (it as Player).socialData },
-        requirement { it.sender is Player },
-        parameter
-    )
-
-@OverloadResolutionByLambdaReturnType
-@JvmName("requireSocialDataFixedSizeParameter")
-fun <E : Environment, T> StructureScope<E, Sender>.requireSocialData(
-    parameter: StructureScope<E, SocialData>.() -> Parameter.FixedSize<E, SocialData, T>
-): ValidatedParameter<E, Sender, T, Position.Leading> =
+fun <E : Environment, T, P : Position> StructureScope<E, Sender>.requireSocialData(
+    parameter: StructureScope<E, SocialData>.() -> Parameter<E, SocialData, T, P>
+): ValidatedParameter<E, Sender, T, P> =
     requireAs(
         { (it as Player).socialData },
         requirement { it.sender is Player },

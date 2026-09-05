@@ -10,7 +10,7 @@ import kotlin.test.assertEquals
 class PipelinesTest {
 
     @Test
-    fun `pipeline on FixedSize parameter chains operation`() = structureTest {
+    fun `pipeline on bounded parameter chains operation`() = structureTest {
         val piped = stringParameter("").pipeline { s -> ParsingResult.success(s.length) }
         val result = withInvocation { piped.parse(["hello"]) }
         assertEquals(5, result.expectSuccessValue())
@@ -26,7 +26,7 @@ class PipelinesTest {
     }
 
     @Test
-    fun `pipeline on UnknownSize parameter chains operation`() = structureTest {
+    fun `pipeline on unbounded parameter chains operation`() = structureTest {
         val piped = textParameter("").pipeline { s -> ParsingResult.success(s.uppercase()) }
         val result = withInvocation { piped.parse(["a", "b"]) }
         assertEquals("A B", result.expectSuccessValue())

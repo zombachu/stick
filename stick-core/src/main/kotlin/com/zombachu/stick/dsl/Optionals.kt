@@ -38,42 +38,39 @@ fun <E : Environment, S, T> StructureScope<E, S>.invalidDefault(
 inline fun <E : Environment, S : Any, reified S2 : S> StructureScope<E, S>.defaultSender():
     ValidSenderDefault<E, S, S2> = default({ ParsingResult.success(sender as S2) }, requirement { it.sender is S2 })
 
-@JvmName("optionallyFixedSize")
 fun <E : Environment, S, T> StructureScope<E, S>.optionally(
     ifInvalid: InvalidSenderDefault<E, S, T>,
     ifAbsent: ValidSenderDefault<E, S, T>,
-    parameter: Parameter.FixedSize<E, S, T>,
+    parameter: Parameter<E, S, T, Position.Leading>,
 ): OptionalParameter<E, S, T, Position.Optional> =
     OptionalParameterImpl(requirementDefault = ifInvalid, presenceDefault = ifAbsent, parameter = parameter)
 
-@JvmName("optionallyUnknownSize")
+@JvmName("optionallyLast")
 fun <E : Environment, S, T> StructureScope<E, S>.optionally(
     ifInvalid: InvalidSenderDefault<E, S, T>,
     ifAbsent: ValidSenderDefault<E, S, T>,
-    parameter: Parameter.UnknownSize<E, S, T>,
+    parameter: Parameter<E, S, T, Position.Last>,
 ): OptionalParameter<E, S, T, Position.LastOptional> =
     OptionalParameterImpl(requirementDefault = ifInvalid, presenceDefault = ifAbsent, parameter = parameter)
 
-@JvmName("optionallyFixedSize")
 fun <E : Environment, S, T> StructureScope<E, S>.optionally(
     ifAbsent: ValidSenderDefault<E, S, T>,
-    parameter: Parameter.FixedSize<E, S, T>,
+    parameter: Parameter<E, S, T, Position.Leading>,
 ): OptionalParameter<E, S, T, Position.Optional> =
     optionally(invalidDefault({ ifAbsent.value(this) }), ifAbsent, parameter)
 
-@JvmName("optionallyUnknownSize")
+@JvmName("optionallyLast")
 fun <E : Environment, S, T> StructureScope<E, S>.optionally(
     ifAbsent: ValidSenderDefault<E, S, T>,
-    parameter: Parameter.UnknownSize<E, S, T>,
+    parameter: Parameter<E, S, T, Position.Last>,
 ): OptionalParameter<E, S, T, Position.LastOptional> =
     optionally(invalidDefault({ ifAbsent.value(this) }), ifAbsent, parameter)
 
-@JvmName("optionallyNullableFixedSize")
 fun <E : Environment, S, T> StructureScope<E, S>.optionallyNullable(
-    parameter: Parameter.FixedSize<E, S, T>
+    parameter: Parameter<E, S, T, Position.Leading>
 ): OptionalParameter<E, S, T?, Position.Optional> = optionally(invalidDefault(null), default(null), parameter)
 
-@JvmName("optionallyNullableUnknownSize")
+@JvmName("optionallyNullableLast")
 fun <E : Environment, S, T> StructureScope<E, S>.optionallyNullable(
-    parameter: Parameter.UnknownSize<E, S, T>
+    parameter: Parameter<E, S, T, Position.Last>
 ): OptionalParameter<E, S, T?, Position.LastOptional> = optionally(invalidDefault(null), default(null), parameter)

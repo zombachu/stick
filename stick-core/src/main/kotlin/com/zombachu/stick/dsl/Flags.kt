@@ -40,7 +40,7 @@ fun <E : Environment, S, T> StructureScope<E, S>.flag(
 fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     name: String,
     default: ContextualValue<E, S, T>,
-    parameter: Parameter.FixedSize<E, S, T>,
+    parameter: Parameter.Bounded<E, S, T>,
     aliases: Set<String> = [],
 ): ValueFlag<E, S, T> =
     ValueFlagImpl(name, default, FlagParameter.ParameterFlagParameter(name, parameter, aliases.lowercase()))
@@ -48,13 +48,13 @@ fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
 fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     name: String,
     default: T,
-    parameter: Parameter.FixedSize<E, S, T>,
+    parameter: Parameter.Bounded<E, S, T>,
     aliases: Set<String> = [],
 ): ValueFlag<E, S, T> = valueFlag(name, { ParsingResult.success(default) }, parameter, aliases.lowercase())
 
 fun <E : Environment, S, T> StructureScope<E, S>.nullableValueFlag(
     name: String,
-    parameter: Parameter.FixedSize<E, S, T>,
+    parameter: Parameter.Bounded<E, S, T>,
     aliases: Set<String> = [],
 ): ValueFlag<E, S, T?> =
     @Suppress("UNCHECKED_CAST")
@@ -87,6 +87,6 @@ fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.nullableEnumFlag(
 
 fun <E : Environment, S, T> StructureScope<E, S>.hybridFlag(
     name: String,
-    parameter: Parameter.FixedSize<E, S, T>,
+    parameter: Parameter.Bounded<E, S, T>,
     aliases: Set<String> = [],
 ): HybridFlag<E, S, T> = HybridFlagImpl(name, parameter, aliases.lowercase())

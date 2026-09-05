@@ -10,29 +10,29 @@ import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.withSize
 
-sealed class Parameter<in E : Environment, S, out T>(
+sealed class Parameter<in E : Environment, S, out T, out P : Position>(
     override val size: Size,
     override val name: String,
     override val description: String,
-) : Groupable<E, S, T> {
+) : Groupable.Positioned<E, S, T, P> {
 
     override val type: ElementType = ElementType.Default
 
     context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String = "<${name}>"
 
-    sealed class FixedSize<in E : Environment, S, out T>(
-        override val size: Size.Fixed,
+    abstract class Bounded<in E : Environment, S, out T>(
+        override val size: Size.Bounded,
         name: String,
         description: String,
-    ) : Parameter<E, S, T>(size, name, description), Groupable.Positioned<E, S, T, Position.Leading>
+    ) : Parameter<E, S, T, Position.Leading>(size, name, description)
 
     abstract class Size1<in E : Environment, S, out T>(name: String, description: String) :
-        FixedSize<E, S, T>(Size(1), name, description) {
+        Bounded<E, S, T>(Size(1), name, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0]).withSize(size)
+            return parse(args[0]).withSize(Size(1))
         }
 
         context(inv: Invocation<E, S>)
@@ -40,11 +40,11 @@ sealed class Parameter<in E : Environment, S, out T>(
     }
 
     abstract class Size2<in E : Environment, S, out T>(name: String, description: String) :
-        FixedSize<E, S, T>(Size(2), name, description) {
+        Bounded<E, S, T>(Size(2), name, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1]).withSize(size)
+            return parse(args[0], args[1]).withSize(Size(2))
         }
 
         context(inv: Invocation<E, S>)
@@ -52,11 +52,11 @@ sealed class Parameter<in E : Environment, S, out T>(
     }
 
     abstract class Size3<in E : Environment, S, out T>(name: String, description: String) :
-        FixedSize<E, S, T>(Size(3), name, description) {
+        Bounded<E, S, T>(Size(3), name, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2]).withSize(size)
+            return parse(args[0], args[1], args[2]).withSize(Size(3))
         }
 
         context(inv: Invocation<E, S>)
@@ -64,11 +64,11 @@ sealed class Parameter<in E : Environment, S, out T>(
     }
 
     abstract class Size4<in E : Environment, S, out T>(name: String, description: String) :
-        FixedSize<E, S, T>(Size(4), name, description) {
+        Bounded<E, S, T>(Size(4), name, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2], args[3]).withSize(size)
+            return parse(args[0], args[1], args[2], args[3]).withSize(Size(4))
         }
 
         context(inv: Invocation<E, S>)
@@ -76,11 +76,11 @@ sealed class Parameter<in E : Environment, S, out T>(
     }
 
     abstract class Size5<in E : Environment, S, out T>(name: String, description: String) :
-        FixedSize<E, S, T>(Size(5), name, description) {
+        Bounded<E, S, T>(Size(5), name, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2], args[3], args[4]).withSize(size)
+            return parse(args[0], args[1], args[2], args[3], args[4]).withSize(Size(5))
         }
 
         context(inv: Invocation<E, S>)
@@ -88,11 +88,11 @@ sealed class Parameter<in E : Environment, S, out T>(
     }
 
     abstract class Size6<in E : Environment, S, out T>(name: String, description: String) :
-        FixedSize<E, S, T>(Size(6), name, description) {
+        Bounded<E, S, T>(Size(6), name, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2], args[3], args[4], args[5]).withSize(size)
+            return parse(args[0], args[1], args[2], args[3], args[4], args[5]).withSize(Size(6))
         }
 
         context(inv: Invocation<E, S>)
@@ -107,11 +107,11 @@ sealed class Parameter<in E : Environment, S, out T>(
     }
 
     abstract class Size7<in E : Environment, S, out T>(name: String, description: String) :
-        FixedSize<E, S, T>(Size(7), name, description) {
+        Bounded<E, S, T>(Size(7), name, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2], args[3], args[4], args[5], args[6]).withSize(size)
+            return parse(args[0], args[1], args[2], args[3], args[4], args[5], args[6]).withSize(Size(7))
         }
 
         context(inv: Invocation<E, S>)
@@ -127,11 +127,11 @@ sealed class Parameter<in E : Environment, S, out T>(
     }
 
     abstract class Size8<in E : Environment, S, out T>(name: String, description: String) :
-        FixedSize<E, S, T>(Size(8), name, description) {
+        Bounded<E, S, T>(Size(8), name, description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]).withSize(size)
+            return parse(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]).withSize(Size(8))
         }
 
         context(inv: Invocation<E, S>)
@@ -147,6 +147,9 @@ sealed class Parameter<in E : Environment, S, out T>(
         ): CommandResult<T>
     }
 
-    abstract class UnknownSize<in E : Environment, S, out T>(size: Size, name: String, description: String) :
-        Parameter<E, S, T>(size, name, description), Groupable.Positioned<E, S, T, Position.Last>
+    abstract class Unbounded<in E : Environment, S, out T>(
+        size: Size.Unbounded,
+        name: String,
+        description: String,
+    ) : Parameter<E, S, T, Position.Last>(size, name, description)
 }

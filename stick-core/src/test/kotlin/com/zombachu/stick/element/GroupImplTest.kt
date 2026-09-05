@@ -36,6 +36,17 @@ class GroupImplTest {
     }
 
     @Test
+    fun `bounded matches are tried longest first`() {
+        val shortParameter = variableParameter("short", Size.between(1, 2), consumed = 1)
+        val longParameter = variableParameter("long", Size.between(1, 3), consumed = 3)
+        val group = group2(shortParameter, longParameter)
+
+        val result = withInvocation("a", "b", "c") { group.parse(["a", "b", "c"]) }
+
+        assertIs<GroupResult.ResultB<String>>(result.expectSuccessValue())
+    }
+
+    @Test
     fun `no matches returns InvalidSyntax, not validation error`() {
         val requirement = Requirement<TestEnv, Unit> { SenderValidationResult.failSender() }
         val gated = transformed(StringParameter("gated", ""), requirement)
@@ -165,12 +176,22 @@ class GroupImplTest {
         assertEquals(1, group.size.min)
     }
 
+    private fun variableParameter(name: String, size: Size.Bounded, consumed: Int) =
+        object : Parameter.Bounded<TestEnv, Unit, String>(size, name, "") {
+            context(inv: Invocation<TestEnv, Unit>)
+            override fun parse(args: List<String>): CommandResult<String> =
+                ParsingResult.success(name, Size(consumed))
+        }
+
     private fun <A> group1(element: Groupable<TestEnv, Unit, A>) =
         Group1Impl<TestEnv, Unit, A, Position.Leading>("", "", element)
 
     private fun <A, B> group2(elementA: Groupable<TestEnv, Unit, A>, elementB: Groupable<TestEnv, Unit, B>) =
         Group2Impl<TestEnv, Unit, A, B, Position.Leading>("", "", elementA, elementB)
 
-    private fun <T> transformed(base: Parameter<TestEnv, Unit, T>, requirement: Requirement<TestEnv, Unit>) =
+    private fun <T> transformed(
+        base: Parameter<TestEnv, Unit, T, Position.Leading>,
+        requirement: Requirement<TestEnv, Unit>,
+    ) =
         TransformedParameter<TestEnv, Unit, Unit, T, Position.Leading>(base, { it }, requirement)
 }

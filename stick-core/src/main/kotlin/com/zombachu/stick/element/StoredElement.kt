@@ -18,19 +18,10 @@ internal class StoredHelper<E : Environment, S, T>(
     override fun parse(args: List<String>): CommandResult<T> = parseAndStore(base, id, args)
 }
 
-internal class StoredFixedSizeParameter<E : Environment, S, T>(
-    private val base: FixedSize<E, S, T>,
+internal class StoredParameter<E : Environment, S, T, P : Position>(
+    private val base: Parameter<E, S, T, P>,
     private val id: TypedIdentifier<T>,
-) : Parameter.FixedSize<E, S, T>(base.size, base.name, base.description) {
-
-    context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<T> = parseAndStore(base, id, args)
-}
-
-internal class StoredUnknownSizeParameter<E : Environment, S, T>(
-    private val base: UnknownSize<E, S, T>,
-    private val id: TypedIdentifier<T>,
-) : Parameter.UnknownSize<E, S, T>(base.size, base.name, base.description) {
+) : Parameter<E, S, T, P>(base.size, base.name, base.description) {
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parseAndStore(base, id, args)

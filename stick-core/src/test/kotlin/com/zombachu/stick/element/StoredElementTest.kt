@@ -26,10 +26,10 @@ import kotlin.test.assertTrue
 class StoredElementTest {
 
     @Test
-    fun `StoredFixedSizeParameter stores parsed value`() {
+    fun `StoredParameter stores parsed value`() {
         val base = StringParameter<TestEnv, Unit>("", "")
         val identifier = id<String>("name")
-        val stored = StoredFixedSizeParameter(base, identifier)
+        val stored = StoredParameter(base, identifier)
 
         val inv = testInvocation("bob")
         val result = context(inv) { stored.parse(["bob"]) }
@@ -39,14 +39,14 @@ class StoredElementTest {
     }
 
     @Test
-    fun `StoredFixedSizeParameter stores nothing on failure`() {
+    fun `StoredParameter stores nothing on failure`() {
         val parameter =
             object : Parameter.Size1<TestEnv, Unit, String>("", "") {
                 context(inv: Invocation<TestEnv, Unit>)
                 override fun parse(arg0: String): CommandResult<String> = ParsingResult.failType("", arg0)
             }
         val identifier = id<String>("bad")
-        val stored = StoredFixedSizeParameter(parameter, identifier)
+        val stored = StoredParameter(parameter, identifier)
 
         val inv = testInvocation("x")
         val result = context(inv) { stored.parse(["x"]) }

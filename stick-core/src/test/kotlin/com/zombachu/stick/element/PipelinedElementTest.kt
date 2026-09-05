@@ -3,6 +3,7 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Position
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.element.parameters.TextParameter
@@ -23,7 +24,10 @@ class PipelinedElementTest {
         val lengthOp: PipelineOperation<TestEnv, Unit, String, Int> = { s -> ParsingResult.success(s.length) }
         val doubleOp: PipelineOperation<TestEnv, Unit, Int, Int> = { n -> ParsingResult.success(n * 2) }
         val pipelined =
-            PipelinedFixedSizeParameter<TestEnv, Unit, String, Int>(StringParameter("", ""), [lengthOp, doubleOp])
+            PipelinedParameter<TestEnv, Unit, String, Int, Position.Leading>(
+                StringParameter("", ""),
+                [lengthOp, doubleOp],
+            )
 
         val result = withInvocation { pipelined.parse(["hello"]) }
 
@@ -39,7 +43,10 @@ class PipelinedElementTest {
             ParsingResult.success(it)
         }
         val pipelined =
-            PipelinedFixedSizeParameter<TestEnv, Unit, String, Int>(StringParameter("", ""), [failingOp, laterOp])
+            PipelinedParameter<TestEnv, Unit, String, Int, Position.Leading>(
+                StringParameter("", ""),
+                [failingOp, laterOp],
+            )
 
         val result = withInvocation { pipelined.parse(["x"]) }
 
@@ -59,7 +66,7 @@ class PipelinedElementTest {
             opCalled = true
             ParsingResult.success(it)
         }
-        val pipelined = PipelinedFixedSizeParameter<TestEnv, Unit, String, String>(failingBase, [op])
+        val pipelined = PipelinedParameter<TestEnv, Unit, String, String, Position.Leading>(failingBase, [op])
 
         val result = withInvocation { pipelined.parse(["x"]) }
 
@@ -70,7 +77,7 @@ class PipelinedElementTest {
     @Test
     fun `consumed size of fixed-size base returns base size`() {
         val op: PipelineOperation<TestEnv, Unit, String, Int> = { ParsingResult.success(it.length) }
-        val pipelined = PipelinedFixedSizeParameter<TestEnv, Unit, String, Int>(StringParameter("", ""), [op])
+        val pipelined = PipelinedParameter<TestEnv, Unit, String, Int, Position.Leading>(StringParameter("", ""), [op])
 
         val result = withInvocation { pipelined.parse(["hi"]) }
 
@@ -81,7 +88,7 @@ class PipelinedElementTest {
     @Test
     fun `consumed size of non-fixed base returns number of args consumed`() {
         val op: PipelineOperation<TestEnv, Unit, String, String> = { ParsingResult.success(it.uppercase()) }
-        val pipelined = PipelinedUnknownSizeParameter<TestEnv, Unit, String, String>(TextParameter("", ""), [op])
+        val pipelined = PipelinedParameter<TestEnv, Unit, String, String, Position.Last>(TextParameter("", ""), [op])
 
         val result = withInvocation { pipelined.parse(["a", "b", "c"]) }
 

@@ -16,6 +16,10 @@ sealed class Size(internal val parsingPriority: Int) {
 
     sealed class Bounded(parsingPriority: Int) : Size(parsingPriority) {
         abstract val max: Int
+
+        operator fun plus(other: Bounded): Bounded {
+            return between(min + other.min, max + other.max)
+        }
     }
 
     class Fixed internal constructor(val size: Int) : Bounded(parsingPriority = 0) {

@@ -38,7 +38,7 @@ class RequiresTest {
 
     @Test
     fun `requireAs enforces given requirement`() = structureTest {
-        val parameter: StructureScope<TestEnv, Unit>.() -> Parameter.FixedSize<TestEnv, Unit, String> = {
+        val parameter: StructureScope<TestEnv, Unit>.() -> Parameter.Bounded<TestEnv, Unit, String> = {
             stringParameter("")
         }
         val allowed = requireAs({ _: Unit -> }, requirement { true }, parameter)

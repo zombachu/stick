@@ -10,6 +10,7 @@ import com.zombachu.stick.ParsingResult.LiteralNotMatchedError
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.EnumParameter
+import com.zombachu.stick.propagateError
 import com.zombachu.stick.withSize
 
 internal open class ValueFlagImpl<E : Environment, S, T>(
@@ -18,25 +19,23 @@ internal open class ValueFlagImpl<E : Environment, S, T>(
     private val flagParameter: FlagParameter<E, S, T>,
 ) : ValueFlag<E, S, T> {
 
-    override val size: Size.Fixed = flagParameter.size
+    override val size: Size.Bounded = flagParameter.size
     override val type: ElementType = ElementType.Flag
     override val description: String = flagParameter.description
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<T> {
-        return flagParameter.parse(args).withSize(size)
-    }
+    override fun parse(args: List<String>): CommandResult<T> = flagParameter.parse(args)
 
     context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String = flagParameter.getSyntax()
 }
 
 internal sealed class FlagParameter<E : Environment, S, T>(
-    size: Size.Fixed,
+    size: Size.Bounded,
     name: String,
     aliases: Set<String>,
     description: String,
-) : Parameter.FixedSize<E, S, T>(size, name, description), Aliasable {
+) : Parameter.Bounded<E, S, T>(size, name, description), Aliasable {
 
     override val label: String = "-${name.lowercase()}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
@@ -51,7 +50,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
             if (matches(args.first().lowercase())) {
-                return inv.presentValue()
+                return inv.presentValue().withSize(Size(1))
             }
             return ParsingResult.failTypeInternal()
         }
@@ -62,14 +61,18 @@ internal sealed class FlagParameter<E : Environment, S, T>(
 
     internal class ParameterFlagParameter<E : Environment, S, T>(
         name: String,
-        private val parameter: FixedSize<E, S, T>,
+        private val parameter: Parameter.Bounded<E, S, T>,
         aliases: Set<String>,
     ) : FlagParameter<E, S, T>(Size(1) + parameter.size, name, aliases, parameter.description) {
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
             if (matches(args.first().lowercase())) {
-                return parameter.parse(args.subList(1, args.size)).withSize(size)
+                val result = parameter.parse(args.subList(1, args.size))
+                result.propagateError {
+                    return it
+                }
+                return result.withSize(Size(1) + result.consumed)
             }
             return ParsingResult.failTypeInternal()
         }
@@ -99,7 +102,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
             if (result is LiteralNotMatchedError) {
                 return ParsingResult.failTypeInternal()
             }
-            return result
+            return result.withSize(Size(1))
         }
 
         context(validationContext: ValidationContext<E, S>)

@@ -76,9 +76,9 @@ class CustomElementTest {
     }
 
     @Test
-    fun `setspawn - unbounded size parameter`() {
+    fun `setwarp - variable size parameter`() {
         class LocationParameter<E : Environment, S : Player>(name: String) :
-            Parameter.UnknownSize<E, S, Location>(Size.between(1, 3), name, "") {
+            Parameter.Bounded<E, S, Location>(Size.between(1, 3), name, "") {
             context(inv: Invocation<E, S>)
             override fun parse(args: List<String>): CommandResult<Location> {
                 if (args.firstOrNull()?.lowercase() == "here") {
@@ -93,19 +93,20 @@ class CustomElementTest {
                 return ParsingResult.success(Location(x, y, z), Size(3))
             }
         }
-        val setSpawnCommand = structure(Server::class, Player::class) {
-            command("setspawn")(
-                LocationParameter("location")
-            ) { location ->
-                sender.log("Spawn set to $location")
+        val setWarpCommand = structure(Server::class, Player::class) {
+            command("setwarp")(
+                LocationParameter("location"),
+                stringParameter("name"),
+            ) { location, name ->
+                sender.log("Warp $name set to $location")
             }
         }
 
-        setSpawnCommand.execute(server, zombachu, "/setspawn 10 70 -4")
-        assertEquals(["Spawn set to Location(x=10, y=70, z=-4)"], zombachu.logs)
+        setWarpCommand.execute(server, zombachu, "/setwarp 10 70 -4 shop")
+        assertEquals(["Warp shop set to Location(x=10, y=70, z=-4)"], zombachu.logs)
 
-        setSpawnCommand.execute(server, zombachu, "/setspawn here")
-        assertEquals(["Spawn set to Location(x=0, y=64, z=0)"], zombachu.logs)
+        setWarpCommand.execute(server, zombachu, "/setwarp here shop")
+        assertEquals(["Warp shop set to Location(x=0, y=64, z=0)"], zombachu.logs)
     }
 
     @Test
@@ -205,7 +206,7 @@ class CustomElementTest {
     fun `dsl accepts explicit type arguments`() {
         val scope = StructureScope.empty<Server, Sender>()
         with(scope) {
-            val parameter: Parameter.FixedSize<Server, Sender, String> = stringParameter<Server, Sender>("a")
+            val parameter: Parameter.Bounded<Server, Sender, String> = stringParameter<Server, Sender>("a")
             val flag: ValueFlag<Server, Sender, String> =
                 valueFlag<Server, Sender, String>("b", default = "", parameter = parameter)
             val command: Structure<Server, Sender, Arguments1<String>> =

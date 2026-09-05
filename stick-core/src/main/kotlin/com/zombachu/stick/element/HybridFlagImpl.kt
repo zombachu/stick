@@ -9,16 +9,15 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
-import com.zombachu.stick.element.Parameter.FixedSize
 import com.zombachu.stick.propagateError
 
 internal open class HybridFlagImpl<E : Environment, S, T>(
     override val name: String,
-    private val parameter: FixedSize<E, S, T>,
+    private val parameter: Parameter.Bounded<E, S, T>,
     aliases: Set<String>,
 ) : HybridFlag<E, S, T>, Aliasable {
 
-    override val size: Size = Size.between(1, 1 + parameter.size.size)
+    override val size: Size = Size.between(1, 1 + parameter.size.max)
     override val type: ElementType = ElementType.Flag
     override val description: String = parameter.description
     override val default: ContextualValue<E, S, HybridFlagResult<T>> = {

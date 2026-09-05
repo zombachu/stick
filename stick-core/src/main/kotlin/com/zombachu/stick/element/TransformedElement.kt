@@ -15,7 +15,7 @@ import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
 
 internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T, P : Position>(
-    val base: Parameter<E, S2, T>,
+    val base: Parameter<E, S2, T, P>,
     val transform: (S) -> S2,
     val requirement: Requirement<E, S>,
 ) : ValidatedParameter<E, S, T, P>, SenderValidator<E, S> {

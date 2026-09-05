@@ -79,7 +79,7 @@ class InvocationImplTest {
     fun `processElement fails when element over-consumes`() {
         val inv = testInvocation("a")
         val misbehavingParameter =
-            object : Parameter.UnknownSize<TestEnv, Unit, String>(Size(1), "", "") {
+            object : Parameter.Bounded<TestEnv, Unit, String>(Size(1), "", "") {
                 context(inv: Invocation<TestEnv, Unit>)
                 override fun parse(args: List<String>): CommandResult<String> = ParsingResult.success("a", Size(5))
             }

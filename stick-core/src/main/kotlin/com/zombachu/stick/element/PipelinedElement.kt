@@ -9,26 +9,14 @@ import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.isSuccess
+import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 
 @PublishedApi
-internal class PipelinedFixedSizeParameter<E : Environment, S, A, T>(
-    private val base: FixedSize<E, S, A>,
+internal class PipelinedParameter<E : Environment, S, A, T, P : Position>(
+    private val base: Parameter<E, S, A, P>,
     private val operations: List<PipelineOperation<E, S, *, *>>,
-) : Parameter.FixedSize<E, S, T>(base.size, base.name, base.description) {
-
-    context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<T> = parsePipeline(args, base, operations)
-
-    context(validationContext: ValidationContext<E, S>)
-    override fun getSyntax(): String = base.getSyntax()
-}
-
-@PublishedApi
-internal class PipelinedUnknownSizeParameter<E : Environment, S, A, T>(
-    private val base: UnknownSize<E, S, A>,
-    private val operations: List<PipelineOperation<E, S, *, *>>,
-) : Parameter.UnknownSize<E, S, T>(base.size, base.name, base.description) {
+) : Parameter<E, S, T, P>(base.size, base.name, base.description) {
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parsePipeline(args, base, operations)
@@ -99,10 +87,12 @@ private fun <E : Environment, S, A, T> parsePipeline(
     base: SyntaxElement<E, S, A>,
     operations: List<PipelineOperation<E, S, *, *>>,
 ): CommandResult<T> {
-    var value: Any? =
-        base.parse(args).valueOrPropagateError {
-            return it
-        }
+    val baseResult = base.parse(args)
+    baseResult.propagateError {
+        return it
+    }
+    val consumed = baseResult.consumed
+    var value: Any? = baseResult.value
     operations.forEach {
         val operation = it as PipelineOperation<E, S, Any?, Any?>
         value =
@@ -110,6 +100,5 @@ private fun <E : Environment, S, A, T> parsePipeline(
                 return it
             }
     }
-    val consumed = base.size as? Size.Fixed ?: Size(args.size)
     return ParsingResult.success(value as T, consumed)
 }

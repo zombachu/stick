@@ -13,7 +13,7 @@ import com.zombachu.stick.propagateError
 internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
     val requirementDefault: InvalidSenderDefault<E, S, T>,
     val presenceDefault: ValidSenderDefault<E, S, T>,
-    val parameter: Parameter<E, S, T>,
+    val parameter: Parameter<E, S, T, *>,
 ) : OptionalParameter<E, S, T, P> {
 
     override val size: Size = parameter.size.orNothing()
