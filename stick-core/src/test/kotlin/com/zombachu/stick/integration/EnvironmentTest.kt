@@ -8,6 +8,7 @@ import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult3
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Position
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.default
@@ -79,7 +80,8 @@ class EnvironmentTest {
         val baseScope = StructureScope.empty<Server, Sender>()
         val worldFlag: ValueFlag<WarpableServer, Sender, String> =
             with(baseScope) { valueFlag("world", default = "overworld", parameter = stringParameter("world")) }
-        val worldParameter: Groupable<WarpableServer, Sender, String> = WorldParameter<Server, Sender>("world")
+        val worldParameter: Groupable.Positioned<WarpableServer, Sender, String, Position.Leading> =
+            WorldParameter<Server, Sender>("world")
         val someSubCommand: Structure<WarpableServer, Sender, Arguments1<String>> =
             with(baseScope) { command("somesubcommand")(WorldParameter<Server, Sender>("world")) { _ -> } }
         // Shouldn't compile

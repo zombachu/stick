@@ -5,6 +5,7 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
@@ -27,7 +28,7 @@ class GroupImplTest {
     fun `matches are tried in priority order, not declaration order`() {
         val stringParameter = StringParameter<TestEnv, Unit>("str", "")
         val literalParameter = LiteralParameter<TestEnv, Unit>("foo", [], "")
-        val group = Group2Impl("", "", stringParameter, literalParameter)
+        val group = group2(stringParameter, literalParameter)
 
         val result = withInvocation("foo") { group.parse(["foo"]) }
 
@@ -37,8 +38,8 @@ class GroupImplTest {
     @Test
     fun `no matches returns InvalidSyntax, not validation error`() {
         val requirement = Requirement<TestEnv, Unit> { SenderValidationResult.failSender() }
-        val gated = TransformedParameter(StringParameter("gated", ""), { it }, requirement)
-        val group = Group1Impl("", "", gated)
+        val gated = transformed(StringParameter("gated", ""), requirement)
+        val group = group1(gated)
 
         val result = withInvocation("x") { group.parse(["x"]) }
 
@@ -53,7 +54,7 @@ class GroupImplTest {
                 override fun parse(arg0: String): CommandResult<String> = ParsingResult.failType("bad", arg0)
             }
         val fallback = StringParameter<TestEnv, Unit>("ok", "")
-        val group = Group2Impl("", "", mismatching, fallback)
+        val group = group2(mismatching, fallback)
 
         val result = withInvocation("x") { group.parse(["x"]) }
 
@@ -69,7 +70,7 @@ class GroupImplTest {
                     ParsingResult.success("$arg0$arg1")
             }
         val fallback = StringParameter<TestEnv, Unit>("ok", "")
-        val group = Group2Impl("", "", twoArgParam, fallback)
+        val group = group2(twoArgParam, fallback)
 
         val result = withInvocation("x") { group.parse(["x"]) }
 
@@ -84,7 +85,7 @@ class GroupImplTest {
                 override fun parse(arg0: String): CommandResult<String> = ParsingResult.failRange("0", "10", arg0)
             }
         val neverTried = StringParameter<TestEnv, Unit>("ok", "")
-        val group = Group2Impl("", "", hardFailure, neverTried)
+        val group = group2(hardFailure, neverTried)
 
         val result = withInvocation("x") { group.parse(["x"]) }
 
@@ -95,7 +96,7 @@ class GroupImplTest {
     fun `LiteralNotMatchedError falls through to next element`() {
         val give = LiteralParameter<TestEnv, Unit>("give", [], "")
         val take = LiteralParameter<TestEnv, Unit>("take", [], "")
-        val group = Group2Impl("", "", give, take)
+        val group = group2(give, take)
 
         val result = withInvocation("take") { group.parse(["take"]) }
 
@@ -113,7 +114,7 @@ class GroupImplTest {
                 Signature1({ _ -> }, [LiteralParameter("sun", [], "")]),
             )
         val neverTried = StringParameter<TestEnv, Unit>("ok", "")
-        val group = Group2Impl("", "", committing, neverTried)
+        val group = group2(committing, neverTried)
 
         val result = withInvocation("info", "moon") { group.parse(["info", "moon"]) }
 
@@ -124,7 +125,7 @@ class GroupImplTest {
     fun `KNOWN LIMITATION - groups allow duplicate literals`() {
         val first = LiteralParameter<TestEnv, Unit>("foo", [], "")
         val second = LiteralParameter<TestEnv, Unit>("foo", [], "")
-        val group = Group2Impl("", "", first, second)
+        val group = group2(first, second)
 
         val result = withInvocation("foo") { group.parse(["foo"]) }
 
@@ -135,8 +136,8 @@ class GroupImplTest {
     fun `getSyntax returns only sender-visible syntax`() {
         val visible = StringParameter<TestEnv, Unit>("str", "")
         val requirement = Requirement<TestEnv, Unit> { SenderValidationResult.failSender() }
-        val hidden = TransformedParameter(StringParameter("hidden", ""), { it }, requirement)
-        val group = Group2Impl("", "", visible, hidden)
+        val hidden = transformed(StringParameter("hidden", ""), requirement)
+        val group = group2(visible, hidden)
 
         val syntax = withValidationContext { group.getSyntax() }
 
@@ -150,7 +151,7 @@ class GroupImplTest {
                 context(inv: Invocation<TestEnv, Unit>)
                 override fun parse(arg0: String, arg1: String): CommandResult<String> = ParsingResult.success("")
             }
-        val group = Group2Impl("", "", twoArgParam, StringParameter("one", ""))
+        val group = group2(twoArgParam, StringParameter("one", ""))
 
         assertEquals(1, group.size.min)
         assertEquals(2, assertIs<Size.Bounded>(group.size).max)
@@ -158,10 +159,18 @@ class GroupImplTest {
 
     @Test
     fun `size is unbounded with unbounded element`() {
-        val group =
-            Group2Impl("", "", StringParameter<TestEnv, Unit>("one", ""), TextParameter<TestEnv, Unit>("rest", ""))
+        val group = group2(StringParameter<TestEnv, Unit>("one", ""), TextParameter<TestEnv, Unit>("rest", ""))
 
         assertIs<Size.Unbounded>(group.size)
         assertEquals(1, group.size.min)
     }
+
+    private fun <A> group1(element: Groupable<TestEnv, Unit, A>) =
+        Group1Impl<TestEnv, Unit, A, Position.Leading>("", "", element)
+
+    private fun <A, B> group2(elementA: Groupable<TestEnv, Unit, A>, elementB: Groupable<TestEnv, Unit, B>) =
+        Group2Impl<TestEnv, Unit, A, B, Position.Leading>("", "", elementA, elementB)
+
+    private fun <T> transformed(base: Parameter<TestEnv, Unit, T>, requirement: Requirement<TestEnv, Unit>) =
+        TransformedParameter<TestEnv, Unit, Unit, T, Position.Leading>(base, { it }, requirement)
 }

@@ -5,6 +5,7 @@ package com.zombachu.stick.dsl
 import com.zombachu.stick.Arguments
 import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
+import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.StructureScope
@@ -28,7 +29,8 @@ fun <S : Any, S2 : Any, E : Environment, T> StructureScope<E, S>.requireAs(
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     parameter: StructureScope<E, S2>.() -> Parameter.UnknownSize<E, S2, T>,
-): ValidatedParameter.UnknownSize<E, S, T> = TransformedParameter(parameter(this.forSender()), transform, requirement)
+): ValidatedParameter<E, S, T, Position.Last> =
+    TransformedParameter(parameter(this.forSender()), transform, requirement)
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireAsFixedSize")
@@ -37,7 +39,8 @@ fun <S : Any, S2 : Any, E : Environment, T> StructureScope<E, S>.requireAs(
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     parameter: StructureScope<E, S2>.() -> Parameter.FixedSize<E, S2, T>,
-): ValidatedParameter.FixedSize<E, S, T> = TransformedParameter(parameter(this.forSender()), transform, requirement)
+): ValidatedParameter<E, S, T, Position.Leading> =
+    TransformedParameter(parameter(this.forSender()), transform, requirement)
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireAsValueFlag")
@@ -73,7 +76,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline parameter: StructureScope<E, S2>.() -> Parameter.UnknownSize<E, S2, T>,
-): ValidatedParameter.UnknownSize<E, S, T> =
+): ValidatedParameter<E, S, T, Position.Last> =
     requireAs(
         { it as S2 },
         requirement + requirement({ SenderValidationResult.failSenderType() }) { it.sender is S2 },
@@ -87,7 +90,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
     requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline parameter: StructureScope<E, S2>.() -> Parameter.FixedSize<E, S2, T>,
-): ValidatedParameter.FixedSize<E, S, T> =
+): ValidatedParameter<E, S, T, Position.Leading> =
     requireAs(
         { it as S2 },
         requirement + requirement({ SenderValidationResult.failSenderType() }) { it.sender is S2 },
@@ -150,7 +153,7 @@ fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
     requirement: Requirement<E, S>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     parameter: StructureScope<E, S>.() -> Parameter.UnknownSize<E, S, T>,
-): ValidatedParameter.UnknownSize<E, S, T> = requireAs({ it }, requirement, parameter)
+): ValidatedParameter<E, S, T, Position.Last> = requireAs({ it }, requirement, parameter)
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireFixedSize")
@@ -158,7 +161,7 @@ fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
     requirement: Requirement<E, S>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     parameter: StructureScope<E, S>.() -> Parameter.FixedSize<E, S, T>,
-): ValidatedParameter.FixedSize<E, S, T> = requireAs({ it }, requirement, parameter)
+): ValidatedParameter<E, S, T, Position.Leading> = requireAs({ it }, requirement, parameter)
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requireValueFlag")

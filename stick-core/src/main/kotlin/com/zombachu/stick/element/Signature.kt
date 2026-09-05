@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalContracts::class)
-
 package com.zombachu.stick.element
 
 import com.zombachu.stick.Arguments
@@ -15,7 +13,6 @@ import com.zombachu.stick.handleInternal
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
-import kotlin.contracts.ExperimentalContracts
 
 internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: List<Element<E, S, Any?>>) {
     private val flags: List<IndexedElement<E, S, Flag<E, S, Any?>>>

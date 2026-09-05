@@ -4,18 +4,22 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 
-internal class OptionalParameterImpl<E : Environment, S, T>(
+internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
     val requirementDefault: InvalidSenderDefault<E, S, T>,
     val presenceDefault: ValidSenderDefault<E, S, T>,
     val parameter: Parameter<E, S, T>,
-) :
-    Parameter.UnknownSize<E, S, T>(parameter.size.orNothing(), parameter.name, parameter.description),
-    OptionalParameter<E, S, T> {
+) : OptionalParameter<E, S, T, P> {
+
+    override val size: Size = parameter.size.orNothing()
+    override val type: ElementType = parameter.type
+    override val name: String = parameter.name
+    override val description: String = parameter.description
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> {

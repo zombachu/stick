@@ -5,6 +5,7 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.withSize
@@ -24,7 +25,7 @@ sealed class Parameter<in E : Environment, S, out T>(
         override val size: Size.Fixed,
         name: String,
         description: String,
-    ) : Parameter<E, S, T>(size, name, description), Groupable.NonTerminating<E, S, T>
+    ) : Parameter<E, S, T>(size, name, description), Groupable.Positioned<E, S, T, Position.Leading>
 
     abstract class Size1<in E : Environment, S, out T>(name: String, description: String) :
         FixedSize<E, S, T>(Size(1), name, description) {
@@ -147,5 +148,5 @@ sealed class Parameter<in E : Environment, S, out T>(
     }
 
     abstract class UnknownSize<in E : Environment, S, out T>(size: Size, name: String, description: String) :
-        Parameter<E, S, T>(size, name, description)
+        Parameter<E, S, T>(size, name, description), Groupable.Positioned<E, S, T, Position.Last>
 }

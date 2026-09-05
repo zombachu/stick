@@ -8,16 +8,17 @@ import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
 
-internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T>(
+internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T, P : Position>(
     val base: Parameter<E, S2, T>,
     val transform: (S) -> S2,
     val requirement: Requirement<E, S>,
-) : ValidatedParameter.UnknownSize<E, S, T>, ValidatedParameter.FixedSize<E, S, T>, SenderValidator<E, S> {
+) : ValidatedParameter<E, S, T, P>, SenderValidator<E, S> {
 
     override val size: Size = base.size
     override val type: ElementType = base.type

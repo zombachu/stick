@@ -3,14 +3,7 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
-import com.zombachu.stick.GroupResult.ResultA
-import com.zombachu.stick.GroupResult.ResultB
-import com.zombachu.stick.GroupResult.ResultC
-import com.zombachu.stick.GroupResult.ResultD
-import com.zombachu.stick.GroupResult.ResultE
-import com.zombachu.stick.GroupResult.ResultF
-import com.zombachu.stick.GroupResult.ResultG
-import com.zombachu.stick.GroupResult.ResultH
+import com.zombachu.stick.GroupResult.*
 import com.zombachu.stick.GroupResult1
 import com.zombachu.stick.GroupResult2
 import com.zombachu.stick.GroupResult3
@@ -23,6 +16,7 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
+import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.GroupElement.Companion.to
@@ -33,11 +27,11 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
-internal open class GroupImpl<E : Environment, S, G : GroupResult>(
+internal open class GroupImpl<E : Environment, S, G : GroupResult, P : Position>(
     override val name: String,
     override val description: String,
     private val elements: List<GroupElement<E, S, *, G>>,
-) : Group.UnknownSize<E, S, G>, Group.FiniteSize<E, S, G> {
+) : Group<E, S, G, P> {
 
     private val prioritizedElements: List<GroupElement<E, S, *, G>> =
         elements.sortedWith(
@@ -134,30 +128,38 @@ internal class GroupElement<E : Environment, S, T, G : GroupResult>(
     }
 }
 
-internal class Group1Impl<E_ : Environment, S, A>(name: String, description: String, element: Groupable<E_, S, A>) :
-    GroupImpl<E_, S, GroupResult1<A>>(name, description, [element to { ResultA(it) }])
+internal class Group1Impl<E_ : Environment, S, A, P : Position>(
+    name: String,
+    description: String,
+    element: Groupable<E_, S, A>,
+) : GroupImpl<E_, S, GroupResult1<A>, P>(name, description, [element to { ResultA(it) }])
 
-internal class Group2Impl<E_ : Environment, S, A, B>(
+internal class Group2Impl<E_ : Environment, S, A, B, P : Position>(
     name: String,
     description: String,
     elementA: Groupable<E_, S, A>,
     elementB: Groupable<E_, S, B>,
-) : GroupImpl<E_, S, GroupResult2<A, B>>(name, description, [elementA to { ResultA(it) }, elementB to { ResultB(it) }])
+) :
+    GroupImpl<E_, S, GroupResult2<A, B>, P>(
+        name,
+        description,
+        [elementA to { ResultA(it) }, elementB to { ResultB(it) }],
+    )
 
-internal class Group3Impl<E_ : Environment, S, A, B, C>(
+internal class Group3Impl<E_ : Environment, S, A, B, C, P : Position>(
     name: String,
     description: String,
     elementA: Groupable<E_, S, A>,
     elementB: Groupable<E_, S, B>,
     elementC: Groupable<E_, S, C>,
 ) :
-    GroupImpl<E_, S, GroupResult3<A, B, C>>(
+    GroupImpl<E_, S, GroupResult3<A, B, C>, P>(
         name,
         description,
         [elementA to { ResultA(it) }, elementB to { ResultB(it) }, elementC to { ResultC(it) }],
     )
 
-internal class Group4Impl<E_ : Environment, S, A, B, C, D>(
+internal class Group4Impl<E_ : Environment, S, A, B, C, D, P : Position>(
     name: String,
     description: String,
     elementA: Groupable<E_, S, A>,
@@ -165,7 +167,7 @@ internal class Group4Impl<E_ : Environment, S, A, B, C, D>(
     elementC: Groupable<E_, S, C>,
     elementD: Groupable<E_, S, D>,
 ) :
-    GroupImpl<E_, S, GroupResult4<A, B, C, D>>(
+    GroupImpl<E_, S, GroupResult4<A, B, C, D>, P>(
         name,
         description,
         [
@@ -176,7 +178,7 @@ internal class Group4Impl<E_ : Environment, S, A, B, C, D>(
         ],
     )
 
-internal class Group5Impl<E_ : Environment, S, A, B, C, D, E>(
+internal class Group5Impl<E_ : Environment, S, A, B, C, D, E, P : Position>(
     name: String,
     description: String,
     elementA: Groupable<E_, S, A>,
@@ -185,7 +187,7 @@ internal class Group5Impl<E_ : Environment, S, A, B, C, D, E>(
     elementD: Groupable<E_, S, D>,
     elementE: Groupable<E_, S, E>,
 ) :
-    GroupImpl<E_, S, GroupResult5<A, B, C, D, E>>(
+    GroupImpl<E_, S, GroupResult5<A, B, C, D, E>, P>(
         name,
         description,
         [
@@ -197,7 +199,7 @@ internal class Group5Impl<E_ : Environment, S, A, B, C, D, E>(
         ],
     )
 
-internal class Group6Impl<E_ : Environment, S, A, B, C, D, E, F>(
+internal class Group6Impl<E_ : Environment, S, A, B, C, D, E, F, P : Position>(
     name: String,
     description: String,
     elementA: Groupable<E_, S, A>,
@@ -207,7 +209,7 @@ internal class Group6Impl<E_ : Environment, S, A, B, C, D, E, F>(
     elementE: Groupable<E_, S, E>,
     elementF: Groupable<E_, S, F>,
 ) :
-    GroupImpl<E_, S, GroupResult6<A, B, C, D, E, F>>(
+    GroupImpl<E_, S, GroupResult6<A, B, C, D, E, F>, P>(
         name,
         description,
         [
@@ -220,7 +222,7 @@ internal class Group6Impl<E_ : Environment, S, A, B, C, D, E, F>(
         ],
     )
 
-internal class Group7Impl<E_ : Environment, S, A, B, C, D, E, F, G>(
+internal class Group7Impl<E_ : Environment, S, A, B, C, D, E, F, G, P : Position>(
     name: String,
     description: String,
     elementA: Groupable<E_, S, A>,
@@ -231,7 +233,7 @@ internal class Group7Impl<E_ : Environment, S, A, B, C, D, E, F, G>(
     elementF: Groupable<E_, S, F>,
     elementG: Groupable<E_, S, G>,
 ) :
-    GroupImpl<E_, S, GroupResult7<A, B, C, D, E, F, G>>(
+    GroupImpl<E_, S, GroupResult7<A, B, C, D, E, F, G>, P>(
         name,
         description,
         [
@@ -245,7 +247,7 @@ internal class Group7Impl<E_ : Environment, S, A, B, C, D, E, F, G>(
         ],
     )
 
-internal class Group8Impl<E_ : Environment, S, A, B, C, D, E, F, G, H>(
+internal class Group8Impl<E_ : Environment, S, A, B, C, D, E, F, G, H, P : Position>(
     name: String,
     description: String,
     elementA: Groupable<E_, S, A>,
@@ -257,7 +259,7 @@ internal class Group8Impl<E_ : Environment, S, A, B, C, D, E, F, G, H>(
     elementG: Groupable<E_, S, G>,
     elementH: Groupable<E_, S, H>,
 ) :
-    GroupImpl<E_, S, GroupResult8<A, B, C, D, E, F, G, H>>(
+    GroupImpl<E_, S, GroupResult8<A, B, C, D, E, F, G, H>, P>(
         name,
         description,
         [

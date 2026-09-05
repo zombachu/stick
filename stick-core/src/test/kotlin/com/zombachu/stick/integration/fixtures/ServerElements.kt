@@ -8,6 +8,7 @@ import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
@@ -17,11 +18,11 @@ import com.zombachu.stick.dsl.helper
 import com.zombachu.stick.dsl.optionally
 import com.zombachu.stick.dsl.requireAs
 import com.zombachu.stick.dsl.requirement
-import com.zombachu.stick.element.Groupable
 import com.zombachu.stick.element.Helper
 import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
+import com.zombachu.stick.element.ValidatedParameter
 import com.zombachu.stick.feedback.CustomFeedback
 import kotlin.experimental.ExperimentalTypeInference
 
@@ -55,7 +56,7 @@ fun <E : Server, S> StructureScope<E, S>.playerParameter(name: String): PlayerPa
 
 fun <E : Server> StructureScope<E, Sender>.targetPlayerParameter(
     name: String,
-): OptionalParameter<E, Sender, Player> =
+): OptionalParameter<E, Sender, Player, Position.Optional> =
     optionally(
         ifAbsent = defaultSender<E, Sender, Player>(),
         parameter = playerParameter(name)
@@ -112,7 +113,7 @@ fun <E : Environment, T_ : Arguments> StructureScope<E, Sender>.requireSocialDat
 @JvmName("requireSocialDataUnknownSizeParameter")
 fun <E : Environment, T> StructureScope<E, Sender>.requireSocialData(
     parameter: StructureScope<E, SocialData>.() -> Parameter.UnknownSize<E, SocialData, T>
-): Groupable<E, Sender, T> =
+): ValidatedParameter<E, Sender, T, Position.Last> =
     requireAs(
         { (it as Player).socialData },
         requirement { it.sender is Player },
@@ -123,7 +124,7 @@ fun <E : Environment, T> StructureScope<E, Sender>.requireSocialData(
 @JvmName("requireSocialDataFixedSizeParameter")
 fun <E : Environment, T> StructureScope<E, Sender>.requireSocialData(
     parameter: StructureScope<E, SocialData>.() -> Parameter.FixedSize<E, SocialData, T>
-): Groupable<E, Sender, T> =
+): ValidatedParameter<E, Sender, T, Position.Leading> =
     requireAs(
         { (it as Player).socialData },
         requirement { it.sender is Player },

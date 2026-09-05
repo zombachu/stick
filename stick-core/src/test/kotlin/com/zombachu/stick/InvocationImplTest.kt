@@ -67,7 +67,7 @@ class InvocationImplTest {
     @Test
     fun `processElement consumes parameter size for Group`() {
         val inv = testInvocation("a", "b", "c")
-        val group = Group1Impl<TestEnv, Unit, String>("", "", StringParameter("", ""))
+        val group = Group1Impl<TestEnv, Unit, String, Position.Leading>("", "", StringParameter("", ""))
 
         val result = inv.processElement(group)
 

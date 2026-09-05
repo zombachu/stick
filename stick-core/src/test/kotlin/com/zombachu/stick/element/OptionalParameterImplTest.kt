@@ -1,6 +1,7 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.Position
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.StringParameter
@@ -23,7 +24,7 @@ class OptionalParameterImplTest {
     @Test
     fun `empty args with parameter not allowed returns requirement default`() {
         val optional =
-            OptionalParameterImpl(
+            OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
                 requirementDefault = invalidDefault("forbidden-default", allowed = false),
                 presenceDefault = validDefault("presence-default", allowed = true),
                 parameter = parameter,
@@ -35,7 +36,7 @@ class OptionalParameterImplTest {
     @Test
     fun `empty args with parameter allowed but presence not allowed fails with InvalidSender`() {
         val optional =
-            OptionalParameterImpl(
+            OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
                 requirementDefault = invalidDefault("forbidden-default", allowed = true),
                 presenceDefault = validDefault("presence-default", allowed = false),
                 parameter = parameter,
@@ -47,7 +48,7 @@ class OptionalParameterImplTest {
     @Test
     fun `empty args returns presence default`() {
         val optional =
-            OptionalParameterImpl(
+            OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
                 requirementDefault = invalidDefault("forbidden-default", allowed = true),
                 presenceDefault = validDefault("presence-default", allowed = true),
                 parameter = parameter,
@@ -59,7 +60,7 @@ class OptionalParameterImplTest {
     @Test
     fun `non-empty args with parameter not allowed fails with InvalidSender`() {
         val optional =
-            OptionalParameterImpl(
+            OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
                 requirementDefault = invalidDefault("forbidden-default", allowed = false),
                 presenceDefault = validDefault("presence-default", allowed = true),
                 parameter = parameter,
@@ -71,7 +72,7 @@ class OptionalParameterImplTest {
     @Test
     fun `non-empty args with wrong size fails with InvalidSyntax`() {
         val optional =
-            OptionalParameterImpl(
+            OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
                 requirementDefault = invalidDefault("forbidden-default", allowed = true),
                 presenceDefault = validDefault("presence-default", allowed = true),
                 parameter = parameter,
@@ -83,7 +84,7 @@ class OptionalParameterImplTest {
     @Test
     fun `non-empty args with matching size delegates to parameter`() {
         val optional =
-            OptionalParameterImpl(
+            OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
                 requirementDefault = invalidDefault("forbidden-default", allowed = true),
                 presenceDefault = validDefault("presence-default", allowed = true),
                 parameter = parameter,
@@ -95,7 +96,7 @@ class OptionalParameterImplTest {
     @Test
     fun `getSyntax returns bracketed name when optional for sender`() {
         val optional =
-            OptionalParameterImpl(
+            OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
                 requirementDefault = invalidDefault("x", allowed = true),
                 presenceDefault = validDefault("x", allowed = true),
                 parameter = parameter,
@@ -107,7 +108,7 @@ class OptionalParameterImplTest {
     @Test
     fun `getSyntax returns empty when parameter not allowed`() {
         val optional =
-            OptionalParameterImpl(
+            OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
                 requirementDefault = invalidDefault("x", allowed = false),
                 presenceDefault = validDefault("x", allowed = true),
                 parameter = parameter,

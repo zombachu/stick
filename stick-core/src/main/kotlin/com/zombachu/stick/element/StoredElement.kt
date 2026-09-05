@@ -5,6 +5,7 @@ import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.Position
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.valueOrPropagateError
 
@@ -57,10 +58,10 @@ internal class StoredHybridFlag<E : Environment, S, T>(
     override fun parse(args: List<String>): CommandResult<HybridFlagResult<T>> = parseAndStore(base, id, args)
 }
 
-internal class StoredOptionalParameter<E : Environment, S, T>(
-    private val base: OptionalParameter<E, S, T>,
+internal class StoredOptionalParameter<E : Environment, S, T, P : Position>(
+    private val base: OptionalParameter<E, S, T, P>,
     private val id: TypedIdentifier<T>,
-) : OptionalParameter<E, S, T> by base {
+) : OptionalParameter<E, S, T, P> by base {
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parseAndStore(base, id, args)

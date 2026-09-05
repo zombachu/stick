@@ -5,6 +5,7 @@ import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.isSuccess
@@ -74,10 +75,15 @@ internal class PipelinedValueFlag<E : Environment, S, A, T>(
 }
 
 @PublishedApi
-internal class PipelinedOptionalParameter<E : Environment, S, A, T>(
-    private val base: OptionalParameter<E, S, A>,
+internal class PipelinedOptionalParameter<E : Environment, S, A, T, P : Position>(
+    private val base: OptionalParameter<E, S, A, P>,
     private val operations: List<PipelineOperation<E, S, *, *>>,
-) : Parameter.UnknownSize<E, S, T>(base.size, base.name, base.description), OptionalParameter<E, S, T> {
+) : OptionalParameter<E, S, T, P> {
+
+    override val size: Size = base.size
+    override val type: ElementType = base.type
+    override val name: String = base.name
+    override val description: String = base.description
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parsePipeline(args, base, operations)

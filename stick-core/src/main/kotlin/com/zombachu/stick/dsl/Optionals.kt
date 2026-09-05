@@ -3,6 +3,7 @@ package com.zombachu.stick.dsl
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.StructureScope
@@ -37,28 +38,42 @@ fun <E : Environment, S, T> StructureScope<E, S>.invalidDefault(
 inline fun <E : Environment, S : Any, reified S2 : S> StructureScope<E, S>.defaultSender():
     ValidSenderDefault<E, S, S2> = default({ ParsingResult.success(sender as S2) }, requirement { it.sender is S2 })
 
+@JvmName("optionallyFixedSize")
 fun <E : Environment, S, T> StructureScope<E, S>.optionally(
     ifInvalid: InvalidSenderDefault<E, S, T>,
     ifAbsent: ValidSenderDefault<E, S, T>,
-    parameter: Parameter<E, S, T>,
-): OptionalParameter<E, S, T> =
+    parameter: Parameter.FixedSize<E, S, T>,
+): OptionalParameter<E, S, T, Position.Optional> =
     OptionalParameterImpl(requirementDefault = ifInvalid, presenceDefault = ifAbsent, parameter = parameter)
 
+@JvmName("optionallyUnknownSize")
+fun <E : Environment, S, T> StructureScope<E, S>.optionally(
+    ifInvalid: InvalidSenderDefault<E, S, T>,
+    ifAbsent: ValidSenderDefault<E, S, T>,
+    parameter: Parameter.UnknownSize<E, S, T>,
+): OptionalParameter<E, S, T, Position.LastOptional> =
+    OptionalParameterImpl(requirementDefault = ifInvalid, presenceDefault = ifAbsent, parameter = parameter)
+
+@JvmName("optionallyFixedSize")
 fun <E : Environment, S, T> StructureScope<E, S>.optionally(
     ifAbsent: ValidSenderDefault<E, S, T>,
-    parameter: Parameter<E, S, T>,
-): OptionalParameter<E, S, T> =
-    OptionalParameterImpl(
-        requirementDefault = invalidDefault({ ifAbsent.value(this) }),
-        presenceDefault = ifAbsent,
-        parameter = parameter,
-    )
+    parameter: Parameter.FixedSize<E, S, T>,
+): OptionalParameter<E, S, T, Position.Optional> =
+    optionally(invalidDefault({ ifAbsent.value(this) }), ifAbsent, parameter)
 
+@JvmName("optionallyUnknownSize")
+fun <E : Environment, S, T> StructureScope<E, S>.optionally(
+    ifAbsent: ValidSenderDefault<E, S, T>,
+    parameter: Parameter.UnknownSize<E, S, T>,
+): OptionalParameter<E, S, T, Position.LastOptional> =
+    optionally(invalidDefault({ ifAbsent.value(this) }), ifAbsent, parameter)
+
+@JvmName("optionallyNullableFixedSize")
 fun <E : Environment, S, T> StructureScope<E, S>.optionallyNullable(
-    parameter: Parameter<E, S, T>
-): OptionalParameter<E, S, T?> =
-    OptionalParameterImpl(
-        requirementDefault = invalidDefault(null),
-        presenceDefault = default(null),
-        parameter = parameter,
-    )
+    parameter: Parameter.FixedSize<E, S, T>
+): OptionalParameter<E, S, T?, Position.Optional> = optionally(invalidDefault(null), default(null), parameter)
+
+@JvmName("optionallyNullableUnknownSize")
+fun <E : Environment, S, T> StructureScope<E, S>.optionallyNullable(
+    parameter: Parameter.UnknownSize<E, S, T>
+): OptionalParameter<E, S, T?, Position.LastOptional> = optionally(invalidDefault(null), default(null), parameter)
