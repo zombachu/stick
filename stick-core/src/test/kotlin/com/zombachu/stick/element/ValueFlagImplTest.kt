@@ -53,7 +53,7 @@ class ValueFlagImplTest {
 
         assertIs<CommandResult.Success<Int>>(result)
         assertEquals(42, result.value)
-        assertEquals(2, result.consumed.size)
+        assertEquals(2, result.consumed)
     }
 
     @Test

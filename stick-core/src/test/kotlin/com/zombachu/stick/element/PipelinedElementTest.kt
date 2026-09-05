@@ -82,7 +82,7 @@ class PipelinedElementTest {
         val result = withInvocation { pipelined.parse(["hi"]) }
 
         assertIs<CommandResult.Success<Int>>(result)
-        assertEquals(1, result.consumed.size)
+        assertEquals(1, result.consumed)
     }
 
     @Test
@@ -93,7 +93,7 @@ class PipelinedElementTest {
         val result = withInvocation { pipelined.parse(["a", "b", "c"]) }
 
         assertIs<CommandResult.Success<String>>(result)
-        assertEquals(3, result.consumed.size)
+        assertEquals(3, result.consumed)
         assertEquals("A B C", result.expectSuccessValue())
     }
 

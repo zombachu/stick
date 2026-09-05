@@ -26,7 +26,7 @@ class TextParameterTest {
     fun `consumes all args`() {
         val result = withInvocation { parameter.parse(["a", "b", "c"]) }
         assertIs<CommandResult.Success<String>>(result)
-        assertEquals(3, result.consumed.size)
+        assertEquals(3, result.consumed)
     }
 
     @Test

@@ -47,6 +47,17 @@ class GroupImplTest {
     }
 
     @Test
+    fun `bounded matches are ordered by max, not by exactness`() {
+        val exactParameter = variableParameter("exact", Size(2), consumed = 2)
+        val longParameter = variableParameter("long", Size.between(1, 3), consumed = 3)
+        val group = group2(exactParameter, longParameter)
+
+        val result = withInvocation("a", "b", "c") { group.parse(["a", "b", "c"]) }
+
+        assertIs<GroupResult.ResultB<String>>(result.expectSuccessValue())
+    }
+
+    @Test
     fun `no matches returns InvalidSyntax, not validation error`() {
         val requirement = Requirement<TestEnv, Unit> { SenderValidationResult.failSender() }
         val gated = transformed(StringParameter("gated", ""), requirement)
@@ -180,7 +191,7 @@ class GroupImplTest {
         object : Parameter.Bounded<TestEnv, Unit, String>(size, name, "") {
             context(inv: Invocation<TestEnv, Unit>)
             override fun parse(args: List<String>): CommandResult<String> =
-                ParsingResult.success(name, Size(consumed))
+                ParsingResult.success(name, consumed)
         }
 
     private fun <A> group1(element: Groupable<TestEnv, Unit, A>) =

@@ -82,7 +82,7 @@ class CustomElementTest {
             context(inv: Invocation<E, S>)
             override fun parse(args: List<String>): CommandResult<Location> {
                 if (args.firstOrNull()?.lowercase() == "here") {
-                    return ParsingResult.success(inv.sender.position, Size(1))
+                    return ParsingResult.success(inv.sender.position, 1)
                 }
                 if (args.size < 3) {
                     return ParsingResult.failSyntax(inv.getSyntax())
@@ -90,7 +90,7 @@ class CustomElementTest {
                 val x = args[0].toIntOrNull() ?: return ParsingResult.failType("integer", args[0])
                 val y = args[1].toIntOrNull() ?: return ParsingResult.failType("integer", args[1])
                 val z = args[2].toIntOrNull() ?: return ParsingResult.failType("integer", args[2])
-                return ParsingResult.success(Location(x, y, z), Size(3))
+                return ParsingResult.success(Location(x, y, z), 3)
             }
         }
         val setWarpCommand = structure(Server::class, Player::class) {

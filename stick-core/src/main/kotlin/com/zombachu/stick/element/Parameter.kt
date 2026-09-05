@@ -8,7 +8,7 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
-import com.zombachu.stick.withSize
+import com.zombachu.stick.withConsumed
 
 sealed class Parameter<in E : Environment, S, out T, out P : Position>(
     override val size: Size,
@@ -32,7 +32,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0]).withSize(Size(1))
+            return parse(args[0]).withConsumed(1)
         }
 
         context(inv: Invocation<E, S>)
@@ -44,7 +44,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1]).withSize(Size(2))
+            return parse(args[0], args[1]).withConsumed(2)
         }
 
         context(inv: Invocation<E, S>)
@@ -56,7 +56,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2]).withSize(Size(3))
+            return parse(args[0], args[1], args[2]).withConsumed(3)
         }
 
         context(inv: Invocation<E, S>)
@@ -68,7 +68,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2], args[3]).withSize(Size(4))
+            return parse(args[0], args[1], args[2], args[3]).withConsumed(4)
         }
 
         context(inv: Invocation<E, S>)
@@ -80,7 +80,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2], args[3], args[4]).withSize(Size(5))
+            return parse(args[0], args[1], args[2], args[3], args[4]).withConsumed(5)
         }
 
         context(inv: Invocation<E, S>)
@@ -92,7 +92,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2], args[3], args[4], args[5]).withSize(Size(6))
+            return parse(args[0], args[1], args[2], args[3], args[4], args[5]).withConsumed(6)
         }
 
         context(inv: Invocation<E, S>)
@@ -111,7 +111,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2], args[3], args[4], args[5], args[6]).withSize(Size(7))
+            return parse(args[0], args[1], args[2], args[3], args[4], args[5], args[6]).withConsumed(7)
         }
 
         context(inv: Invocation<E, S>)
@@ -131,7 +131,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
 
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]).withSize(Size(8))
+            return parse(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]).withConsumed(8)
         }
 
         context(inv: Invocation<E, S>)

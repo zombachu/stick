@@ -91,7 +91,7 @@ class BioParameter<E : Environment>(name: String) :
     context(inv: Invocation<E, SocialData>)
     override fun parse(args: List<String>): CommandResult<String> {
         val bioLine = args.joinToString(" ")
-        return ParsingResult.success(bioLine, Size(args.size))
+        return ParsingResult.success(bioLine, args.size)
     }
 }
 

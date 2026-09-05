@@ -81,7 +81,7 @@ class InvocationImplTest {
         val misbehavingParameter =
             object : Parameter.Bounded<TestEnv, Unit, String>(Size(1), "", "") {
                 context(inv: Invocation<TestEnv, Unit>)
-                override fun parse(args: List<String>): CommandResult<String> = ParsingResult.success("a", Size(5))
+                override fun parse(args: List<String>): CommandResult<String> = ParsingResult.success("a", 5)
             }
 
         val result = inv.processElement(misbehavingParameter)

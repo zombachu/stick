@@ -10,7 +10,7 @@ import kotlin.contracts.contract
 sealed interface CommandResult<out T> {
     interface Success<out T> : CommandResult<T> {
         val value: T
-        val consumed: Size.Fixed
+        val consumed: Int
     }
 
     sealed interface InternalFailure : CommandResult<Nothing>
@@ -21,7 +21,7 @@ sealed interface CommandResult<out T> {
 }
 
 sealed interface ParsingResult<out T> : CommandResult<T> {
-    class Success<out T> internal constructor(override val value: T, override val consumed: Size.Fixed) :
+    class Success<out T> internal constructor(override val value: T, override val consumed: Int) :
         ParsingResult<T>, CommandResult.Success<T>
 
     class UnknownError internal constructor(override val feedback: Feedback.Unknown) :
@@ -50,7 +50,7 @@ sealed interface ParsingResult<out T> : CommandResult<T> {
     interface CustomError<out F : Feedback> : Failure<F>
 
     companion object {
-        fun <T> success(value: T, consumed: Size.Fixed = Size(0)): Success<T> = Success(value, consumed)
+        fun <T> success(value: T, consumed: Int = 0): Success<T> = Success(value, consumed)
 
         fun failUnknown(cause: Throwable? = null): UnknownError = UnknownError(Feedback.Unknown(cause))
 
@@ -74,7 +74,7 @@ sealed interface ParsingResult<out T> : CommandResult<T> {
 sealed interface SenderValidationResult {
     object Success : SenderValidationResult, CommandResult.Success<Unit> {
         override val value: Unit = Unit
-        override val consumed: Size.Fixed = Size(0)
+        override val consumed: Int = 0
     }
 
     sealed interface Failure<out F : Feedback> : SenderValidationResult, CommandResult.Failure<F>
@@ -105,7 +105,7 @@ internal sealed interface PeekingResult {
     data class Success internal constructor(private val mutableArgs: MutableList<String>) :
         PeekingResult, CommandResult.Success<List<String>> {
         override val value: List<String> = mutableArgs
-        override val consumed: Size.Fixed = Size(0)
+        override val consumed: Int = 0
 
         fun consume(count: Int) {
             mutableArgs.subList(0, count).clear()
@@ -155,11 +155,11 @@ fun <T> CommandResult<T>.isSuccess(): Boolean {
     return this is CommandResult.Success
 }
 
-fun <T> CommandResult<T>.withSize(size: Size.Fixed): CommandResult<T> {
+fun <T> CommandResult<T>.withConsumed(consumed: Int): CommandResult<T> {
     this.propagateError {
         return it
     }
-    return ParsingResult.success(this.value, size)
+    return ParsingResult.success(this.value, consumed)
 }
 
 fun <F : Feedback, R> CommandResult.Failure<F>.handle(block: F.() -> R): R {

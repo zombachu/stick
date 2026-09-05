@@ -11,7 +11,7 @@ import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.propagateError
-import com.zombachu.stick.withSize
+import com.zombachu.stick.withConsumed
 
 internal open class ValueFlagImpl<E : Environment, S, T>(
     override val name: String,
@@ -50,7 +50,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         context(inv: Invocation<E, S>)
         override fun parse(args: List<String>): CommandResult<T> {
             if (matches(args.first().lowercase())) {
-                return inv.presentValue().withSize(Size(1))
+                return inv.presentValue().withConsumed(1)
             }
             return ParsingResult.failTypeInternal()
         }
@@ -72,7 +72,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
                 result.propagateError {
                     return it
                 }
-                return result.withSize(Size(1) + result.consumed)
+                return result.withConsumed(1 + result.consumed)
             }
             return ParsingResult.failTypeInternal()
         }
@@ -102,7 +102,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
             if (result is LiteralNotMatchedError) {
                 return ParsingResult.failTypeInternal()
             }
-            return result.withSize(Size(1))
+            return result.withConsumed(1)
         }
 
         context(validationContext: ValidationContext<E, S>)

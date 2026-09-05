@@ -11,18 +11,18 @@ class CommandResultTest {
 
     @Test
     fun `success wraps value and consumes`() {
-        val result = ParsingResult.success("value", Size(3))
+        val result = ParsingResult.success("value", 3)
 
         assertTrue(result.isSuccess())
         assertEquals("value", result.value)
-        assertEquals(3, result.consumed.size)
+        assertEquals(3, result.consumed)
     }
 
     @Test
     fun `success consumed defaults to zero`() {
         val result = ParsingResult.success("value")
         assertTrue(result.isSuccess())
-        assertEquals(0, result.consumed.size)
+        assertEquals(0, result.consumed)
     }
 
     @Test
@@ -147,18 +147,18 @@ class CommandResultTest {
     }
 
     @Test
-    fun `withSize sets result size on success`() {
-        val result = ParsingResult.success("ok", Size(1)).withSize(Size(5))
+    fun `withConsumed sets consumed count on success`() {
+        val result = ParsingResult.success("ok", 1).withConsumed(5)
 
         assertTrue(result.isSuccess())
         assertEquals("ok", result.value)
-        assertEquals(5, result.consumed.size)
+        assertEquals(5, result.consumed)
     }
 
     @Test
-    fun `withSize passes through failures unchanged`() {
+    fun `withConsumed passes through failures unchanged`() {
         val failure = ParsingResult.failSyntax("usage")
-        val result = failure.withSize(Size(5))
+        val result = failure.withConsumed(5)
         assertSame(failure, result)
     }
 

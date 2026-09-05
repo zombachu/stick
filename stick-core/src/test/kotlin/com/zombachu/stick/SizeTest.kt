@@ -9,7 +9,7 @@ import kotlin.test.assertTrue
 class SizeTest {
 
     @Test
-    fun `Fixed only matches exact size`() {
+    fun `Bounded exact size matches only that size`() {
         val size = Size(3)
 
         assertTrue(size.matches(3))
@@ -18,7 +18,7 @@ class SizeTest {
     }
 
     @Test
-    fun `Variable matches sizes within its range`() {
+    fun `Bounded matches sizes within its range`() {
         val size = Size.between(1, 3)
 
         assertTrue(size.matches(1))
@@ -40,22 +40,28 @@ class SizeTest {
     }
 
     @Test
-    fun `between for equal bounds collapses to Fixed`() {
-        assertIs<Size.Fixed>(Size.between(2, 2))
-        assertIs<Size.Variable>(Size.between(2, 3))
+    fun `Bounded exact Size has equal bounds`() {
+        val size = Size(2)
+
+        assertEquals(2, size.min)
+        assertEquals(2, size.max)
+        assertEquals(Size.between(2, 2).max, size.max)
     }
 
     @Test
-    fun `Fixed and Variable are Bounded but Unbounded is not`() {
-        assertIs<Size.Bounded>(Size(3))
-        assertIs<Size.Bounded>(Size.between(1, 3))
-        assertFalse((Size.atLeast(0) as Size) is Size.Bounded)
+    fun `plus sums bounds`() {
+        val combined = Size.between(1, 2) + Size.between(2, 3)
+
+        assertEquals(3, combined.min)
+        assertEquals(5, combined.max)
     }
 
     @Test
-    fun `Fixed plus Fixed sums sizes`() {
+    fun `plus of exact sizes stays exact`() {
         val combined = Size(2) + Size(3)
-        assertEquals(5, combined.size)
+
+        assertEquals(5, combined.min)
+        assertEquals(5, combined.max)
     }
 
     @Test
@@ -67,32 +73,19 @@ class SizeTest {
     }
 
     @Test
-    fun `plus sums bounds`() {
-        val combined = Size.between(1, 2) + Size.between(2, 3)
-
-        assertIs<Size.Bounded>(combined)
-        assertEquals(3, combined.min)
-        assertEquals(5, combined.max)
-    }
-
-    @Test
     fun `plus narrows to typed Size`() {
         val bounded: Size = Size.between(2, 3)
         val unbounded: Size = Size.atLeast(0)
-        val fixed: Size = Size(2)
 
         assertIs<Size.Bounded>(Size.between(1, 2) + bounded)
         assertIs<Size.Unbounded>(Size.between(1, 2) + unbounded)
-        assertIs<Size.Fixed>(fixed + fixed)
     }
 
     @Test
     fun `parsingPriority ranks Sizes`() {
-        val fixed = Size(1)
-        val variable = Size.between(1, 2)
+        val bounded = Size.between(1, 2)
         val unbounded = Size.atLeast(0)
 
-        assertTrue(fixed.parsingPriority < variable.parsingPriority)
-        assertTrue(variable.parsingPriority < unbounded.parsingPriority)
+        assertTrue(bounded.parsingPriority < unbounded.parsingPriority)
     }
 }

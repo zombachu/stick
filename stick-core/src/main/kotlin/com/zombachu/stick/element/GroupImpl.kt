@@ -65,7 +65,7 @@ internal open class GroupImpl<E : Environment, S, G : GroupResult, P : Position>
             processGroupElement(
                 element,
                 onSuccess = {
-                    return ParsingResult.success(it, Size(0))
+                    return ParsingResult.success(it, 0)
                 },
                 onElementMismatch = { continue },
                 onError = {

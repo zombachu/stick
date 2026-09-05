@@ -31,13 +31,13 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
         if (args.isEmpty()) return ParsingResult.failTypeInternal()
         if (matches(args.first().lowercase())) {
             if (args.size == 1) {
-                return ParsingResult.success(HybridFlagResult.Present(), Size(1))
+                return ParsingResult.success(HybridFlagResult.Present(), 1)
             } else {
                 val result = parameter.parse(args.subList(1, args.size))
                 result.propagateError {
                     return it
                 }
-                return ParsingResult.success(HybridFlagResult.Value(result.value), Size(1) + result.consumed)
+                return ParsingResult.success(HybridFlagResult.Value(result.value), 1 + result.consumed)
             }
         }
         return ParsingResult.failTypeInternal()

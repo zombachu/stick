@@ -14,43 +14,28 @@ sealed class Size(internal val parsingPriority: Int) {
         }
     }
 
-    sealed class Bounded(parsingPriority: Int) : Size(parsingPriority) {
-        abstract val max: Int
+    class Bounded internal constructor(override val min: Int, val max: Int) : Size(parsingPriority = 0) {
+        override fun matches(size: Int) = size in min..max
 
         operator fun plus(other: Bounded): Bounded {
             return between(min + other.min, max + other.max)
         }
     }
 
-    class Fixed internal constructor(val size: Int) : Bounded(parsingPriority = 0) {
-        override val min: Int = size
-        override val max: Int = size
-
-        operator fun plus(other: Fixed): Fixed {
-            return Fixed(this.size + other.size)
-        }
-
-        override fun matches(size: Int) = this.size == size
-    }
-
-    class Variable internal constructor(override val min: Int, override val max: Int) : Bounded(parsingPriority = 1) {
-        override fun matches(size: Int) = size in min..max
-    }
-
-    class Unbounded internal constructor(override val min: Int) : Size(parsingPriority = 2) {
+    class Unbounded internal constructor(override val min: Int) : Size(parsingPriority = 1) {
         override fun matches(size: Int) = size >= min
     }
 
     companion object {
-        operator fun invoke(size: Int): Fixed {
+        operator fun invoke(size: Int): Bounded {
             require(size >= 0)
-            return Fixed(size)
+            return Bounded(size, size)
         }
 
         fun between(min: Int, max: Int): Bounded {
             require(min >= 0)
             require(max >= min)
-            return if (min == max) Fixed(min) else Variable(min, max)
+            return Bounded(min, max)
         }
 
         fun atLeast(min: Int): Unbounded {
