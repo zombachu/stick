@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "com.zombachu.stick"
-version = "0.4.0"
+version = "0.5.0"
 
 kotlin {
     jvmToolchain(21)
