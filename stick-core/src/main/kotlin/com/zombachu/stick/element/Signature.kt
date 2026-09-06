@@ -15,16 +15,23 @@ import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 
 internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: List<Element<E, S, Any?>>) {
+
     private val flags: List<IndexedElement<E, S, Flag<E, S, Any?>>>
     private val linearElements: List<IndexedElement<E, S, Element<E, S, Any?>>>
-    private val terminatingElement: SyntaxElement<E, S, Any?>?
+    private val trailingOptionals: OptionalsImpl<E, S, *>? = elements.lastOrNull() as? OptionalsImpl<E, S, *>
+
+    private val elementsCount: Int = elements.size
+    private val flattenedElementsCount: Int = elementsCount + (trailingOptionals?.elements?.size ?: 0)
 
     init {
-        val partitioned = elements.mapIndexed { i, e -> IndexedElement(i, e) }.partition { it.element is Flag<*, *, *> }
+        val flattenedElements =
+            elements.dropLast(if (trailingOptionals == null) 0 else 1).mapIndexed { i, e -> IndexedElement(i, e) } +
+                trailingOptionals?.elements.orEmpty().mapIndexed { i, e -> IndexedElement(elementsCount + i, e) }
+
+        val partitioned = flattenedElements.partition { it.element is Flag<*, *, *> }
         @Suppress("UNCHECKED_CAST")
         flags = partitioned.first as List<IndexedElement<E, S, Flag<E, S, Any?>>>
         linearElements = partitioned.second
-        terminatingElement = elements.lastOrNull()?.let { if (it.size is Size.Bounded) null else it as? SyntaxElement }
     }
 
     context(inv: Invocation<E, S>)
@@ -42,28 +49,17 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
 
     context(validationContext: ValidationContext<E, S>)
     fun getSyntax(): String {
-        val linearSyntax: List<String> =
-            linearElements
-                .map { it.element }
-                .filterIsInstance<SyntaxElement<E, S, *>>()
-                .filter { it.validateSender().isSuccess() && it.size is Size.Bounded }
-                .map { it.getSyntax() }
-        val flagSyntax: List<String> =
-            flags
-                .map { it.element }
-                .filter { it.validateSender().isSuccess() && it.size is Size.Bounded }
-                .map { it.getSyntax() }
-
-        // Add terminating element all other elements
+        // unboundedElements should be at most 1
+        val (boundedElements, unboundedElements) =
+            linearElements.map { it.element }.partition { it.size is Size.Bounded }
         val syntax =
-            if (terminatingElement == null || !terminatingElement.validateSender().isSuccess()) {
-                linearSyntax + flagSyntax
-            } else {
-                linearSyntax + flagSyntax + terminatingElement.getSyntax()
-            }
-
+            boundedElements.getSyntaxes() + flags.map { it.element }.getSyntaxes() + unboundedElements.getSyntaxes()
         return syntax.filter { it.isNotEmpty() }.joinToString(" ")
     }
+
+    context(validationContext: ValidationContext<E, S>)
+    private fun List<Element<E, S, Any?>>.getSyntaxes(): List<String> =
+        filterIsInstance<SyntaxElement<E, S, *>>().filter { it.validateSender().isSuccess() }.map { it.getSyntax() }
 
     context(inv: InvocationImpl<E, S>)
     private fun processElement(
@@ -79,7 +75,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
 
     context(inv: InvocationImpl<E, S>)
     private fun parse(): CommandResult<List<Any?>> {
-        val values: MutableList<Any?> = MutableList(flags.size + linearElements.size) {}
+        val values: MutableList<Any?> = MutableList(flattenedElementsCount) {}
 
         val unprocessedFlags = flags.toMutableList()
         var parameterIndex = 0
@@ -109,9 +105,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
         if (inv.unparsed.isNotEmpty()) return ParsingResult.failSyntax(inv.getSyntax())
 
         // Populate unused flag values with defaults
-        for (indexedFlag in unprocessedFlags) {
-            val flag = indexedFlag.element
-
+        for ((index, flag) in unprocessedFlags) {
             val default =
                 flag
                     .validateSender()
@@ -122,10 +116,14 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
             val value = default.valueOrPropagateError {
                 return it
             }
-            values[indexedFlag.index] = value
+            values[index] = value
         }
 
-        return ParsingResult.success(values)
+        // Set Arguments value for optionals
+        trailingOptionals?.let {
+            values[elementsCount - 1] = it.combine(values.subList(elementsCount, flattenedElementsCount))
+        }
+        return ParsingResult.success(values.subList(0, elementsCount))
     }
 
     context(inv: InvocationImpl<E, S>)

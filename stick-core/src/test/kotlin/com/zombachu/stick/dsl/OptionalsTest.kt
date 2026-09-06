@@ -11,10 +11,12 @@ import com.zombachu.stick.isSuccess
 import com.zombachu.stick.structureTest
 import com.zombachu.stick.testInvocation
 import com.zombachu.stick.testInvocationSender
+import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withInvocationSender
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -94,5 +96,97 @@ class OptionalsTest {
     fun `optionallyNullable defaults to null`() = structureTest<String> {
         val optional = optionallyNullable(intParameter)
         assertNull(withInvocationSender("sender") { optional.parse([]) }.expectSuccessValue())
+    }
+
+    @Test
+    fun `optionals parse in order`() = structureTest {
+        val structure =
+            command("cmd")(
+                optionals(
+                    optionallyNullable(intParameter("a")),
+                    optionallyNullable(stringParameter("b"))
+                )
+            ) { (a: Int?, b: String?) -> }
+
+        val none = withInvocation("cmd") { structure.parse(["cmd"]) }.expectSuccessValue()
+        val first = withInvocation("cmd", "5") { structure.parse(["cmd", "5"]) }.expectSuccessValue()
+        val both = withInvocation("cmd", "5", "x") { structure.parse(["cmd", "5", "x"]) }.expectSuccessValue()
+
+        assertEquals([null, null], [none.a.a, none.a.b])
+        assertEquals([5, null], [first.a.a, first.a.b])
+        assertEquals([5, "x"], [both.a.a, both.a.b])
+    }
+
+    @Test
+    fun `optionals require previous optionals to be specified`() = structureTest {
+        val structure =
+            command("cmd")(
+                optionals(
+                    optionallyNullable(intParameter("a")),
+                    optionally(default(""), textParameter("b"))
+                )
+            )
+
+        val result = withInvocation("cmd", "hello", "world") { structure.parse(["cmd", "hello", "world"]) }
+
+        assertIs<Feedback.TypeNotMatched>(result.expectFailure().feedback)
+    }
+
+    @Test
+    fun `flag in optionals matches anywhere`() = structureTest {
+        val structure =
+            command("cmd")(
+                stringParameter("a"),
+                optionals(
+                    optionallyNullable(intParameter("b")),
+                    flag("silent")
+                ),
+            ) { a, (b, silent) -> }
+
+        val none = withInvocation("cmd", "hello") { structure.parse(["cmd",  "hello"]) }.expectSuccessValue()
+        val before =
+            withInvocation("cmd", "-silent", "hello") { structure.parse(["cmd", "-silent", "hello"]) }
+                .expectSuccessValue()
+        val after =
+            withInvocation("cmd", "hello", "-silent") { structure.parse(["cmd", "hello", "-silent"]) }
+                .expectSuccessValue()
+
+        assertEquals([null, false], [none.b.a, none.b.b])
+        assertEquals([null, true], [before.b.a, before.b.b])
+        assertEquals([null, true], [after.b.a, after.b.b])
+    }
+
+    @Test
+    fun `flag in optionals does not consume linear args`() = structureTest {
+        val structure =
+            command("cmd")(
+                optionals(
+                    flag("silent"),
+                    optionallyNullable(intParameter("a"))
+                ),
+            ) { (silent, a) -> }
+
+        val args = withInvocation("cmd", "5") { structure.parse(["cmd", "5"]) }.expectSuccessValue()
+
+        assertEquals([false, 5], [args.a.a, args.a.b])
+    }
+
+    @Test
+    fun `optionals syntax renders flags together`() = structureTest {
+        val structure =
+            command("cmd")(
+                flag("raw"),
+                stringParameter("a"),
+                optionals(
+                    optionallyNullable(intParameter("b")),
+                    flag("silent"),
+                    optionally(default(""), textParameter("c")),
+                ),
+            ) { raw, a, (b, silent, d) ->
+            }
+
+        val syntax = withValidationContext { structure.getSyntax() }
+
+        assertEquals("cmd <a> [b] [-raw] [-silent] [c]", syntax)
     }
 }
