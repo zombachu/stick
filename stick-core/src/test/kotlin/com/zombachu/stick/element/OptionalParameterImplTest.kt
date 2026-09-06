@@ -4,6 +4,7 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue
@@ -79,6 +80,19 @@ class OptionalParameterImplTest {
             )
         val result = withInvocation("a", "b") { optional.parse(["a", "b"]) }
         assertIs<Feedback.InvalidSyntax>(result.expectFailure().feedback)
+    }
+
+    @Test
+    fun `invalid args fails with TypeNotMatched`() {
+        val optional =
+            OptionalParameterImpl<TestEnv, Unit, Int, Position.Optional>(
+                requirementDefault = invalidSenderDefault(-1),
+                presenceDefault = validSenderDefault(-1),
+                parameter = IntParameter("int", "", Int.MIN_VALUE, Int.MAX_VALUE),
+            )
+        val result = withInvocation("word") { optional.parse(["word"]) }
+
+        assertIs<Feedback.TypeNotMatched>(result.expectFailure().feedback)
     }
 
     @Test

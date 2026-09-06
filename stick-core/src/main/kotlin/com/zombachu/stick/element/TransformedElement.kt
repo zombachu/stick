@@ -56,7 +56,7 @@ internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
         base.default(transformedInvocation)
     }
 
-    override val size: Size = base.size
+    override val size: Size.Bounded = base.size
     override val type: ElementType = ElementType.Flag
     override val name: String = base.name
     override val description: String = base.description
@@ -88,7 +88,7 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
     private val invalidSenderDefault: InvalidSenderDefault<E, S, HybridFlagResult<T>>,
 ) : HybridFlag<E, S, T>, Flag.Validated<E, S, HybridFlagResult<T>> {
 
-    override val size: Size = base.size
+    override val size: Size.Bounded = base.size
     override val type: ElementType = ElementType.Flag
     override val name: String = base.name
     override val description: String = base.description

@@ -138,14 +138,14 @@ internal class GroupElement<E : Environment, S, T, G : GroupResult>(
 internal class Group1Impl<E_ : Environment, S, A, P : Position>(
     name: String,
     description: String,
-    element: Groupable<E_, S, A>,
+    element: Groupable.Positioned<E_, S, A, P>,
 ) : GroupImpl<E_, S, GroupResult1<A>, P>(name, description, [element to { ResultA(it) }])
 
 internal class Group2Impl<E_ : Environment, S, A, B, P : Position>(
     name: String,
     description: String,
-    elementA: Groupable<E_, S, A>,
-    elementB: Groupable<E_, S, B>,
+    elementA: Groupable.Positioned<E_, S, A, P>,
+    elementB: Groupable.Positioned<E_, S, B, P>,
 ) :
     GroupImpl<E_, S, GroupResult2<A, B>, P>(
         name,
@@ -156,9 +156,9 @@ internal class Group2Impl<E_ : Environment, S, A, B, P : Position>(
 internal class Group3Impl<E_ : Environment, S, A, B, C, P : Position>(
     name: String,
     description: String,
-    elementA: Groupable<E_, S, A>,
-    elementB: Groupable<E_, S, B>,
-    elementC: Groupable<E_, S, C>,
+    elementA: Groupable.Positioned<E_, S, A, P>,
+    elementB: Groupable.Positioned<E_, S, B, P>,
+    elementC: Groupable.Positioned<E_, S, C, P>,
 ) :
     GroupImpl<E_, S, GroupResult3<A, B, C>, P>(
         name,
@@ -169,10 +169,10 @@ internal class Group3Impl<E_ : Environment, S, A, B, C, P : Position>(
 internal class Group4Impl<E_ : Environment, S, A, B, C, D, P : Position>(
     name: String,
     description: String,
-    elementA: Groupable<E_, S, A>,
-    elementB: Groupable<E_, S, B>,
-    elementC: Groupable<E_, S, C>,
-    elementD: Groupable<E_, S, D>,
+    elementA: Groupable.Positioned<E_, S, A, P>,
+    elementB: Groupable.Positioned<E_, S, B, P>,
+    elementC: Groupable.Positioned<E_, S, C, P>,
+    elementD: Groupable.Positioned<E_, S, D, P>,
 ) :
     GroupImpl<E_, S, GroupResult4<A, B, C, D>, P>(
         name,
@@ -188,11 +188,11 @@ internal class Group4Impl<E_ : Environment, S, A, B, C, D, P : Position>(
 internal class Group5Impl<E_ : Environment, S, A, B, C, D, E, P : Position>(
     name: String,
     description: String,
-    elementA: Groupable<E_, S, A>,
-    elementB: Groupable<E_, S, B>,
-    elementC: Groupable<E_, S, C>,
-    elementD: Groupable<E_, S, D>,
-    elementE: Groupable<E_, S, E>,
+    elementA: Groupable.Positioned<E_, S, A, P>,
+    elementB: Groupable.Positioned<E_, S, B, P>,
+    elementC: Groupable.Positioned<E_, S, C, P>,
+    elementD: Groupable.Positioned<E_, S, D, P>,
+    elementE: Groupable.Positioned<E_, S, E, P>,
 ) :
     GroupImpl<E_, S, GroupResult5<A, B, C, D, E>, P>(
         name,
@@ -209,12 +209,12 @@ internal class Group5Impl<E_ : Environment, S, A, B, C, D, E, P : Position>(
 internal class Group6Impl<E_ : Environment, S, A, B, C, D, E, F, P : Position>(
     name: String,
     description: String,
-    elementA: Groupable<E_, S, A>,
-    elementB: Groupable<E_, S, B>,
-    elementC: Groupable<E_, S, C>,
-    elementD: Groupable<E_, S, D>,
-    elementE: Groupable<E_, S, E>,
-    elementF: Groupable<E_, S, F>,
+    elementA: Groupable.Positioned<E_, S, A, P>,
+    elementB: Groupable.Positioned<E_, S, B, P>,
+    elementC: Groupable.Positioned<E_, S, C, P>,
+    elementD: Groupable.Positioned<E_, S, D, P>,
+    elementE: Groupable.Positioned<E_, S, E, P>,
+    elementF: Groupable.Positioned<E_, S, F, P>,
 ) :
     GroupImpl<E_, S, GroupResult6<A, B, C, D, E, F>, P>(
         name,
@@ -232,13 +232,13 @@ internal class Group6Impl<E_ : Environment, S, A, B, C, D, E, F, P : Position>(
 internal class Group7Impl<E_ : Environment, S, A, B, C, D, E, F, G, P : Position>(
     name: String,
     description: String,
-    elementA: Groupable<E_, S, A>,
-    elementB: Groupable<E_, S, B>,
-    elementC: Groupable<E_, S, C>,
-    elementD: Groupable<E_, S, D>,
-    elementE: Groupable<E_, S, E>,
-    elementF: Groupable<E_, S, F>,
-    elementG: Groupable<E_, S, G>,
+    elementA: Groupable.Positioned<E_, S, A, P>,
+    elementB: Groupable.Positioned<E_, S, B, P>,
+    elementC: Groupable.Positioned<E_, S, C, P>,
+    elementD: Groupable.Positioned<E_, S, D, P>,
+    elementE: Groupable.Positioned<E_, S, E, P>,
+    elementF: Groupable.Positioned<E_, S, F, P>,
+    elementG: Groupable.Positioned<E_, S, G, P>,
 ) :
     GroupImpl<E_, S, GroupResult7<A, B, C, D, E, F, G>, P>(
         name,
@@ -257,14 +257,14 @@ internal class Group7Impl<E_ : Environment, S, A, B, C, D, E, F, G, P : Position
 internal class Group8Impl<E_ : Environment, S, A, B, C, D, E, F, G, H, P : Position>(
     name: String,
     description: String,
-    elementA: Groupable<E_, S, A>,
-    elementB: Groupable<E_, S, B>,
-    elementC: Groupable<E_, S, C>,
-    elementD: Groupable<E_, S, D>,
-    elementE: Groupable<E_, S, E>,
-    elementF: Groupable<E_, S, F>,
-    elementG: Groupable<E_, S, G>,
-    elementH: Groupable<E_, S, H>,
+    elementA: Groupable.Positioned<E_, S, A, P>,
+    elementB: Groupable.Positioned<E_, S, B, P>,
+    elementC: Groupable.Positioned<E_, S, C, P>,
+    elementD: Groupable.Positioned<E_, S, D, P>,
+    elementE: Groupable.Positioned<E_, S, E, P>,
+    elementF: Groupable.Positioned<E_, S, F, P>,
+    elementG: Groupable.Positioned<E_, S, G, P>,
+    elementH: Groupable.Positioned<E_, S, H, P>,
 ) :
     GroupImpl<E_, S, GroupResult8<A, B, C, D, E, F, G, H>, P>(
         name,

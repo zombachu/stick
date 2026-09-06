@@ -7,7 +7,7 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.Size
 
 internal class HelperImpl<E : Environment, S, T>(private val value: ContextualValue<E, S, T>) : Helper<E, S, T> {
-    override val size: Size = Size(0)
+    override val size: Size.Bounded = Size(0)
     override val type: ElementType = ElementType.Helper
 
     context(inv: Invocation<E, S>)

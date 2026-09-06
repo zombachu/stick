@@ -194,11 +194,13 @@ class GroupImplTest {
                 ParsingResult.success(name, consumed)
         }
 
-    private fun <A> group1(element: Groupable<TestEnv, Unit, A>) =
-        Group1Impl<TestEnv, Unit, A, Position.Leading>("", "", element)
+    private fun <A, P : Position> group1(element: Groupable.Positioned<TestEnv, Unit, A, P>) =
+        Group1Impl<TestEnv, Unit, A, P>("", "", element)
 
-    private fun <A, B> group2(elementA: Groupable<TestEnv, Unit, A>, elementB: Groupable<TestEnv, Unit, B>) =
-        Group2Impl<TestEnv, Unit, A, B, Position.Leading>("", "", elementA, elementB)
+    private fun <A, B, P : Position> group2(
+        elementA: Groupable.Positioned<TestEnv, Unit, A, P>,
+        elementB: Groupable.Positioned<TestEnv, Unit, B, P>,
+    ) = Group2Impl<TestEnv, Unit, A, B, P>("", "", elementA, elementB)
 
     private fun <T> transformed(
         base: Parameter<TestEnv, Unit, T, Position.Leading>,

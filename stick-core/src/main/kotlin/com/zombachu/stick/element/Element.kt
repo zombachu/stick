@@ -39,10 +39,13 @@ sealed interface Groupable<in E : Environment, S, out T> : SyntaxElement<E, S, T
         Groupable<E, S, T>, Element.Positioned<E, S, T, P>
 }
 
-sealed interface Helper<in E : Environment, S, out T> : Element.Positioned<E, S, T, Position.Leading>
+sealed interface Helper<in E : Environment, S, out T> : Element.Positioned<E, S, T, Position.Leading> {
+    override val size: Size.Bounded
+}
 
 sealed interface Flag<in E : Environment, S, out T> :
     SyntaxElement<E, S, T>, Element.Positioned<E, S, T, Position.Anywhere> {
+    override val size: Size.Bounded
     val default: ContextualValue<E, S, T>
 
     sealed interface Validated<in E : Environment, S, out T> : Flag<E, S, T>, SenderValidator<E, S> {

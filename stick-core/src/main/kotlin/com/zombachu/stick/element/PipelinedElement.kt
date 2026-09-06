@@ -31,7 +31,7 @@ internal class PipelinedValueFlag<E : Environment, S, A, T>(
     private val operations: List<PipelineOperation<E, S, *, *>>,
 ) : ValueFlag<E, S, T> {
 
-    override val size: Size = base.size
+    override val size: Size.Bounded = base.size
     override val type: ElementType = base.type
     override val name: String = base.name
     override val description: String = base.description
