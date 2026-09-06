@@ -10,7 +10,9 @@ import com.zombachu.stick.dsl.id
 import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.optionally
+import com.zombachu.stick.dsl.optionallyNullable
 import com.zombachu.stick.dsl.store
+import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.textParameter
 import com.zombachu.stick.feedback.Feedback
@@ -30,7 +32,7 @@ import com.zombachu.stick.integration.fixtures.warpParameter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class SharedValueTest {
+class StoredElementTest {
 
     private val zombachu = Player("zombachu")
     private val steve = Player("Steve")
@@ -110,5 +112,23 @@ class SharedValueTest {
 
         broadcastCommand.execute(server, zombachu, "/broadcast Server restarting")
         assertEquals(["Server restarting"], zombachu.logs)
+    }
+
+    @Test
+    fun `nickname - stored values can be nullable`() {
+        val nick: TypedIdentifier<String?> = id("nick")
+        val nicknameCommand = structure(Server::class, Sender::class) {
+            command("nickname")(
+                optionallyNullable(stringParameter("nick")).store(nick),
+            ) { unused: String? ->
+                sender.log("Nickname: ${get(nick) ?: "reset"}")
+            }
+        }
+
+        nicknameCommand.execute(server, zombachu, "/nickname Zomb")
+        assertEquals(["Nickname: Zomb"], zombachu.logs)
+
+        nicknameCommand.execute(server, zombachu, "/nickname")
+        assertEquals(["Nickname: reset"], zombachu.logs)
     }
 }

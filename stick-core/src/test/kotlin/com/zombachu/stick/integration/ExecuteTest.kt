@@ -103,6 +103,22 @@ class ExecuteTest {
     }
 
     @Test
+    fun `nick - execute can be an unbound method reference`() {
+        class NickCommand : Command<Server, Sender> {
+            override val structure = structure {
+                command("nick")(
+                    stringParameter("name"),
+                    Invocation<Server, Sender>::nick,
+                )
+            }
+        }
+        val nickCommand = NickCommand().structure
+
+        nickCommand.execute(server, zombachu, "/nick Zomb")
+        assertEquals(["Nickname set to Zomb"], zombachu.logs)
+    }
+
+    @Test
     fun `tp - a method reference typed at the sender a requireIs narrowed the scope to`() {
         class SpawnCommand : Command<Server, Sender> {
             override val structure = structure {
@@ -139,4 +155,8 @@ class ExecuteTest {
         pingCommand.execute(server, zombachu, "/ping")
         assertEquals(["Pong!"], zombachu.logs)
     }
+}
+
+private fun Invocation<Server, Sender>.nick(name: String) {
+    sender.log("Nickname set to $name")
 }

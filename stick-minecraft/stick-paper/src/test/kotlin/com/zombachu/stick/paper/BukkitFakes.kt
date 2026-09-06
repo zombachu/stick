@@ -7,8 +7,11 @@ import com.zombachu.stick.element.Structure
 import io.papermc.paper.plugin.configuration.PluginMeta
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager
 import net.kyori.adventure.text.Component
+import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.Server
 import org.bukkit.command.Command
+import org.bukkit.command.CommandMap
 import org.bukkit.command.CommandSender
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.generator.BiomeProvider
@@ -21,6 +24,7 @@ import org.bukkit.plugin.PluginDescriptionFile
 import org.bukkit.plugin.PluginLoader
 import java.io.File
 import java.io.InputStream
+import java.lang.reflect.Proxy
 import java.util.*
 import java.util.logging.Logger
 
@@ -146,3 +150,46 @@ class FakeBukkitEnvironment(override val plugin: Plugin = FakePlugin) : BukkitEn
 fun <T_ : Arguments> bukkitStructure(
     block: StructureScope<BukkitEnvironment, CommandSender>.() -> Structure<BukkitEnvironment, CommandSender, T_>
 ): Structure<BukkitEnvironment, CommandSender, T_> = structure(BukkitEnvironment::class, CommandSender::class, block)
+
+class FakeCommandMap : CommandMap {
+    val registered: MutableList<Pair<String, Command>> = mutableListOf()
+
+    override fun register(fallbackPrefix: String, command: Command): Boolean {
+        registered += fallbackPrefix to command
+        return true
+    }
+
+    override fun registerAll(fallbackPrefix: String, commands: MutableList<Command>) = error("unused")
+
+    override fun register(label: String, fallbackPrefix: String, command: Command): Boolean = error("unused")
+
+    override fun dispatch(sender: CommandSender, cmdLine: String): Boolean = error("unused")
+
+    override fun clearCommands() = error("unused")
+
+    override fun getCommand(name: String): Command = error("unused")
+
+    override fun tabComplete(sender: CommandSender, cmdLine: String): MutableList<String> = error("unused")
+
+    override fun tabComplete(sender: CommandSender, cmdLine: String, location: Location?): MutableList<String> =
+        error("unused")
+
+    override fun getKnownCommands(): MutableMap<String, Command> = error("unused")
+}
+
+private val fakeCommandMap = FakeCommandMap()
+
+fun fakeCommandMap(): FakeCommandMap {
+    val server =
+        Proxy.newProxyInstance(Server::class.java.classLoader, arrayOf(Server::class.java)) { _, method, _ ->
+            when {
+                method.name == "getCommandMap" -> fakeCommandMap
+                method.returnType == Logger::class.java -> Logger.getLogger("fake-server")
+                method.returnType == String::class.java -> "fake"
+                else -> error("unused")
+            }
+        }
+    Bukkit::class.java.getDeclaredField("server").apply { isAccessible = true }.set(null, server)
+    fakeCommandMap.registered.clear()
+    return fakeCommandMap
+}

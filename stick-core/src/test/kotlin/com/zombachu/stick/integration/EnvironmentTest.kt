@@ -20,8 +20,10 @@ import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.valueFlag
 import com.zombachu.stick.element.Groupable
+import com.zombachu.stick.element.InvalidSenderDefault
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
+import com.zombachu.stick.element.ValidSenderDefault
 import com.zombachu.stick.element.ValueFlag
 import com.zombachu.stick.feedback.FailureHandler
 import com.zombachu.stick.feedback.Feedback
@@ -45,7 +47,7 @@ import kotlin.test.assertEquals
 
 class EnvironmentTest {
 
-    private val zombachu = Player("zombachu", ["server.world.set"])
+    private val zombachu = Player("zombachu", ["server.spawn"])
     private val steve = Player("Steve")
     private val server = SynergyServer([zombachu, steve], WarpRegistry([Warp("shop", "zombachu", "nether")]))
 
@@ -120,12 +122,17 @@ class EnvironmentTest {
     }
 
     @Test
-    fun `spawn - base environment parameter composes into narrower optional`() {
+    fun `spawn - base environment parameter and defaults compose into narrower optional`() {
+        val baseScope = StructureScope.empty<Server, Sender>()
+        val absentDefault: ValidSenderDefault<WarpableServer, Sender, String> =
+            with(baseScope) { default("overworld") }
+        val deniedDefault: InvalidSenderDefault<WarpableServer, Sender, String> =
+            with(baseScope) { invalidDefault("lobby", permission("server.spawn")) }
         val worldCommand = structure(WarpableServer::class, Sender::class) {
             command("spawn")(
                 optionally(
-                    ifInvalid = invalidDefault("lobby", permission("server.world.set")),
-                    ifAbsent = default("overworld"),
+                    ifInvalid = deniedDefault,
+                    ifAbsent = absentDefault,
                     parameter = WorldParameter<Server, Sender>("world"),
                 )
             ) { world -> sender.log("Teleporting to $world spawn") }
