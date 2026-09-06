@@ -45,7 +45,7 @@ class RegistrationTest {
         class VersionCommand : Command<Environment, Sender> {
             override val structure = structure {
                 command("version")() {
-                    sender.log("Stick 0.4.0")
+                    sender.log("Stick 1.2.3")
                 }
             }
         }
@@ -64,10 +64,10 @@ class RegistrationTest {
         assertEquals(2, stick.registered.size)
 
         stick.execute(zombachu, "/version")
-        assertEquals(["Stick 0.4.0"], zombachu.logs)
+        assertEquals(["Stick 1.2.3"], zombachu.logs)
 
         stick.execute(console, "/version")
-        assertEquals(["Stick 0.4.0"], console.logs)
+        assertEquals(["Stick 1.2.3"], console.logs)
 
         stick.execute(zombachu, "/author")
         assertEquals(["zombachu"], zombachu.logs)
@@ -78,13 +78,13 @@ class RegistrationTest {
         stick.withContext(server) {
             register {
                 command("version")() {
-                    sender.log("Stick 0.4.0")
+                    sender.log("Stick 1.2.3")
                 }
             }
         }
 
         stick.execute(zombachu, "/version")
-        assertEquals(["Stick 0.4.0"], zombachu.logs)
+        assertEquals(["Stick 1.2.3"], zombachu.logs)
     }
 
     @Test

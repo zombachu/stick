@@ -64,7 +64,7 @@ class EnvironmentTest {
         class VersionCommand : Command<Environment, Sender> {
             override val structure = structure {
                 command("version")() {
-                    sender.log("Stick 0.4.0")
+                    sender.log("Stick 1.2.3")
                 }
             }
         }
@@ -74,7 +74,7 @@ class EnvironmentTest {
         assertEquals(["Steve is in overworld."], zombachu.logs)
 
         versionCommand.execute(server, zombachu, "/version")
-        assertEquals(["Stick 0.4.0"], zombachu.logs)
+        assertEquals(["Stick 1.2.3"], zombachu.logs)
     }
 
     @Test
