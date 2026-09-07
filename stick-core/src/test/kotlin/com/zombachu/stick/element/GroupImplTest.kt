@@ -21,6 +21,7 @@ import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertSame
 
 class GroupImplTest {
 
@@ -58,14 +59,14 @@ class GroupImplTest {
     }
 
     @Test
-    fun `no matches returns InvalidSyntax, not validation error`() {
+    fun `no matches is silent, not validation error`() {
         val requirement = Requirement<TestEnv, Unit> { SenderValidationResult.failSender() }
         val gated = transformed(StringParameter("gated", ""), requirement)
         val group = group1(gated)
 
         val result = withInvocation("x") { group.parse(["x"]) }
 
-        assertIs<Feedback.InvalidSyntax>(result.expectFailure().feedback)
+        assertSame(ParsingResult.TypeNotMatchedInternal, result)
     }
 
     @Test
@@ -152,6 +153,18 @@ class GroupImplTest {
         val result = withInvocation("foo") { group.parse(["foo"]) }
 
         assertIs<GroupResult.ResultA<String>>(result.expectSuccessValue())
+    }
+
+    @Test
+    fun `non-matching nested group falls through to next element`() {
+        val give = LiteralParameter<TestEnv, Unit>("give", [], "")
+        val take = LiteralParameter<TestEnv, Unit>("take", [], "")
+        val nested = group2(give, take)
+        val group = group2(nested, StringParameter<TestEnv, Unit>("ok", ""))
+
+        val result = withInvocation("drop") { group.parse(["drop"]) }
+
+        assertIs<GroupResult.ResultB<String>>(result.expectSuccessValue())
     }
 
     @Test

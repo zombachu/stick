@@ -1,6 +1,8 @@
 package com.zombachu.stick.element
 
+import com.zombachu.stick.Arguments0
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.IntParameter
@@ -75,6 +77,23 @@ class SignatureTest {
         val signature = Signature1<TestEnv, Unit, Int>({}, [amount])
 
         val result = withInvocation { signature.execute() }
+
+        assertIs<Feedback.InvalidSyntax>(result.expectFailure().feedback)
+    }
+
+    @Test
+    fun `silent mismatch fails with InvalidSyntax`() {
+        val structure =
+            StructureImpl<TestEnv, Unit, Arguments0>(
+                "sub",
+                [],
+                "",
+                Requirement { SenderValidationResult.success() },
+                Signature0({}, []),
+            )
+        val signature = Signature1<TestEnv, Unit, Arguments0>({}, [structure])
+
+        val result = withInvocation("other") { signature.execute() }
 
         assertIs<Feedback.InvalidSyntax>(result.expectFailure().feedback)
     }

@@ -73,8 +73,7 @@ internal open class GroupImpl<E : Environment, S, G : GroupResult, P : Position>
                 },
             )
         }
-        // No elements could be matched, fail syntax
-        return ParsingResult.failSyntax(inv.getSyntax())
+        return ParsingResult.failTypeInternal()
     }
 
     context(validationContext: ValidationContext<E, S>)

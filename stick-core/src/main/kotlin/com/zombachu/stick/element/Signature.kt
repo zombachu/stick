@@ -91,8 +91,11 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
 
             // Parse with the element as a syntax element
             processElement(values, linearElements[parameterIndex]).propagateError {
-                // Give a syntax failure for invalid arg length for parameters
-                return if (it is PeekingResult.InvalidSizeError) ParsingResult.failSyntax(inv.getSyntax()) else it
+                return if (it is PeekingResult.InvalidSizeError || it is ParsingResult.TypeNotMatchedInternal) {
+                    ParsingResult.failSyntax(inv.getSyntax())
+                } else {
+                    it
+                }
             }
             parameterIndex++
         }
