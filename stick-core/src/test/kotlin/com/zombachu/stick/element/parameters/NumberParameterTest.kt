@@ -78,8 +78,8 @@ class NumberParameterTest {
     }
 
     private fun <T> parse(parameter: Parameter.Size1<TestEnv, Unit, T>, arg: String): T =
-        withInvocation { parameter.parse(arg) }.expectSuccessValue()
+        withInvocation { parameter.parse([arg]) }.expectSuccessValue()
 
     private fun <T> failure(parameter: Parameter.Size1<TestEnv, Unit, T>, arg: String): Feedback =
-        withInvocation { parameter.parse(arg) }.expectFailure().feedback
+        withInvocation { parameter.parse([arg]) }.expectFailure().feedback
 }

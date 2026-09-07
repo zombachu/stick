@@ -1,5 +1,6 @@
 package com.zombachu.stick
 
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.dsl.id
 import com.zombachu.stick.element.Group1Impl
 import com.zombachu.stick.element.Parameter
@@ -103,8 +104,8 @@ class InvocationImplTest {
         val inv = testInvocation("a")
         val misbehavingParameter =
             object : Parameter.Bounded<TestEnv, Unit, String>(Size(1), "", "") {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun parse(args: List<String>): CommandResult<String> = ParsingResult.success("a", 5)
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(args: List<String>): CommandResult<String> = ParsingResult.success("a", 5)
             }
 
         val result = inv.processElement(misbehavingParameter)

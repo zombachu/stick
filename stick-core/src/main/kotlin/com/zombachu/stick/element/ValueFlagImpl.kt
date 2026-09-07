@@ -42,15 +42,16 @@ internal sealed class FlagParameter<E : Environment, S, T>(
 
     internal class PresenceFlagParameter<E : Environment, S, T>(
         name: String,
-        private val presentValue: ContextualValue<E, S, T>,
+        private val presentValue: ValidationContext<E, S>.() -> CommandResult<T>,
         aliases: Set<String>,
         description: String,
     ) : FlagParameter<E, S, T>(Size(1), name, aliases, description) {
 
-        context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): CommandResult<T> {
+        context(validationContext: ValidationContext<E, S>)
+        override fun resolve(args: List<String>): CommandResult<T> {
+            if (args.isEmpty()) return ParsingResult.failTypeInternal()
             if (matches(args.first().lowercase())) {
-                return inv.presentValue().withConsumed(1)
+                return validationContext.presentValue().withConsumed(1)
             }
             return ParsingResult.failTypeInternal()
         }
@@ -65,10 +66,11 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         aliases: Set<String>,
     ) : FlagParameter<E, S, T>(Size(1) + parameter.size, name, aliases, parameter.description) {
 
-        context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): CommandResult<T> {
+        context(validationContext: ValidationContext<E, S>)
+        override fun resolve(args: List<String>): CommandResult<T> {
+            if (args.isEmpty()) return ParsingResult.failTypeInternal()
             if (matches(args.first().lowercase())) {
-                val result = parameter.parse(args.subList(1, args.size))
+                val result = parameter.resolve(args.subList(1, args.size))
                 result.propagateError {
                     return it
                 }
@@ -92,13 +94,13 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         ) {
         private val primaryValues = enumParameter.primaryValues.keys.toList().map { "-$it" }
 
-        context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): CommandResult<T> {
+        context(validationContext: ValidationContext<E, S>)
+        override fun resolve(args: List<String>): CommandResult<T> {
             val flagArg = args.firstOrNull()
             if (flagArg == null || !flagArg.startsWith("-")) return ParsingResult.failTypeInternal()
 
             // Ignore the - before passing it to the enum parameter
-            val result = enumParameter.parse(flagArg.substring(1))
+            val result = enumParameter.resolve(flagArg.substring(1))
             if (result is LiteralNotMatchedError) {
                 return ParsingResult.failTypeInternal()
             }

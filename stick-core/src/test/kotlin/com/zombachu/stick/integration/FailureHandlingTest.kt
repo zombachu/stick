@@ -3,6 +3,7 @@ package com.zombachu.stick.integration
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invoke
@@ -113,8 +114,8 @@ class FailureHandlingTest {
         class ThrowingParameter(name: String) : Parameter.Size1<Server, Sender, String>(name, "") {
             override val type: ElementType = ElementType.Passthrough
 
-            context(inv: Invocation<Server, Sender>)
-            override fun parse(arg0: String): CommandResult<String> = error("this is an exception")
+            context(validationContext: ValidationContext<Server, Sender>)
+            override fun resolve(arg0: String): CommandResult<String> = error("this is an exception")
         }
         val throwCommand = structure(Server::class, Sender::class) {
             command("throw")(

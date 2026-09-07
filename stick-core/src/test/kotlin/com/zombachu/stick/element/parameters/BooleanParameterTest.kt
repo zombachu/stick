@@ -14,19 +14,19 @@ class BooleanParameterTest {
 
     @Test
     fun `parses lowercase true and false`() {
-        assertEquals(true, withInvocation { parameter.parse("true") }.expectSuccessValue())
-        assertEquals(false, withInvocation { parameter.parse("false") }.expectSuccessValue())
+        assertEquals(true, withInvocation { parameter.parse(["true"]) }.expectSuccessValue())
+        assertEquals(false, withInvocation { parameter.parse(["false"]) }.expectSuccessValue())
     }
 
     @Test
     fun `parses mixed case true and false`() {
-        assertEquals(true, withInvocation { parameter.parse("True") }.expectSuccessValue())
-        assertEquals(false, withInvocation { parameter.parse("FALSE") }.expectSuccessValue())
+        assertEquals(true, withInvocation { parameter.parse(["True"]) }.expectSuccessValue())
+        assertEquals(false, withInvocation { parameter.parse(["FALSE"]) }.expectSuccessValue())
     }
 
     @Test
     fun `rejects non-boolean input`() {
-        val result = withInvocation { parameter.parse("maybe") }
+        val result = withInvocation { parameter.parse(["maybe"]) }
         assertEquals(Feedback.TypeNotMatched("boolean", "maybe"), result.expectFailure().feedback)
     }
 }

@@ -4,7 +4,6 @@ import com.zombachu.stick.AliasEntry
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.ElementType
@@ -20,8 +19,8 @@ open class EnumParameter<E : Environment, S, T : Enum<T>>(
 
     override val type: ElementType = ElementType.Literal
 
-    context(inv: Invocation<E, S>)
-    override fun parse(arg0: String): CommandResult<T> {
+    context(validationContext: ValidationContext<E, S>)
+    override fun resolve(arg0: String): CommandResult<T> {
         val label = arg0.lowercase()
         val enumValue =
             primaryValues[label]

@@ -3,13 +3,13 @@ package com.zombachu.stick.element
 import com.zombachu.stick.Arguments1
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.GroupResult
-import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.element.parameters.TextParameter
@@ -73,8 +73,8 @@ class GroupImplTest {
     fun `mismatch falls through to next element`() {
         val mismatching =
             object : Parameter.Size1<TestEnv, Unit, String>("bad", "") {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun parse(arg0: String): CommandResult<String> = ParsingResult.failType("bad", arg0)
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(arg0: String): CommandResult<String> = ParsingResult.failType("bad", arg0)
             }
         val fallback = StringParameter<TestEnv, Unit>("ok", "")
         val group = group2(mismatching, fallback)
@@ -88,8 +88,8 @@ class GroupImplTest {
     fun `InvalidSizeError falls through to next element`() {
         val twoArgParam =
             object : Parameter.Size2<TestEnv, Unit, String>("two", "") {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun parse(arg0: String, arg1: String): CommandResult<String> =
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(arg0: String, arg1: String): CommandResult<String> =
                     ParsingResult.success("$arg0$arg1")
             }
         val fallback = StringParameter<TestEnv, Unit>("ok", "")
@@ -104,8 +104,8 @@ class GroupImplTest {
     fun `non-internal error propagates, not falls through`() {
         val hardFailure =
             object : Parameter.Size1<TestEnv, Unit, String>("bad", "") {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun parse(arg0: String): CommandResult<String> = ParsingResult.failRange("0", "10", arg0)
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(arg0: String): CommandResult<String> = ParsingResult.failRange("0", "10", arg0)
             }
         val neverTried = StringParameter<TestEnv, Unit>("ok", "")
         val group = group2(hardFailure, neverTried)
@@ -183,8 +183,8 @@ class GroupImplTest {
     fun `size constrains to elements for bounded sizes`() {
         val twoArgParam =
             object : Parameter.Size2<TestEnv, Unit, String>("two", "") {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun parse(arg0: String, arg1: String): CommandResult<String> = ParsingResult.success("")
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(arg0: String, arg1: String): CommandResult<String> = ParsingResult.success("")
             }
         val group = group2(twoArgParam, StringParameter("one", ""))
 
@@ -202,8 +202,8 @@ class GroupImplTest {
 
     private fun variableParameter(name: String, size: Size.Bounded, consumed: Int) =
         object : Parameter.Bounded<TestEnv, Unit, String>(size, name, "") {
-            context(inv: Invocation<TestEnv, Unit>)
-            override fun parse(args: List<String>): CommandResult<String> =
+            context(validationContext: ValidationContext<TestEnv, Unit>)
+            override fun resolve(args: List<String>): CommandResult<String> =
                 ParsingResult.success(name, consumed)
         }
 

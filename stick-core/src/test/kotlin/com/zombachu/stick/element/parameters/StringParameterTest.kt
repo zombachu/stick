@@ -13,8 +13,8 @@ class StringParameterTest {
 
     @Test
     fun `raw argument passes through`() {
-        assertEquals("Anything", withInvocation { parameter.parse("Anything") }.expectSuccessValue())
-        assertEquals("", withInvocation { parameter.parse("") }.expectSuccessValue())
+        assertEquals("Anything", withInvocation { parameter.parse(["Anything"]) }.expectSuccessValue())
+        assertEquals("", withInvocation { parameter.parse([""]) }.expectSuccessValue())
     }
 
     @Test

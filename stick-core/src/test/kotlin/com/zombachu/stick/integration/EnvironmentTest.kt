@@ -10,6 +10,7 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.StructureScope
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.default
 import com.zombachu.stick.dsl.group
@@ -205,16 +206,16 @@ class EnvironmentTest {
     }
 
     private class WorldParameter<E : Server, S>(name: String) : Parameter.Size1<E, S, String>(name, "") {
-        context(inv: Invocation<E, S>)
-        override fun parse(arg0: String): CommandResult<String> = ParsingResult.success(arg0)
+        context(validationContext: ValidationContext<E, S>)
+        override fun resolve(arg0: String): CommandResult<String> = ParsingResult.success(arg0)
     }
 
     private class WarpNameParameter<S>(name: String) : Parameter.Size1<WarpableServer, S, String>(name, "") {
         private val warpParameter = WarpParameter<WarpableServer, S>(name)
 
-        context(inv: Invocation<WarpableServer, S>)
-        override fun parse(arg0: String): CommandResult<String> {
-            val warp = warpParameter.parse(arg0).valueOrPropagateError { return it }
+        context(validationContext: ValidationContext<WarpableServer, S>)
+        override fun resolve(arg0: String): CommandResult<String> {
+            val warp = warpParameter.resolve(arg0).valueOrPropagateError { return it }
             return ParsingResult.success(warp.name)
         }
     }

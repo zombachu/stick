@@ -15,32 +15,32 @@ class LiteralParameterTest {
 
     @Test
     fun `matches lowercase label`() {
-        assertEquals("foo", withInvocation { parameter.parse("foo") }.expectSuccessValue())
+        assertEquals("foo", withInvocation { parameter.parse(["foo"]) }.expectSuccessValue())
     }
 
     @Test
     fun `matching is case-insensitive`() {
-        assertEquals("FOO", withInvocation { parameter.parse("FOO") }.expectSuccessValue())
+        assertEquals("FOO", withInvocation { parameter.parse(["FOO"]) }.expectSuccessValue())
     }
 
     @Test
     fun `matches alias case-insensitively`() {
         val aliased = LiteralParameter<TestEnv, Unit>("foo", ["bar", "baz"], "")
-        assertEquals("BAR", withInvocation { aliased.parse("BAR") }.expectSuccessValue())
+        assertEquals("BAR", withInvocation { aliased.parse(["BAR"]) }.expectSuccessValue())
     }
 
     @Test
     fun `mismatch reports label, not aliases`() {
         val aliased = LiteralParameter<TestEnv, Unit>("foo", ["bar"], "")
-        val result = withInvocation { aliased.parse("qux") }
+        val result = withInvocation { aliased.parse(["qux"]) }
         assertEquals(Feedback.LiteralNotMatched(["foo"], "qux"), result.expectFailure().feedback)
     }
 
     @Test
     fun `matches a mixed-case name`() {
         val mixedCase = LiteralParameter<TestEnv, Unit>("Foo", [], "")
-        assertEquals("Foo", withInvocation { mixedCase.parse("Foo") }.expectSuccessValue())
-        assertEquals("foo", withInvocation { mixedCase.parse("foo") }.expectSuccessValue())
+        assertEquals("Foo", withInvocation { mixedCase.parse(["Foo"]) }.expectSuccessValue())
+        assertEquals("foo", withInvocation { mixedCase.parse(["foo"]) }.expectSuccessValue())
     }
 
     @Test

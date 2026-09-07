@@ -20,23 +20,23 @@ class EnumParameterTest {
 
     @Test
     fun `parses primary value`() {
-        assertEquals(Color.RED, withInvocation { parameter.parse("red") }.expectSuccessValue())
+        assertEquals(Color.RED, withInvocation { parameter.parse(["red"]) }.expectSuccessValue())
     }
 
     @Test
     fun `falls back to aliased value`() {
-        assertEquals(Color.RED, withInvocation { parameter.parse("r") }.expectSuccessValue())
+        assertEquals(Color.RED, withInvocation { parameter.parse(["r"]) }.expectSuccessValue())
     }
 
     @Test
     fun `matching is case-insensitive`() {
-        assertEquals(Color.RED, withInvocation { parameter.parse("RED") }.expectSuccessValue())
-        assertEquals(Color.RED, withInvocation { parameter.parse("R") }.expectSuccessValue())
+        assertEquals(Color.RED, withInvocation { parameter.parse(["RED"]) }.expectSuccessValue())
+        assertEquals(Color.RED, withInvocation { parameter.parse(["R"]) }.expectSuccessValue())
     }
 
     @Test
     fun `failure reports primary keys, not aliases`() {
-        val result = withInvocation { parameter.parse("Unknown") }
+        val result = withInvocation { parameter.parse(["Unknown"]) }
         assertEquals(Feedback.LiteralNotMatched(["red", "green", "blue"], "Unknown"), result.expectFailure().feedback)
     }
 

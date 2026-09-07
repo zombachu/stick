@@ -2,19 +2,19 @@ package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.valueOrPropagateError
 
 open class ListParameter<E : Environment, S, T>(name: String, description: String, val parameter: Size1<E, S, T>) :
     Parameter.Size1<E, S, List<T>>(name, description) {
 
-    context(inv: Invocation<E, S>)
-    override fun parse(arg0: String): CommandResult<List<T>> {
+    context(validationContext: ValidationContext<E, S>)
+    override fun resolve(arg0: String): CommandResult<List<T>> {
         val args = arg0.split(",")
         val parsedValues = args.map { arg ->
-            parameter.parse(arg).valueOrPropagateError {
+            parameter.resolve(arg).valueOrPropagateError {
                 return it
             }
         }

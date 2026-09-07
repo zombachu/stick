@@ -25,78 +25,77 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
         override val size: Size.Bounded,
         name: String,
         description: String,
-    ) : Parameter<E, S, T, Position.Leading>(size, name, description)
+    ) : Parameter<E, S, T, Position.Leading>(size, name, description) {
+
+        context(inv: Invocation<E, S>)
+        final override fun parse(args: List<String>): CommandResult<T> = resolve(args)
+
+        context(validationContext: ValidationContext<E, S>)
+        abstract fun resolve(args: List<String>): CommandResult<T>
+    }
 
     abstract class Size1<in E : Environment, S, out T>(name: String, description: String) :
         Bounded<E, S, T>(Size(1), name, description) {
 
-        context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0]).withConsumed(1)
-        }
+        context(validationContext: ValidationContext<E, S>)
+        final override fun resolve(args: List<String>): CommandResult<T> = resolve(args[0]).withConsumed(1)
 
-        context(inv: Invocation<E, S>)
-        abstract fun parse(arg0: String): CommandResult<T>
+        context(validationContext: ValidationContext<E, S>)
+        abstract fun resolve(arg0: String): CommandResult<T>
     }
 
     abstract class Size2<in E : Environment, S, out T>(name: String, description: String) :
         Bounded<E, S, T>(Size(2), name, description) {
 
-        context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1]).withConsumed(2)
-        }
+        context(validationContext: ValidationContext<E, S>)
+        final override fun resolve(args: List<String>): CommandResult<T> = resolve(args[0], args[1]).withConsumed(2)
 
-        context(inv: Invocation<E, S>)
-        abstract fun parse(arg0: String, arg1: String): CommandResult<T>
+        context(validationContext: ValidationContext<E, S>)
+        abstract fun resolve(arg0: String, arg1: String): CommandResult<T>
     }
 
     abstract class Size3<in E : Environment, S, out T>(name: String, description: String) :
         Bounded<E, S, T>(Size(3), name, description) {
 
-        context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2]).withConsumed(3)
-        }
+        context(validationContext: ValidationContext<E, S>)
+        final override fun resolve(args: List<String>): CommandResult<T> =
+            resolve(args[0], args[1], args[2]).withConsumed(3)
 
-        context(inv: Invocation<E, S>)
-        abstract fun parse(arg0: String, arg1: String, arg2: String): CommandResult<T>
+        context(validationContext: ValidationContext<E, S>)
+        abstract fun resolve(arg0: String, arg1: String, arg2: String): CommandResult<T>
     }
 
     abstract class Size4<in E : Environment, S, out T>(name: String, description: String) :
         Bounded<E, S, T>(Size(4), name, description) {
 
-        context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2], args[3]).withConsumed(4)
-        }
+        context(validationContext: ValidationContext<E, S>)
+        final override fun resolve(args: List<String>): CommandResult<T> =
+            resolve(args[0], args[1], args[2], args[3]).withConsumed(4)
 
-        context(inv: Invocation<E, S>)
-        abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String): CommandResult<T>
+        context(validationContext: ValidationContext<E, S>)
+        abstract fun resolve(arg0: String, arg1: String, arg2: String, arg3: String): CommandResult<T>
     }
 
     abstract class Size5<in E : Environment, S, out T>(name: String, description: String) :
         Bounded<E, S, T>(Size(5), name, description) {
 
-        context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2], args[3], args[4]).withConsumed(5)
-        }
+        context(validationContext: ValidationContext<E, S>)
+        final override fun resolve(args: List<String>): CommandResult<T> =
+            resolve(args[0], args[1], args[2], args[3], args[4]).withConsumed(5)
 
-        context(inv: Invocation<E, S>)
-        abstract fun parse(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String): CommandResult<T>
+        context(validationContext: ValidationContext<E, S>)
+        abstract fun resolve(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String): CommandResult<T>
     }
 
     abstract class Size6<in E : Environment, S, out T>(name: String, description: String) :
         Bounded<E, S, T>(Size(6), name, description) {
 
-        context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2], args[3], args[4], args[5]).withConsumed(6)
-        }
+        context(validationContext: ValidationContext<E, S>)
+        final override fun resolve(args: List<String>): CommandResult<T> =
+            resolve(args[0], args[1], args[2], args[3], args[4], args[5]).withConsumed(6)
 
-        context(inv: Invocation<E, S>)
-        abstract fun parse(
+        context(validationContext: ValidationContext<E, S>)
+        abstract fun resolve(
             arg0: String,
             arg1: String,
             arg2: String,
@@ -109,13 +108,12 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
     abstract class Size7<in E : Environment, S, out T>(name: String, description: String) :
         Bounded<E, S, T>(Size(7), name, description) {
 
-        context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2], args[3], args[4], args[5], args[6]).withConsumed(7)
-        }
+        context(validationContext: ValidationContext<E, S>)
+        final override fun resolve(args: List<String>): CommandResult<T> =
+            resolve(args[0], args[1], args[2], args[3], args[4], args[5], args[6]).withConsumed(7)
 
-        context(inv: Invocation<E, S>)
-        abstract fun parse(
+        context(validationContext: ValidationContext<E, S>)
+        abstract fun resolve(
             arg0: String,
             arg1: String,
             arg2: String,
@@ -129,13 +127,12 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
     abstract class Size8<in E : Environment, S, out T>(name: String, description: String) :
         Bounded<E, S, T>(Size(8), name, description) {
 
-        context(inv: Invocation<E, S>)
-        override fun parse(args: List<String>): CommandResult<T> {
-            return parse(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]).withConsumed(8)
-        }
+        context(validationContext: ValidationContext<E, S>)
+        final override fun resolve(args: List<String>): CommandResult<T> =
+            resolve(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]).withConsumed(8)
 
-        context(inv: Invocation<E, S>)
-        abstract fun parse(
+        context(validationContext: ValidationContext<E, S>)
+        abstract fun resolve(
             arg0: String,
             arg1: String,
             arg2: String,
@@ -151,5 +148,12 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
         size: Size.Unbounded,
         name: String,
         description: String,
-    ) : Parameter<E, S, T, Position.Last>(size, name, description)
+    ) : Parameter<E, S, T, Position.Last>(size, name, description) {
+
+        context(inv: Invocation<E, S>)
+        final override fun parse(args: List<String>): CommandResult<T> = resolve(args)
+
+        context(validationContext: ValidationContext<E, S>)
+        abstract fun resolve(args: List<String>): CommandResult<T>
+    }
 }

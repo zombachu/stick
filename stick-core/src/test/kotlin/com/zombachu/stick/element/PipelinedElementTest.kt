@@ -1,10 +1,10 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
-import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.element.parameters.TextParameter
@@ -60,8 +60,8 @@ class PipelinedElementTest {
         var opCalled = false
         val failingBase =
             object : Parameter.Size1<TestEnv, Unit, String>("bad", "") {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun parse(arg0: String): CommandResult<String> = ParsingResult.failType("bad", arg0)
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(arg0: String): CommandResult<String> = ParsingResult.failType("bad", arg0)
             }
         val op: PipelineOperation<TestEnv, Unit, String, String> = {
             opCalled = true

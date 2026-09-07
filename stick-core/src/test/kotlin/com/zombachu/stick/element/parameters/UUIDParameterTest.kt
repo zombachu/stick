@@ -16,13 +16,13 @@ class UUIDParameterTest {
     @Test
     fun `parses valid UUID`() {
         val uuid = UUID.randomUUID()
-        val result = withInvocation { parameter.parse(uuid.toString()) }
+        val result = withInvocation { parameter.parse([uuid.toString()]) }
         assertEquals(uuid, result.expectSuccessValue())
     }
 
     @Test
     fun `rejects malformed UUID`() {
-        val result = withInvocation { parameter.parse("not-a-uuid") }
+        val result = withInvocation { parameter.parse(["not-a-uuid"]) }
         assertEquals(Feedback.TypeNotMatched("UUID", "not-a-uuid"), result.expectFailure().feedback)
     }
 }

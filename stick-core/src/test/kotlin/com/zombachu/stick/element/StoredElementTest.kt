@@ -2,10 +2,10 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.HybridFlagResult
-import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.dsl.id
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectSuccessValue
@@ -42,8 +42,8 @@ class StoredElementTest {
     fun `StoredParameter stores nothing on failure`() {
         val parameter =
             object : Parameter.Size1<TestEnv, Unit, String>("", "") {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun parse(arg0: String): CommandResult<String> = ParsingResult.failType("", arg0)
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(arg0: String): CommandResult<String> = ParsingResult.failType("", arg0)
             }
         val identifier = id<String>("bad")
         val stored = StoredParameter(parameter, identifier)

@@ -68,6 +68,8 @@ sealed interface ParsingResult<out T> : CommandResult<T> {
 
         fun failRange(min: String, max: String, arg: String): OutOfRangeError =
             OutOfRangeError(Feedback.OutOfRange(min, max, arg))
+
+        fun failSize(): CommandResult.InternalFailure = PeekingResult.failSize()
     }
 }
 

@@ -6,13 +6,13 @@ import com.zombachu.stick.Arguments
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.StructureScope
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.dsl.defaultSender
 import com.zombachu.stick.dsl.helper
 import com.zombachu.stick.dsl.optionally
@@ -45,9 +45,9 @@ fun <E : Environment, S : Sender, T> StructureScope<E, S>.permissionedValue(
 // --- parameters ---------------------------------------------------------------------------------------------------
 
 class PlayerParameter<E : Server, S>(name: String) : Parameter.Size1<E, S, Player>(name, "") {
-    context(inv: Invocation<E, S>)
-    override fun parse(arg0: String): CommandResult<Player> {
-        val player = inv.env.getPlayer(arg0) ?: return ParsingResult.failType("player", arg0)
+    context(validationContext: ValidationContext<E, S>)
+    override fun resolve(arg0: String): CommandResult<Player> {
+        val player = validationContext.env.getPlayer(arg0) ?: return ParsingResult.failType("player", arg0)
         return ParsingResult.success(player)
     }
 }
@@ -63,9 +63,9 @@ fun <E : Server> StructureScope<E, Sender>.targetPlayerParameter(
     )
 
 class WarpParameter<E : WarpableServer, S>(name: String) : Parameter.Size1<E, S, Warp>(name, "") {
-    context(inv: Invocation<E, S>)
-    override fun parse(arg0: String): CommandResult<Warp> {
-        val warp = inv.env.warps[arg0] ?: return CustomError("Unknown warp: $arg0")
+    context(validationContext: ValidationContext<E, S>)
+    override fun resolve(arg0: String): CommandResult<Warp> {
+        val warp = validationContext.env.warps[arg0] ?: return CustomError("Unknown warp: $arg0")
         return ParsingResult.success(warp)
     }
 }
@@ -73,9 +73,9 @@ class WarpParameter<E : WarpableServer, S>(name: String) : Parameter.Size1<E, S,
 fun <E : WarpableServer, S> StructureScope<E, S>.warpParameter(name: String): WarpParameter<E, S> = WarpParameter(name)
 
 class RealNameParameter<E : Environment>(name: String) : Parameter.Size1<E, SocialData, String>(name, "") {
-    context(inv: Invocation<E, SocialData>)
-    override fun parse(arg0: String): CommandResult<String> {
-        val nicknameEntry = inv.sender.nicknames.entries.find { it.value == arg0 }
+    context(validationContext: ValidationContext<E, SocialData>)
+    override fun resolve(arg0: String): CommandResult<String> {
+        val nicknameEntry = validationContext.sender.nicknames.entries.find { it.value == arg0 }
             ?: return CustomError("Unknown nickname: $arg0")
         return ParsingResult.success(nicknameEntry.key)
     }
@@ -88,8 +88,9 @@ fun <E : Environment, S> StructureScope<E, S>.realNameParameter(
 class BioParameter<E : Environment>(name: String) :
     Parameter.Unbounded<E, SocialData, String>(Size.atLeast(1), name, "") {
 
-    context(inv: Invocation<E, SocialData>)
-    override fun parse(args: List<String>): CommandResult<String> {
+    context(validationContext: ValidationContext<E, SocialData>)
+    override fun resolve(args: List<String>): CommandResult<String> {
+        if (args.isEmpty()) return ParsingResult.failSize()
         val bioLine = args.joinToString(" ")
         return ParsingResult.success(bioLine, args.size)
     }
