@@ -27,7 +27,8 @@ internal open class StructureImpl<E : Environment, S, T_ : Arguments>(
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T_> {
-        val peeked = (inv as InvocationImpl).peek(Size(1))
+        val invocation = inv as InvocationImpl
+        val peeked = invocation.peek(Size(1))
         if (peeked !is PeekingResult.Success) {
             return ParsingResult.failTypeInternal()
         }
@@ -35,7 +36,7 @@ internal open class StructureImpl<E : Environment, S, T_ : Arguments>(
         if (!matches(label)) {
             return ParsingResult.failTypeInternal()
         }
-        peeked.consume(1)
+        invocation.consume(peeked, 1)
         validateSender().propagateError {
             return it
         }

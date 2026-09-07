@@ -20,6 +20,13 @@ internal open class InvocationImpl<E : Environment, S>(
     internal open var unparsed: MutableList<String> = args.toMutableList()
     internal open var parsed: MutableMap<TypedIdentifier<*>, Any?> = mutableMapOf()
 
+    private var rootConsumedArgs: Int = 0
+    internal var consumedArgs: Int
+        get() = root.rootConsumedArgs
+        private set(value) {
+            root.rootConsumedArgs = value
+        }
+
     override fun <T> get(id: TypedIdentifier<T>): T {
         @Suppress("UNCHECKED_CAST")
         return parsed[id] as T
@@ -51,6 +58,11 @@ internal open class InvocationImpl<E : Environment, S>(
         return TransformedInvocationImpl(this, transform)
     }
 
+    internal fun consume(peeked: PeekingResult.Success, count: Int) {
+        peeked.consume(count)
+        consumedArgs += count
+    }
+
     internal fun peek(size: Size): PeekingResult {
         if (size.matches(unparsed.size)) return PeekingResult.success(unparsed)
         if (size is Size.Bounded && unparsed.size > size.max) {
@@ -78,7 +90,7 @@ internal open class InvocationImpl<E : Environment, S>(
                     // Bug in element implementation
                     return ParsingResult.failUnknown()
                 } else {
-                    peeked.consume(consumed)
+                    this@InvocationImpl.consume(peeked, consumed)
                 }
             }
             return result

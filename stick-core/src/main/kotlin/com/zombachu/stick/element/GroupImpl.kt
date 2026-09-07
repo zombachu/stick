@@ -102,25 +102,26 @@ internal open class GroupImpl<E : Environment, S, G : GroupResult, P : Position>
         groupElement.groupable.validateSender().propagateError { onElementMismatch() }
 
         val invocation = inv as InvocationImpl
-        val remaining = invocation.unparsed.size
+        val consumedBefore = invocation.consumedArgs
         val value =
             invocation.processElement(groupElement.groupable).valueOrPropagateError {
-                // If element consumed args then it matched, so error is real and not a matching error
-                if (invocation.unparsed.size != remaining) onError(it)
-                when (it) {
-                    // Ignore matching errors
-                    is ParsingResult.TypeNotMatchedInternal,
-                    is ParsingResult.TypeNotMatchedError,
-                    is ParsingResult.LiteralNotMatchedError,
-                    is PeekingResult.InvalidSizeError -> onElementMismatch()
-                    // If the element matched and an error occurred in parsing then propagate it up
-                    else -> onError(it)
-                }
+                // If element mismatched and args weren't committed then treat it as not an error
+                if (it.isMismatch() && invocation.consumedArgs == consumedBefore) onElementMismatch()
+                onError(it)
             }
         // If successful, return
         onSuccess(groupElement.toResult(value))
     }
 }
+
+private fun CommandResult.InternalFailure.isMismatch(): Boolean =
+    when (this) {
+        is ParsingResult.TypeNotMatchedInternal,
+        is ParsingResult.TypeNotMatchedError,
+        is ParsingResult.LiteralNotMatchedError,
+        is PeekingResult.InvalidSizeError -> true
+        else -> false
+    }
 
 internal class GroupElement<E : Environment, S, T, G : GroupResult>(
     val groupable: Groupable<E, S, T>,

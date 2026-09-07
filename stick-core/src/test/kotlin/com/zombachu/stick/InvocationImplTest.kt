@@ -76,6 +76,29 @@ class InvocationImplTest {
     }
 
     @Test
+    fun `consumedArgs counts consumed arg`() {
+        val inv = testInvocation("a", "b", "c")
+        val parameter = StringParameter<TestEnv, Unit>("", "")
+
+        val first = inv.processElement(parameter)
+        val second = inv.processElement(parameter)
+
+        assertTrue(first.isSuccess() && second.isSuccess())
+        assertEquals(2, inv.consumedArgs)
+    }
+
+    @Test
+    fun `forSender shares consumedArgs`() {
+        val inv = testInvocation("a")
+        val transformed = inv.forSender { 1 }
+
+        val result = transformed.processElement(StringParameter<TestEnv, Int>("", ""))
+
+        assertTrue(result.isSuccess())
+        assertEquals(1, inv.consumedArgs)
+    }
+
+    @Test
     fun `processElement fails when element over-consumes`() {
         val inv = testInvocation("a")
         val misbehavingParameter =
