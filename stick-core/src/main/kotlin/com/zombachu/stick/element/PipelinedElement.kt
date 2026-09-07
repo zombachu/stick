@@ -18,6 +18,8 @@ internal class PipelinedParameter<E : Environment, S, A, T, P : Position>(
     private val operations: List<PipelineOperation<E, S, *, *>>,
 ) : Parameter<E, S, T, P>(base.size, base.name, base.description) {
 
+    override val type: ElementType = base.type
+
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parsePipeline(args, base, operations)
 

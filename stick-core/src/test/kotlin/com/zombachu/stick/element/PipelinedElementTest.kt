@@ -5,6 +5,7 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.element.parameters.TextParameter
 import com.zombachu.stick.expectSuccessValue
@@ -72,6 +73,14 @@ class PipelinedElementTest {
 
         assertFalse(result.isSuccess())
         assertFalse(opCalled)
+    }
+
+    @Test
+    fun `type reports base element type`() {
+        val op: PipelineOperation<TestEnv, Unit, String, String> = { ParsingResult.success(it) }
+        val pipelined =
+            PipelinedParameter<TestEnv, Unit, String, String, Position.Leading>(LiteralParameter("", [], ""), [op])
+        assertEquals(ElementType.Literal, pipelined.type)
     }
 
     @Test
