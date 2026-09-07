@@ -4,6 +4,7 @@ import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.Position
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.parameters.BooleanParameter
@@ -13,7 +14,7 @@ import com.zombachu.stick.element.parameters.EnumEntry
 import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.element.parameters.FloatParameter
 import com.zombachu.stick.element.parameters.IntParameter
-import com.zombachu.stick.element.parameters.ListElementParameter
+import com.zombachu.stick.element.parameters.ListElementResult
 import com.zombachu.stick.element.parameters.ListParameter
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.LongParameter
@@ -21,6 +22,7 @@ import com.zombachu.stick.element.parameters.ShortParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.element.parameters.TextParameter
 import com.zombachu.stick.element.parameters.UUIDParameter
+import com.zombachu.stick.element.parameters.listElementParameter
 import com.zombachu.stick.lowercase
 import kotlin.enums.enumEntries
 import kotlin.reflect.KClass
@@ -137,4 +139,5 @@ fun <E : Environment, S, T> StructureScope<E, S>.listElementParameter(
     oneIndexed: Boolean = false,
     onEmpty: (Invocation<E, S>.() -> Unit)? = null,
     description: String = "",
-): ListElementParameter<E, S, T> = ListElementParameter(name, description, list, oneIndexed, onEmpty)
+): Parameter<E, S, ListElementResult<T>, Position.Leading> =
+    listElementParameter(name, description, list, oneIndexed, onEmpty)

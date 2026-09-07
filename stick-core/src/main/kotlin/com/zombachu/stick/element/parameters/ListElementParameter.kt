@@ -1,45 +1,47 @@
 package com.zombachu.stick.element.parameters
 
-import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Position
 import com.zombachu.stick.element.Parameter
+import com.zombachu.stick.element.PipelineOperation
+import com.zombachu.stick.element.PipelinedParameter
 import com.zombachu.stick.valueOrPropagateError
 
-open class ListElementParameter<E : Environment, S, T>(
+internal fun <E : Environment, S, T> listElementParameter(
     name: String,
     description: String,
-    private val list: ContextualValue<E, S, List<T>>,
-    private val oneIndexed: Boolean,
-    private val onEmpty: (Invocation<E, S>.() -> Unit)? = null,
-) : Parameter.Size1<E, S, ListElementResult<T>>(name, description) {
+    list: ContextualValue<E, S, List<T>>,
+    oneIndexed: Boolean,
+    onEmpty: (Invocation<E, S>.() -> Unit)?,
+): Parameter<E, S, ListElementResult<T>, Position.Leading> {
+    val index = NumberParameter<E, S, Int>(name, description, { toIntOrNull() }, Int.MIN_VALUE, Int.MAX_VALUE, "index")
 
-    context(inv: Invocation<E, S>)
-    override fun parse(arg0: String): CommandResult<ListElementResult<T>> {
-        val list =
-            list(inv).valueOrPropagateError {
-                return it
+    val toResult: PipelineOperation<E, S, Int, ListElementResult<T>> = lookUp@{ userIndex ->
+        val elements =
+            list(this).valueOrPropagateError {
+                return@lookUp it
             }
-        if (onEmpty != null && list.isEmpty()) {
-            onEmpty(inv)
-            return ParsingResult.failHandled()
+
+        if (onEmpty != null && elements.isEmpty()) {
+            onEmpty(this)
+            return@lookUp ParsingResult.failHandled()
         }
 
-        val userIndex = arg0.toIntOrNull() ?: return ParsingResult.failType("index", arg0)
-
-        // If the given number is not in the valid range then give the sender an error
         val oneIndexedAdjustment = if (oneIndexed) 1 else 0
         val min = 0 + oneIndexedAdjustment
-        val max = list.size - 1 + oneIndexedAdjustment
+        val max = elements.size - 1 + oneIndexedAdjustment
         if (userIndex !in min..max) {
-            return ParsingResult.failRange(min.toString(), max.toString(), arg0)
+            return@lookUp ParsingResult.failRange(min.toString(), max.toString(), userIndex.toString())
         }
-        val index = userIndex - oneIndexedAdjustment
 
-        return ParsingResult.success(ListElementResult(list[index], list, index))
+        val elementIndex = userIndex - oneIndexedAdjustment
+        ParsingResult.success(ListElementResult(elements[elementIndex], elements, elementIndex))
     }
+
+    return PipelinedParameter(index, [toResult])
 }
 
 data class ListElementResult<T>(val result: T, val list: List<T>, val index: Int)

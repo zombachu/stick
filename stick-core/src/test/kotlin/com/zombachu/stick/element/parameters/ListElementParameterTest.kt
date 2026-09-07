@@ -2,7 +2,9 @@ package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.Position
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.feedback.Feedback
@@ -19,10 +21,10 @@ class ListElementParameterTest {
 
     @Test
     fun `zero-indexed lookup resolves element`() {
-        val parameter = ListElementParameter("", "", threeItems, oneIndexed = false)
+        val parameter = listElementParameter("", "", threeItems, oneIndexed = false, onEmpty = null)
 
-        val first = withInvocation { parameter.parse("0") }.expectSuccessValue()
-        val last = withInvocation { parameter.parse("2") }.expectSuccessValue()
+        val first = withInvocation { parameter.parse(["0"]) }.expectSuccessValue()
+        val last = withInvocation { parameter.parse(["2"]) }.expectSuccessValue()
 
         assertEquals("a", first.result)
         assertEquals(0, first.index)
@@ -31,7 +33,7 @@ class ListElementParameterTest {
 
     @Test
     fun `zero-indexed lookup rejects out-of-range index`() {
-        val parameter = ListElementParameter("", "", threeItems, oneIndexed = false)
+        val parameter = listElementParameter("", "", threeItems, oneIndexed = false, onEmpty = null)
 
         assertEquals(Feedback.OutOfRange("0", "2", "3"), failure(parameter, "3"))
         assertEquals(Feedback.OutOfRange("0", "2", "-1"), failure(parameter, "-1"))
@@ -39,9 +41,9 @@ class ListElementParameterTest {
 
     @Test
     fun `one-indexed lookup shifts range to zero-based index`() {
-        val parameter = ListElementParameter("", "", threeItems, oneIndexed = true)
+        val parameter = listElementParameter("", "", threeItems, oneIndexed = true, onEmpty = null)
 
-        val first = withInvocation { parameter.parse("1") }.expectSuccessValue()
+        val first = withInvocation { parameter.parse(["1"]) }.expectSuccessValue()
 
         assertEquals("a", first.result)
         assertEquals(0, first.index)
@@ -50,7 +52,7 @@ class ListElementParameterTest {
 
     @Test
     fun `non-numeric index fails with TypeNotMatched`() {
-        val parameter = ListElementParameter("", "", threeItems, oneIndexed = false)
+        val parameter = listElementParameter("", "", threeItems, oneIndexed = false, onEmpty = null)
         assertEquals(Feedback.TypeNotMatched("index", "x"), failure(parameter, "x"))
     }
 
@@ -58,7 +60,7 @@ class ListElementParameterTest {
     fun `empty list with onEmpty fails with HandledError`() {
         var onEmptyCalled = false
         val parameter =
-            ListElementParameter(
+            listElementParameter(
                 "item",
                 "",
                 noItems,
@@ -66,7 +68,7 @@ class ListElementParameterTest {
                 onEmpty = { onEmptyCalled = true },
             )
 
-        val result = withInvocation { parameter.parse("0") }
+        val result = withInvocation { parameter.parse(["0"]) }
 
         assertTrue(onEmptyCalled)
         assertSame(ParsingResult.HandledError, result)
@@ -74,17 +76,20 @@ class ListElementParameterTest {
 
     @Test
     fun `empty list without onEmpty fails with OutOfRange`() {
-        val parameter = ListElementParameter("", "", noItems, oneIndexed = false)
+        val parameter = listElementParameter("", "", noItems, oneIndexed = false, onEmpty = null)
         assertEquals(Feedback.OutOfRange("0", "-1", "0"), failure(parameter, "0"))
     }
 
     @Test
     fun `ContextualValue failure propagates`() {
         val failingList: ContextualValue<TestEnv, Unit, List<String>> = { ParsingResult.failUnknown() }
-        val parameter = ListElementParameter("", "", failingList, oneIndexed = false)
+        val parameter = listElementParameter("", "", failingList, oneIndexed = false, onEmpty = null)
         assertEquals(Feedback.Unknown(), failure(parameter, "0"))
     }
 
-    private fun failure(parameter: ListElementParameter<TestEnv, Unit, String>, arg: String): Feedback =
-        withInvocation { parameter.parse(arg) }.expectFailure().feedback
+    private fun failure(
+        parameter: Parameter<TestEnv, Unit, ListElementResult<String>, Position.Leading>,
+        arg: String,
+    ): Feedback =
+        withInvocation { parameter.parse([arg]) }.expectFailure().feedback
 }
