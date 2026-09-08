@@ -25,7 +25,7 @@ class AliasableTest {
     @Test
     fun `does not match unrelated input`() {
         val entry = AliasEntry("foo", ["bar"])
-        assertFalse(entry.matches("qux"))
+        assertFalse(entry.matches("baz"))
     }
 
     @Test

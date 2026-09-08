@@ -79,13 +79,20 @@ internal open class InvocationImpl<E : Environment, S>(
         }
 
         context(this) {
+            val isContainer = element is Group<*, *, *, *> || element is Structure
+            if (!isContainer) {
+                val match = element.match(peeked.value)
+                if (match is MatchResult.Unmatched) return match.failure
+                if (match is MatchResult.Partial) return PeekingResult.failSize()
+            }
+
             val result = element.parse(peeked.value)
             result.propagateError {
                 return it
             }
             val consumed = result.consumed
             // Let containers manage their syntax element consumption
-            if (element !is Group<*, *, *, *> && element !is Structure) {
+            if (!isContainer) {
                 if (consumed !in 0..peeked.value.size) {
                     // Bug in element implementation
                     return ParsingResult.failUnknown()

@@ -6,6 +6,7 @@ import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
@@ -25,6 +26,14 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
     }
     override val label: String = "-${name.lowercase()}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun match(args: List<String>): MatchResult {
+        if (args.isEmpty()) return MatchResult.partial(0)
+        if (!matches(args.first().lowercase())) return MatchResult.unmatched()
+        if (args.size == 1) return MatchResult.matched(1)
+        return parameter.match(args.subList(1, args.size)).includeLabel()
+    }
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<HybridFlagResult<T>> {

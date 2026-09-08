@@ -112,6 +112,11 @@ fun <T> CommandResult<T>.expectFailure(): CommandResult.Failure<*> {
     return this as? CommandResult.Failure<*> ?: fail("Expected failure but was $this")
 }
 
+fun MatchResult.expectUnmatched(): CommandResult.InternalFailure {
+    val unmatched = this as? MatchResult.Unmatched ?: fail("Expected unmatched but was $this")
+    return unmatched.failure
+}
+
 fun structureTest(block: StructureScope<TestEnv, Unit>.() -> Unit) {
     val scope = StructureScope.empty<TestEnv, Unit>()
     with(scope) {

@@ -1,11 +1,14 @@
 package com.zombachu.stick.element.parameters
 
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -76,6 +79,20 @@ class NumberParameterTest {
         assertEquals(Feedback.OutOfRange("0.0", "10.0", "11.0"), failure(parameter, "11.0"))
         assertEquals(Feedback.TypeNotMatched("double", "x"), failure(parameter, "x"))
     }
+
+    @Test
+    fun `matching considers type not range`() {
+        val parameter = IntParameter<TestEnv, Unit>("", "", 0, 10)
+
+        assertEquals(MatchResult.matched(1), match(parameter, "11"))
+        assertEquals(Feedback.TypeNotMatched("integer", "x"), matchFailure(parameter, "x"))
+    }
+
+    private fun <T> match(parameter: Parameter.Size1<TestEnv, Unit, T>, arg: String): MatchResult =
+        withValidationContext { parameter.match([arg]) }
+
+    private fun <T> matchFailure(parameter: Parameter.Size1<TestEnv, Unit, T>, arg: String): Feedback =
+        withValidationContext { parameter.match([arg]) }.expectUnmatched().expectFailure().feedback
 
     private fun <T> parse(parameter: Parameter.Size1<TestEnv, Unit, T>, arg: String): T =
         withInvocation { parameter.parse([arg]) }.expectSuccessValue()

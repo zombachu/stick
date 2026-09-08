@@ -2,6 +2,7 @@ package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.Parameter
@@ -14,6 +15,12 @@ open class NumberParameter<E : Environment, S, T>(
     val max: T,
     val errorType: String,
 ) : Parameter.Size1<E, S, T>(name, description) where T : Number, T : Comparable<T> {
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun match(arg0: String): MatchResult {
+        if (arg0.toOrNull() == null) return MatchResult.unmatched(ParsingResult.failType(errorType, arg0))
+        return MatchResult.matched(1)
+    }
 
     context(validationContext: ValidationContext<E, S>)
     override fun resolve(arg0: String): CommandResult<T> {

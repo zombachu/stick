@@ -1,10 +1,12 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.IntParameter
+import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue
@@ -105,6 +107,28 @@ class OptionalParameterImplTest {
             )
         val result = withInvocation("value") { optional.parse(["value"]) }
         assertEquals("value", result.expectSuccessValue())
+    }
+
+    @Test
+    fun `match on empty args claims nothing`() {
+        val optional =
+            OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
+                requirementDefault = invalidDefault("x", allowed = true),
+                presenceDefault = validDefault("x", allowed = true),
+                parameter = parameter,
+            )
+        assertEquals(MatchResult.matched(0), withValidationContext { optional.match([]) })
+    }
+
+    @Test
+    fun `match on non-empty args delegates to parameter`() {
+        val optional =
+            OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
+                requirementDefault = invalidDefault("x", allowed = true),
+                presenceDefault = validDefault("x", allowed = true),
+                parameter = LiteralParameter("here", [], ""),
+            )
+        assertEquals(MatchResult.matched(1), withValidationContext { optional.match(["here"]) })
     }
 
     @Test

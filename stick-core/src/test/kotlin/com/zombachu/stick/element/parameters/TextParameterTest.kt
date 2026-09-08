@@ -1,12 +1,14 @@
 package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.ElementType
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -33,6 +35,16 @@ class TextParameterTest {
     fun `empty args fail with InvalidSizeError`() {
         val result = withInvocation { parameter.parse([]) }
         assertSame(PeekingResult.InvalidSizeError, result)
+    }
+
+    @Test
+    fun `match claims all args`() {
+        assertEquals(MatchResult.matched(3), withValidationContext { parameter.match(["a", "b", "c"]) })
+    }
+
+    @Test
+    fun `match on empty args is partial`() {
+        assertEquals(MatchResult.partial(0), withValidationContext { parameter.match([]) })
     }
 
     @Test

@@ -1,10 +1,12 @@
 package com.zombachu.stick.element
 
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -16,6 +18,12 @@ class HelperImplTest {
         val helper = HelperImpl<TestEnv, Unit, String>({ ParsingResult.success("computed") })
         val result = withInvocation { helper.parse(["ignored", "args"]) }
         assertEquals("computed", result.expectSuccessValue())
+    }
+
+    @Test
+    fun `match claims no args`() {
+        val helper = HelperImpl<TestEnv, Unit, String>({ ParsingResult.success("x") })
+        assertEquals(MatchResult.matched(0), withValidationContext { helper.match(["ignored"]) })
     }
 
     @Test

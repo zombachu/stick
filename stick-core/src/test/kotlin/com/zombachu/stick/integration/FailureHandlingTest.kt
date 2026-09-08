@@ -2,6 +2,7 @@ package com.zombachu.stick.integration
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.dsl.command
@@ -113,6 +114,9 @@ class FailureHandlingTest {
     fun `throw - handler catches exception from element`() {
         class ThrowingParameter(name: String) : Parameter.Size1<Server, Sender, String>(name, "") {
             override val type: ElementType = ElementType.Passthrough
+
+            context(validationContext: ValidationContext<Server, Sender>)
+            override fun match(arg0: String): MatchResult = MatchResult.matched(1)
 
             context(validationContext: ValidationContext<Server, Sender>)
             override fun resolve(arg0: String): CommandResult<String> = error("this is an exception")

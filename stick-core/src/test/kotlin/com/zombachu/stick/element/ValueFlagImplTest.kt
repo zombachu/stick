@@ -1,11 +1,14 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SenderValidationResult
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.element.parameters.IntParameter
+import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.isSuccess
@@ -40,6 +43,19 @@ class ValueFlagImplTest {
     }
 
     @Test
+    fun `PresenceFlagParameter match claims label`() {
+        val flagParameter = presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true)
+        assertEquals(MatchResult.matched(1), withValidationContext { flagParameter.match(["-silent"]) })
+    }
+
+    @Test
+    fun `PresenceFlagParameter match unmatched fails with TypeNotMatchedInternal`() {
+        val flagParameter = presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true)
+        val result = withValidationContext { flagParameter.match(["-other"]) }
+        assertSame(ParsingResult.TypeNotMatchedInternal, result.expectUnmatched())
+    }
+
+    @Test
     fun `PresenceFlagParameter getSyntax brackets label`() {
         val syntax = withValidationContext { presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true).getSyntax() }
         assertEquals("[-silent]", syntax)
@@ -57,10 +73,35 @@ class ValueFlagImplTest {
     }
 
     @Test
+    fun `ParameterFlagParameter match claims label and value`() {
+        val flagParameter = FlagParameter.ParameterFlagParameter("amount", amountParameter, [])
+        assertEquals(MatchResult.matched(2), withValidationContext { flagParameter.match(["-amount", "42"]) })
+    }
+
+    @Test
+    fun `ParameterFlagParameter match without a value is partial`() {
+        val flagParameter = FlagParameter.ParameterFlagParameter("amount", amountParameter, [])
+        assertEquals(MatchResult.partial(1), withValidationContext { flagParameter.match(["-amount"]) })
+    }
+
+    @Test
     fun `ParameterFlagParameter invalid argument fails with TypeNotMatchedInternal`() {
         val flagParameter = FlagParameter.ParameterFlagParameter("amount", amountParameter, [])
         val result = withInvocation { flagParameter.parse(["-other", "42"]) }
         assertSame(ParsingResult.TypeNotMatchedInternal, result)
+    }
+
+    @Test
+    fun `EnumFlagParameter match claims enum token`() {
+        val flagParameter = FlagParameter.EnumFlagParameter(colorParameter)
+        assertEquals(MatchResult.matched(1), withValidationContext { flagParameter.match(["-red"]) })
+    }
+
+    @Test
+    fun `EnumFlagParameter match of an unknown key fails with TypeNotMatchedInternal`() {
+        val flagParameter = FlagParameter.EnumFlagParameter(colorParameter)
+        val result = withValidationContext { flagParameter.match(["-purple"]) }
+        assertSame(ParsingResult.TypeNotMatchedInternal, result.expectUnmatched())
     }
 
     @Test

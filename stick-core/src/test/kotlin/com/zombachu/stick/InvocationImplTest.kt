@@ -1,12 +1,18 @@
 package com.zombachu.stick
 
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.dsl.id
 import com.zombachu.stick.element.Group1Impl
+import com.zombachu.stick.element.OptionalParameterImpl
 import com.zombachu.stick.element.Parameter
+import com.zombachu.stick.element.PipelineOperation
+import com.zombachu.stick.element.PipelinedOptionalParameter
+import com.zombachu.stick.element.StoredParameter
+import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
+import com.zombachu.stick.feedback.Feedback
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -77,6 +83,53 @@ class InvocationImplTest {
     }
 
     @Test
+    fun `processElement does not parse non-matching element`() {
+        val inv = testInvocation("foo")
+        var parsed = false
+        val parameter =
+            object : Parameter.Size1<TestEnv, Unit, String>("bar", "") {
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun match(arg0: String): MatchResult = MatchResult.unmatched()
+
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(arg0: String): CommandResult<String> {
+                    parsed = true
+                    return ParsingResult.success(arg0)
+                }
+            }
+
+        val result = inv.processElement(parameter)
+
+        assertSame(ParsingResult.TypeNotMatchedInternal, result)
+        assertFalse(parsed)
+        assertEquals(["foo"], inv.unparsed)
+    }
+
+    @Test
+    fun `processElement returns failure Unmatched carries`() {
+        val inv = testInvocation("foo")
+        val parameter = LiteralParameter<TestEnv, Unit>("bar", [], "")
+
+        val result = inv.processElement(parameter)
+
+        assertEquals(Feedback.LiteralNotMatched(["bar"], "foo"), result.expectFailure().feedback)
+    }
+
+    @Test
+    fun `processElement fails partial element with InvalidSizeError`() {
+        val inv = testInvocation("a")
+        val parameter =
+            object : Parameter.Bounded<TestEnv, Unit, String>(Size.between(0, 2), "", "") {
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(args: List<String>): CommandResult<String> = ParsingResult.failSize()
+            }
+
+        val result = inv.processElement(parameter)
+
+        assertSame(PeekingResult.InvalidSizeError, result)
+    }
+
+    @Test
     fun `consumedArgs counts consumed arg`() {
         val inv = testInvocation("a", "b", "c")
         val parameter = StringParameter<TestEnv, Unit>("", "")
@@ -104,6 +157,9 @@ class InvocationImplTest {
         val inv = testInvocation("a")
         val misbehavingParameter =
             object : Parameter.Bounded<TestEnv, Unit, String>(Size(1), "", "") {
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun match(args: List<String>): MatchResult = MatchResult.matched(1)
+
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(args: List<String>): CommandResult<String> = ParsingResult.success("a", 5)
             }

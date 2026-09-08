@@ -1,11 +1,16 @@
 package com.zombachu.stick.element
 
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.HybridFlagResult
+import com.zombachu.stick.Size
+import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.expectFailure
+import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.invalidSenderDefault
@@ -17,12 +22,29 @@ import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class HybridFlagImplTest {
 
     private val parameter = IntParameter<TestEnv, Unit>("amount", "", Int.MIN_VALUE, Int.MAX_VALUE)
     private val flag = HybridFlagImpl("boost", parameter, [])
+
+    @Test
+    fun `parse consumes what variable-width parameter took`() {
+        val varying =
+            object : Parameter.Bounded<TestEnv, Unit, String>(Size.between(1, 2), "v", "") {
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(args: List<String>): CommandResult<String> = ParsingResult.success(args[0], 1)
+            }
+        val varyingFlag = HybridFlagImpl("boost", varying, [])
+
+        val inv = testInvocation("-boost", "a", "b")
+        val result = inv.processElement(varyingFlag)
+
+        assertEquals("a", assertIs<HybridFlagResult.Value<String>>(result.expectSuccessValue()).value)
+        assertEquals(2, inv.consumedArgs)
+    }
 
     @Test
     fun `empty args fails with TypeNotMatchedInternal`() {
@@ -43,6 +65,22 @@ class HybridFlagImplTest {
         val value = result.expectSuccessValue()
         assertIs<HybridFlagResult.Value<Int>>(value)
         assertEquals(5, value.value)
+    }
+
+    @Test
+    fun `match with no trailing value claims label`() {
+        assertEquals(MatchResult.matched(1), withValidationContext { flag.match(["-boost"]) })
+    }
+
+    @Test
+    fun `match with trailing value claims label and value`() {
+        assertEquals(MatchResult.matched(2), withValidationContext { flag.match(["-boost", "5"]) })
+    }
+
+    @Test
+    fun `match unmatched fails with TypeNotMatchedInternal`() {
+        val result = withValidationContext { flag.match(["-other"]) }
+        assertSame(ParsingResult.TypeNotMatchedInternal, result.expectUnmatched())
     }
 
     @Test

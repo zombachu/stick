@@ -4,6 +4,7 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
@@ -19,6 +20,9 @@ internal class PipelinedParameter<E : Environment, S, A, T, P : Position>(
 ) : Parameter<E, S, T, P>(base.size, base.name, base.description) {
 
     override val type: ElementType = base.type
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun match(args: List<String>): MatchResult = base.match(args)
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parsePipeline(args, base, operations)
@@ -37,6 +41,9 @@ internal class PipelinedValueFlag<E : Environment, S, A, T>(
     override val type: ElementType = base.type
     override val name: String = base.name
     override val description: String = base.description
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun match(args: List<String>): MatchResult = base.match(args)
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parsePipeline(args, base, operations)
@@ -74,6 +81,9 @@ internal class PipelinedOptionalParameter<E : Environment, S, A, T, P : Position
     override val type: ElementType = base.type
     override val name: String = base.name
     override val description: String = base.description
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun match(args: List<String>): MatchResult = base.match(args)
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parsePipeline(args, base, operations)

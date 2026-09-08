@@ -7,6 +7,7 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.InvocationImpl
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
@@ -24,6 +25,14 @@ internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T, P : P
     override val type: ElementType = base.type
     override val name: String = base.name
     override val description: String = base.description
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun match(args: List<String>): MatchResult {
+        val transformedValidationContext = validationContext.forSender(transform)
+        context(transformedValidationContext) {
+            return base.match(args)
+        }
+    }
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> {
@@ -62,6 +71,14 @@ internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
     override val description: String = base.description
     override val invalidDefault: ContextualValue<E, S, T> = invalidSenderDefault.value
 
+    context(validationContext: ValidationContext<E, S>)
+    override fun match(args: List<String>): MatchResult {
+        val transformedValidationContext = validationContext.forSender(transform)
+        context(transformedValidationContext) {
+            return base.match(args)
+        }
+    }
+
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> {
         val transformedInvocation = (inv as InvocationImpl).forSender(transform)
@@ -97,6 +114,14 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
         ParsingResult.success(HybridFlagResult.Absent())
     }
 
+    context(validationContext: ValidationContext<E, S>)
+    override fun match(args: List<String>): MatchResult {
+        val transformedValidationContext = validationContext.forSender(transform)
+        context(transformedValidationContext) {
+            return base.match(args)
+        }
+    }
+
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<HybridFlagResult<T>> {
         val transformedInvocation = (inv as InvocationImpl).forSender(transform)
@@ -129,6 +154,14 @@ internal class TransformedStructure<E : Environment, S, S2 : Any, T_ : Arguments
     override val size: Size = base.size
     override val type: ElementType = base.type
     override val label: String = base.label
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun match(args: List<String>): MatchResult {
+        val transformedValidationContext = validationContext.forSender(transform)
+        context(transformedValidationContext) {
+            return base.match(args)
+        }
+    }
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T_> {

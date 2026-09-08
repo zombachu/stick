@@ -8,6 +8,7 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.Size
@@ -16,6 +17,9 @@ import com.zombachu.stick.ValidationContext
 sealed interface Element<in E : Environment, S, out T> {
     val size: Size
     val type: ElementType
+
+    context(validationContext: ValidationContext<E, S>)
+    fun match(args: List<String>): MatchResult
 
     context(inv: Invocation<E, S>)
     fun parse(args: List<String>): CommandResult<T>

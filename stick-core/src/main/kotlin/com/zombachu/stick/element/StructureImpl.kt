@@ -5,6 +5,7 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.InvocationImpl
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Requirement
@@ -24,6 +25,13 @@ internal open class StructureImpl<E : Environment, S, T_ : Arguments>(
     override val size: Size = Size.atLeast(1)
     override val type: ElementType = ElementType.Literal
     override val label: String = name
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun match(args: List<String>): MatchResult {
+        val label = args.firstOrNull() ?: return MatchResult.partial(0)
+        if (!matches(label.lowercase())) return MatchResult.unmatched()
+        return MatchResult.matched(args.size)
+    }
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T_> {

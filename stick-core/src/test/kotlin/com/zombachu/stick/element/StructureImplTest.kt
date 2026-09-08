@@ -1,12 +1,14 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.Arguments0
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectFailure
+import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.withInvocation
@@ -46,6 +48,33 @@ class StructureImplTest {
         val result = withInvocation("other") { structure.parse(["other"]) }
 
         assertIs<ParsingResult.TypeNotMatchedInternal>(result)
+    }
+
+    @Test
+    fun `match claims whole window`() {
+        val structure = structure(name = "cmd", aliases = ["c"])
+
+        val result = withValidationContext { structure.match(["C", "arg"]) }
+
+        assertEquals(MatchResult.matched(2), result)
+    }
+
+    @Test
+    fun `match unmatched returns fails with TypeNotMatchedInternal`() {
+        val structure = structure(name = "cmd")
+
+        val result = withValidationContext { structure.match(["other"]) }
+
+        assertSame(ParsingResult.TypeNotMatchedInternal, result.expectUnmatched())
+    }
+
+    @Test
+    fun `match on empty args is partial`() {
+        val structure = structure(name = "cmd")
+
+        val result = withValidationContext { structure.match([]) }
+
+        assertEquals(MatchResult.partial(0), result)
     }
 
     @Test

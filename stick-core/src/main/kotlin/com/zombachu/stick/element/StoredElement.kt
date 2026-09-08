@@ -5,8 +5,10 @@ import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.TypedIdentifier
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.valueOrPropagateError
 
 internal class StoredHelper<E : Environment, S, T>(
@@ -22,6 +24,9 @@ internal class StoredParameter<E : Environment, S, T, P : Position>(
     private val base: Parameter<E, S, T, P>,
     private val id: TypedIdentifier<T>,
 ) : Parameter<E, S, T, P>(base.size, base.name, base.description) {
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun match(args: List<String>): MatchResult = base.match(args)
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = parseAndStore(base, id, args)

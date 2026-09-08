@@ -5,6 +5,7 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.ParsingResult.LiteralNotMatchedError
 import com.zombachu.stick.Size
@@ -22,6 +23,9 @@ internal open class ValueFlagImpl<E : Environment, S, T>(
     override val size: Size.Bounded = flagParameter.size
     override val type: ElementType = ElementType.Flag
     override val description: String = flagParameter.description
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun match(args: List<String>): MatchResult = flagParameter.match(args)
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = flagParameter.parse(args)
@@ -48,6 +52,13 @@ internal sealed class FlagParameter<E : Environment, S, T>(
     ) : FlagParameter<E, S, T>(Size(1), name, aliases, description) {
 
         context(validationContext: ValidationContext<E, S>)
+        override fun match(args: List<String>): MatchResult {
+            if (args.isEmpty()) return MatchResult.partial(0)
+            if (!matches(args.first().lowercase())) return MatchResult.unmatched()
+            return MatchResult.matched(1)
+        }
+
+        context(validationContext: ValidationContext<E, S>)
         override fun resolve(args: List<String>): CommandResult<T> {
             if (args.isEmpty()) return ParsingResult.failTypeInternal()
             if (matches(args.first().lowercase())) {
@@ -65,6 +76,13 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         private val parameter: Parameter.Bounded<E, S, T>,
         aliases: Set<String>,
     ) : FlagParameter<E, S, T>(Size(1) + parameter.size, name, aliases, parameter.description) {
+
+        context(validationContext: ValidationContext<E, S>)
+        override fun match(args: List<String>): MatchResult {
+            if (args.isEmpty()) return MatchResult.partial(0)
+            if (!matches(args.first().lowercase())) return MatchResult.unmatched()
+            return parameter.match(args.subList(1, args.size)).includeLabel()
+        }
 
         context(validationContext: ValidationContext<E, S>)
         override fun resolve(args: List<String>): CommandResult<T> {
@@ -95,6 +113,16 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         private val primaryValues = enumParameter.primaryValues.keys.toList().map { "-$it" }
 
         context(validationContext: ValidationContext<E, S>)
+        override fun match(args: List<String>): MatchResult {
+            val flagArg = args.firstOrNull() ?: return MatchResult.partial(0)
+            if (!flagArg.startsWith("-")) return MatchResult.unmatched()
+
+            // Ignore the - before passing it to the enum parameter
+            if (enumParameter.match(flagArg.substring(1)) !is MatchResult.Matched) return MatchResult.unmatched()
+            return MatchResult.matched(1)
+        }
+
+        context(validationContext: ValidationContext<E, S>)
         override fun resolve(args: List<String>): CommandResult<T> {
             val flagArg = args.firstOrNull()
             if (flagArg == null || !flagArg.startsWith("-")) return ParsingResult.failTypeInternal()
@@ -111,3 +139,10 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         override fun getSyntax(): String = "[${primaryValues.joinToString("|")}]"
     }
 }
+
+internal fun MatchResult.includeLabel(): MatchResult =
+    when (this) {
+        is MatchResult.Matched -> MatchResult.matched(1 + consumed)
+        is MatchResult.Partial -> MatchResult.partial(1 + matched)
+        is MatchResult.Unmatched -> this
+    }

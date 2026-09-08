@@ -21,6 +21,7 @@ import com.zombachu.stick.GroupResult7
 import com.zombachu.stick.GroupResult8
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.InvocationImpl
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Position
@@ -58,6 +59,21 @@ internal open class GroupImpl<E : Environment, S, G : GroupResult, P : Position>
                 }
             }
     override val type: ElementType = ElementType.Default
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun match(args: List<String>): MatchResult {
+        var incomplete: MatchResult.Partial? = null
+        var mismatch: MatchResult.Unmatched? = null
+        for (element in prioritizedElements) {
+            element.groupable.validateSender().propagateError { continue }
+            when (val match = element.groupable.match(args)) {
+                is MatchResult.Matched -> return match
+                is MatchResult.Partial -> incomplete = incomplete ?: match
+                is MatchResult.Unmatched -> if (!match.failure.isMismatch()) mismatch = mismatch ?: match
+            }
+        }
+        return incomplete ?: mismatch ?: MatchResult.unmatched()
+    }
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<G> {

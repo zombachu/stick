@@ -2,11 +2,14 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.HybridFlagResult
+import com.zombachu.stick.Invocation
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.dsl.id
+import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.invalidSenderDefault
@@ -39,9 +42,18 @@ class StoredElementTest {
     }
 
     @Test
+    fun `StoredParameter delegates match to base`() {
+        val stored = StoredParameter(LiteralParameter<TestEnv, Unit>("give", [], ""), id<String>("literal"))
+        assertEquals(MatchResult.matched(1), withValidationContext { stored.match(["give"]) })
+    }
+
+    @Test
     fun `StoredParameter stores nothing on failure`() {
         val parameter =
             object : Parameter.Size1<TestEnv, Unit, String>("", "") {
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun match(arg0: String): MatchResult = MatchResult.matched(1)
+
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> = ParsingResult.failType("", arg0)
             }

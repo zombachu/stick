@@ -1,6 +1,8 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.Invocation
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.TestEnv
@@ -13,6 +15,7 @@ import com.zombachu.stick.isSuccess
 import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.testInvocation
 import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -33,6 +36,18 @@ class PipelinedElementTest {
         val result = withInvocation { pipelined.parse(["hello"]) }
 
         assertEquals(10, result.expectSuccessValue())
+    }
+
+    @Test
+    fun `PipelinedParameter delegates match to base`() {
+        val op: PipelineOperation<TestEnv, Unit, String, String> = { ParsingResult.success(it) }
+        val pipelined =
+            PipelinedParameter<TestEnv, Unit, String, String, Position.Leading>(
+                LiteralParameter("give", [], ""),
+                [op],
+            )
+
+        assertEquals(MatchResult.matched(1), withValidationContext { pipelined.match(["give"]) })
     }
 
     @Test
@@ -60,6 +75,9 @@ class PipelinedElementTest {
         var opCalled = false
         val failingBase =
             object : Parameter.Size1<TestEnv, Unit, String>("bad", "") {
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun match(arg0: String): MatchResult = MatchResult.matched(1)
+
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> = ParsingResult.failType("bad", arg0)
             }

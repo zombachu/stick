@@ -3,6 +3,7 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
@@ -20,6 +21,12 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
     override val type: ElementType = parameter.type
     override val name: String = parameter.name
     override val description: String = parameter.description
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun match(args: List<String>): MatchResult {
+        if (args.isEmpty()) return MatchResult.matched(0)
+        return parameter.match(args)
+    }
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> {

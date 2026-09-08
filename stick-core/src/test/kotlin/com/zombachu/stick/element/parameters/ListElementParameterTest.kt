@@ -7,10 +7,13 @@ import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue
+import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -85,6 +88,21 @@ class ListElementParameterTest {
         val failingList: ContextualValue<TestEnv, Unit, List<String>> = { ParsingResult.failUnknown() }
         val parameter = listElementParameter("", "", failingList, oneIndexed = false, onEmpty = null)
         assertEquals(Feedback.Unknown(), failure(parameter, "0"))
+    }
+
+    @Test
+    fun `matching uses index but not list`() {
+        var listReached = false
+        val watched: ContextualValue<TestEnv, Unit, List<String>> = {
+            listReached = true
+            ParsingResult.success(["a", "b", "c"])
+        }
+        val parameter = listElementParameter("", "", watched, oneIndexed = false, onEmpty = null)
+
+        val result = withValidationContext { parameter.match(["x"]) }
+
+        assertEquals(Feedback.TypeNotMatched("index", "x"), result.expectUnmatched().expectFailure().feedback)
+        assertFalse(listReached)
     }
 
     private fun failure(
