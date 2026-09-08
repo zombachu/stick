@@ -6,6 +6,7 @@ import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Size
@@ -32,7 +33,7 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
         if (args.isEmpty()) return MatchResult.partial(0)
         if (!matches(args.first().lowercase())) return MatchResult.unmatched()
         if (args.size == 1) return MatchResult.matched(1)
-        return parameter.match(args.subList(1, args.size)).includeLabel()
+        return parameter.match(args.subList(1, args.size)).includeLabelClaimedBy(this)
     }
 
     context(inv: Invocation<E, S>)
@@ -42,6 +43,11 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
             if (args.size == 1) {
                 return ParsingResult.success(HybridFlagResult.Present(), 1)
             } else {
+                val matched = (inv as InvocationImpl).currentMatch
+                if (matched != null && matched.resolvedBy === this) {
+                    @Suppress("UNCHECKED_CAST")
+                    return ParsingResult.success(HybridFlagResult.Value(matched.resolved as T), matched.consumed)
+                }
                 val result = parameter.parse(args.subList(1, args.size))
                 result.propagateError {
                     return it

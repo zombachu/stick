@@ -7,8 +7,10 @@ import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.expectFailure
+import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.testInvocation
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -43,4 +45,27 @@ class ParameterTest {
         val result = withValidationContext { ranged.match(["other"]) }
         assertEquals(Feedback.TypeNotMatched("thing", "other"), result.expectUnmatched().expectFailure().feedback)
     }
+
+    @Test
+    fun `parse ignores memo produced by another parameter`() {
+        var resolves = 0
+        val other = countingParameter {}
+        val parameter = countingParameter { resolves++ }
+
+        val inv = testInvocation("a")
+        inv.currentMatch = withValidationContext { other.match(["a"]) } as MatchResult.Matched
+        val result = context(inv) { parameter.parse(["a"]) }
+
+        assertEquals("a", result.expectSuccessValue())
+        assertEquals(1, resolves)
+    }
+
+    private fun countingParameter(onResolve: () -> Unit) =
+        object : Parameter.Size1<TestEnv, Unit, String>("", "") {
+            context(validationContext: ValidationContext<TestEnv, Unit>)
+            override fun resolve(arg0: String): CommandResult<String> {
+                onResolve()
+                return ParsingResult.success(arg0)
+            }
+        }
 }

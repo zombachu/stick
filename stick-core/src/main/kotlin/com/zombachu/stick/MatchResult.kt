@@ -2,7 +2,20 @@ package com.zombachu.stick
 
 sealed interface MatchResult {
 
-    @ConsistentCopyVisibility data class Matched internal constructor(val consumed: Int) : MatchResult
+    @ConsistentCopyVisibility
+    data class Matched internal constructor(val consumed: Int) : MatchResult {
+
+        internal var resolvedBy: Any? = null
+            private set
+
+        internal var resolved: Any? = null
+            private set
+
+        internal constructor(consumed: Int, element: Any, value: Any?) : this(consumed) {
+            resolvedBy = element
+            resolved = value
+        }
+    }
 
     @ConsistentCopyVisibility data class Partial internal constructor(val matched: Int) : MatchResult
 
@@ -22,12 +35,15 @@ sealed interface MatchResult {
     }
 }
 
-internal fun <T> CommandResult<T>.toMatchResult(consumed: Int): MatchResult =
-    handleInternal(onSuccess = { MatchResult.matched(consumed) }, onFailure = { MatchResult.unmatched(it) })
-
-internal fun <T> CommandResult<T>.toMatchResultIn(args: List<String>): MatchResult =
+internal fun <T> CommandResult<T>.toMatchResult(consumed: Int, element: Any): MatchResult =
     handleInternal(
-        onSuccess = { MatchResult.matched(it.consumed) },
+        onSuccess = { MatchResult.Matched(consumed, element, it.value) },
+        onFailure = { MatchResult.unmatched(it) },
+    )
+
+internal fun <T> CommandResult<T>.toMatchResultIn(args: List<String>, element: Any): MatchResult =
+    handleInternal(
+        onSuccess = { MatchResult.Matched(it.consumed, element, it.value) },
         onFailure = {
             if (it is PeekingResult.InvalidSizeError) MatchResult.partial(args.size) else MatchResult.unmatched(it)
         },

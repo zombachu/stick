@@ -31,6 +31,82 @@ class ValueFlagImplTest {
         EnumParameter<TestEnv, Unit, Color>("", "", mapOf("red" to Color.RED, "green" to Color.GREEN), mapOf())
 
     @Test
+    fun `EnumFlagParameter resolves parameter once`() {
+        var resolves = 0
+        val counting =
+            object : EnumParameter<TestEnv, Unit, Color>("", "", mapOf("red" to Color.RED), mapOf()) {
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(arg0: String): CommandResult<Color> {
+                    resolves++
+                    return super.resolve(arg0)
+                }
+            }
+        val flag = ValueFlagImpl<TestEnv, Unit, Color>(
+            "color",
+            { ParsingResult.success(Color.GREEN) },
+            FlagParameter.EnumFlagParameter(counting),
+        )
+
+        val inv = testInvocation("-red")
+        val result = inv.processElement(flag)
+
+        assertEquals(Color.RED, result.expectSuccessValue())
+        assertEquals(1, resolves)
+    }
+
+    @Test
+    fun `ParameterFlagParameter resolves parameter once`() {
+        var resolves = 0
+        val counting =
+            object : Parameter.Size1<TestEnv, Unit, String>("name", "") {
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(arg0: String): CommandResult<String> {
+                    resolves++
+                    return ParsingResult.success(arg0)
+                }
+            }
+        val flag = ValueFlagImpl<TestEnv, Unit, String>(
+            "player",
+            { ParsingResult.success("nobody") },
+            FlagParameter.ParameterFlagParameter("player", counting, []),
+        )
+
+        val inv = testInvocation("-player", "steve")
+        val result = inv.processElement(flag)
+
+        assertEquals("steve", result.expectSuccessValue())
+        assertEquals(2, inv.consumedArgs)
+        assertEquals(1, resolves)
+    }
+
+    @Test
+    fun `ParameterFlagParameter resolves parameter with vacuous match`() {
+        var resolves = 0
+        val cheaplyMatched =
+            object : Parameter.Size1<TestEnv, Unit, String>("name", "") {
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun match(arg0: String): MatchResult = MatchResult.matched(1)
+
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(arg0: String): CommandResult<String> {
+                    resolves++
+                    return ParsingResult.success(arg0)
+                }
+            }
+        val flag = ValueFlagImpl<TestEnv, Unit, String>(
+            "player",
+            { ParsingResult.success("nobody") },
+            FlagParameter.ParameterFlagParameter("player", cheaplyMatched, []),
+        )
+
+        val inv = testInvocation("-player", "steve")
+        val result = inv.processElement(flag)
+
+        assertEquals("steve", result.expectSuccessValue())
+        assertEquals(1, resolves)
+    }
+
+    @Test
     fun `PresenceFlagParameter returns present value on match`() {
         val result = withInvocation { presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true).parse(["-silent"]) }
         assertEquals(true, result.expectSuccessValue())

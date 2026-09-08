@@ -153,6 +153,49 @@ class InvocationImplTest {
     }
 
     @Test
+    fun `processElement resolves derived parameter once`() {
+        var resolves = 0
+        val parameter = countingParameter { resolves++ }
+
+        val result = testInvocation("a").processElement(parameter)
+
+        assertEquals("a", result.expectSuccessValue())
+        assertEquals(1, resolves)
+    }
+
+    @Test
+    fun `processElement resolves through decorator once`() {
+        var resolves = 0
+        val identifier = id<String>("stored")
+        val stored = StoredParameter(countingParameter { resolves++ }, identifier)
+
+        val inv = testInvocation("a")
+        val result = inv.processElement(stored)
+
+        assertEquals("a", result.expectSuccessValue())
+        assertEquals("a", inv.get(identifier))
+        assertEquals(1, resolves)
+    }
+
+    @Test
+    fun `processElement resolves through wrapper chain once`() {
+        var resolves = 0
+        val optional =
+            OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
+                invalidSenderDefault("invalid"),
+                validSenderDefault("absent"),
+                countingParameter { resolves++ },
+            )
+        val exclaim: PipelineOperation<TestEnv, Unit, String, String> = { ParsingResult.success("$it!") }
+        val piped = PipelinedOptionalParameter<TestEnv, Unit, String, String, Position.Optional>(optional, [exclaim])
+
+        val result = testInvocation("a").processElement(piped)
+
+        assertEquals("a!", result.expectSuccessValue())
+        assertEquals(1, resolves)
+    }
+
+    @Test
     fun `processElement fails when element over-consumes`() {
         val inv = testInvocation("a")
         val misbehavingParameter =
@@ -203,4 +246,13 @@ class InvocationImplTest {
         val inv = testInvocation()
         assertTrue(inv.getSyntax().startsWith("/"))
     }
+
+    private fun countingParameter(onResolve: () -> Unit) =
+        object : Parameter.Size1<TestEnv, Unit, String>("", "") {
+            context(validationContext: ValidationContext<TestEnv, Unit>)
+            override fun resolve(arg0: String): CommandResult<String> {
+                onResolve()
+                return ParsingResult.success(arg0)
+            }
+        }
 }

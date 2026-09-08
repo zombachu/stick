@@ -5,7 +5,9 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.MatchResult
+import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
@@ -31,10 +33,17 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
     ) : Parameter<E, S, T, Position.Leading>(size, name, description) {
 
         context(inv: Invocation<E, S>)
-        final override fun parse(args: List<String>): CommandResult<T> = resolve(args)
+        final override fun parse(args: List<String>): CommandResult<T> {
+            val matched = (inv as InvocationImpl).currentMatch
+            if (matched != null && matched.resolvedBy === this) {
+                @Suppress("UNCHECKED_CAST")
+                return ParsingResult.success(matched.resolved as T, matched.consumed)
+            }
+            return resolve(args)
+        }
 
         context(validationContext: ValidationContext<E, S>)
-        override fun match(args: List<String>): MatchResult = resolve(args).toMatchResultIn(args)
+        override fun match(args: List<String>): MatchResult = resolve(args).toMatchResultIn(args, this)
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(args: List<String>): CommandResult<T>
@@ -50,7 +59,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
         }
 
         context(validationContext: ValidationContext<E, S>)
-        open fun match(arg0: String): MatchResult = resolve(arg0).toMatchResult(1)
+        open fun match(arg0: String): MatchResult = resolve(arg0).toMatchResult(1, this)
 
         context(validationContext: ValidationContext<E, S>)
         final override fun resolve(args: List<String>): CommandResult<T> = resolve(args[0]).withConsumed(1)
@@ -69,7 +78,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
         }
 
         context(validationContext: ValidationContext<E, S>)
-        open fun match(arg0: String, arg1: String): MatchResult = resolve(arg0, arg1).toMatchResult(2)
+        open fun match(arg0: String, arg1: String): MatchResult = resolve(arg0, arg1).toMatchResult(2, this)
 
         context(validationContext: ValidationContext<E, S>)
         final override fun resolve(args: List<String>): CommandResult<T> = resolve(args[0], args[1]).withConsumed(2)
@@ -89,7 +98,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
 
         context(validationContext: ValidationContext<E, S>)
         open fun match(arg0: String, arg1: String, arg2: String): MatchResult =
-            resolve(arg0, arg1, arg2).toMatchResult(3)
+            resolve(arg0, arg1, arg2).toMatchResult(3, this)
 
         context(validationContext: ValidationContext<E, S>)
         final override fun resolve(args: List<String>): CommandResult<T> =
@@ -110,7 +119,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
 
         context(validationContext: ValidationContext<E, S>)
         open fun match(arg0: String, arg1: String, arg2: String, arg3: String): MatchResult =
-            resolve(arg0, arg1, arg2, arg3).toMatchResult(4)
+            resolve(arg0, arg1, arg2, arg3).toMatchResult(4, this)
 
         context(validationContext: ValidationContext<E, S>)
         final override fun resolve(args: List<String>): CommandResult<T> =
@@ -131,7 +140,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
 
         context(validationContext: ValidationContext<E, S>)
         open fun match(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String): MatchResult =
-            resolve(arg0, arg1, arg2, arg3, arg4).toMatchResult(5)
+            resolve(arg0, arg1, arg2, arg3, arg4).toMatchResult(5, this)
 
         context(validationContext: ValidationContext<E, S>)
         final override fun resolve(args: List<String>): CommandResult<T> =
@@ -158,7 +167,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
             arg3: String,
             arg4: String,
             arg5: String,
-        ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5).toMatchResult(6)
+        ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5).toMatchResult(6, this)
 
         context(validationContext: ValidationContext<E, S>)
         final override fun resolve(args: List<String>): CommandResult<T> =
@@ -193,7 +202,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
             arg4: String,
             arg5: String,
             arg6: String,
-        ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5, arg6).toMatchResult(7)
+        ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5, arg6).toMatchResult(7, this)
 
         context(validationContext: ValidationContext<E, S>)
         final override fun resolve(args: List<String>): CommandResult<T> =
@@ -230,7 +239,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
             arg5: String,
             arg6: String,
             arg7: String,
-        ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7).toMatchResult(8)
+        ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7).toMatchResult(8, this)
 
         context(validationContext: ValidationContext<E, S>)
         final override fun resolve(args: List<String>): CommandResult<T> =
@@ -256,10 +265,17 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
     ) : Parameter<E, S, T, Position.Last>(size, name, description) {
 
         context(inv: Invocation<E, S>)
-        final override fun parse(args: List<String>): CommandResult<T> = resolve(args)
+        final override fun parse(args: List<String>): CommandResult<T> {
+            val matched = (inv as InvocationImpl).currentMatch
+            if (matched != null && matched.resolvedBy === this) {
+                @Suppress("UNCHECKED_CAST")
+                return ParsingResult.success(matched.resolved as T, matched.consumed)
+            }
+            return resolve(args)
+        }
 
         context(validationContext: ValidationContext<E, S>)
-        override fun match(args: List<String>): MatchResult = resolve(args).toMatchResultIn(args)
+        override fun match(args: List<String>): MatchResult = resolve(args).toMatchResultIn(args, this)
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(args: List<String>): CommandResult<T>

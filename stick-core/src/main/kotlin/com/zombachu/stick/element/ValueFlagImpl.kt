@@ -81,7 +81,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         override fun match(args: List<String>): MatchResult {
             if (args.isEmpty()) return MatchResult.partial(0)
             if (!matches(args.first().lowercase())) return MatchResult.unmatched()
-            return parameter.match(args.subList(1, args.size)).includeLabel()
+            return parameter.match(args.subList(1, args.size)).includeLabelClaimedBy(this)
         }
 
         context(validationContext: ValidationContext<E, S>)
@@ -118,8 +118,9 @@ internal sealed class FlagParameter<E : Environment, S, T>(
             if (!flagArg.startsWith("-")) return MatchResult.unmatched()
 
             // Ignore the - before passing it to the enum parameter
-            if (enumParameter.match(flagArg.substring(1)) !is MatchResult.Matched) return MatchResult.unmatched()
-            return MatchResult.matched(1)
+            val match = enumParameter.match(flagArg.substring(1))
+            if (match !is MatchResult.Matched) return MatchResult.unmatched()
+            return match.claimedBy(this, 1)
         }
 
         context(validationContext: ValidationContext<E, S>)
@@ -140,9 +141,12 @@ internal sealed class FlagParameter<E : Environment, S, T>(
     }
 }
 
-internal fun MatchResult.includeLabel(): MatchResult =
+internal fun MatchResult.Matched.claimedBy(element: Any, consumed: Int): MatchResult.Matched =
+    if (resolvedBy == null) MatchResult.matched(consumed) else MatchResult.Matched(consumed, element, resolved)
+
+internal fun MatchResult.includeLabelClaimedBy(element: Any): MatchResult =
     when (this) {
-        is MatchResult.Matched -> MatchResult.matched(1 + consumed)
+        is MatchResult.Matched -> claimedBy(element, 1 + consumed)
         is MatchResult.Partial -> MatchResult.partial(1 + matched)
         is MatchResult.Unmatched -> this
     }

@@ -31,6 +31,27 @@ class HybridFlagImplTest {
     private val flag = HybridFlagImpl("boost", parameter, [])
 
     @Test
+    fun `parse resolves parameter once`() {
+        var resolves = 0
+        val counting =
+            object : Parameter.Size1<TestEnv, Unit, String>("name", "") {
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(arg0: String): CommandResult<String> {
+                    resolves++
+                    return ParsingResult.success(arg0)
+                }
+            }
+        val countingFlag = HybridFlagImpl("rank", counting, [])
+
+        val inv = testInvocation("-rank", "guest")
+        val result = inv.processElement(countingFlag)
+
+        assertEquals("guest", assertIs<HybridFlagResult.Value<String>>(result.expectSuccessValue()).value)
+        assertEquals(2, inv.consumedArgs)
+        assertEquals(1, resolves)
+    }
+
+    @Test
     fun `parse consumes what variable-width parameter took`() {
         val varying =
             object : Parameter.Bounded<TestEnv, Unit, String>(Size.between(1, 2), "v", "") {

@@ -27,6 +27,13 @@ internal open class InvocationImpl<E : Environment, S>(
             root.rootConsumedArgs = value
         }
 
+    private var rootCurrentMatch: MatchResult.Matched? = null
+    internal var currentMatch: MatchResult.Matched?
+        get() = root.rootCurrentMatch
+        set(value) {
+            root.rootCurrentMatch = value
+        }
+
     override fun <T> get(id: TypedIdentifier<T>): T {
         @Suppress("UNCHECKED_CAST")
         return parsed[id] as T
@@ -80,13 +87,18 @@ internal open class InvocationImpl<E : Environment, S>(
 
         context(this) {
             val isContainer = element is Group<*, *, *, *> || element is Structure
+            var matched: MatchResult.Matched? = null
             if (!isContainer) {
-                val match = element.match(peeked.value)
-                if (match is MatchResult.Unmatched) return match.failure
-                if (match is MatchResult.Partial) return PeekingResult.failSize()
+                when (val match = element.match(peeked.value)) {
+                    is MatchResult.Unmatched -> return match.failure
+                    is MatchResult.Partial -> return PeekingResult.failSize()
+                    is MatchResult.Matched -> matched = match
+                }
             }
 
+            this@InvocationImpl.currentMatch = matched
             val result = element.parse(peeked.value)
+            this@InvocationImpl.currentMatch = null
             result.propagateError {
                 return it
             }
