@@ -198,6 +198,22 @@ class InvocationImplTest {
     }
 
     @Test
+    fun `processElement fails when element claims less than its declared size`() {
+        val inv = testInvocation("a", "b")
+        val misbehavingParameter =
+            object : Parameter.Unbounded<TestEnv, Unit, String>(Size.atLeast(1), "", "") {
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(args: List<String>): ConsumingResult<String> =
+                    ParsingResult.success(args.joinToString(" ")).consuming(0)
+            }
+
+        val result = inv.processElement(misbehavingParameter)
+
+        assertIs<ParsingResult.UnknownError>(result)
+        assertEquals(0, inv.consumedArgs)
+    }
+
+    @Test
     fun `processElement fails when element over-consumes`() {
         val inv = testInvocation("a")
         val misbehavingParameter =

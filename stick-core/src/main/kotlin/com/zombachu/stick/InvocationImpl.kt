@@ -104,7 +104,7 @@ internal open class InvocationImpl<E : Environment, S>(
             result.propagateError {
                 return it
             }
-            if (result.consumed !in 0..peeked.value.size) {
+            if (result.consumed !in element.size.min..peeked.value.size) {
                 // Bug in element implementation
                 return ParsingResult.failUnknown()
             }
