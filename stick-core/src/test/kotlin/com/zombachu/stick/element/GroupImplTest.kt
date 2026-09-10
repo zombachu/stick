@@ -2,6 +2,7 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.Arguments1
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
@@ -11,12 +12,13 @@ import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.consuming
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.element.parameters.TextParameter
 import com.zombachu.stick.expectFailure
-import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.expectSuccessValue
+import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withValidationContext
@@ -285,7 +287,7 @@ class GroupImplTest {
     private fun variableParameter(name: String, size: Size.Bounded, consumed: Int) =
         object : Parameter.Bounded<TestEnv, Unit, String>(size, name, "") {
             context(validationContext: ValidationContext<TestEnv, Unit>)
-            override fun resolve(args: List<String>): CommandResult<String> = ParsingResult.success(name, consumed)
+            override fun resolve(args: List<String>): ConsumingResult<String> = ParsingResult.success(name).consuming(consumed)
         }
 
     private fun <A, P : Position> group1(element: Groupable.Positioned<TestEnv, Unit, A, P>) =

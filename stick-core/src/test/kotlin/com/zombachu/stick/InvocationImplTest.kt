@@ -1,5 +1,7 @@
 package com.zombachu.stick
 
+import com.zombachu.stick.ConsumingResult
+import com.zombachu.stick.consuming
 import com.zombachu.stick.dsl.id
 import com.zombachu.stick.element.Group1Impl
 import com.zombachu.stick.element.OptionalParameterImpl
@@ -121,7 +123,7 @@ class InvocationImplTest {
         val parameter =
             object : Parameter.Bounded<TestEnv, Unit, String>(Size.between(0, 2), "", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun resolve(args: List<String>): CommandResult<String> = ParsingResult.failSize()
+                override fun resolve(args: List<String>): ConsumingResult<String> = ParsingResult.failSize()
             }
 
         val result = inv.processElement(parameter)
@@ -204,7 +206,7 @@ class InvocationImplTest {
                 override fun match(args: List<String>): MatchResult = MatchResult.matched(1)
 
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun resolve(args: List<String>): CommandResult<String> = ParsingResult.success("a", 5)
+                override fun resolve(args: List<String>): ConsumingResult<String> = ParsingResult.success("a").consuming(5)
             }
 
         val result = inv.processElement(misbehavingParameter)

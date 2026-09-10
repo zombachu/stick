@@ -3,6 +3,7 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.InvocationImpl
@@ -11,15 +12,15 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.consuming
 import com.zombachu.stick.toMatchResult
 import com.zombachu.stick.toMatchResultIn
-import com.zombachu.stick.withConsumed
 
 sealed class Parameter<in E : Environment, S, out T, out P : Position>(
     override val size: Size,
     override val name: String,
     override val description: String,
-) : Groupable.Positioned<E, S, T, P> {
+) : Groupable.Positioned<E, S, T, P>, ConsumingElement<E, S, T> {
 
     override val type: ElementType = ElementType.Default
 
@@ -33,11 +34,11 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
     ) : Parameter<E, S, T, Position.Leading>(size, name, description) {
 
         context(inv: Invocation<E, S>)
-        final override fun parse(args: List<String>): CommandResult<T> {
+        final override fun parse(args: List<String>): ConsumingResult<T> {
             val matched = (inv as InvocationImpl).currentMatch
             if (matched != null && matched.resolvedBy === this) {
                 @Suppress("UNCHECKED_CAST")
-                return ParsingResult.success(matched.resolved as T, matched.consumed)
+                return ParsingResult.success(matched.resolved as T).consuming(matched.consumed)
             }
             return resolve(args)
         }
@@ -46,7 +47,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
         override fun match(args: List<String>): MatchResult = resolve(args).toMatchResultIn(args, this)
 
         context(validationContext: ValidationContext<E, S>)
-        abstract fun resolve(args: List<String>): CommandResult<T>
+        abstract fun resolve(args: List<String>): ConsumingResult<T>
     }
 
     abstract class Size1<in E : Environment, S, out T>(name: String, description: String) :
@@ -62,7 +63,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
         open fun match(arg0: String): MatchResult = resolve(arg0).toMatchResult(1, this)
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun resolve(args: List<String>): CommandResult<T> = resolve(args[0]).withConsumed(1)
+        final override fun resolve(args: List<String>): ConsumingResult<T> = resolve(args[0]).consuming(1)
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(arg0: String): CommandResult<T>
@@ -81,7 +82,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
         open fun match(arg0: String, arg1: String): MatchResult = resolve(arg0, arg1).toMatchResult(2, this)
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun resolve(args: List<String>): CommandResult<T> = resolve(args[0], args[1]).withConsumed(2)
+        final override fun resolve(args: List<String>): ConsumingResult<T> = resolve(args[0], args[1]).consuming(2)
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(arg0: String, arg1: String): CommandResult<T>
@@ -101,8 +102,8 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
             resolve(arg0, arg1, arg2).toMatchResult(3, this)
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun resolve(args: List<String>): CommandResult<T> =
-            resolve(args[0], args[1], args[2]).withConsumed(3)
+        final override fun resolve(args: List<String>): ConsumingResult<T> =
+            resolve(args[0], args[1], args[2]).consuming(3)
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(arg0: String, arg1: String, arg2: String): CommandResult<T>
@@ -122,8 +123,8 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
             resolve(arg0, arg1, arg2, arg3).toMatchResult(4, this)
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun resolve(args: List<String>): CommandResult<T> =
-            resolve(args[0], args[1], args[2], args[3]).withConsumed(4)
+        final override fun resolve(args: List<String>): ConsumingResult<T> =
+            resolve(args[0], args[1], args[2], args[3]).consuming(4)
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(arg0: String, arg1: String, arg2: String, arg3: String): CommandResult<T>
@@ -143,8 +144,8 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
             resolve(arg0, arg1, arg2, arg3, arg4).toMatchResult(5, this)
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun resolve(args: List<String>): CommandResult<T> =
-            resolve(args[0], args[1], args[2], args[3], args[4]).withConsumed(5)
+        final override fun resolve(args: List<String>): ConsumingResult<T> =
+            resolve(args[0], args[1], args[2], args[3], args[4]).consuming(5)
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String): CommandResult<T>
@@ -170,8 +171,8 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
         ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5).toMatchResult(6, this)
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun resolve(args: List<String>): CommandResult<T> =
-            resolve(args[0], args[1], args[2], args[3], args[4], args[5]).withConsumed(6)
+        final override fun resolve(args: List<String>): ConsumingResult<T> =
+            resolve(args[0], args[1], args[2], args[3], args[4], args[5]).consuming(6)
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(
@@ -205,8 +206,8 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
         ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5, arg6).toMatchResult(7, this)
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun resolve(args: List<String>): CommandResult<T> =
-            resolve(args[0], args[1], args[2], args[3], args[4], args[5], args[6]).withConsumed(7)
+        final override fun resolve(args: List<String>): ConsumingResult<T> =
+            resolve(args[0], args[1], args[2], args[3], args[4], args[5], args[6]).consuming(7)
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(
@@ -242,8 +243,8 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
         ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7).toMatchResult(8, this)
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun resolve(args: List<String>): CommandResult<T> =
-            resolve(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]).withConsumed(8)
+        final override fun resolve(args: List<String>): ConsumingResult<T> =
+            resolve(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]).consuming(8)
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(
@@ -265,11 +266,11 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
     ) : Parameter<E, S, T, Position.Last>(size, name, description) {
 
         context(inv: Invocation<E, S>)
-        final override fun parse(args: List<String>): CommandResult<T> {
+        final override fun parse(args: List<String>): ConsumingResult<T> {
             val matched = (inv as InvocationImpl).currentMatch
             if (matched != null && matched.resolvedBy === this) {
                 @Suppress("UNCHECKED_CAST")
-                return ParsingResult.success(matched.resolved as T, matched.consumed)
+                return ParsingResult.success(matched.resolved as T).consuming(matched.consumed)
             }
             return resolve(args)
         }
@@ -278,6 +279,6 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
         override fun match(args: List<String>): MatchResult = resolve(args).toMatchResultIn(args, this)
 
         context(validationContext: ValidationContext<E, S>)
-        abstract fun resolve(args: List<String>): CommandResult<T>
+        abstract fun resolve(args: List<String>): ConsumingResult<T>
     }
 }

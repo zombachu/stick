@@ -10,19 +10,26 @@ import kotlin.contracts.contract
 sealed interface CommandResult<out T> {
     interface Success<out T> : CommandResult<T> {
         val value: T
-        val consumed: Int
     }
 
-    sealed interface InternalFailure : CommandResult<Nothing>
+    sealed interface InternalFailure : ConsumingResult<Nothing>
 
     sealed interface Failure<out F : Feedback> : InternalFailure {
         val feedback: F
     }
 }
 
+sealed interface ConsumingResult<out T> : CommandResult<T> {
+    interface Success<out T> : ConsumingResult<T>, CommandResult.Success<T> {
+        val consumed: Int
+    }
+}
+
 sealed interface ParsingResult<out T> : CommandResult<T> {
-    class Success<out T> internal constructor(override val value: T, override val consumed: Int) :
-        ParsingResult<T>, CommandResult.Success<T>
+    class Success<out T> internal constructor(override val value: T) : ParsingResult<T>, CommandResult.Success<T>
+
+    class ConsumingSuccess<out T> internal constructor(override val value: T, override val consumed: Int) :
+        ParsingResult<T>, ConsumingResult.Success<T>
 
     class UnknownError internal constructor(override val feedback: Feedback.Unknown) :
         ParsingResult<Nothing>, CommandResult.Failure<Feedback.Unknown>
@@ -50,7 +57,7 @@ sealed interface ParsingResult<out T> : CommandResult<T> {
     interface CustomError<out F : Feedback> : Failure<F>
 
     companion object {
-        fun <T> success(value: T, consumed: Int = 0): Success<T> = Success(value, consumed)
+        fun <T> success(value: T): Success<T> = Success(value)
 
         fun failUnknown(cause: Throwable? = null): UnknownError = UnknownError(Feedback.Unknown(cause))
 
@@ -76,7 +83,6 @@ sealed interface ParsingResult<out T> : CommandResult<T> {
 sealed interface SenderValidationResult {
     object Success : SenderValidationResult, CommandResult.Success<Unit> {
         override val value: Unit = Unit
-        override val consumed: Int = 0
     }
 
     sealed interface Failure<out F : Feedback> : SenderValidationResult, CommandResult.Failure<F>
@@ -107,7 +113,6 @@ internal sealed interface PeekingResult {
     data class Success internal constructor(private val mutableArgs: MutableList<String>) :
         PeekingResult, CommandResult.Success<List<String>> {
         override val value: List<String> = mutableArgs
-        override val consumed: Int = 0
 
         fun consume(count: Int) {
             mutableArgs.subList(0, count).clear()
@@ -140,6 +145,18 @@ inline fun <T> CommandResult<T>.propagateError(onFailure: (CommandResult.Interna
     onFailure(this)
 }
 
+@OptIn(ExperimentalContracts::class)
+inline fun <T> ConsumingResult<T>.propagateError(onFailure: (CommandResult.InternalFailure) -> Nothing) {
+    contract {
+        returns() implies (this@propagateError is ConsumingResult.Success)
+        callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
+    }
+    when (this) {
+        is ConsumingResult.Success -> return
+        is CommandResult.InternalFailure -> onFailure(this)
+    }
+}
+
 inline fun <T> CommandResult<T>.valueOrPropagateError(onFailure: (CommandResult.InternalFailure) -> Nothing): T {
     contract {
         returns() implies (this@valueOrPropagateError is CommandResult.Success)
@@ -157,11 +174,11 @@ fun <T> CommandResult<T>.isSuccess(): Boolean {
     return this is CommandResult.Success
 }
 
-fun <T> CommandResult<T>.withConsumed(consumed: Int): CommandResult<T> {
+fun <T> CommandResult<T>.consuming(consumed: Int): ConsumingResult<T> {
     this.propagateError {
         return it
     }
-    return ParsingResult.success(this.value, consumed)
+    return ParsingResult.ConsumingSuccess(this.value, consumed)
 }
 
 fun <F : Feedback, R> CommandResult.Failure<F>.handle(block: F.() -> R): R {

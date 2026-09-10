@@ -1,11 +1,13 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.consuming
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
@@ -20,11 +22,11 @@ class ParameterTest {
     private val ranged =
         object : Parameter.Bounded<TestEnv, Unit, String>(Size.between(1, 2), "", "") {
             context(validationContext: ValidationContext<TestEnv, Unit>)
-            override fun resolve(args: List<String>): CommandResult<String> =
+            override fun resolve(args: List<String>): ConsumingResult<String> =
                 when {
                     args.isEmpty() -> ParsingResult.failSize()
-                    args[0] == "wide" -> ParsingResult.success("wide", 2)
-                    args[0] == "narrow" -> ParsingResult.success("narrow", 1)
+                    args[0] == "wide" -> ParsingResult.success("wide").consuming(2)
+                    args[0] == "narrow" -> ParsingResult.success("narrow").consuming(1)
                     else -> ParsingResult.failType("thing", args[0])
                 }
         }

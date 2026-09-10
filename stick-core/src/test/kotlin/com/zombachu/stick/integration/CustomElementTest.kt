@@ -2,11 +2,13 @@ package com.zombachu.stick.integration
 
 import com.zombachu.stick.Arguments1
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.consuming
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.requireAs
@@ -80,9 +82,9 @@ class CustomElementTest {
         class LocationParameter<E : Environment, S : Player>(name: String) :
             Parameter.Bounded<E, S, Location>(Size.between(1, 3), name, "") {
             context(validationContext: ValidationContext<E, S>)
-            override fun resolve(args: List<String>): CommandResult<Location> {
+            override fun resolve(args: List<String>): ConsumingResult<Location> {
                 if (args.firstOrNull()?.lowercase() == "here") {
-                    return ParsingResult.success(validationContext.sender.position, 1)
+                    return ParsingResult.success(validationContext.sender.position).consuming(1)
                 }
                 if (args.size < 3) {
                     return ParsingResult.failSize()
@@ -90,7 +92,7 @@ class CustomElementTest {
                 val x = args[0].toIntOrNull() ?: return ParsingResult.failType("integer", args[0])
                 val y = args[1].toIntOrNull() ?: return ParsingResult.failType("integer", args[1])
                 val z = args[2].toIntOrNull() ?: return ParsingResult.failType("integer", args[2])
-                return ParsingResult.success(Location(x, y, z), 3)
+                return ParsingResult.success(Location(x, y, z)).consuming(3)
             }
         }
         val setWarpCommand = structure(Server::class, Player::class) {

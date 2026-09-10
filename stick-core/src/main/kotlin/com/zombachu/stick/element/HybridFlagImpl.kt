@@ -1,7 +1,7 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.Aliasable
-import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
@@ -11,6 +11,7 @@ import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.consuming
 import com.zombachu.stick.propagateError
 
 internal open class HybridFlagImpl<E : Environment, S, T>(
@@ -37,22 +38,23 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
     }
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<HybridFlagResult<T>> {
+    override fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> {
         if (args.isEmpty()) return ParsingResult.failTypeInternal()
         if (matches(args.first().lowercase())) {
             if (args.size == 1) {
-                return ParsingResult.success(HybridFlagResult.Present(), 1)
+                return ParsingResult.success(HybridFlagResult.Present<T>()).consuming(1)
             } else {
                 val matched = (inv as InvocationImpl).currentMatch
                 if (matched != null && matched.resolvedBy === this) {
                     @Suppress("UNCHECKED_CAST")
-                    return ParsingResult.success(HybridFlagResult.Value(matched.resolved as T), matched.consumed)
+                    return ParsingResult.success(HybridFlagResult.Value(matched.resolved as T))
+                        .consuming(matched.consumed)
                 }
                 val result = parameter.parse(args.subList(1, args.size))
                 result.propagateError {
                     return it
                 }
-                return ParsingResult.success(HybridFlagResult.Value(result.value), 1 + result.consumed)
+                return ParsingResult.success(HybridFlagResult.Value(result.value)).consuming(1 + result.consumed)
             }
         }
         return ParsingResult.failTypeInternal()

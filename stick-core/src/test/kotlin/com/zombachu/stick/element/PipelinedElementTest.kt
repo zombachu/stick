@@ -1,6 +1,7 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
@@ -108,7 +109,7 @@ class PipelinedElementTest {
 
         val result = withInvocation { pipelined.parse(["hi"]) }
 
-        assertIs<CommandResult.Success<Int>>(result)
+        assertIs<ConsumingResult.Success<Int>>(result)
         assertEquals(1, result.consumed)
     }
 
@@ -119,7 +120,7 @@ class PipelinedElementTest {
 
         val result = withInvocation { pipelined.parse(["a", "b", "c"]) }
 
-        assertIs<CommandResult.Success<String>>(result)
+        assertIs<ConsumingResult.Success<String>>(result)
         assertEquals(3, result.consumed)
         assertEquals("A B C", result.expectSuccessValue())
     }

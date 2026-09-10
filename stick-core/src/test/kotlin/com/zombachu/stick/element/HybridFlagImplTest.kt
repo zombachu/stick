@@ -1,17 +1,19 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.HybridFlagResult
-import com.zombachu.stick.Size
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SenderValidationResult
+import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.consuming
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.expectFailure
-import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.expectSuccessValue
+import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.isSuccess
@@ -56,7 +58,7 @@ class HybridFlagImplTest {
         val varying =
             object : Parameter.Bounded<TestEnv, Unit, String>(Size.between(1, 2), "v", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun resolve(args: List<String>): CommandResult<String> = ParsingResult.success(args[0], 1)
+                override fun resolve(args: List<String>): ConsumingResult<String> = ParsingResult.success(args[0]).consuming(1)
             }
         val varyingFlag = HybridFlagImpl("boost", varying, [])
 

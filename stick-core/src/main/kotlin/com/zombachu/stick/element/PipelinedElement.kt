@@ -1,6 +1,6 @@
 package com.zombachu.stick.element
 
-import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
@@ -9,6 +9,7 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.consuming
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 
@@ -24,7 +25,7 @@ internal class PipelinedParameter<E : Environment, S, A, T, P : Position>(
     override fun match(args: List<String>): MatchResult = base.match(args)
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<T> = parsePipeline(args, base, operations)
+    override fun parse(args: List<String>): ConsumingResult<T> = parsePipeline(args, base, operations)
 
     context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String = base.getSyntax()
@@ -45,7 +46,7 @@ internal class PipelinedValueFlag<E : Environment, S, A, T>(
     override fun match(args: List<String>): MatchResult = base.match(args)
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<T> = parsePipeline(args, base, operations)
+    override fun parse(args: List<String>): ConsumingResult<T> = parsePipeline(args, base, operations)
 
     context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String = base.getSyntax()
@@ -83,7 +84,7 @@ internal class PipelinedOptionalParameter<E : Environment, S, A, T, P : Position
     override fun match(args: List<String>): MatchResult = base.match(args)
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<T> = parsePipeline(args, base, operations)
+    override fun parse(args: List<String>): ConsumingResult<T> = parsePipeline(args, base, operations)
 
     context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String = base.getSyntax()
@@ -93,9 +94,9 @@ internal class PipelinedOptionalParameter<E : Environment, S, A, T, P : Position
 context(inv: Invocation<E, S>)
 private fun <E : Environment, S, A, T> parsePipeline(
     args: List<String>,
-    base: SyntaxElement<E, S, A>,
+    base: ConsumingElement<E, S, A>,
     operations: List<PipelineOperation<E, S, *, *>>,
-): CommandResult<T> {
+): ConsumingResult<T> {
     val baseResult = base.parse(args)
     baseResult.propagateError {
         return it
@@ -109,5 +110,5 @@ private fun <E : Environment, S, A, T> parsePipeline(
                 return it
             }
     }
-    return ParsingResult.success(value as T, consumed)
+    return ParsingResult.success(value as T).consuming(consumed)
 }

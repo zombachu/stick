@@ -1,7 +1,7 @@
 package com.zombachu.stick
 
+import com.zombachu.stick.element.ConsumingElement
 import com.zombachu.stick.element.Element
-import com.zombachu.stick.element.Group
 import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
@@ -86,32 +86,30 @@ internal open class InvocationImpl<E : Environment, S>(
         }
 
         context(this) {
-            val isContainer = element is Group<*, *, *, *> || element is Structure
-            var matched: MatchResult.Matched? = null
-            if (!isContainer) {
+            if (element !is ConsumingElement) {
+                return element.parse(peeked.value)
+            }
+
+            val matched =
                 when (val match = element.match(peeked.value)) {
                     is MatchResult.Unmatched -> return match.failure
                     is MatchResult.Partial -> return PeekingResult.failSize()
-                    is MatchResult.Matched -> matched = match
+                    is MatchResult.Matched -> match
                 }
-            }
 
             this@InvocationImpl.currentMatch = matched
             val result = element.parse(peeked.value)
             this@InvocationImpl.currentMatch = null
+
             result.propagateError {
                 return it
             }
-            val consumed = result.consumed
-            // Let containers manage their syntax element consumption
-            if (!isContainer) {
-                if (consumed !in 0..peeked.value.size) {
-                    // Bug in element implementation
-                    return ParsingResult.failUnknown()
-                } else {
-                    this@InvocationImpl.consume(peeked, consumed)
-                }
+            if (result.consumed !in 0..peeked.value.size) {
+                // Bug in element implementation
+                return ParsingResult.failUnknown()
             }
+
+            this@InvocationImpl.consume(peeked, result.consumed)
             return result
         }
     }

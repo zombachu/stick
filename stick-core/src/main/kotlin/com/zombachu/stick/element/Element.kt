@@ -3,6 +3,7 @@ package com.zombachu.stick.element
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.Arguments
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
@@ -35,6 +36,11 @@ sealed interface SyntaxElement<in E : Environment, S, out T> : Element<E, S, T> 
     fun getSyntax(): String
 }
 
+sealed interface ConsumingElement<in E : Environment, S, out T> : SyntaxElement<E, S, T> {
+    context(inv: Invocation<E, S>)
+    override fun parse(args: List<String>): ConsumingResult<T>
+}
+
 sealed interface Groupable<in E : Environment, S, out T> : SyntaxElement<E, S, T> {
     context(validationContext: ValidationContext<E, S>)
     fun getGroupedSyntax(): String = name
@@ -48,7 +54,7 @@ sealed interface Helper<in E : Environment, S, out T> : Element.Positioned<E, S,
 }
 
 sealed interface Flag<in E : Environment, S, out T> :
-    SyntaxElement<E, S, T>, Element.Positioned<E, S, T, Position.Anywhere> {
+    SyntaxElement<E, S, T>, Element.Positioned<E, S, T, Position.Anywhere>, ConsumingElement<E, S, T> {
     override val size: Size.Bounded
     val default: ContextualValue<E, S, T>
 
@@ -66,7 +72,8 @@ sealed interface Group<in E : Environment, S, out G : GroupResult, out P : Posit
 sealed interface Structure<in E : Environment, S, out T_ : Arguments> :
     Groupable.Positioned<E, S, T_, Position.Last>, Aliasable, SenderValidator<E, S>
 
-sealed interface ValidatedParameter<in E : Environment, S, out T, out P : Position> : Groupable.Positioned<E, S, T, P>
+sealed interface ValidatedParameter<in E : Environment, S, out T, out P : Position> :
+    Groupable.Positioned<E, S, T, P>, ConsumingElement<E, S, T>
 
 sealed interface OptionalParameter<in E : Environment, S, out T, out P : Position> :
-    SyntaxElement<E, S, T>, Element.Positioned<E, S, T, P>
+    SyntaxElement<E, S, T>, Element.Positioned<E, S, T, P>, ConsumingElement<E, S, T>

@@ -4,6 +4,7 @@ package com.zombachu.stick.integration.fixtures
 
 import com.zombachu.stick.Arguments
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.ParsingResult
@@ -13,6 +14,7 @@ import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.consuming
 import com.zombachu.stick.dsl.defaultSender
 import com.zombachu.stick.dsl.helper
 import com.zombachu.stick.dsl.optionally
@@ -89,10 +91,10 @@ class BioParameter<E : Environment>(name: String) :
     Parameter.Unbounded<E, SocialData, String>(Size.atLeast(1), name, "") {
 
     context(validationContext: ValidationContext<E, SocialData>)
-    override fun resolve(args: List<String>): CommandResult<String> {
+    override fun resolve(args: List<String>): ConsumingResult<String> {
         if (args.isEmpty()) return ParsingResult.failSize()
         val bioLine = args.joinToString(" ")
-        return ParsingResult.success(bioLine, args.size)
+        return ParsingResult.success(bioLine).consuming(args.size)
     }
 }
 

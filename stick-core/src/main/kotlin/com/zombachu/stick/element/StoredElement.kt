@@ -1,6 +1,7 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
@@ -17,7 +18,7 @@ internal class StoredHelper<E : Environment, S, T>(
 ) : Helper<E, S, T> by base {
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<T> = parseAndStore(base, id, args)
+    override fun parse(args: List<String>): CommandResult<T> = base.parse(args).storedAs(id)
 }
 
 internal class StoredParameter<E : Environment, S, T, P : Position>(
@@ -29,7 +30,7 @@ internal class StoredParameter<E : Environment, S, T, P : Position>(
     override fun match(args: List<String>): MatchResult = base.match(args)
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<T> = parseAndStore(base, id, args)
+    override fun parse(args: List<String>): ConsumingResult<T> = base.parse(args).storedAs(id)
 }
 
 internal class StoredValueFlag<E : Environment, S, T>(
@@ -40,7 +41,7 @@ internal class StoredValueFlag<E : Environment, S, T>(
     override val default: ContextualValue<E, S, T> = { defaultAndStore(base.default, id) }
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<T> = parseAndStore(base, id, args)
+    override fun parse(args: List<String>): ConsumingResult<T> = base.parse(args).storedAs(id)
 }
 
 internal class StoredHybridFlag<E : Environment, S, T>(
@@ -51,7 +52,7 @@ internal class StoredHybridFlag<E : Environment, S, T>(
     override val default: ContextualValue<E, S, HybridFlagResult<T>> = { defaultAndStore(base.default, id) }
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<HybridFlagResult<T>> = parseAndStore(base, id, args)
+    override fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> = base.parse(args).storedAs(id)
 }
 
 internal class StoredOptionalParameter<E : Environment, S, T, P : Position>(
@@ -60,7 +61,7 @@ internal class StoredOptionalParameter<E : Environment, S, T, P : Position>(
 ) : OptionalParameter<E, S, T, P> by base {
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<T> = parseAndStore(base, id, args)
+    override fun parse(args: List<String>): ConsumingResult<T> = base.parse(args).storedAs(id)
 }
 
 private fun <E : Environment, S, T> Invocation<E, S>.defaultAndStore(
@@ -76,15 +77,10 @@ private fun <E : Environment, S, T> Invocation<E, S>.defaultAndStore(
 }
 
 context(inv: Invocation<E, S>)
-private fun <E : Environment, S, T> parseAndStore(
-    base: Element<E, S, T>,
-    id: TypedIdentifier<T>,
-    args: List<String>,
-): CommandResult<T> {
-    val result = base.parse(args)
-    val value = result.valueOrPropagateError {
-        return it
+private fun <E : Environment, S, T, R : CommandResult<T>> R.storedAs(id: TypedIdentifier<T>): R {
+    val value = valueOrPropagateError {
+        return this
     }
     inv.put(id, value)
-    return result
+    return this
 }

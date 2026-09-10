@@ -1,28 +1,22 @@
 package com.zombachu.stick
 
+import com.zombachu.stick.ConsumingResult
+import com.zombachu.stick.consuming
 import com.zombachu.stick.feedback.Feedback
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class CommandResultTest {
 
     @Test
-    fun `success wraps value and consumes`() {
-        val result = ParsingResult.success("value", 3)
-
-        assertTrue(result.isSuccess())
-        assertEquals("value", result.value)
-        assertEquals(3, result.consumed)
-    }
-
-    @Test
-    fun `success consumed defaults to zero`() {
+    fun `success wraps value`() {
         val result = ParsingResult.success("value")
         assertTrue(result.isSuccess())
-        assertEquals(0, result.consumed)
+        assertEquals("value", result.value)
     }
 
     @Test
@@ -147,18 +141,18 @@ class CommandResultTest {
     }
 
     @Test
-    fun `withConsumed sets consumed count on success`() {
-        val result = ParsingResult.success("ok", 1).withConsumed(5)
+    fun `consuming sets consumed count on success`() {
+        val result = ParsingResult.success("ok").consuming(5)
 
-        assertTrue(result.isSuccess())
+        assertIs<ConsumingResult.Success<String>>(result)
         assertEquals("ok", result.value)
         assertEquals(5, result.consumed)
     }
 
     @Test
-    fun `withConsumed passes through failures unchanged`() {
+    fun `consuming passes through failures unchanged`() {
         val failure = ParsingResult.failSyntax("usage")
-        val result = failure.withConsumed(5)
+        val result = failure.consuming(5)
         assertSame(failure, result)
     }
 

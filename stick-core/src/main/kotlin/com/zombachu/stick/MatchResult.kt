@@ -41,10 +41,9 @@ internal fun <T> CommandResult<T>.toMatchResult(consumed: Int, element: Any): Ma
         onFailure = { MatchResult.unmatched(it) },
     )
 
-internal fun <T> CommandResult<T>.toMatchResultIn(args: List<String>, element: Any): MatchResult =
-    handleInternal(
-        onSuccess = { MatchResult.Matched(it.consumed, element, it.value) },
-        onFailure = {
-            if (it is PeekingResult.InvalidSizeError) MatchResult.partial(args.size) else MatchResult.unmatched(it)
-        },
-    )
+internal fun <T> ConsumingResult<T>.toMatchResultIn(args: List<String>, element: Any): MatchResult =
+    when (this) {
+        is ConsumingResult.Success -> MatchResult.Matched(consumed, element, value)
+        is CommandResult.InternalFailure ->
+            if (this is PeekingResult.InvalidSizeError) MatchResult.partial(args.size) else MatchResult.unmatched(this)
+    }

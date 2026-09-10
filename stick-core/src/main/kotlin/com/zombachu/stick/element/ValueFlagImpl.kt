@@ -2,6 +2,7 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
@@ -10,9 +11,9 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.ParsingResult.LiteralNotMatchedError
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.consuming
 import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.propagateError
-import com.zombachu.stick.withConsumed
 
 internal open class ValueFlagImpl<E : Environment, S, T>(
     override val name: String,
@@ -28,7 +29,7 @@ internal open class ValueFlagImpl<E : Environment, S, T>(
     override fun match(args: List<String>): MatchResult = flagParameter.match(args)
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<T> = flagParameter.parse(args)
+    override fun parse(args: List<String>): ConsumingResult<T> = flagParameter.parse(args)
 
     context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String = flagParameter.getSyntax()
@@ -59,10 +60,10 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         }
 
         context(validationContext: ValidationContext<E, S>)
-        override fun resolve(args: List<String>): CommandResult<T> {
+        override fun resolve(args: List<String>): ConsumingResult<T> {
             if (args.isEmpty()) return ParsingResult.failTypeInternal()
             if (matches(args.first().lowercase())) {
-                return validationContext.presentValue().withConsumed(1)
+                return validationContext.presentValue().consuming(1)
             }
             return ParsingResult.failTypeInternal()
         }
@@ -85,14 +86,14 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         }
 
         context(validationContext: ValidationContext<E, S>)
-        override fun resolve(args: List<String>): CommandResult<T> {
+        override fun resolve(args: List<String>): ConsumingResult<T> {
             if (args.isEmpty()) return ParsingResult.failTypeInternal()
             if (matches(args.first().lowercase())) {
                 val result = parameter.resolve(args.subList(1, args.size))
                 result.propagateError {
                     return it
                 }
-                return result.withConsumed(1 + result.consumed)
+                return result.consuming(1 + result.consumed)
             }
             return ParsingResult.failTypeInternal()
         }
@@ -124,7 +125,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         }
 
         context(validationContext: ValidationContext<E, S>)
-        override fun resolve(args: List<String>): CommandResult<T> {
+        override fun resolve(args: List<String>): ConsumingResult<T> {
             val flagArg = args.firstOrNull()
             if (flagArg == null || !flagArg.startsWith("-")) return ParsingResult.failTypeInternal()
 
@@ -133,7 +134,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
             if (result is LiteralNotMatchedError) {
                 return ParsingResult.failTypeInternal()
             }
-            return result.withConsumed(1)
+            return result.consuming(1)
         }
 
         context(validationContext: ValidationContext<E, S>)

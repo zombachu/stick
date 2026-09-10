@@ -1,15 +1,16 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SenderValidationResult
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.element.parameters.IntParameter
-import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.expectSuccessValue
+import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.presenceFlagParameter
@@ -143,7 +144,7 @@ class ValueFlagImplTest {
 
         val result = withInvocation { flagParameter.parse(["-amount", "42"]) }
 
-        assertIs<CommandResult.Success<Int>>(result)
+        assertIs<ConsumingResult.Success<Int>>(result)
         assertEquals(42, result.value)
         assertEquals(2, result.consumed)
     }

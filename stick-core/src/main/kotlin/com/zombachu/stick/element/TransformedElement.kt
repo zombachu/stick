@@ -2,6 +2,7 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.Arguments
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
@@ -35,7 +36,7 @@ internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T, P : P
     }
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<T> {
+    override fun parse(args: List<String>): ConsumingResult<T> {
         val transformedInvocation = (inv as InvocationImpl).forSender(transform)
         context(transformedInvocation) {
             return base.parse(args)
@@ -80,7 +81,7 @@ internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
     }
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<T> {
+    override fun parse(args: List<String>): ConsumingResult<T> {
         val transformedInvocation = (inv as InvocationImpl).forSender(transform)
         context(transformedInvocation) {
             return base.parse(args)
@@ -123,7 +124,7 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
     }
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<HybridFlagResult<T>> {
+    override fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> {
         val transformedInvocation = (inv as InvocationImpl).forSender(transform)
         context(transformedInvocation) {
             return base.parse(args)

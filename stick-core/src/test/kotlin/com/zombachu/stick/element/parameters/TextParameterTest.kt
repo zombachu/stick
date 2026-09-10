@@ -1,6 +1,6 @@
 package com.zombachu.stick.element.parameters
 
-import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Size
@@ -27,7 +27,7 @@ class TextParameterTest {
     @Test
     fun `consumes all args`() {
         val result = withInvocation { parameter.parse(["a", "b", "c"]) }
-        assertIs<CommandResult.Success<String>>(result)
+        assertIs<ConsumingResult.Success<String>>(result)
         assertEquals(3, result.consumed)
     }
 
