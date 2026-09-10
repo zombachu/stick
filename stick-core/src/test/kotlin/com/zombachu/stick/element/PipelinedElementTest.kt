@@ -145,4 +145,31 @@ class PipelinedElementTest {
 
         assertFalse(result.isSuccess())
     }
+
+    @Test
+    fun `PipelinedValueFlag default short-circuits if operation reports size failure`() {
+        val base = presenceValueFlag<TestEnv, Unit, Int>("", 5, 1)
+        val op: PipelineOperation<TestEnv, Unit, Int, Int> = { ParsingResult.failSize() }
+        val pipelined = PipelinedValueFlag<TestEnv, Unit, Int, Int>(base, [op])
+
+        val result = pipelined.default(testInvocation())
+
+        assertFalse(result.isSuccess())
+    }
+
+    @Test
+    fun `PipelinedValueFlag default short-circuits if base reports size failure`() {
+        val base = presenceValueFlag<TestEnv, Unit, Int>("", 5, 1)
+        val failing: PipelineOperation<TestEnv, Unit, Int, Int> = { ParsingResult.failSize() }
+        val passing: PipelineOperation<TestEnv, Unit, Int, Int> = { ParsingResult.success(it) }
+        val pipelined =
+            PipelinedValueFlag<TestEnv, Unit, Int, Int>(
+                PipelinedValueFlag<TestEnv, Unit, Int, Int>(base, [failing]),
+                [passing],
+            )
+
+        val result = pipelined.default(testInvocation())
+
+        assertFalse(result.isSuccess())
+    }
 }

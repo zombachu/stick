@@ -9,7 +9,6 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
-import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 
@@ -55,17 +54,15 @@ internal class PipelinedValueFlag<E : Environment, S, A, T>(
     override val default: ContextualValue<E, S, T>
         get() = get@{
             val baseResult = base.default(this)
-            if (!baseResult.isSuccess()) {
-                return@get baseResult as ParsingResult<T>
+            var value: Any? = baseResult.valueOrPropagateError {
+                return@get it
             }
-            var value: Any? = baseResult.value
             operations.forEach {
                 val operation = it as PipelineOperation<E, S, Any?, Any?>
-                val operationResult = operation(this, value)
-                if (!operationResult.isSuccess()) {
-                    return@get operationResult as ParsingResult<T>
-                }
-                value = operationResult.value
+                value =
+                    operation(this, value).valueOrPropagateError {
+                        return@get it
+                    }
             }
             ParsingResult.success(value as T)
         }
