@@ -49,6 +49,18 @@ class ParameterTest {
     }
 
     @Test
+    fun `fixed arity match returns partial for incomplete args`() {
+        val parameter =
+            object : Parameter.Size2<TestEnv, Unit, String>("", "") {
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(arg0: String, arg1: String): CommandResult<String> = ParsingResult.failSize()
+            }
+
+        assertEquals(MatchResult.partial(2), withValidationContext { parameter.match(["a", "b"]) })
+        assertEquals(MatchResult.partial(1), withValidationContext { parameter.match(["a"]) })
+    }
+
+    @Test
     fun `parse ignores memo produced by another parameter`() {
         var resolves = 0
         val other = countingParameter {}

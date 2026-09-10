@@ -35,15 +35,9 @@ sealed interface MatchResult {
     }
 }
 
-internal fun <T> CommandResult<T>.toMatchResult(consumed: Int, element: Any): MatchResult =
-    handleInternal(
-        onSuccess = { MatchResult.Matched(consumed, element, it.value) },
-        onFailure = { MatchResult.unmatched(it) },
-    )
-
-internal fun <T> ConsumingResult<T>.toMatchResultIn(args: List<String>, element: Any): MatchResult =
+internal fun <T> ConsumingResult<T>.toMatchResult(matched: Int, element: Any): MatchResult =
     when (this) {
         is ConsumingResult.Success -> MatchResult.Matched(consumed, element, value)
         is CommandResult.InternalFailure ->
-            if (this is PeekingResult.InvalidSizeError) MatchResult.partial(args.size) else MatchResult.unmatched(this)
+            if (this is PeekingResult.InvalidSizeError) MatchResult.partial(matched) else MatchResult.unmatched(this)
     }

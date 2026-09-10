@@ -14,7 +14,6 @@ import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.toMatchResult
-import com.zombachu.stick.toMatchResultIn
 
 sealed class Parameter<in E : Environment, S, out T, out P : Position>(
     override val size: Size,
@@ -44,121 +43,126 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
         }
 
         context(validationContext: ValidationContext<E, S>)
-        override fun match(args: List<String>): MatchResult = resolve(args).toMatchResultIn(args, this)
+        override fun match(args: List<String>): MatchResult = resolve(args).toMatchResult(args.size, this)
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(args: List<String>): ConsumingResult<T>
     }
 
-    abstract class Size1<in E : Environment, S, out T>(name: String, description: String) :
-        Bounded<E, S, T>(Size(1), name, description) {
+    abstract class Fixed<in E : Environment, S, out T>(internal val arity: Int, name: String, description: String) :
+        Bounded<E, S, T>(Size(arity), name, description) {
 
         context(validationContext: ValidationContext<E, S>)
         final override fun match(args: List<String>): MatchResult {
-            if (args.isEmpty()) return MatchResult.partial(args.size)
-            return match(args[0])
+            if (args.size < arity) return MatchResult.partial(args.size)
+            return matchArity(args)
         }
 
         context(validationContext: ValidationContext<E, S>)
-        open fun match(arg0: String): MatchResult = resolve(arg0).toMatchResult(1, this)
+        protected abstract fun matchArity(args: List<String>): MatchResult
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun resolve(args: List<String>): ConsumingResult<T> = resolve(args[0]).consuming(1)
+        final override fun resolve(args: List<String>): ConsumingResult<T> = resolveArity(args).consuming(arity)
+
+        context(validationContext: ValidationContext<E, S>)
+        protected abstract fun resolveArity(args: List<String>): CommandResult<T>
+
+        internal fun CommandResult<*>.toArityMatchResult(): MatchResult =
+            this.consuming(arity).toMatchResult(arity, this@Fixed)
+    }
+
+    abstract class Size1<in E : Environment, S, out T>(name: String, description: String) :
+        Fixed<E, S, T>(1, name, description) {
+
+        context(validationContext: ValidationContext<E, S>)
+        final override fun matchArity(args: List<String>): MatchResult = match(args[0])
+
+        context(validationContext: ValidationContext<E, S>)
+        open fun match(arg0: String): MatchResult = resolve(arg0).toArityMatchResult()
+
+        context(validationContext: ValidationContext<E, S>)
+        final override fun resolveArity(args: List<String>): CommandResult<T> = resolve(args[0])
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(arg0: String): CommandResult<T>
     }
 
     abstract class Size2<in E : Environment, S, out T>(name: String, description: String) :
-        Bounded<E, S, T>(Size(2), name, description) {
+        Fixed<E, S, T>(2, name, description) {
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun match(args: List<String>): MatchResult {
-            if (args.size < 2) return MatchResult.partial(args.size)
-            return match(args[0], args[1])
-        }
+        final override fun matchArity(args: List<String>): MatchResult = match(args[0], args[1])
 
         context(validationContext: ValidationContext<E, S>)
-        open fun match(arg0: String, arg1: String): MatchResult = resolve(arg0, arg1).toMatchResult(2, this)
+        open fun match(arg0: String, arg1: String): MatchResult = resolve(arg0, arg1).toArityMatchResult()
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun resolve(args: List<String>): ConsumingResult<T> = resolve(args[0], args[1]).consuming(2)
+        final override fun resolveArity(args: List<String>): CommandResult<T> = resolve(args[0], args[1])
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(arg0: String, arg1: String): CommandResult<T>
     }
 
     abstract class Size3<in E : Environment, S, out T>(name: String, description: String) :
-        Bounded<E, S, T>(Size(3), name, description) {
+        Fixed<E, S, T>(3, name, description) {
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun match(args: List<String>): MatchResult {
-            if (args.size < 3) return MatchResult.partial(args.size)
-            return match(args[0], args[1], args[2])
-        }
+        final override fun matchArity(args: List<String>): MatchResult = match(args[0], args[1], args[2])
 
         context(validationContext: ValidationContext<E, S>)
         open fun match(arg0: String, arg1: String, arg2: String): MatchResult =
-            resolve(arg0, arg1, arg2).toMatchResult(3, this)
+            resolve(arg0, arg1, arg2).toArityMatchResult()
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun resolve(args: List<String>): ConsumingResult<T> =
-            resolve(args[0], args[1], args[2]).consuming(3)
+        final override fun resolveArity(args: List<String>): CommandResult<T> = resolve(args[0], args[1], args[2])
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(arg0: String, arg1: String, arg2: String): CommandResult<T>
     }
 
     abstract class Size4<in E : Environment, S, out T>(name: String, description: String) :
-        Bounded<E, S, T>(Size(4), name, description) {
+        Fixed<E, S, T>(4, name, description) {
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun match(args: List<String>): MatchResult {
-            if (args.size < 4) return MatchResult.partial(args.size)
-            return match(args[0], args[1], args[2], args[3])
-        }
+        final override fun matchArity(args: List<String>): MatchResult = match(args[0], args[1], args[2], args[3])
 
         context(validationContext: ValidationContext<E, S>)
         open fun match(arg0: String, arg1: String, arg2: String, arg3: String): MatchResult =
-            resolve(arg0, arg1, arg2, arg3).toMatchResult(4, this)
+            resolve(arg0, arg1, arg2, arg3).toArityMatchResult()
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun resolve(args: List<String>): ConsumingResult<T> =
-            resolve(args[0], args[1], args[2], args[3]).consuming(4)
+        final override fun resolveArity(args: List<String>): CommandResult<T> =
+            resolve(args[0], args[1], args[2], args[3])
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(arg0: String, arg1: String, arg2: String, arg3: String): CommandResult<T>
     }
 
     abstract class Size5<in E : Environment, S, out T>(name: String, description: String) :
-        Bounded<E, S, T>(Size(5), name, description) {
+        Fixed<E, S, T>(5, name, description) {
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun match(args: List<String>): MatchResult {
-            if (args.size < 5) return MatchResult.partial(args.size)
-            return match(args[0], args[1], args[2], args[3], args[4])
-        }
+        final override fun matchArity(args: List<String>): MatchResult =
+            match(args[0], args[1], args[2], args[3], args[4])
 
         context(validationContext: ValidationContext<E, S>)
         open fun match(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String): MatchResult =
-            resolve(arg0, arg1, arg2, arg3, arg4).toMatchResult(5, this)
+            resolve(arg0, arg1, arg2, arg3, arg4).toArityMatchResult()
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun resolve(args: List<String>): ConsumingResult<T> =
-            resolve(args[0], args[1], args[2], args[3], args[4]).consuming(5)
+        final override fun resolveArity(args: List<String>): CommandResult<T> =
+            resolve(args[0], args[1], args[2], args[3], args[4])
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String): CommandResult<T>
     }
 
     abstract class Size6<in E : Environment, S, out T>(name: String, description: String) :
-        Bounded<E, S, T>(Size(6), name, description) {
+        Fixed<E, S, T>(6, name, description) {
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun match(args: List<String>): MatchResult {
-            if (args.size < 6) return MatchResult.partial(args.size)
-            return match(args[0], args[1], args[2], args[3], args[4], args[5])
-        }
+        final override fun matchArity(args: List<String>): MatchResult =
+            match(args[0], args[1], args[2], args[3], args[4], args[5])
 
         context(validationContext: ValidationContext<E, S>)
         open fun match(
@@ -168,11 +172,11 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
             arg3: String,
             arg4: String,
             arg5: String,
-        ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5).toMatchResult(6, this)
+        ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5).toArityMatchResult()
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun resolve(args: List<String>): ConsumingResult<T> =
-            resolve(args[0], args[1], args[2], args[3], args[4], args[5]).consuming(6)
+        final override fun resolveArity(args: List<String>): CommandResult<T> =
+            resolve(args[0], args[1], args[2], args[3], args[4], args[5])
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(
@@ -186,13 +190,11 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
     }
 
     abstract class Size7<in E : Environment, S, out T>(name: String, description: String) :
-        Bounded<E, S, T>(Size(7), name, description) {
+        Fixed<E, S, T>(7, name, description) {
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun match(args: List<String>): MatchResult {
-            if (args.size < 7) return MatchResult.partial(args.size)
-            return match(args[0], args[1], args[2], args[3], args[4], args[5], args[6])
-        }
+        final override fun matchArity(args: List<String>): MatchResult =
+            match(args[0], args[1], args[2], args[3], args[4], args[5], args[6])
 
         context(validationContext: ValidationContext<E, S>)
         open fun match(
@@ -203,11 +205,11 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
             arg4: String,
             arg5: String,
             arg6: String,
-        ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5, arg6).toMatchResult(7, this)
+        ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5, arg6).toArityMatchResult()
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun resolve(args: List<String>): ConsumingResult<T> =
-            resolve(args[0], args[1], args[2], args[3], args[4], args[5], args[6]).consuming(7)
+        final override fun resolveArity(args: List<String>): CommandResult<T> =
+            resolve(args[0], args[1], args[2], args[3], args[4], args[5], args[6])
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(
@@ -222,13 +224,11 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
     }
 
     abstract class Size8<in E : Environment, S, out T>(name: String, description: String) :
-        Bounded<E, S, T>(Size(8), name, description) {
+        Fixed<E, S, T>(8, name, description) {
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun match(args: List<String>): MatchResult {
-            if (args.size < 8) return MatchResult.partial(args.size)
-            return match(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7])
-        }
+        final override fun matchArity(args: List<String>): MatchResult =
+            match(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7])
 
         context(validationContext: ValidationContext<E, S>)
         open fun match(
@@ -240,11 +240,11 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
             arg5: String,
             arg6: String,
             arg7: String,
-        ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7).toMatchResult(8, this)
+        ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7).toArityMatchResult()
 
         context(validationContext: ValidationContext<E, S>)
-        final override fun resolve(args: List<String>): ConsumingResult<T> =
-            resolve(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]).consuming(8)
+        final override fun resolveArity(args: List<String>): CommandResult<T> =
+            resolve(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7])
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(
@@ -276,7 +276,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
         }
 
         context(validationContext: ValidationContext<E, S>)
-        override fun match(args: List<String>): MatchResult = resolve(args).toMatchResultIn(args, this)
+        override fun match(args: List<String>): MatchResult = resolve(args).toMatchResult(args.size, this)
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(args: List<String>): ConsumingResult<T>
