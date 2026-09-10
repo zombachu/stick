@@ -2,7 +2,6 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
-import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
@@ -99,7 +98,7 @@ class PipelinedElementTest {
         val op: PipelineOperation<TestEnv, Unit, String, String> = { ParsingResult.success(it) }
         val pipelined =
             PipelinedParameter<TestEnv, Unit, String, String, Position.Leading>(LiteralParameter("", [], ""), [op])
-        assertEquals(ElementType.Literal, pipelined.type)
+        assertEquals(GroupableType.Literal, pipelined.type)
     }
 
     @Test

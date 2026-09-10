@@ -16,12 +16,6 @@ import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
 
 sealed interface Element<in E : Environment, S, out T> {
-    val size: Size
-    val type: ElementType
-
-    context(validationContext: ValidationContext<E, S>)
-    fun match(args: List<String>): MatchResult
-
     context(inv: Invocation<E, S>)
     fun parse(args: List<String>): CommandResult<T>
 
@@ -29,8 +23,12 @@ sealed interface Element<in E : Environment, S, out T> {
 }
 
 sealed interface SyntaxElement<in E : Environment, S, out T> : Element<E, S, T> {
+    val size: Size
     val name: String
     val description: String
+
+    context(validationContext: ValidationContext<E, S>)
+    fun match(args: List<String>): MatchResult
 
     context(validationContext: ValidationContext<E, S>)
     fun getSyntax(): String
@@ -42,6 +40,8 @@ sealed interface ConsumingElement<in E : Environment, S, out T> : SyntaxElement<
 }
 
 sealed interface Groupable<in E : Environment, S, out T> : SyntaxElement<E, S, T> {
+    val type: GroupableType
+
     context(validationContext: ValidationContext<E, S>)
     fun getGroupedSyntax(): String = name
 
@@ -49,12 +49,10 @@ sealed interface Groupable<in E : Environment, S, out T> : SyntaxElement<E, S, T
         Groupable<E, S, T>, Element.Positioned<E, S, T, P>
 }
 
-sealed interface Helper<in E : Environment, S, out T> : Element.Positioned<E, S, T, Position.Leading> {
-    override val size: Size.Bounded
-}
+sealed interface Helper<in E : Environment, S, out T> : Element.Positioned<E, S, T, Position.Leading>
 
 sealed interface Flag<in E : Environment, S, out T> :
-    SyntaxElement<E, S, T>, Element.Positioned<E, S, T, Position.Anywhere>, ConsumingElement<E, S, T> {
+    Element.Positioned<E, S, T, Position.Anywhere>, ConsumingElement<E, S, T> {
     override val size: Size.Bounded
     val default: ContextualValue<E, S, T>
 
@@ -76,4 +74,4 @@ sealed interface ValidatedParameter<in E : Environment, S, out T, out P : Positi
     Groupable.Positioned<E, S, T, P>, ConsumingElement<E, S, T>
 
 sealed interface OptionalParameter<in E : Environment, S, out T, out P : Position> :
-    SyntaxElement<E, S, T>, Element.Positioned<E, S, T, P>, ConsumingElement<E, S, T>
+    Element.Positioned<E, S, T, P>, ConsumingElement<E, S, T>

@@ -13,21 +13,12 @@ import com.zombachu.stick.Arguments8
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
-import com.zombachu.stick.Size
-import com.zombachu.stick.ValidationContext
 
 internal open class OptionalsImpl<E : Environment, S, T : Arguments>(
     internal val elements: List<Element<E, S, Any?>>,
     internal val combine: (List<Any?>) -> T,
 ) : Element.Positioned<E, S, T, Position.Last> {
-
-    override val type: ElementType = ElementType.Default
-    override val size: Size = elements.fold(Size(0) as Size) { total, element -> total + element.size }
-
-    context(validationContext: ValidationContext<E, S>)
-    override fun match(args: List<String>): MatchResult = unusedValue()
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = unusedValue()

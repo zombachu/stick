@@ -5,6 +5,7 @@ import com.zombachu.stick.element.Element
 import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
+import com.zombachu.stick.element.SyntaxElement
 
 internal open class InvocationImpl<E : Environment, S>(
     override val sender: S,
@@ -79,13 +80,16 @@ internal open class InvocationImpl<E : Environment, S>(
     }
 
     internal fun <T> processElement(element: Element<E, S, T>): CommandResult<T> {
-        val peeked: PeekingResult = peek(element.size)
-        if (peeked !is PeekingResult.Success) {
-            @Suppress("UNCHECKED_CAST")
-            return peeked as CommandResult<Nothing>
-        }
-
         context(this) {
+            if (element !is SyntaxElement) {
+                return element.parse([])
+            }
+
+            val peeked: PeekingResult = this@InvocationImpl.peek(element.size)
+            if (peeked !is PeekingResult.Success) {
+                return PeekingResult.failSize()
+            }
+
             if (element !is ConsumingElement) {
                 return element.parse(peeked.value)
             }

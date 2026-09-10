@@ -19,7 +19,7 @@ internal class PipelinedParameter<E : Environment, S, A, T, P : Position>(
     private val operations: List<PipelineOperation<E, S, *, *>>,
 ) : Parameter<E, S, T, P>(base.size, base.name, base.description) {
 
-    override val type: ElementType = base.type
+    override val type: GroupableType = base.type
 
     context(validationContext: ValidationContext<E, S>)
     override fun match(args: List<String>): MatchResult = base.match(args)
@@ -38,7 +38,6 @@ internal class PipelinedValueFlag<E : Environment, S, A, T>(
 ) : ValueFlag<E, S, T> {
 
     override val size: Size.Bounded = base.size
-    override val type: ElementType = base.type
     override val name: String = base.name
     override val description: String = base.description
 
@@ -76,7 +75,6 @@ internal class PipelinedOptionalParameter<E : Environment, S, A, T, P : Position
 ) : OptionalParameter<E, S, T, P> {
 
     override val size: Size = base.size
-    override val type: ElementType = base.type
     override val name: String = base.name
     override val description: String = base.description
 

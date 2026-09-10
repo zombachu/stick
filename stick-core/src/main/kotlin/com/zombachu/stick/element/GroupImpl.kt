@@ -58,7 +58,7 @@ internal open class GroupImpl<E : Environment, S, G : GroupResult, P : Position>
                     Size.atLeast(minOf(a.min, b.min))
                 }
             }
-    override val type: ElementType = ElementType.Default
+    override val type: GroupableType = GroupableType.Default
 
     context(validationContext: ValidationContext<E, S>)
     override fun match(args: List<String>): MatchResult {

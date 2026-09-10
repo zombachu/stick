@@ -6,7 +6,7 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.ValidationContext
-import com.zombachu.stick.element.ElementType
+import com.zombachu.stick.element.GroupableType
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.lowercase
 
@@ -17,7 +17,7 @@ open class EnumParameter<E : Environment, S, T : Enum<T>>(
     val aliasedValues: Map<String, T>,
 ) : Parameter.Size1<E, S, T>(name, description) {
 
-    override val type: ElementType = ElementType.Literal
+    override val type: GroupableType = GroupableType.Literal
 
     context(validationContext: ValidationContext<E, S>)
     override fun resolve(arg0: String): CommandResult<T> {

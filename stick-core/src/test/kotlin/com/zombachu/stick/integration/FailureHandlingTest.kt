@@ -11,7 +11,7 @@ import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.listElementParameter
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.structure
-import com.zombachu.stick.element.ElementType
+import com.zombachu.stick.element.GroupableType
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.feedback.CustomFeedback
 import com.zombachu.stick.feedback.FailureHandler
@@ -113,7 +113,7 @@ class FailureHandlingTest {
     @Test
     fun `throw - handler catches exception from element`() {
         class ThrowingParameter(name: String) : Parameter.Size1<Server, Sender, String>(name, "") {
-            override val type: ElementType = ElementType.Passthrough
+            override val type: GroupableType = GroupableType.Passthrough
 
             context(validationContext: ValidationContext<Server, Sender>)
             override fun match(arg0: String): MatchResult = MatchResult.matched(1)

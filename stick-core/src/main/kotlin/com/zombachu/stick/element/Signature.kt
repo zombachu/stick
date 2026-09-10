@@ -51,15 +51,19 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
     fun getSyntax(): String {
         // unboundedElements should be at most 1
         val (boundedElements, unboundedElements) =
-            linearElements.map { it.element }.partition { it.size is Size.Bounded }
+            linearElements
+                .map { it.element }
+                .filterIsInstance<SyntaxElement<E, S, *>>()
+                .partition { it.size is Size.Bounded }
         val syntax =
             boundedElements.getSyntaxes() + flags.map { it.element }.getSyntaxes() + unboundedElements.getSyntaxes()
         return syntax.filter { it.isNotEmpty() }.joinToString(" ")
     }
 
     context(validationContext: ValidationContext<E, S>)
-    private fun List<Element<E, S, Any?>>.getSyntaxes(): List<String> =
-        filterIsInstance<SyntaxElement<E, S, *>>().filter { it.validateSender().isSuccess() }.map { it.getSyntax() }
+    private fun List<SyntaxElement<E, S, *>>.getSyntaxes(): List<String> {
+        return filter { it.validateSender().isSuccess() }.map { it.getSyntax() }
+    }
 
     context(inv: InvocationImpl<E, S>)
     private fun processElement(

@@ -21,7 +21,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
     override val description: String,
 ) : Groupable.Positioned<E, S, T, P>, ConsumingElement<E, S, T> {
 
-    override val type: ElementType = ElementType.Default
+    override val type: GroupableType = GroupableType.Default
 
     context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String = "<${name}>"

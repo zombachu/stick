@@ -5,7 +5,7 @@ import com.zombachu.stick.MatchResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.element.ElementType
+import com.zombachu.stick.element.GroupableType
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withValidationContext
@@ -50,6 +50,6 @@ class TextParameterTest {
     @Test
     fun `has correct properties`() {
         assertIs<Size.Unbounded>(parameter.size)
-        assertEquals(ElementType.Passthrough, parameter.type)
+        assertEquals(GroupableType.Passthrough, parameter.type)
     }
 }

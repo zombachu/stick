@@ -22,7 +22,6 @@ internal open class ValueFlagImpl<E : Environment, S, T>(
 ) : ValueFlag<E, S, T> {
 
     override val size: Size.Bounded = flagParameter.size
-    override val type: ElementType = ElementType.Flag
     override val description: String = flagParameter.description
 
     context(validationContext: ValidationContext<E, S>)

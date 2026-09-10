@@ -2,7 +2,7 @@ package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.element.ElementType
+import com.zombachu.stick.element.GroupableType
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.expectSuccessValue
@@ -59,6 +59,6 @@ class LiteralParameterTest {
 
     @Test
     fun `type is Literal`() {
-        assertEquals(ElementType.Literal, parameter.type)
+        assertEquals(GroupableType.Literal, parameter.type)
     }
 }

@@ -23,7 +23,7 @@ internal open class StructureImpl<E : Environment, S, T_ : Arguments>(
 ) : Structure<E, S, T_> {
 
     override val size: Size = Size.atLeast(1)
-    override val type: ElementType = ElementType.Literal
+    override val type: GroupableType = GroupableType.Literal
     override val label: String = name
 
     context(validationContext: ValidationContext<E, S>)

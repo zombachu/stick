@@ -19,7 +19,6 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
 ) : OptionalParameter<E, S, T, P> {
 
     override val size: Size = parameter.size.orNothing()
-    override val type: ElementType = parameter.type
     override val name: String = parameter.name
     override val description: String = parameter.description
 

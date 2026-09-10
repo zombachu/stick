@@ -23,7 +23,7 @@ internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T, P : P
 ) : ValidatedParameter<E, S, T, P>, SenderValidator<E, S> {
 
     override val size: Size = base.size
-    override val type: ElementType = base.type
+    override val type: GroupableType = base.type
     override val name: String = base.name
     override val description: String = base.description
 
@@ -67,7 +67,6 @@ internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
     }
 
     override val size: Size.Bounded = base.size
-    override val type: ElementType = ElementType.Flag
     override val name: String = base.name
     override val description: String = base.description
     override val invalidDefault: ContextualValue<E, S, T> = invalidSenderDefault.value
@@ -107,7 +106,6 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
 ) : HybridFlag<E, S, T>, Flag.Validated<E, S, HybridFlagResult<T>> {
 
     override val size: Size.Bounded = base.size
-    override val type: ElementType = ElementType.Flag
     override val name: String = base.name
     override val description: String = base.description
     override val invalidDefault: ContextualValue<E, S, HybridFlagResult<T>> = invalidSenderDefault.value
@@ -153,7 +151,7 @@ internal class TransformedStructure<E : Environment, S, S2 : Any, T_ : Arguments
     override val aliases: Set<String> = base.aliases
     override val description: String = base.description
     override val size: Size = base.size
-    override val type: ElementType = base.type
+    override val type: GroupableType = base.type
     override val label: String = base.label
 
     context(validationContext: ValidationContext<E, S>)
