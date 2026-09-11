@@ -5,8 +5,10 @@ import com.zombachu.stick.dsl.default
 import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invalidDefault
 import com.zombachu.stick.dsl.invoke
+import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.optionally
 import com.zombachu.stick.dsl.optionallyNullable
+import com.zombachu.stick.dsl.optionals
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.feedback.Feedback
@@ -133,5 +135,27 @@ class OptionalTest {
         assertEquals(["Speed changed to 1"], steve.logs)
 
         assertEquals(Feedback.InvalidPermission, speedCommand.executeExpectingError(server, steve, "/speed 10"))
+    }
+
+    @Test
+    fun `tp - optionals process left to right`() {
+        val tpCommand = structure(Server::class, Sender::class) {
+            command("tp")(
+                optionals(
+                    optionallyNullable(literalParameter("here")),
+                    optionallyNullable(literalParameter("there")),
+                )
+            ) { (here: String?, there: String?) ->
+                sender.log("$here $there")
+            }
+        }
+
+        tpCommand.execute(server, zombachu, "/tp here there")
+        assertEquals(["here there"], zombachu.logs)
+
+        assertEquals(
+            Feedback.LiteralNotMatched(["here"], "there"),
+            tpCommand.executeExpectingError(server, zombachu, "/tp there"),
+        )
     }
 }

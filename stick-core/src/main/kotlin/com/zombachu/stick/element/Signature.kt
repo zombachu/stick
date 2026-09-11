@@ -66,7 +66,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
     }
 
     context(inv: InvocationImpl<E, S>)
-    private fun processElement(
+    private fun parseElement(
         values: MutableList<Any?>,
         element: IndexedElement<E, S, Element<E, S, Any?>>,
     ): CommandResult<Any?> {
@@ -82,31 +82,33 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
         val values: MutableList<Any?> = MutableList(flattenedElementsCount) {}
 
         val unprocessedFlags = flags.toMutableList()
-        var parameterIndex = 0
-
-        while (parameterIndex < linearElements.size) {
-            processFlags(unprocessedFlags, values).propagateError {
+        processElements(
+                unprocessedFlags,
+                processFlag = { flag ->
+                    parseElement(values, flag).propagateError {
+                        when (it) {
+                            // Ignore matching errors
+                            is ParsingResult.TypeNotMatchedInternal,
+                            is PeekingResult.InvalidSizeError -> return@processElements false
+                            // If the flag matched and an error occurred in parsing then propagate it up
+                            else -> return it
+                        }
+                    }
+                    true
+                },
+                processLinear = { element ->
+                    parseElement(values, element).propagateError {
+                        return if (it is PeekingResult.InvalidSizeError || it is ParsingResult.TypeNotMatchedInternal) {
+                            ParsingResult.failSyntax(inv.getSyntax())
+                        } else {
+                            it
+                        }
+                    }
+                },
+            )
+            .propagateError {
                 return it
             }
-
-            linearElements[parameterIndex].element.validateSender().propagateError {
-                return it
-            }
-
-            // Parse with the element as a syntax element
-            processElement(values, linearElements[parameterIndex]).propagateError {
-                return if (it is PeekingResult.InvalidSizeError || it is ParsingResult.TypeNotMatchedInternal) {
-                    ParsingResult.failSyntax(inv.getSyntax())
-                } else {
-                    it
-                }
-            }
-            parameterIndex++
-        }
-
-        processFlags(unprocessedFlags, values).propagateError {
-            return it
-        }
 
         // If there are unused args then the sender used invalid syntax
         if (inv.unparsed.isNotEmpty()) return ParsingResult.failSyntax(inv.getSyntax())
@@ -133,39 +135,42 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
         return ParsingResult.success(values.subList(0, elementsCount))
     }
 
-    context(inv: InvocationImpl<E, S>)
-    private fun processFlags(
+    context(validationContext: ValidationContext<E, S>)
+    private inline fun processElements(
         unprocessedFlags: MutableList<IndexedElement<E, S, Flag<E, S, Any?>>>,
-        values: MutableList<Any?>,
+        processFlag: (IndexedElement<E, S, Flag<E, S, Any?>>) -> Boolean,
+        processLinear: (IndexedElement<E, S, Element<E, S, Any?>>) -> Unit,
     ): CommandResult<Unit> {
-        // Attempt to parse the input as a flag (potentially multiple in a row, in any order)
-        var unprocessedFlagsSize = -1
-        while (unprocessedFlagsSize != unprocessedFlags.size) {
-            unprocessedFlagsSize = unprocessedFlags.size
-
-            val flagsIt = unprocessedFlags.iterator()
-            while (flagsIt.hasNext()) {
-                val indexedFlag = flagsIt.next()
-                val flag: Flag<E, S, Any?> = indexedFlag.element
-
-                // Ignore flags unable to be accessed by the sender
-                flag.validateSender().propagateError { continue }
-
-                processElement(values, indexedFlag).propagateError {
-                    when (it) {
-                        // Ignore matching errors
-                        is ParsingResult.TypeNotMatchedInternal,
-                        is PeekingResult.InvalidSizeError -> continue
-                        // If the flag matched and an error occurred in parsing then propagate it up
-                        else -> return it
-                    }
-                }
-                // Mark the flag as processed if it succeeded
-                flagsIt.remove()
+        // Flags may appear in any order, so attempt to process them around each element
+        for (linear in linearElements) {
+            processFlags(unprocessedFlags, processFlag)
+            linear.element.validateSender().propagateError {
+                return it
             }
+            processLinear(linear)
         }
+        processFlags(unprocessedFlags, processFlag)
         return ParsingResult.success(Unit)
     }
 
-    data class IndexedElement<E : Environment, S, out L : Element<E, S, *>>(val index: Int, val element: L)
+    context(validationContext: ValidationContext<E, S>)
+    private inline fun processFlags(
+        unprocessedFlags: MutableList<IndexedElement<E, S, Flag<E, S, Any?>>>,
+        processFlag: (IndexedElement<E, S, Flag<E, S, Any?>>) -> Boolean,
+    ) {
+        do {
+            var progressed = false
+            val flagsIt = unprocessedFlags.iterator()
+            while (flagsIt.hasNext()) {
+                val indexedFlag = flagsIt.next()
+                indexedFlag.element.validateSender().propagateError { continue }
+                if (processFlag(indexedFlag)) {
+                    flagsIt.remove()
+                    progressed = true
+                }
+            }
+        } while (progressed)
+    }
+
+    private data class IndexedElement<E : Environment, S, out L : Element<E, S, *>>(val index: Int, val element: L)
 }
