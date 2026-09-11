@@ -219,7 +219,7 @@ class InvocationImplTest {
         val misbehavingParameter =
             object : Parameter.Bounded<TestEnv, Unit, String>(Size(1), "", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun match(args: List<String>): MatchResult = MatchResult.matched(1)
+                override fun match(args: List<String>): MatchResult = MatchResult.matchedExactly(1)
 
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(args: List<String>): ConsumingResult<String> = ParsingResult.success("a").consuming(5)

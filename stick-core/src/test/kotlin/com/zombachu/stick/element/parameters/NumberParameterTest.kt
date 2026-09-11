@@ -84,7 +84,7 @@ class NumberParameterTest {
     fun `matching considers type not range`() {
         val parameter = IntParameter<TestEnv, Unit>("", "", 0, 10)
 
-        assertEquals(MatchResult.matched(1), match(parameter, "11"))
+        assertEquals(MatchResult.matchedExactly(1), match(parameter, "11"))
         assertEquals(Feedback.TypeNotMatched("integer", "x"), matchFailure(parameter, "x"))
     }
 

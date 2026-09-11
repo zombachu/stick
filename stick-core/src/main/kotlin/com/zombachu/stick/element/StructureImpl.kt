@@ -28,9 +28,9 @@ internal open class StructureImpl<E : Environment, S, T_ : Arguments>(
 
     context(validationContext: ValidationContext<E, S>)
     override fun match(args: List<String>): MatchResult {
-        val label = args.firstOrNull() ?: return MatchResult.partial(0)
+        val label = args.firstOrNull() ?: return MatchResult.partial()
         if (!matches(label.lowercase())) return MatchResult.unmatched()
-        return MatchResult.matched(args.size)
+        return MatchResult.matchedAtLeast(args.size)
     }
 
     context(inv: Invocation<E, S>)

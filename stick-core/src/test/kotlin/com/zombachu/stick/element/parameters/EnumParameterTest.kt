@@ -39,7 +39,7 @@ class EnumParameterTest {
 
     @Test
     fun `match claims one arg for an aliased value`() {
-        assertEquals(MatchResult.matched(1), withValidationContext { parameter.match("R") })
+        assertEquals(MatchResult.matchedExactly(1), withValidationContext { parameter.match("R") })
     }
 
     @Test

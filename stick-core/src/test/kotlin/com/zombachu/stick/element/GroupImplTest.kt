@@ -78,7 +78,7 @@ class GroupImplTest {
         val mismatching =
             object : Parameter.Size1<TestEnv, Unit, String>("bad", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun match(arg0: String): MatchResult = MatchResult.matched(1)
+                override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> = ParsingResult.failType("bad", arg0)
@@ -96,7 +96,7 @@ class GroupImplTest {
         val twoArgParam =
             object : Parameter.Size2<TestEnv, Unit, String>("two", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun match(arg0: String, arg1: String): MatchResult = MatchResult.matched(2)
+                override fun match(arg0: String, arg1: String): MatchResult = MatchResult.matchedExactly(2)
 
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(arg0: String, arg1: String): CommandResult<String> =
@@ -115,7 +115,7 @@ class GroupImplTest {
         val hardFailure =
             object : Parameter.Size1<TestEnv, Unit, String>("bad", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun match(arg0: String): MatchResult = MatchResult.matched(1)
+                override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> = ParsingResult.failRange("0", "10", arg0)
@@ -176,7 +176,23 @@ class GroupImplTest {
 
         val result = withValidationContext { group.match(["two"]) }
 
-        assertEquals(MatchResult.matched(1), result)
+        assertEquals(MatchResult.matchedExactly(1), result)
+    }
+
+    @Test
+    fun `match allows higher-priority elements to continue consuming when lower-priority elements are full`() {
+        val pair =
+            object : Parameter.Size2<TestEnv, Unit, String>("pair", "") {
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(arg0: String, arg1: String): CommandResult<String> =
+                    ParsingResult.success("$arg0$arg1")
+            }
+        val single = StringParameter<TestEnv, Unit>("single", "")
+        val group = group2(pair, single)
+
+        val result = withValidationContext { group.match(["a"]) }
+
+        assertEquals(MatchResult.matchedAtLeast(1), result)
     }
 
     @Test
@@ -217,7 +233,7 @@ class GroupImplTest {
         val twoArgParam =
             object : Parameter.Size2<TestEnv, Unit, String>("two", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun match(arg0: String, arg1: String): MatchResult = MatchResult.matched(2)
+                override fun match(arg0: String, arg1: String): MatchResult = MatchResult.matchedExactly(2)
 
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(arg0: String, arg1: String): CommandResult<String> = ParsingResult.success("")
@@ -227,7 +243,7 @@ class GroupImplTest {
 
         val result = withValidationContext { group.match(["take"]) }
 
-        assertEquals(MatchResult.partial(1), result)
+        assertEquals(MatchResult.partial(), result)
     }
 
     @Test
@@ -259,7 +275,7 @@ class GroupImplTest {
         val twoArgParam =
             object : Parameter.Size2<TestEnv, Unit, String>("two", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun match(arg0: String, arg1: String): MatchResult = MatchResult.matched(2)
+                override fun match(arg0: String, arg1: String): MatchResult = MatchResult.matchedExactly(2)
 
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(arg0: String, arg1: String): CommandResult<String> = ParsingResult.success("")

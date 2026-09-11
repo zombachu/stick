@@ -27,19 +27,25 @@ class ParameterTest {
                     args.isEmpty() -> ParsingResult.failSize()
                     args[0] == "wide" -> ParsingResult.success("wide").consuming(2)
                     args[0] == "narrow" -> ParsingResult.success("narrow").consuming(1)
+                    args[0] == "exact" -> ParsingResult.success("exact").consuming(1, canConsumeMore = false)
                     else -> ParsingResult.failType("thing", args[0])
                 }
         }
 
     @Test
-    fun `match claims width result reports`() {
-        assertEquals(MatchResult.matched(2), withValidationContext { ranged.match(["wide", "x"]) })
-        assertEquals(MatchResult.matched(1), withValidationContext { ranged.match(["narrow"]) })
+    fun `match reports consumed`() {
+        assertEquals(MatchResult.matchedExactly(2), withValidationContext { ranged.match(["wide", "x"]) })
+        assertEquals(MatchResult.matchedAtLeast(1), withValidationContext { ranged.match(["narrow"]) })
+    }
+
+    @Test
+    fun `match allows early termination`() {
+        assertEquals(MatchResult.matchedExactly(1), withValidationContext { ranged.match(["exact"]) })
     }
 
     @Test
     fun `match with too few arguments returns partial`() {
-        assertEquals(MatchResult.partial(0), withValidationContext { ranged.match([]) })
+        assertEquals(MatchResult.partial(), withValidationContext { ranged.match([]) })
     }
 
     @Test
@@ -56,8 +62,8 @@ class ParameterTest {
                 override fun resolve(arg0: String, arg1: String): CommandResult<String> = ParsingResult.failSize()
             }
 
-        assertEquals(MatchResult.partial(2), withValidationContext { parameter.match(["a", "b"]) })
-        assertEquals(MatchResult.partial(1), withValidationContext { parameter.match(["a"]) })
+        assertEquals(MatchResult.partial(), withValidationContext { parameter.match(["a", "b"]) })
+        assertEquals(MatchResult.partial(), withValidationContext { parameter.match(["a"]) })
     }
 
     @Test

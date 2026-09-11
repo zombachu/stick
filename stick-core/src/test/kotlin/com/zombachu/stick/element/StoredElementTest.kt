@@ -44,7 +44,7 @@ class StoredElementTest {
     @Test
     fun `StoredParameter delegates match to base`() {
         val stored = StoredParameter(LiteralParameter<TestEnv, Unit>("give", [], ""), id<String>("literal"))
-        assertEquals(MatchResult.matched(1), withValidationContext { stored.match(["give"]) })
+        assertEquals(MatchResult.matchedExactly(1), withValidationContext { stored.match(["give"]) })
     }
 
     @Test
@@ -64,7 +64,7 @@ class StoredElementTest {
         val parameter =
             object : Parameter.Size1<TestEnv, Unit, String>("", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun match(arg0: String): MatchResult = MatchResult.matched(1)
+                override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> = ParsingResult.failType("", arg0)

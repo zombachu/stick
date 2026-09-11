@@ -22,13 +22,15 @@ sealed interface CommandResult<out T> {
 sealed interface ConsumingResult<out T> : CommandResult<T> {
     interface Success<out T> : ConsumingResult<T>, CommandResult.Success<T> {
         val consumed: Int
+        val canConsumeMore: Boolean
     }
 }
 
 sealed interface ParsingResult<out T> : CommandResult<T> {
     class Success<out T> internal constructor(override val value: T) : ParsingResult<T>, CommandResult.Success<T>
 
-    class ConsumingSuccess<out T> internal constructor(override val value: T, override val consumed: Int) :
+    class ConsumingSuccess<out T>
+    internal constructor(override val value: T, override val consumed: Int, override val canConsumeMore: Boolean) :
         ParsingResult<T>, ConsumingResult.Success<T>
 
     class UnknownError internal constructor(override val feedback: Feedback.Unknown) :
@@ -174,11 +176,11 @@ fun <T> CommandResult<T>.isSuccess(): Boolean {
     return this is CommandResult.Success
 }
 
-fun <T> CommandResult<T>.consuming(consumed: Int): ConsumingResult<T> {
+fun <T> CommandResult<T>.consuming(consumed: Int, canConsumeMore: Boolean = true): ConsumingResult<T> {
     this.propagateError {
         return it
     }
-    return ParsingResult.ConsumingSuccess(this.value, consumed)
+    return ParsingResult.ConsumingSuccess(this.value, consumed, canConsumeMore)
 }
 
 fun <F : Feedback, R> CommandResult.Failure<F>.handle(block: F.() -> R): R {

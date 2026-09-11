@@ -25,7 +25,7 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
 
     context(validationContext: ValidationContext<E, S>)
     override fun match(args: List<String>): MatchResult {
-        if (args.isEmpty()) return MatchResult.matched(0)
+        if (args.isEmpty()) return MatchResult.matchedAtLeast(0)
         return parameter.match(args)
     }
 

@@ -49,7 +49,7 @@ class ListParameterTest {
         val counting =
             object : Parameter.Size1<TestEnv, Unit, String>("", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun match(arg0: String): MatchResult = MatchResult.matched(1)
+                override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> {

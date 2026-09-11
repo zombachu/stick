@@ -39,12 +39,12 @@ class TextParameterTest {
 
     @Test
     fun `match claims all args`() {
-        assertEquals(MatchResult.matched(3), withValidationContext { parameter.match(["a", "b", "c"]) })
+        assertEquals(MatchResult.matchedAtLeast(3), withValidationContext { parameter.match(["a", "b", "c"]) })
     }
 
     @Test
     fun `match on empty args is partial`() {
-        assertEquals(MatchResult.partial(0), withValidationContext { parameter.match([]) })
+        assertEquals(MatchResult.partial(), withValidationContext { parameter.match([]) })
     }
 
     @Test

@@ -117,7 +117,7 @@ class OptionalParameterImplTest {
                 presenceDefault = validDefault("x", allowed = true),
                 parameter = parameter,
             )
-        assertEquals(MatchResult.matched(0), withValidationContext { optional.match([]) })
+        assertEquals(MatchResult.matchedAtLeast(0), withValidationContext { optional.match([]) })
     }
 
     @Test
@@ -128,7 +128,7 @@ class OptionalParameterImplTest {
                 presenceDefault = validDefault("x", allowed = true),
                 parameter = LiteralParameter("here", [], ""),
             )
-        assertEquals(MatchResult.matched(1), withValidationContext { optional.match(["here"]) })
+        assertEquals(MatchResult.matchedExactly(1), withValidationContext { optional.match(["here"]) })
     }
 
     @Test

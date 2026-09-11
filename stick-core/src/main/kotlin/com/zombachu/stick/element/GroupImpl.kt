@@ -67,7 +67,9 @@ internal open class GroupImpl<E : Environment, S, G : GroupResult, P : Position>
         for (element in prioritizedElements) {
             element.groupable.validateSender().propagateError { continue }
             when (val match = element.groupable.match(args)) {
-                is MatchResult.Matched -> return match
+                // A higher-priority element that's partial could still take args
+                is MatchResult.Matched ->
+                    return if (incomplete == null) match else MatchResult.matchedAtLeast(match.consumed)
                 is MatchResult.Partial -> incomplete = incomplete ?: match
                 is MatchResult.Unmatched -> if (!match.failure.isMismatch()) mismatch = mismatch ?: match
             }

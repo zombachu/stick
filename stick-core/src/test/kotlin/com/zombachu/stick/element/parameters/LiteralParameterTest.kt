@@ -48,7 +48,7 @@ class LiteralParameterTest {
 
     @Test
     fun `match claims one arg`() {
-        assertEquals(MatchResult.matched(1), withValidationContext { parameter.match("FOO") })
+        assertEquals(MatchResult.matchedExactly(1), withValidationContext { parameter.match("FOO") })
     }
 
     @Test

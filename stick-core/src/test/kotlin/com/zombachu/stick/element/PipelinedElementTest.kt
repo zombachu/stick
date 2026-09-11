@@ -47,7 +47,7 @@ class PipelinedElementTest {
                 [op],
             )
 
-        assertEquals(MatchResult.matched(1), withValidationContext { pipelined.match(["give"]) })
+        assertEquals(MatchResult.matchedExactly(1), withValidationContext { pipelined.match(["give"]) })
     }
 
     @Test
@@ -85,7 +85,7 @@ class PipelinedElementTest {
         val failingBase =
             object : Parameter.Size1<TestEnv, Unit, String>("bad", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun match(arg0: String): MatchResult = MatchResult.matched(1)
+                override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> = ParsingResult.failType("bad", arg0)

@@ -19,7 +19,7 @@ open class NumberParameter<E : Environment, S, T>(
     context(validationContext: ValidationContext<E, S>)
     override fun match(arg0: String): MatchResult {
         if (arg0.toOrNull() == null) return MatchResult.unmatched(ParsingResult.failType(errorType, arg0))
-        return MatchResult.matched(1)
+        return MatchResult.matchedExactly(1)
     }
 
     context(validationContext: ValidationContext<E, S>)

@@ -1,23 +1,30 @@
 package com.zombachu.stick
 
+import com.zombachu.stick.element.ConsumingElement
+
 sealed interface MatchResult {
 
     @ConsistentCopyVisibility
-    data class Matched internal constructor(val consumed: Int) : MatchResult {
+    data class Matched internal constructor(val consumed: Int, val canConsumeMore: Boolean) : MatchResult {
 
-        internal var resolvedBy: Any? = null
+        internal var resolvedBy: ConsumingElement<*, *, *>? = null
             private set
 
         internal var resolved: Any? = null
             private set
 
-        internal constructor(consumed: Int, element: Any, value: Any?) : this(consumed) {
+        internal constructor(
+            consumed: Int,
+            canConsumeMore: Boolean,
+            element: ConsumingElement<*, *, *>,
+            value: Any?,
+        ) : this(consumed, canConsumeMore) {
             resolvedBy = element
             resolved = value
         }
     }
 
-    @ConsistentCopyVisibility data class Partial internal constructor(val matched: Int) : MatchResult
+    data object Partial : MatchResult
 
     @ConsistentCopyVisibility
     data class Unmatched internal constructor(val failure: CommandResult.InternalFailure) : MatchResult
@@ -25,9 +32,11 @@ sealed interface MatchResult {
     companion object {
         private val silent: Unmatched = Unmatched(ParsingResult.failTypeInternal())
 
-        fun matched(consumed: Int): Matched = Matched(consumed)
+        fun matchedExactly(consumed: Int): Matched = Matched(consumed, canConsumeMore = false)
 
-        fun partial(matched: Int): Partial = Partial(matched)
+        fun matchedAtLeast(consumed: Int): Matched = Matched(consumed, canConsumeMore = true)
+
+        fun partial(): Partial = Partial
 
         fun unmatched(): Unmatched = silent
 
@@ -35,9 +44,12 @@ sealed interface MatchResult {
     }
 }
 
-internal fun <T> ConsumingResult<T>.toMatchResult(matched: Int, element: Any): MatchResult =
+internal fun <T> ConsumingResult<T>.toMatchResult(element: ConsumingElement<*, *, *>): MatchResult =
     when (this) {
-        is ConsumingResult.Success -> MatchResult.Matched(consumed, element, value)
+        is ConsumingResult.Success ->
+            MatchResult.Matched(consumed, canConsumeMore && !element.size.isFull(consumed), element, value)
         is CommandResult.InternalFailure ->
-            if (this is PeekingResult.InvalidSizeError) MatchResult.partial(matched) else MatchResult.unmatched(this)
+            if (this is PeekingResult.InvalidSizeError) MatchResult.partial() else MatchResult.unmatched(this)
     }
+
+private fun Size.isFull(consumed: Int): Boolean = this is Size.Bounded && consumed >= max

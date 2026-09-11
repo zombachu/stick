@@ -32,9 +32,9 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
 
     context(validationContext: ValidationContext<E, S>)
     override fun match(args: List<String>): MatchResult {
-        if (args.isEmpty()) return MatchResult.partial(0)
+        if (args.isEmpty()) return MatchResult.partial()
         if (!matches(args.first().lowercase())) return MatchResult.unmatched()
-        if (args.size == 1) return MatchResult.matched(1)
+        if (args.size == 1) return MatchResult.matchedAtLeast(1)
         return parameter.match(args.subList(1, args.size)).includeLabelClaimedBy(this)
     }
 

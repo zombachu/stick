@@ -56,7 +56,7 @@ class StructureImplTest {
 
         val result = withValidationContext { structure.match(["C", "arg"]) }
 
-        assertEquals(MatchResult.matched(2), result)
+        assertEquals(MatchResult.matchedAtLeast(2), result)
     }
 
     @Test
@@ -74,7 +74,7 @@ class StructureImplTest {
 
         val result = withValidationContext { structure.match([]) }
 
-        assertEquals(MatchResult.partial(0), result)
+        assertEquals(MatchResult.partial(), result)
     }
 
     @Test

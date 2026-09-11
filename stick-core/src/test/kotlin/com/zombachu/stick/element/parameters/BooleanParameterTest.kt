@@ -35,7 +35,7 @@ class BooleanParameterTest {
 
     @Test
     fun `matches only boolean input`() {
-        assertEquals(MatchResult.matched(1), withValidationContext { parameter.match(["true"]) })
+        assertEquals(MatchResult.matchedExactly(1), withValidationContext { parameter.match(["true"]) })
 
         val result = withValidationContext { parameter.match(["maybe"]) }
         assertEquals(Feedback.TypeNotMatched("boolean", "maybe"), result.expectUnmatched().expectFailure().feedback)

@@ -18,7 +18,7 @@ open class ListParameter<E : Environment, S, T>(name: String, description: Strin
             val match = parameter.match(arg)
             if (match is MatchResult.Unmatched) return match
         }
-        return MatchResult.matched(1)
+        return MatchResult.matchedExactly(1)
     }
 
     context(validationContext: ValidationContext<E, S>)

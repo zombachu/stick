@@ -92,12 +92,12 @@ class HybridFlagImplTest {
 
     @Test
     fun `match with no trailing value claims label`() {
-        assertEquals(MatchResult.matched(1), withValidationContext { flag.match(["-boost"]) })
+        assertEquals(MatchResult.matchedAtLeast(1), withValidationContext { flag.match(["-boost"]) })
     }
 
     @Test
     fun `match with trailing value claims label and value`() {
-        assertEquals(MatchResult.matched(2), withValidationContext { flag.match(["-boost", "5"]) })
+        assertEquals(MatchResult.matchedExactly(2), withValidationContext { flag.match(["-boost", "5"]) })
     }
 
     @Test

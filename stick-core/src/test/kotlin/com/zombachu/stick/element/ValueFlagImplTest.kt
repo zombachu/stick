@@ -86,7 +86,7 @@ class ValueFlagImplTest {
         val cheaplyMatched =
             object : Parameter.Size1<TestEnv, Unit, String>("name", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun match(arg0: String): MatchResult = MatchResult.matched(1)
+                override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> {
@@ -122,7 +122,7 @@ class ValueFlagImplTest {
     @Test
     fun `PresenceFlagParameter match claims label`() {
         val flagParameter = presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true)
-        assertEquals(MatchResult.matched(1), withValidationContext { flagParameter.match(["-silent"]) })
+        assertEquals(MatchResult.matchedExactly(1), withValidationContext { flagParameter.match(["-silent"]) })
     }
 
     @Test
@@ -152,13 +152,13 @@ class ValueFlagImplTest {
     @Test
     fun `ParameterFlagParameter match claims label and value`() {
         val flagParameter = FlagParameter.ParameterFlagParameter("amount", amountParameter, [])
-        assertEquals(MatchResult.matched(2), withValidationContext { flagParameter.match(["-amount", "42"]) })
+        assertEquals(MatchResult.matchedExactly(2), withValidationContext { flagParameter.match(["-amount", "42"]) })
     }
 
     @Test
     fun `ParameterFlagParameter match without a value is partial`() {
         val flagParameter = FlagParameter.ParameterFlagParameter("amount", amountParameter, [])
-        assertEquals(MatchResult.partial(1), withValidationContext { flagParameter.match(["-amount"]) })
+        assertEquals(MatchResult.partial(), withValidationContext { flagParameter.match(["-amount"]) })
     }
 
     @Test
@@ -171,7 +171,7 @@ class ValueFlagImplTest {
     @Test
     fun `EnumFlagParameter match claims enum token`() {
         val flagParameter = FlagParameter.EnumFlagParameter(colorParameter)
-        assertEquals(MatchResult.matched(1), withValidationContext { flagParameter.match(["-red"]) })
+        assertEquals(MatchResult.matchedExactly(1), withValidationContext { flagParameter.match(["-red"]) })
     }
 
     @Test

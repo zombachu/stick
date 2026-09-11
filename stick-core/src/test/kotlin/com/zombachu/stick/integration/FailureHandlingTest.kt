@@ -116,7 +116,7 @@ class FailureHandlingTest {
             override val type: GroupableType = GroupableType.Passthrough
 
             context(validationContext: ValidationContext<Server, Sender>)
-            override fun match(arg0: String): MatchResult = MatchResult.matched(1)
+            override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
             context(validationContext: ValidationContext<Server, Sender>)
             override fun resolve(arg0: String): CommandResult<String> = error("this is an exception")

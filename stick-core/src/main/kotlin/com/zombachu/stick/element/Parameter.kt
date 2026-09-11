@@ -43,7 +43,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
         }
 
         context(validationContext: ValidationContext<E, S>)
-        override fun match(args: List<String>): MatchResult = resolve(args).toMatchResult(args.size, this)
+        override fun match(args: List<String>): MatchResult = resolve(args).toMatchResult(this)
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(args: List<String>): ConsumingResult<T>
@@ -54,7 +54,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
 
         context(validationContext: ValidationContext<E, S>)
         final override fun match(args: List<String>): MatchResult {
-            if (args.size < arity) return MatchResult.partial(args.size)
+            if (args.size < arity) return MatchResult.partial()
             return matchArity(args)
         }
 
@@ -68,7 +68,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
         protected abstract fun resolveArity(args: List<String>): CommandResult<T>
 
         internal fun CommandResult<*>.toArityMatchResult(): MatchResult =
-            this.consuming(arity).toMatchResult(arity, this@Fixed)
+            this.consuming(arity).toMatchResult(this@Fixed)
     }
 
     abstract class Size1<in E : Environment, S, out T>(name: String, description: String) :
@@ -276,7 +276,7 @@ sealed class Parameter<in E : Environment, S, out T, out P : Position>(
         }
 
         context(validationContext: ValidationContext<E, S>)
-        override fun match(args: List<String>): MatchResult = resolve(args).toMatchResult(args.size, this)
+        override fun match(args: List<String>): MatchResult = resolve(args).toMatchResult(this)
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(args: List<String>): ConsumingResult<T>
