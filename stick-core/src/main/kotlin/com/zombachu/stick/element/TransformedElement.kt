@@ -14,6 +14,7 @@ import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.Size
+import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 
 internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T, P : Position>(
@@ -32,6 +33,14 @@ internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T, P : P
         val transformedValidationContext = validationContext.forSender(transform)
         context(transformedValidationContext) {
             return base.match(args)
+        }
+    }
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+        val transformedValidationContext = validationContext.forSender(transform)
+        context(transformedValidationContext) {
+            return base.suggest(preceding, partial)
         }
     }
 
@@ -79,6 +88,14 @@ internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
         }
     }
 
+    context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+        val transformedValidationContext = validationContext.forSender(transform)
+        context(transformedValidationContext) {
+            return base.suggest(preceding, partial)
+        }
+    }
+
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> {
         val transformedInvocation = (inv as InvocationImpl).forSender(transform)
@@ -118,6 +135,14 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
         val transformedValidationContext = validationContext.forSender(transform)
         context(transformedValidationContext) {
             return base.match(args)
+        }
+    }
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+        val transformedValidationContext = validationContext.forSender(transform)
+        context(transformedValidationContext) {
+            return base.suggest(preceding, partial)
         }
     }
 

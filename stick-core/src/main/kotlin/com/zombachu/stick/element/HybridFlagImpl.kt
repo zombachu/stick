@@ -10,9 +10,11 @@ import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Size
+import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.propagateError
+import com.zombachu.stick.suggestAliases
 
 internal open class HybridFlagImpl<E : Environment, S, T>(
     override val name: String,
@@ -34,6 +36,13 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
         if (!matches(args.first().lowercase())) return MatchResult.unmatched()
         if (args.size == 1) return MatchResult.matched(1)
         return parameter.match(args.subList(1, args.size)).includeLabelClaimedBy(this)
+    }
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+        if (preceding.isEmpty()) return suggestAliases()
+        if (!matches(preceding.first().lowercase())) return []
+        return parameter.suggest(preceding.subList(1, preceding.size), partial)
     }
 
     context(inv: Invocation<E, S>)

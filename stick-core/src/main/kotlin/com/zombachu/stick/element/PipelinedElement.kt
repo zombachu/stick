@@ -8,6 +8,7 @@ import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
+import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.propagateError
@@ -23,6 +24,9 @@ internal class PipelinedParameter<E : Environment, S, A, T, P : Position>(
 
     context(validationContext: ValidationContext<E, S>)
     override fun match(args: List<String>): MatchResult = base.match(args)
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = parsePipeline(args, base, operations)
@@ -43,6 +47,9 @@ internal class PipelinedValueFlag<E : Environment, S, A, T>(
 
     context(validationContext: ValidationContext<E, S>)
     override fun match(args: List<String>): MatchResult = base.match(args)
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = parsePipeline(args, base, operations)
@@ -80,6 +87,9 @@ internal class PipelinedOptionalParameter<E : Environment, S, A, T, P : Position
 
     context(validationContext: ValidationContext<E, S>)
     override fun match(args: List<String>): MatchResult = base.match(args)
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = parsePipeline(args, base, operations)

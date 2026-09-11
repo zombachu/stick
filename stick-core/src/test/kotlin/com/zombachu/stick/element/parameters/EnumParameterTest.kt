@@ -55,6 +55,11 @@ class EnumParameterTest {
         assertEquals(Feedback.LiteralNotMatched(["red", "green", "blue"], "Unknown"), result.expectFailure().feedback)
     }
 
+    @Test
+    fun `suggests primary and aliased values`() {
+        assertEquals(["red", "green", "blue", "r"], withValidationContext { parameter.suggest([], "") }.map { it.value })
+    }
+
     private enum class Color {
         RED,
         GREEN,

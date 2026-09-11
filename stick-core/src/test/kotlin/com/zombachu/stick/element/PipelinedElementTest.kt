@@ -51,6 +51,15 @@ class PipelinedElementTest {
     }
 
     @Test
+    fun `PipelinedParameter delegates suggest to base`() {
+        val op: PipelineOperation<TestEnv, Unit, String, String> = { ParsingResult.success(it) }
+        val pipelined =
+            PipelinedParameter<TestEnv, Unit, String, String, Position.Leading>(LiteralParameter("give", [], ""), [op])
+
+        assertEquals(["give"], withValidationContext { pipelined.suggest([], "") }.map { it.value })
+    }
+
+    @Test
     fun `short-circuits on failing operation`() {
         var laterCalled = false
         val failingOp: PipelineOperation<TestEnv, Unit, String, Int> = { ParsingResult.failUnknown() }

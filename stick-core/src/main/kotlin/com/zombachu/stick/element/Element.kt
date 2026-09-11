@@ -13,6 +13,7 @@ import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.Size
+import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 
 sealed interface Element<in E : Environment, S, out T> {
@@ -29,6 +30,9 @@ sealed interface SyntaxElement<in E : Environment, S, out T> : Element<E, S, T> 
 
     context(validationContext: ValidationContext<E, S>)
     fun match(args: List<String>): MatchResult
+
+    context(validationContext: ValidationContext<E, S>)
+    fun suggest(preceding: List<String>, partial: String): List<Suggestion> = []
 
     context(validationContext: ValidationContext<E, S>)
     fun getSyntax(): String

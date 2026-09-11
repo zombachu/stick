@@ -10,10 +10,13 @@ import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.ParsingResult.LiteralNotMatchedError
 import com.zombachu.stick.Size
+import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.propagateError
+import com.zombachu.stick.suggestAliases
+import com.zombachu.stick.toSuggestions
 
 internal open class ValueFlagImpl<E : Environment, S, T>(
     override val name: String,
@@ -26,6 +29,10 @@ internal open class ValueFlagImpl<E : Environment, S, T>(
 
     context(validationContext: ValidationContext<E, S>)
     override fun match(args: List<String>): MatchResult = flagParameter.match(args)
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        flagParameter.suggest(preceding, partial)
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = flagParameter.parse(args)
@@ -43,6 +50,10 @@ internal sealed class FlagParameter<E : Environment, S, T>(
 
     override val label: String = "-${name.lowercase()}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        if (preceding.isEmpty()) suggestAliases() else []
 
     internal class PresenceFlagParameter<E : Environment, S, T>(
         name: String,
@@ -85,6 +96,13 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         }
 
         context(validationContext: ValidationContext<E, S>)
+        override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+            if (preceding.isEmpty()) return suggestAliases()
+            if (!matches(preceding.first().lowercase())) return []
+            return parameter.suggest(preceding.subList(1, preceding.size), partial)
+        }
+
+        context(validationContext: ValidationContext<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<T> {
             if (args.isEmpty()) return ParsingResult.failTypeInternal()
             if (matches(args.first().lowercase())) {
@@ -110,6 +128,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
             enumParameter.primaryValues.keys + enumParameter.aliasedValues.keys,
             enumParameter.description,
         ) {
+
         private val primaryValues = enumParameter.primaryValues.keys.toList().map { "-$it" }
 
         context(validationContext: ValidationContext<E, S>)
@@ -122,6 +141,9 @@ internal sealed class FlagParameter<E : Environment, S, T>(
             if (match !is MatchResult.Matched) return MatchResult.unmatched()
             return match.claimedBy(this, 1)
         }
+
+        context(validationContext: ValidationContext<E, S>)
+        override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = aliases.toSuggestions()
 
         context(validationContext: ValidationContext<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<T> {

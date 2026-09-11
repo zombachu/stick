@@ -48,6 +48,18 @@ class StoredElementTest {
     }
 
     @Test
+    fun `StoredParameter delegates suggest to base`() {
+        val stored = StoredParameter(LiteralParameter<TestEnv, Unit>("give", [], ""), id<String>("literal"))
+        assertEquals(["give"], withValidationContext { stored.suggest([], "") }.map { it.value })
+    }
+
+    @Test
+    fun `StoredValueFlag delegates suggest to base`() {
+        val stored = StoredValueFlag(presenceValueFlag<TestEnv, Unit, Boolean>("raw", false, true), id<Boolean>("raw"))
+        assertEquals(["-raw"], withValidationContext { stored.suggest([], "") }.map { it.value })
+    }
+
+    @Test
     fun `StoredParameter stores nothing on failure`() {
         val parameter =
             object : Parameter.Size1<TestEnv, Unit, String>("", "") {

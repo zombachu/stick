@@ -8,6 +8,7 @@ import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
+import com.zombachu.stick.Suggestion
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.valueOrPropagateError
@@ -28,6 +29,9 @@ internal class StoredParameter<E : Environment, S, T, P : Position>(
 
     context(validationContext: ValidationContext<E, S>)
     override fun match(args: List<String>): MatchResult = base.match(args)
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = base.parse(args).storedAs(id)

@@ -7,6 +7,7 @@ import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
+import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.isSuccess
@@ -26,6 +27,14 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
     override fun match(args: List<String>): MatchResult {
         if (args.isEmpty()) return MatchResult.matched(0)
         return parameter.match(args)
+    }
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+        requirementDefault.validateSender().propagateError {
+            return []
+        }
+        return parameter.suggest(preceding, partial)
     }
 
     context(inv: Invocation<E, S>)

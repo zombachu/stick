@@ -211,6 +211,14 @@ class ValueFlagImplTest {
     }
 
     @Test
+    fun `EnumFlagParameter suggests prefixed primary and aliased values`() {
+        val parameter =
+            EnumParameter<TestEnv, Unit, Color>("color", "", mapOf("red" to Color.RED, "green" to Color.GREEN), mapOf("r" to Color.RED))
+        val flagParameter = FlagParameter.EnumFlagParameter(parameter)
+        assertEquals(["-red", "-green", "-r"], withValidationContext { flagParameter.suggest([], "") }.map { it.value })
+    }
+
+    @Test
     fun `ValueFlagImpl delegates to flag parameter`() {
         val flag = presenceValueFlag<TestEnv, Unit, Boolean>("silent", false, true)
 
