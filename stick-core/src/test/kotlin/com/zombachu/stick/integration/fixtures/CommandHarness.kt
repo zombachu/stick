@@ -36,6 +36,18 @@ private fun <E : Environment, S> Structure<E, S, *>.dispatch(env: E, sender: S, 
     return handler.feedback
 }
 
+internal fun <E : Environment, S> Structure<E, S, *>.suggest(env: E, sender: S, command: String): List<String> {
+    val wrapper =
+        object : CommandWrapper<E, S> {
+            override val env: E = env
+            override val failureHandler: FailureHandler<E, S> = RecordingFailureHandler()
+            override val structure: Structure<E, S, *> = this@suggest
+        }
+
+    val args = command.replaceFirst("/", "").split(" ")
+    return wrapper.suggest(sender, args.first(), args.drop(1))
+}
+
 internal fun <E : Environment, S> Structure<E, S, *>.executeWithHandler(
     handler: FailureHandler<E, S>,
     env: E,

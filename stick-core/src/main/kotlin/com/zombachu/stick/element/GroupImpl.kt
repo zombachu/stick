@@ -26,6 +26,7 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
+import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.GroupElement.Companion.to
 import com.zombachu.stick.isSuccess
@@ -75,6 +76,17 @@ internal open class GroupImpl<E : Environment, S, G : GroupResult, P : Position>
             }
         }
         return incomplete ?: mismatch ?: MatchResult.unmatched()
+    }
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = buildList {
+        for (element in prioritizedElements) {
+            val groupable = element.groupable
+            val size = groupable.size
+            if (size is Size.Bounded && preceding.size >= size.max) continue
+            groupable.validateSender().propagateError { continue }
+            addAll(groupable.suggest(preceding, partial))
+        }
     }
 
     context(inv: Invocation<E, S>)

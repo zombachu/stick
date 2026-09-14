@@ -57,6 +57,23 @@ class TransformedElementTest {
         assertEquals(["8"], suggestions.map { it.value })
     }
 
+    @Test
+    fun `TransformedStructure suggests its label`() {
+        val base =
+            StructureImpl(
+                "teleport",
+                ["tp"],
+                "",
+                Requirement<TestEnv, Int> { SenderValidationResult.success() },
+                Signature0<TestEnv, Int>({}, []),
+            )
+        val transformed = TransformedStructure(base, String::length, allowed)
+
+        val suggestions = withValidationContext("zombachu") { transformed.suggest([], "") }
+
+        assertEquals(["tp", "teleport"], suggestions.map { it.value })
+    }
+
     private class SenderParameter<E : Environment, S> : Parameter.Size1<E, S, String>("", "") {
 
         context(validationContext: ValidationContext<E, S>)

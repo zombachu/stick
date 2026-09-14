@@ -36,6 +36,7 @@ import com.zombachu.stick.integration.fixtures.execute
 import com.zombachu.stick.integration.fixtures.executeExpectingError
 import com.zombachu.stick.integration.fixtures.permission
 import com.zombachu.stick.integration.fixtures.playerParameter
+import com.zombachu.stick.integration.fixtures.suggest
 import com.zombachu.stick.integration.fixtures.warpParameter
 import com.zombachu.stick.integration.fixtures.worldHelper
 import kotlin.test.Test
@@ -159,6 +160,8 @@ class GroupTest {
             Feedback.InvalidPermission,
             warpCommand.executeExpectingError(server, steve, "/warp tp spawn"),
         )
+
+        assertEquals(["info"], warpCommand.suggest(server, steve, "/warp "))
     }
 
     @Test

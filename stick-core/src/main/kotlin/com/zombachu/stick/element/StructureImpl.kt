@@ -10,8 +10,10 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.Size
+import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.propagateError
+import com.zombachu.stick.suggestAliases
 import com.zombachu.stick.valueOrPropagateError
 
 internal open class StructureImpl<E : Environment, S, T_ : Arguments>(
@@ -31,6 +33,16 @@ internal open class StructureImpl<E : Environment, S, T_ : Arguments>(
         val label = args.firstOrNull() ?: return MatchResult.partial()
         if (!matches(label.lowercase())) return MatchResult.unmatched()
         return MatchResult.matchedAtLeast(args.size)
+    }
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+        validateSender().propagateError {
+            return []
+        }
+        if (preceding.isEmpty()) return suggestAliases()
+        if (!matches(preceding.first().lowercase())) return []
+        return signature.suggest(preceding.subList(1, preceding.size), partial)
     }
 
     context(inv: Invocation<E, S>)

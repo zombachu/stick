@@ -187,6 +187,14 @@ internal class TransformedStructure<E : Environment, S, S2 : Any, T_ : Arguments
         }
     }
 
+    context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+        val transformedValidationContext = validationContext.forSender(transform)
+        context(transformedValidationContext) {
+            return base.suggest(preceding, partial)
+        }
+    }
+
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T_> {
         val transformedInvocation = (inv as InvocationImpl).forSender(transform)

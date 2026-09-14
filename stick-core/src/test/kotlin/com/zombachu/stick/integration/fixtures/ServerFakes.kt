@@ -45,6 +45,8 @@ class SocialData(val player: Player) {
 // --- environments -------------------------------------------------------------------------------------------------
 
 interface Server : Environment {
+    val playerNames: List<String>
+
     fun getPlayer(name: String): Player?
 }
 
@@ -56,6 +58,9 @@ class SynergyServer(
     private val players: List<Player> = [],
     override val warps: WarpRegistry = WarpRegistry(),
 ) : WarpableServer {
+
+    override val playerNames: List<String>
+        get() = players.map { it.name }
 
     override fun getPlayer(name: String): Player? = players.find { it.name.equals(name, ignoreCase = true) }
 

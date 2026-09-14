@@ -13,6 +13,7 @@ import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.StructureScope
+import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.dsl.defaultSender
@@ -26,6 +27,7 @@ import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.ValidatedParameter
 import com.zombachu.stick.feedback.CustomFeedback
+import com.zombachu.stick.toSuggestions
 import kotlin.experimental.ExperimentalTypeInference
 
 class CustomError(message: String) : ParsingResult.CustomError<CustomFeedback> {
@@ -48,6 +50,10 @@ fun <E : Environment, S : Sender, T> StructureScope<E, S>.permissionedValue(
 
 class PlayerParameter<E : Server, S>(name: String) : Parameter.Size1<E, S, Player>(name, "") {
     context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        validationContext.env.playerNames.toSuggestions()
+
+    context(validationContext: ValidationContext<E, S>)
     override fun resolve(arg0: String): CommandResult<Player> {
         val player = validationContext.env.getPlayer(arg0) ?: return ParsingResult.failType("player", arg0)
         return ParsingResult.success(player)
@@ -65,6 +71,10 @@ fun <E : Server> StructureScope<E, Sender>.targetPlayerParameter(
     )
 
 class WarpParameter<E : WarpableServer, S>(name: String) : Parameter.Size1<E, S, Warp>(name, "") {
+    context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        validationContext.env.warps.names.toSuggestions()
+
     context(validationContext: ValidationContext<E, S>)
     override fun resolve(arg0: String): CommandResult<Warp> {
         val warp = validationContext.env.warps[arg0] ?: return CustomError("Unknown warp: $arg0")

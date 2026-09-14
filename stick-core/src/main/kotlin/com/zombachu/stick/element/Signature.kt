@@ -5,9 +5,11 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.InvocationImpl
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Size
+import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.handleInternal
 import com.zombachu.stick.isSuccess
@@ -65,6 +67,13 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
         return filter { it.validateSender().isSuccess() }.map { it.getSyntax() }
     }
 
+    context(validationContext: ValidationContext<E, S>)
+    fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+        return SuggestionProcessor(preceding).process().flatMap { candidate ->
+            candidate.element.suggest(preceding.subList(candidate.startIndex, preceding.size), partial)
+        }
+    }
+
     context(inv: InvocationImpl<E, S>)
     private fun parseElement(
         values: MutableList<Any?>,
@@ -80,8 +89,8 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
     context(inv: InvocationImpl<E, S>)
     private fun parse(): CommandResult<List<Any?>> {
         val values: MutableList<Any?> = MutableList(flattenedElementsCount) {}
-
         val unprocessedFlags = flags.toMutableList()
+
         processElements(
                 unprocessedFlags,
                 processFlag = { flag ->
@@ -173,4 +182,69 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
     }
 
     private data class IndexedElement<E : Environment, S, out L : Element<E, S, *>>(val index: Int, val element: L)
+
+    private inner class SuggestionProcessor(private val preceding: List<String>) {
+        private val unprocessedFlags: MutableList<IndexedElement<E, S, Flag<E, S, Any?>>> = flags.toMutableList()
+        private var index: Int = 0
+        private var openCandidate: Candidate? = null
+
+        context(validationContext: ValidationContext<E, S>)
+        private fun matchElement(element: SyntaxElement<E, S, *>): MatchResult {
+            val match = element.match(preceding.subList(index, preceding.size))
+            if (match is MatchResult.Matched) {
+                openCandidate = if (match.canConsumeMore) Candidate(element, index) else null
+                index += match.consumed
+            } else if (match is MatchResult.Partial) {
+                openCandidate = Candidate(element, index)
+                index = preceding.size
+                unprocessedFlags.clear()
+            }
+            return match
+        }
+
+        context(validationContext: ValidationContext<E, S>)
+        private fun matchElements(): SyntaxElement<E, S, *>? {
+            processElements(
+                    unprocessedFlags,
+                    processFlag = { (_, flag) ->
+                        if (index == preceding.size) false
+                        else
+                            when (matchElement(flag)) {
+                                is MatchResult.Matched -> true
+                                is MatchResult.Partial -> return null
+                                is MatchResult.Unmatched -> false
+                            }
+                    },
+                    processLinear = { (_, element) ->
+                        // Helpers can't make suggestions
+                        if (element is SyntaxElement) {
+                            if (index == preceding.size) return element
+                            if (matchElement(element) !is MatchResult.Matched) return null
+                        }
+                    },
+                )
+                .propagateError {
+                    openCandidate = null
+                    unprocessedFlags.clear()
+                    return null
+                }
+            return null
+        }
+
+        context(validationContext: ValidationContext<E, S>)
+        fun process(): List<Candidate> {
+            val nextLinear: SyntaxElement<E, S, *>? = matchElements()
+            if (index != preceding.size) return []
+            return buildList {
+                openCandidate?.let { add(it) }
+                for ((_, flag) in unprocessedFlags) {
+                    flag.validateSender().propagateError { continue }
+                    add(Candidate(flag, index))
+                }
+                if (nextLinear != null) add(Candidate(nextLinear, index))
+            }
+        }
+
+        inner class Candidate(val element: SyntaxElement<E, S, *>, val startIndex: Int)
+    }
 }
