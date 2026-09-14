@@ -2,6 +2,7 @@ package com.zombachu.stick.paper
 
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.invoke
+import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.textParameter
 import com.zombachu.stick.noopFailureHandler
 import kotlin.test.Test
@@ -24,6 +25,34 @@ class BukkitCommandWrapperTest {
 
         assertTrue(result)
         assertEquals("hello world", text)
+    }
+
+    @Test
+    fun `execute with no args runs command`() {
+        var executed = false
+        val structure = bukkitStructure {
+            command("cmd")() { executed = true }
+        }
+        val wrapper = BukkitCommandWrapper(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+
+        val result = wrapper.execute(FakeCommandSender(), "cmd", arrayOf())
+
+        assertTrue(result)
+        assertTrue(executed)
+    }
+
+    @Test
+    fun `tabComplete completes arg`() {
+        val structure = bukkitStructure {
+            command("hello")(
+                literalParameter("there")
+            ) { }
+        }
+        val wrapper = BukkitCommandWrapper(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+
+        assertEquals(["there"], wrapper.tabComplete(FakeCommandSender(), "hello", arrayOf("")))
+        assertEquals(["there"], wrapper.tabComplete(FakeCommandSender(), "hello", arrayOf("the")))
+        assertEquals([], wrapper.tabComplete(FakeCommandSender(), "hello", arrayOf("general")))
     }
 
     @Test

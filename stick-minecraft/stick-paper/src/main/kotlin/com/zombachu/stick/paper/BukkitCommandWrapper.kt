@@ -27,26 +27,9 @@ class BukkitCommandWrapper<E : BukkitEnvironment>(
         return true
     }
 
-    //    override fun tabComplete(
-    //        sender: CommandSender,
-    //        alias: String,
-    //        args: Array<String>,
-    //    ): List<String> {
-    //        TODO("Not yet implemented")
-    //    }
+    override fun tabComplete(sender: CommandSender, alias: String, args: Array<String>): List<String> =
+        suggest(sender, alias, args.asList())
 
-    //    override fun tabComplete(
-    //        sender: CommandSender,
-    //        alias: String,
-    //        args: Array<String>,
-    //        location: Location?,
-    //    ): List<String> {
-    //        TODO("Not yet implemented")
-    //    }
-
-    //    override fun testPermissionSilent(target: CommandSender): Boolean {
-    //        TODO("Not yet implemented")
-    //    }
 
     override fun getPlugin(): Plugin = env.plugin
 }

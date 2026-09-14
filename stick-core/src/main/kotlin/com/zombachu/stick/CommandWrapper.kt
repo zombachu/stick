@@ -25,4 +25,35 @@ interface CommandWrapper<E : Environment, S> {
             }
         }
     }
+
+    fun suggest(sender: S, label: String, args: List<String>): List<String> {
+        if (args.isEmpty()) return []
+
+        val preceding = [label] + args.dropLast(1)
+        val partial = args.last()
+        val validationContext = ValidationContext(env, sender)
+        context(validationContext) {
+            return try {
+                if (structure.validateSender().isSuccess()) {
+                    structure
+                        .suggest(preceding, partial)
+                        .filter { it.completes(partial) }
+                        .map { it.applyTo(partial) }
+                        .distinct()
+                } else {
+                    []
+                }
+            } catch (_: Exception) {
+                []
+            }
+        }
+    }
 }
+
+private fun Suggestion.completes(partial: String): Boolean {
+    // Allows for completions for things like minecraft:<material> to complete <material>
+    val unmatched = partial.drop(index)
+    return value.length > unmatched.length && value.startsWith(unmatched, ignoreCase = true)
+}
+
+private fun Suggestion.applyTo(partial: String): String = if (index == 0) value else partial.take(index) + value
