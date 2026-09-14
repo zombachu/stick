@@ -1,8 +1,10 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.CommandWrapper
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.feedback.FailureHandler
+import com.zombachu.stick.isSuccess
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.PluginIdentifiableCommand
@@ -30,6 +32,12 @@ class BukkitCommandWrapper<E : BukkitEnvironment>(
     override fun tabComplete(sender: CommandSender, alias: String, args: Array<String>): List<String> =
         suggest(sender, alias, args.asList())
 
+    override fun testPermissionSilent(target: CommandSender): Boolean {
+        val validationContext = ValidationContext(env, target)
+        context(validationContext) {
+            return structure.validateSender().isSuccess()
+        }
+    }
 
     override fun getPlugin(): Plugin = env.plugin
 }

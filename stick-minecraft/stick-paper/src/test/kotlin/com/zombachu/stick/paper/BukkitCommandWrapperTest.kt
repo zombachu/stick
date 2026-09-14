@@ -5,8 +5,10 @@ import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.textParameter
 import com.zombachu.stick.noopFailureHandler
+import com.zombachu.stick.paper.dsl.permission
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -53,6 +55,17 @@ class BukkitCommandWrapperTest {
         assertEquals(["there"], wrapper.tabComplete(FakeCommandSender(), "hello", arrayOf("")))
         assertEquals(["there"], wrapper.tabComplete(FakeCommandSender(), "hello", arrayOf("the")))
         assertEquals([], wrapper.tabComplete(FakeCommandSender(), "hello", arrayOf("general")))
+    }
+
+    @Test
+    fun `testPermissionSilent delegates to sender validation`() {
+        val structure = bukkitStructure {
+            command("cmd", requirement = permission("stick.cmd"))() { }
+        }
+        val wrapper = BukkitCommandWrapper(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+
+        assertTrue(wrapper.testPermissionSilent(FakeCommandSender(["stick.cmd"])))
+        assertFalse(wrapper.testPermissionSilent(FakeCommandSender()))
     }
 
     @Test
