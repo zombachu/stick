@@ -10,8 +10,10 @@ import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invalidDefault
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
+import com.zombachu.stick.dsl.map
 import com.zombachu.stick.dsl.nullableEnumFlag
 import com.zombachu.stick.dsl.nullableValueFlag
+import com.zombachu.stick.dsl.pipeline
 import com.zombachu.stick.dsl.require
 import com.zombachu.stick.dsl.requireIs
 import com.zombachu.stick.dsl.stringParameter
@@ -297,6 +299,34 @@ class FlagTest {
 
         broadcastCommand.execute(server, steve, "/broadcast -prefix abc123 Server restarting")
         assertEquals(["[Player] -prefix abc123 Server restarting"], steve.logs)
+    }
+
+    @Test
+    fun `broadcast - pipelined flag keeps requirement`() {
+        val broadcastCommand = structure(Server::class, Sender::class) {
+            command("broadcast")(
+                require(invalidDefault("Player", permission("server.broadcast.raw"))) {
+                    valueFlag(name = "prefix", default = "#", parameter = stringParameter("prefix"))
+                }.pipeline(map { it.uppercase() }),
+                textParameter("message"),
+            ) { prefix, message ->
+                sender.log("[$prefix] $message")
+            }
+        }
+
+        broadcastCommand.execute(server, zombachu, "/broadcast -prefix abc123 Server restarting")
+        assertEquals(["[ABC123] Server restarting"], zombachu.logs)
+
+        broadcastCommand.execute(server, steve, "/broadcast Server restarting")
+        assertEquals(["[PLAYER] Server restarting"], steve.logs)
+
+        broadcastCommand.execute(server, steve, "/broadcast -prefix abc123 Server restarting")
+        assertEquals(["[PLAYER] -prefix abc123 Server restarting"], steve.logs)
+
+        assertEquals(
+            Feedback.InvalidSyntax("/broadcast <message>"),
+            broadcastCommand.executeExpectingError(server, steve, "/broadcast"),
+        )
     }
 
     @Test

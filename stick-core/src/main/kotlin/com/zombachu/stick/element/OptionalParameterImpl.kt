@@ -63,10 +63,9 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
     context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String {
         // Check if the sender is allowed to provide a value
-        if (requirementDefault.validateSender().isSuccess()) {
-            return "[${name}]"
-        }
-        return ""
+        if (!requirementDefault.validateSender().isSuccess()) return ""
+        if (!presenceDefault.validateSender().isSuccess()) return parameter.getSyntax()
+        return "[${name}]"
     }
 }
 

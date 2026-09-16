@@ -1,6 +1,7 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.Aliasable
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
@@ -9,6 +10,7 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
@@ -70,4 +72,7 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
 
     context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String = "[$label [${parameter.getGroupedSyntax()}]]"
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun validateSender(): CommandResult<Unit> = SenderValidationResult.success()
 }

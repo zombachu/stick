@@ -9,6 +9,7 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.ParsingResult.LiteralNotMatchedError
+import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
@@ -39,6 +40,9 @@ internal open class ValueFlagImpl<E : Environment, S, T>(
 
     context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String = flagParameter.getSyntax()
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun validateSender(): CommandResult<Unit> = SenderValidationResult.success()
 }
 
 internal sealed class FlagParameter<E : Environment, S, T>(

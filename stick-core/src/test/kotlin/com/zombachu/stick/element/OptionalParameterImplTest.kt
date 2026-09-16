@@ -144,6 +144,18 @@ class OptionalParameterImplTest {
     }
 
     @Test
+    fun `getSyntax returns angle bracketed name when required for sender`() {
+        val optional =
+            OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
+                requirementDefault = invalidDefault("x", allowed = true),
+                presenceDefault = validDefault("x", allowed = false),
+                parameter = parameter,
+            )
+        val syntax = withValidationContext { optional.getSyntax() }
+        assertEquals("<item>", syntax)
+    }
+
+    @Test
     fun `getSyntax returns empty when parameter not allowed`() {
         val optional =
             OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(

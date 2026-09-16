@@ -16,6 +16,7 @@ import com.zombachu.stick.isSuccess
 import com.zombachu.stick.presenceFlagParameter
 import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.testInvocation
+import com.zombachu.stick.testInvocationSender
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withInvocationSender
 import com.zombachu.stick.withValidationContext
@@ -252,6 +253,26 @@ class ValueFlagImplTest {
 
         assertTrue(result.isSuccess())
         assertTrue(validated)
+    }
+
+    @Test
+    fun `TransformedValueFlag default for accessible flag returns Absent`() {
+        val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
+        val transformed = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidSenderDefault(true))
+        val result = transformed.default(testInvocationSender(1))
+        assertEquals(false, result.expectSuccessValue())
+    }
+
+    @Test
+    fun `TransformedValueFlag default for inaccessible flag returns invalid sender default`() {
+        val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
+        val invalidDefault =
+            invalidSenderDefault<TestEnv, Int, Boolean>(true) { SenderValidationResult.failSenderType() }
+        val transformed = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidDefault)
+
+        val result = transformed.default(testInvocationSender(1))
+
+        assertEquals(true, result.expectSuccessValue())
     }
 
     private enum class Color {

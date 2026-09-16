@@ -11,7 +11,6 @@ import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
-import com.zombachu.stick.handleInternal
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
@@ -124,17 +123,10 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
 
         // Populate unused flag values with defaults
         for ((index, flag) in unprocessedFlags) {
-            val default =
-                flag
-                    .validateSender()
-                    .handleInternal(
-                        onSuccess = { flag.default(inv) },
-                        onFailure = { (flag as Flag.Validated<E, S, *>).invalidDefault(inv) },
-                    )
-            val value = default.valueOrPropagateError {
-                return it
-            }
-            values[index] = value
+            values[index] =
+                flag.default(inv).valueOrPropagateError {
+                    return it
+                }
         }
 
         // Set Arguments value for optionals

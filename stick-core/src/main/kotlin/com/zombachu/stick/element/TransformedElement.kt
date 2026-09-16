@@ -16,6 +16,7 @@ import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 
 internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T, P : Position>(
@@ -69,17 +70,20 @@ internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
     private val base: ValueFlag<E, S2, T>,
     private val transform: (S) -> S2,
     private val invalidSenderDefault: InvalidSenderDefault<E, S, T>,
-) : ValueFlag<E, S, T>, Flag.Validated<E, S, T> {
+) : ValueFlag<E, S, T> {
 
     override val default: ContextualValue<E, S, T> = {
-        val transformedInvocation = (this as InvocationImpl).forSender(transform)
-        base.default(transformedInvocation)
+        if (validateSender().isSuccess()) {
+            val transformedInvocation = (this as InvocationImpl).forSender(transform)
+            base.default(transformedInvocation)
+        } else {
+            invalidSenderDefault.value(this)
+        }
     }
 
     override val size: Size.Bounded = base.size
     override val name: String = base.name
     override val description: String = base.description
-    override val invalidDefault: ContextualValue<E, S, T> = invalidSenderDefault.value
 
     context(validationContext: ValidationContext<E, S>)
     override fun match(args: List<String>): MatchResult {
@@ -121,14 +125,17 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
     private val base: HybridFlag<E, S2, T>,
     private val transform: (S) -> S2,
     private val invalidSenderDefault: InvalidSenderDefault<E, S, HybridFlagResult<T>>,
-) : HybridFlag<E, S, T>, Flag.Validated<E, S, HybridFlagResult<T>> {
+) : HybridFlag<E, S, T> {
 
     override val size: Size.Bounded = base.size
     override val name: String = base.name
     override val description: String = base.description
-    override val invalidDefault: ContextualValue<E, S, HybridFlagResult<T>> = invalidSenderDefault.value
     override val default: ContextualValue<E, S, HybridFlagResult<T>> = {
-        ParsingResult.success(HybridFlagResult.Absent())
+        if (validateSender().isSuccess()) {
+            ParsingResult.success(HybridFlagResult.Absent())
+        } else {
+            invalidSenderDefault.value(this)
+        }
     }
 
     context(validationContext: ValidationContext<E, S>)

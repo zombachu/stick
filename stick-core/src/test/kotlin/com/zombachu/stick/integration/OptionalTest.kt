@@ -112,6 +112,28 @@ class OptionalTest {
     }
 
     @Test
+    fun `gamemode - usage changes to required if absent default inaccessible`() {
+        val gamemodeCommand = structure(Server::class, Sender::class) {
+            command("gamemode")(
+                stringParameter("mode"),
+                targetPlayerParameter("player"),
+            ) { mode, target ->
+                target.log("Game mode set to $mode")
+            }
+        }
+
+        assertEquals(
+            Feedback.InvalidSyntax("/gamemode <mode> [player]"),
+            gamemodeCommand.executeExpectingError(server, zombachu, "/gamemode"),
+        )
+
+        assertEquals(
+            Feedback.InvalidSyntax("/gamemode <mode> <player>"),
+            gamemodeCommand.executeExpectingError(server, console, "/gamemode"),
+        )
+    }
+
+    @Test
     fun `speed - optionals can have different defaults`() {
         val speedCommand = structure(Server::class, Sender::class) {
             command("speed")(

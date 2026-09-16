@@ -5,12 +5,16 @@ import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
+import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.element.parameters.TextParameter
+import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue
+import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.testInvocation
@@ -20,6 +24,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertSame
 
 class PipelinedElementTest {
 
@@ -180,5 +185,18 @@ class PipelinedElementTest {
         val result = pipelined.default(testInvocation())
 
         assertFalse(result.isSuccess())
+    }
+
+    @Test
+    fun `PipelinedValueFlag delegates validateSender to base`() {
+        val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
+        val invalidDefault =
+            invalidSenderDefault<TestEnv, Int, Boolean>(false) { SenderValidationResult.failSenderType() }
+        val validated = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidDefault)
+        val pipelined = PipelinedValueFlag<TestEnv, Int, Boolean, Boolean>(validated, [])
+
+        val result = withValidationContext(1) { pipelined.validateSender() }
+
+        assertSame(Feedback.InvalidSenderType, result.expectFailure().feedback)
     }
 }

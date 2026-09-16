@@ -1,5 +1,6 @@
 package com.zombachu.stick.element
 
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
@@ -56,6 +57,9 @@ internal class PipelinedValueFlag<E : Environment, S, A, T>(
 
     context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String = base.getSyntax()
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun validateSender(): CommandResult<Unit> = base.validateSender()
 
     @Suppress("UNCHECKED_CAST")
     override val default: ContextualValue<E, S, T>

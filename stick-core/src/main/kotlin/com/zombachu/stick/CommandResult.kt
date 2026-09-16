@@ -130,13 +130,6 @@ internal sealed interface PeekingResult {
     }
 }
 
-internal inline fun <T, R> CommandResult<T>.handleInternal(
-    onSuccess: (CommandResult.Success<T>) -> R,
-    onFailure: (CommandResult.InternalFailure) -> R,
-): R {
-    return if (isSuccess()) onSuccess(this) else onFailure(this)
-}
-
 @OptIn(ExperimentalContracts::class)
 inline fun <T> CommandResult<T>.propagateError(onFailure: (CommandResult.InternalFailure) -> Nothing) {
     contract {

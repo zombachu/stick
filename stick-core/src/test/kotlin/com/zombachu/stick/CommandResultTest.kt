@@ -132,15 +132,6 @@ class CommandResultTest {
     }
 
     @Test
-    fun `handleInternal dispatches based on success`() {
-        val successResult: CommandResult<String> = ParsingResult.success("ok")
-        val failureResult: CommandResult<String> = ParsingResult.failUnknown()
-
-        assertEquals("s", successResult.handleInternal(onSuccess = { "s" }, onFailure = { "f" }))
-        assertEquals("f", failureResult.handleInternal(onSuccess = { "s" }, onFailure = { "f" }))
-    }
-
-    @Test
     fun `consuming sets consumed count on success`() {
         val result = ParsingResult.success("ok").consuming(5)
 

@@ -18,6 +18,7 @@ import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.testInvocation
+import com.zombachu.stick.testInvocationSender
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withInvocationSender
 import com.zombachu.stick.withValidationContext
@@ -156,5 +157,26 @@ class HybridFlagImplTest {
 
         assertTrue(result.isSuccess())
         assertTrue(validated)
+    }
+
+    @Test
+    fun `TransformedHybridFlag default for accessible flag returns Absent`() {
+        val invalidDefault = invalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>>(HybridFlagResult.Present())
+        val transformed = TransformedHybridFlag(flag, { }, invalidDefault)
+        val result = transformed.default(testInvocationSender(1))
+        assertIs<HybridFlagResult.Absent<Int>>(result.expectSuccessValue())
+    }
+
+    @Test
+    fun `TransformedHybridFlag default for inaccessible flag returns invalid sender default`() {
+        val invalidDefault =
+            invalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>>(HybridFlagResult.Present()) {
+                SenderValidationResult.failSenderType()
+            }
+        val transformed = TransformedHybridFlag(flag, { }, invalidDefault)
+
+        val result = transformed.default(testInvocationSender(1))
+
+        assertIs<HybridFlagResult.Present<Int>>(result.expectSuccessValue())
     }
 }
