@@ -22,7 +22,7 @@ class BukkitCommandWrapper<E : BukkitEnvironment>(
     override fun execute(sender: CommandSender, label: String, args: Array<String>): Boolean {
         val fullArgs =
             buildList(args.size + 1) {
-                add(label)
+                add(label.stripNamespace())
                 addAll(args)
             }
         execute(sender, fullArgs)
@@ -30,7 +30,7 @@ class BukkitCommandWrapper<E : BukkitEnvironment>(
     }
 
     override fun tabComplete(sender: CommandSender, alias: String, args: Array<String>): List<String> =
-        suggest(sender, alias, args.asList())
+        suggest(sender, alias.stripNamespace(), args.asList())
 
     override fun testPermissionSilent(target: CommandSender): Boolean {
         val validationContext = ValidationContext(env, target)
@@ -41,3 +41,5 @@ class BukkitCommandWrapper<E : BukkitEnvironment>(
 
     override fun getPlugin(): Plugin = env.plugin
 }
+
+private fun String.stripNamespace(): String = substringAfterLast(':')
