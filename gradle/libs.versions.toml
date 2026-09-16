@@ -3,9 +3,9 @@ kotlin = "2.4.0"
 dokka = "2.2.0"
 detekt = "2.0.0-alpha.6"
 ktfmt = "0.27.0"
-paperweight = "2.0.0-beta.19"
+paperweight = "2.0.0-beta.23"
 paperDevBundle = "1.21.11-R0.1-SNAPSHOT"
-velocityApi = "3.4.0-SNAPSHOT"
+velocityApi = "4.2.1-SNAPSHOT"
 
 [libraries]
 kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
