@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.4.0"
 dokka = "2.2.0"
-detekt = "1.23.8"
+detekt = "2.0.0-alpha.6"
 ktfmt = "0.27.0"
 paperweight = "2.0.0-beta.19"
 paperDevBundle = "1.21.11-R0.1-SNAPSHOT"
@@ -10,7 +10,7 @@ velocityApi = "3.4.0-SNAPSHOT"
 [libraries]
 kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 dokkaGradlePlugin = { module = "org.jetbrains.dokka:org.jetbrains.dokka.gradle.plugin", version.ref = "dokka" }
-detektGradlePlugin = { module = "io.gitlab.arturbosch.detekt:io.gitlab.arturbosch.detekt.gradle.plugin", version.ref = "detekt" }
+detektGradlePlugin = { module = "dev.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 ktfmtGradlePlugin = { module = "com.ncorti.ktfmt.gradle:com.ncorti.ktfmt.gradle.gradle.plugin", version.ref = "ktfmt" }
 velocityApi = { module = "com.velocitypowered:velocity-api", version.ref = "velocityApi" }
 

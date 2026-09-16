@@ -7,7 +7,7 @@ plugins {
     `maven-publish`
     kotlin("jvm")
     id("org.jetbrains.dokka")
-    id("io.gitlab.arturbosch.detekt")
+    id("dev.detekt")
     id("com.ncorti.ktfmt.gradle")
 }
 
