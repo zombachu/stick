@@ -348,7 +348,7 @@ class GroupTest {
     }
 
     @Test
-    fun `KNOWN LIMITATION - portal - invalid syntax in branch returns root syntax`() {
+    fun `portal - invalid syntax in branch returns branch syntax`() {
         val portalCommand = structure(Server::class, Sender::class) {
             command("portal")(
                 group(
@@ -368,8 +368,18 @@ class GroupTest {
         assertEquals(["Linked nether"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/portal <link|unlink>"),
+            Feedback.InvalidSyntax("/portal link <name>"),
             portalCommand.executeExpectingError(server, zombachu, "/portal link"),
+        )
+
+        assertEquals(
+            Feedback.InvalidSyntax("/portal link <name>"),
+            portalCommand.executeExpectingError(server, zombachu, "/portal link nether overworld"),
+        )
+
+        assertEquals(
+            Feedback.InvalidSyntax("/portal <link|unlink>"),
+            portalCommand.executeExpectingError(server, zombachu, "/portal delete"),
         )
     }
 

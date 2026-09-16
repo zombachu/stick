@@ -28,6 +28,10 @@ internal open class InvocationImpl<E : Environment, S>(
             root.rootConsumedArgs = value
         }
 
+    private val rootEnteredStructures: MutableList<EnteredStructure> = mutableListOf()
+    private val enteredStructures: MutableList<EnteredStructure>
+        get() = root.rootEnteredStructures
+
     private var rootCurrentMatch: MatchResult.Matched? = null
     internal var currentMatch: MatchResult.Matched?
         get() = root.rootCurrentMatch
@@ -53,7 +57,12 @@ internal open class InvocationImpl<E : Environment, S>(
     }
 
     override fun getSyntax(): String {
-        return "/${root.getSyntaxForSender()}"
+        val entered = enteredStructures
+        if (entered.isEmpty()) {
+            return "/${root.getSyntaxForSender()}"
+        }
+        val segments = entered.dropLast(1).map { it.name } + entered.last().getSyntax()
+        return "/${segments.joinToString(" ")}"
     }
 
     internal open fun getSyntaxForSender(): String {
@@ -66,9 +75,14 @@ internal open class InvocationImpl<E : Environment, S>(
         return TransformedInvocationImpl(this, transform)
     }
 
-    internal fun consume(peeked: PeekingResult.Success, count: Int) {
+    private fun consume(peeked: PeekingResult.Success, count: Int) {
         peeked.consume(count)
         consumedArgs += count
+    }
+
+    internal fun consumeLabel(peeked: PeekingResult.Success, structure: Structure<E, S, *>) {
+        consume(peeked, 1)
+        enteredStructures += context(this) { EnteredStructure(structure.name) { structure.getSyntax() } }
     }
 
     internal fun peek(size: Size): PeekingResult {
@@ -118,6 +132,8 @@ internal open class InvocationImpl<E : Environment, S>(
         }
     }
 }
+
+private class EnteredStructure(val name: String, val getSyntax: () -> String)
 
 private class TransformedInvocationImpl<E : Environment, S, S2>(val base: InvocationImpl<E, S>, transform: (S) -> S2) :
     InvocationImpl<E, S2>(

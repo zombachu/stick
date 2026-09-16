@@ -56,7 +56,7 @@ internal open class StructureImpl<E : Environment, S, T_ : Arguments>(
         if (!matches(label)) {
             return ParsingResult.failTypeInternal()
         }
-        invocation.consume(peeked, 1)
+        invocation.consumeLabel(peeked, this)
         validateSender().propagateError {
             return it
         }
