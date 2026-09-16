@@ -2,9 +2,7 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
-import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
-import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
@@ -37,28 +35,6 @@ internal class StoredParameter<E : Environment, S, T, P : Position>(
     override fun parse(args: List<String>): ConsumingResult<T> = base.parse(args).storedAs(id)
 }
 
-internal class StoredValueFlag<E : Environment, S, T>(
-    private val base: ValueFlag<E, S, T>,
-    private val id: TypedIdentifier<T>,
-) : ValueFlag<E, S, T> by base {
-
-    override val default: ContextualValue<E, S, T> = { defaultAndStore(base.default, id) }
-
-    context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> = base.parse(args).storedAs(id)
-}
-
-internal class StoredHybridFlag<E : Environment, S, T>(
-    private val base: HybridFlag<E, S, T>,
-    private val id: TypedIdentifier<HybridFlagResult<T>>,
-) : HybridFlag<E, S, T> by base {
-
-    override val default: ContextualValue<E, S, HybridFlagResult<T>> = { defaultAndStore(base.default, id) }
-
-    context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> = base.parse(args).storedAs(id)
-}
-
 internal class StoredOptionalParameter<E : Environment, S, T, P : Position>(
     private val base: OptionalParameter<E, S, T, P>,
     private val id: TypedIdentifier<T>,
@@ -66,18 +42,6 @@ internal class StoredOptionalParameter<E : Environment, S, T, P : Position>(
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = base.parse(args).storedAs(id)
-}
-
-private fun <E : Environment, S, T> Invocation<E, S>.defaultAndStore(
-    default: ContextualValue<E, S, T>,
-    id: TypedIdentifier<T>,
-): CommandResult<T> {
-    val result = default(this)
-    val value = result.valueOrPropagateError {
-        return it
-    }
-    put(id, value)
-    return result
 }
 
 context(inv: Invocation<E, S>)
