@@ -16,6 +16,7 @@ import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.propagateError
 
 internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T, P : Position>(
     val base: Parameter<E, S2, T, P>,
@@ -212,5 +213,13 @@ internal class TransformedStructure<E : Environment, S, S2 : Any, T_ : Arguments
     }
 
     context(validationContext: ValidationContext<E, S>)
-    override fun validateSender(): CommandResult<Unit> = requirement.validateSender()
+    override fun validateSender(): CommandResult<Unit> {
+        requirement.validateSender().propagateError {
+            return it
+        }
+        val transformedValidationContext = validationContext.forSender(transform)
+        context(transformedValidationContext) {
+            return base.validateSender()
+        }
+    }
 }

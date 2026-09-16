@@ -135,7 +135,7 @@ class GroupTest {
     }
 
     @Test
-    fun `KNOWN LIMITATION - warp - requireIs makes inaccessible commands visible`() {
+    fun `warp - requireIs hides inaccessible commands`() {
         val warpCommand = structure(WarpableServer::class, Sender::class) {
             command("warp", requirement = permission("server.warp"))(
                 group(
@@ -152,13 +152,18 @@ class GroupTest {
         }
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp <tp|info>"),
+            Feedback.InvalidSyntax("/warp <info>"),
             warpCommand.executeExpectingError(server, steve, "/warp delete"),
         )
 
         assertEquals(
-            Feedback.InvalidPermission,
+            Feedback.InvalidSyntax("/warp <info>"),
             warpCommand.executeExpectingError(server, steve, "/warp tp spawn"),
+        )
+
+        assertEquals(
+            Feedback.InvalidSyntax("/warp tp <warp>"),
+            warpCommand.executeExpectingError(server, zombachu, "/warp tp"),
         )
 
         assertEquals(["info"], warpCommand.suggest(server, steve, "/warp "))

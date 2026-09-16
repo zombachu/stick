@@ -127,14 +127,25 @@ class StructureImplTest {
     }
 
     @Test
-    fun `KNOWN LIMITATION - TransformedStructure validateSender ignores base requirement`() {
+    fun `TransformedStructure validateSender includes base requirement`() {
         val base = structure(name = "cmd", requirement = Requirement { SenderValidationResult.failSender() })
         val requirement = Requirement<TestEnv, Int> { SenderValidationResult.success() }
         val transformed = TransformedStructure(base, { _: Int -> }, requirement)
 
         val result = withValidationContext(1) { transformed.validateSender() }
 
-        assertTrue(result.isSuccess())
+        assertFalse(result.isSuccess())
+    }
+
+    @Test
+    fun `TransformedStructure validateSender skips transform when requirement fails`() {
+        val base = structure(name = "cmd")
+        val requirement = Requirement<TestEnv, Int> { SenderValidationResult.failSenderType() }
+        val transformed = TransformedStructure(base, { _: Int -> error("transform ran") }, requirement)
+
+        val result = withValidationContext(1) { transformed.validateSender() }
+
+        assertFalse(result.isSuccess())
     }
 
     private fun structure(
