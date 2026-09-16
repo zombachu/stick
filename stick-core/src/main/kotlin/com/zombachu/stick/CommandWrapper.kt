@@ -29,7 +29,7 @@ interface CommandWrapper<E : Environment, S> {
     fun suggest(sender: S, label: String, args: List<String>): List<String> {
         if (args.isEmpty()) return []
 
-        val preceding = [label] + args.dropLast(1)
+        val preceding = [label] + args.dropLast(1).filter { it.isNotEmpty() }
         val partial = args.last()
         val validationContext = ValidationContext(env, sender)
         context(validationContext) {

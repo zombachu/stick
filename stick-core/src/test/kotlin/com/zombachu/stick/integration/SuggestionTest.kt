@@ -192,6 +192,18 @@ class SuggestionTest {
         assertEquals([], setWarpCommand.suggest(server, console, "/setwarp "))
     }
 
+    @Test
+    fun `tp - repeated spaces are ignored`() {
+        val tpCommand = structure(Server::class, Sender::class) {
+            command("tp")(
+                playerParameter("player")
+            ) { }
+        }
+
+        assertEquals(["zombachu", "Steve"], tpCommand.suggest(server, zombachu, "/tp  "))
+        assertEquals(["Steve"], tpCommand.suggest(server, zombachu, "/tp  St"))
+    }
+
     private class ThrowingParameter<E : Environment, S> : Parameter.Size1<E, S, String>("", "") {
 
         context(validationContext: ValidationContext<E, S>)

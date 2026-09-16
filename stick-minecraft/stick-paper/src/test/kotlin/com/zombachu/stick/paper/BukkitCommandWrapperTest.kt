@@ -86,6 +86,18 @@ class BukkitCommandWrapperTest {
     }
 
     @Test
+    fun `tabComplete ignores consecutive spaces`() {
+        val structure = bukkitStructure {
+            command("hello")(
+                literalParameter("there")
+            ) { }
+        }
+        val wrapper = BukkitCommandWrapper(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+
+        assertEquals(["there"], wrapper.tabComplete(FakeCommandSender(), "hello", arrayOf("", "the")))
+    }
+
+    @Test
     fun `testPermissionSilent delegates to sender validation`() {
         val structure = bukkitStructure {
             command("cmd", requirement = permission("stick.cmd"))() { }

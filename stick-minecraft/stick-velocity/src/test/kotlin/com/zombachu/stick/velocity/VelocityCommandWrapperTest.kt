@@ -61,6 +61,18 @@ class VelocityCommandWrapperTest {
     }
 
     @Test
+    fun `suggest ignores consecutive spaces`() {
+        val structure = velocityStructure {
+            command("hello")(
+                literalParameter("there")
+            ) { }
+        }
+        val wrapper = VelocityCommandWrapper(environment(), noopFailureHandler(), structure)
+
+        assertEquals(["there"], wrapper.suggest(FakeInvocation(FakeCommandSource(), "hello", "  the")))
+    }
+
+    @Test
     fun `hasPermission delegates to sender validation`() {
         val structure = velocityStructure {
             command("cmd", requirement = permission("stick.cmd"))() { }
