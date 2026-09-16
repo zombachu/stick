@@ -15,7 +15,7 @@ group = "com.zombachu.stick"
 version = "0.5.1"
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
 }
 
 java {
