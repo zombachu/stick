@@ -26,6 +26,9 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
     context(validationContext: ValidationContext<E, S>)
     override fun match(args: List<String>): MatchResult {
         if (args.isEmpty()) return MatchResult.matchedAtLeast(0)
+        requirementDefault.validateSender().propagateError {
+            return MatchResult.unmatched(it)
+        }
         return parameter.match(args)
     }
 
@@ -46,7 +49,7 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
             }
             // Check if the value is required to be specified by the sender
             presenceDefault.validateSender().propagateError {
-                return it
+                return ParsingResult.failSyntax(inv.getSyntax())
             }
             return presenceDefault.value(inv).consuming(0)
         }

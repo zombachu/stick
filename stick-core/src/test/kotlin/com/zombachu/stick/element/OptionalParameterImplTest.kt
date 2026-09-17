@@ -37,7 +37,7 @@ class OptionalParameterImplTest {
     }
 
     @Test
-    fun `empty args with parameter allowed but presence not allowed fails with InvalidSender`() {
+    fun `empty args with parameter allowed but presence not allowed fails with InvalidSyntax`() {
         val optional =
             OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
                 requirementDefault = invalidDefault("forbidden-default", allowed = true),
@@ -45,7 +45,7 @@ class OptionalParameterImplTest {
                 parameter = parameter,
             )
         val result = withInvocation { optional.parse([]) }
-        assertSame(Feedback.InvalidSender, result.expectFailure().feedback)
+        assertIs<Feedback.InvalidSyntax>(result.expectFailure().feedback)
     }
 
     @Test
@@ -129,6 +129,18 @@ class OptionalParameterImplTest {
                 parameter = LiteralParameter("here", [], ""),
             )
         assertEquals(MatchResult.matchedExactly(1), withValidationContext { optional.match(["here"]) })
+    }
+
+    @Test
+    fun `match on non-empty args with parameter not allowed fails with InvalidSender`() {
+        val optional =
+            OptionalParameterImpl<TestEnv, Unit, Int, Position.Optional>(
+                requirementDefault = invalidSenderDefault(-1) { validation(allowed = false) },
+                presenceDefault = validSenderDefault(-1),
+                parameter = IntParameter("int", "", Int.MIN_VALUE, Int.MAX_VALUE),
+            )
+        val result = withValidationContext { optional.match(["word"]) }
+        assertSame(Feedback.InvalidSender, assertIs<MatchResult.Unmatched>(result).failure.expectFailure().feedback)
     }
 
     @Test

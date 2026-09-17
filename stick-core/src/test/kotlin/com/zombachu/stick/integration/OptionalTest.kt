@@ -65,7 +65,7 @@ class OptionalTest {
         healCommand.execute(server, zombachu, "/heal Steve")
         assertEquals(["You have been healed"], steve.logs)
 
-        assertEquals(Feedback.InvalidSender, healCommand.executeExpectingError(server, console, "/heal"))
+        assertEquals(Feedback.InvalidSyntax("/heal <player>"), healCommand.executeExpectingError(server, console, "/heal"))
 
         healCommand.execute(server, console, "/heal Steve")
         assertEquals(["You have been healed"], steve.logs)
@@ -157,6 +157,7 @@ class OptionalTest {
         assertEquals(["Speed changed to 1"], steve.logs)
 
         assertEquals(Feedback.InvalidPermission, speedCommand.executeExpectingError(server, steve, "/speed 10"))
+        assertEquals(Feedback.InvalidPermission, speedCommand.executeExpectingError(server, steve, "/speed asdf"))
     }
 
     @Test
