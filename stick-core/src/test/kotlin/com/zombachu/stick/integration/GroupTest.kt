@@ -19,6 +19,7 @@ import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.requireIs
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
+import com.zombachu.stick.dsl.subcommands
 import com.zombachu.stick.dsl.textParameter
 import com.zombachu.stick.dsl.uuidParameter
 import com.zombachu.stick.element.parameters.ListElementResult
@@ -383,4 +384,78 @@ class GroupTest {
         )
     }
 
+    @Test
+    fun `plot - subcommands can exceed group arity`() {
+        val plotCommand = structure(Server::class, Sender::class) {
+            command("plot")(
+                subcommands(
+                    command("claim")() { sender.log("Claimed plot") },
+                    command("unclaim")() { sender.log("Unclaimed plot") },
+                    command("home")() { sender.log("Teleported home") },
+                    command("info")() { sender.log("Plot info") },
+                    command("visit")(playerParameter("player")) { player -> sender.log("Visiting ${player.name}") },
+                    command("trust")(playerParameter("player")) { player -> sender.log("Trusted ${player.name}") },
+                    command("untrust")(playerParameter("player")) { player -> sender.log("Untrusted ${player.name}") },
+                    command("deny")(playerParameter("player")) { player -> sender.log("Denied ${player.name}") },
+                    command("kick")(playerParameter("player")) { player -> sender.log("Kicked ${player.name}") },
+                )
+            )
+        }
+
+        plotCommand.execute(server, zombachu, "/plot claim")
+        assertEquals(["Claimed plot"], zombachu.logs)
+
+        plotCommand.execute(server, zombachu, "/plot kick Steve")
+        assertEquals(["Kicked Steve"], zombachu.logs)
+
+        assertEquals(
+            Feedback.InvalidSyntax("/plot <claim|unclaim|home|info|visit|trust|untrust|deny|kick>"),
+            plotCommand.executeExpectingError(server, zombachu, "/plot sell"),
+        )
+    }
+
+    @Test
+    fun `warp - subcommands parse before fallback parameter`() {
+        server.warps.add(Warp("list", "zombachu", "nether"))
+        val warpCommand = structure(WarpableServer::class, Sender::class) {
+            command("warp")(
+                group(
+                    subcommands(
+                        command("list")() {
+                            sender.log("Warps: ${env.warps.names.joinToString(", ")}")
+                        },
+                        requireIs(Player::class) {
+                            command("delete")(warpParameter("warp")) { warp ->
+                                sender.log("Deleted ${warp.name}")
+                            }
+                        },
+                    ),
+                    warpParameter("warp"),
+                )
+            ) { target ->
+                if (target is GroupResult.ResultB) {
+                    sender.log("Teleporting to ${target.value.name}")
+                }
+            }
+        }
+
+        warpCommand.execute(server, zombachu, "/warp list")
+        assertEquals(["Warps: spawn, shop, list"], zombachu.logs)
+
+        warpCommand.execute(server, zombachu, "/warp delete shop")
+        assertEquals(["Deleted shop"], zombachu.logs)
+
+        warpCommand.execute(server, zombachu, "/warp shop")
+        assertEquals(["Teleporting to shop"], zombachu.logs)
+
+        assertEquals(
+            Feedback.InvalidSyntax("/warp <list|delete|warp>"),
+            warpCommand.executeExpectingError(server, zombachu, "/warp"),
+        )
+
+        assertEquals(
+            Feedback.InvalidSyntax("/warp <list|warp>"),
+            warpCommand.executeExpectingError(server, console, "/warp"),
+        )
+    }
 }

@@ -271,6 +271,17 @@ class GroupImplTest {
     }
 
     @Test
+    fun `getSyntax lists branches of nested group`() {
+        val hello = LiteralParameter<TestEnv, Unit>("hello", [], "")
+        val there = LiteralParameter<TestEnv, Unit>("there", [], "")
+        val group = group2(group2(hello, there), StringParameter("general", ""))
+
+        val syntax = withValidationContext { group.getSyntax() }
+
+        assertEquals("<hello|there|general>", syntax)
+    }
+
+    @Test
     fun `size constrains to elements for bounded sizes`() {
         val twoArgParam =
             object : Parameter.Size2<TestEnv, Unit, String>("two", "") {

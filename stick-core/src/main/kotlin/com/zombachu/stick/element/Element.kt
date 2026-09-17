@@ -6,7 +6,6 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
-import com.zombachu.stick.GroupResult
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
@@ -65,7 +64,7 @@ sealed interface ValueFlag<in E : Environment, S, out T> : Flag<E, S, T>
 
 sealed interface HybridFlag<in E : Environment, S, out T> : Flag<E, S, HybridFlagResult<T>>
 
-sealed interface Group<in E : Environment, S, out G : GroupResult, out P : Position> : Groupable.Positioned<E, S, G, P>
+sealed interface Group<in E : Environment, S, out G, out P : Position> : Groupable.Positioned<E, S, G, P>
 
 sealed interface Structure<in E : Environment, S, out T_ : Arguments> :
     Groupable.Positioned<E, S, T_, Position.Last>, Aliasable, SenderValidator<E, S>

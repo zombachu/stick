@@ -1,7 +1,6 @@
 package com.zombachu.stick.dsl
 
 import com.zombachu.stick.Environment
-import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult1
 import com.zombachu.stick.GroupResult2
 import com.zombachu.stick.GroupResult3
@@ -23,6 +22,8 @@ import com.zombachu.stick.element.Group6Impl
 import com.zombachu.stick.element.Group7Impl
 import com.zombachu.stick.element.Group8Impl
 import com.zombachu.stick.element.Groupable
+import com.zombachu.stick.element.Structure
+import com.zombachu.stick.element.SubcommandsImpl
 
 fun <E_ : Environment, S, A, P : Position> StructureScope<E_, S>.group(
     element: Groupable.Positioned<E_, S, A, P>,
@@ -102,7 +103,13 @@ fun <E_ : Environment, S, A, B, C, D, E, F, G, H, P : Position> StructureScope<E
     Group8Impl(name, description, elementA, elementB, elementC, elementD, elementE, elementF, elementG, elementH)
 }
 
-private fun <E : Environment, S, R : GroupResult, P : Position, G : Group<E, S, R, P>> StructureScope<E, S>.createGroup(
+fun <E_ : Environment, S> StructureScope<E_, S>.subcommands(
+    first: Structure<E_, S, *>,
+    vararg rest: Structure<E_, S, *>,
+    description: String = "",
+): Group<E_, S, Unit, Position.Last> = createGroup { SubcommandsImpl(name, description, [first] + rest) }
+
+private fun <E : Environment, S, R, P : Position, G : Group<E, S, R, P>> StructureScope<E, S>.createGroup(
     block: StructureScope<E, S>.() -> G
 ): G {
     val scope =

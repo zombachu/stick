@@ -2,7 +2,6 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult.ResultA
 import com.zombachu.stick.GroupResult.ResultB
 import com.zombachu.stick.GroupResult.ResultC
@@ -36,7 +35,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
-internal open class GroupImpl<E : Environment, S, G : GroupResult, P : Position>(
+internal open class GroupImpl<E : Environment, S, G, P : Position>(
     override val name: String,
     override val description: String,
     private val elements: List<GroupElement<E, S, *, G>>,
@@ -107,11 +106,13 @@ internal open class GroupImpl<E : Environment, S, G : GroupResult, P : Position>
     }
 
     context(validationContext: ValidationContext<E, S>)
-    override fun getSyntax(): String {
-        val elementSyntax =
-            elements.filter { it.groupable.validateSender().isSuccess() }.map { it.groupable.getGroupedSyntax() }
-        return "<${elementSyntax.joinToString("|")}>"
-    }
+    override fun getSyntax(): String = "<${getGroupedSyntax()}>"
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun getGroupedSyntax(): String =
+        elements
+            .filter { it.groupable.validateSender().isSuccess() }
+            .joinToString("|") { it.groupable.getGroupedSyntax() }
 
     @OptIn(ExperimentalContracts::class)
     context(inv: Invocation<E, S>)
@@ -152,17 +153,23 @@ private fun CommandResult.InternalFailure.isMismatch(): Boolean =
         else -> false
     }
 
-internal class GroupElement<E : Environment, S, T, G : GroupResult>(
+internal class GroupElement<E : Environment, S, T, G>(
     val groupable: Groupable<E, S, T>,
     val toResult: (T) -> G,
 ) {
     companion object {
-        infix fun <E : Environment, S, G : GroupResult, T> Groupable<E, S, T>.to(
-            toResult: (T) -> G
-        ): GroupElement<E, S, T, G> {
+        infix fun <E : Environment, S, G, T> Groupable<E, S, T>.to(toResult: (T) -> G): GroupElement<E, S, T, G> {
             return GroupElement(this, toResult)
         }
     }
+}
+
+internal class SubcommandsImpl<E : Environment, S>(
+    name: String,
+    description: String,
+    structures: List<Structure<E, S, *>>,
+) : GroupImpl<E, S, Unit, Position.Last>(name, description, structures.map { it to {} }) {
+    override val type: GroupableType = GroupableType.Literal
 }
 
 internal class Group1Impl<E_ : Environment, S, A, P : Position>(
