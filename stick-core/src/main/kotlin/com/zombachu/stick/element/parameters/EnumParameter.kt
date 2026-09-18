@@ -23,7 +23,7 @@ open class EnumParameter<E : Environment, S, T : Enum<T>>(
 
     context(validationContext: ValidationContext<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
-        (primaryValues.keys + aliasedValues.keys).toSuggestions()
+        primaryValues.keys.toSuggestions() + aliasedValues.keys.toSuggestions(isAlias = true)
 
     context(validationContext: ValidationContext<E, S>)
     override fun resolve(arg0: String): CommandResult<T> {

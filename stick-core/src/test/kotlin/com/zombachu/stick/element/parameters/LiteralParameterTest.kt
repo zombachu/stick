@@ -1,6 +1,7 @@
 package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.MatchResult
+import com.zombachu.stick.SimpleSuggestion
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.GroupableType
 import com.zombachu.stick.expectFailure
@@ -55,6 +56,15 @@ class LiteralParameterTest {
     fun `match unmatched carries LiteralNotMatched`() {
         val result = withValidationContext { parameter.match("bar") }
         assertEquals(Feedback.LiteralNotMatched(["foo"], "bar"), result.expectUnmatched().expectFailure().feedback)
+    }
+
+    @Test
+    fun `suggests tags alias`() {
+        val aliased = LiteralParameter<TestEnv, Unit>("foo", ["bar"], "")
+        assertEquals(
+            [SimpleSuggestion("bar", isAlias = true), SimpleSuggestion("foo")],
+            withValidationContext { aliased.suggest([], "") },
+        )
     }
 
     @Test

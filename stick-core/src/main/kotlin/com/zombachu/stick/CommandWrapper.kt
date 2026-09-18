@@ -37,7 +37,7 @@ interface CommandWrapper<E : Environment, S> {
                 if (structure.validateSender().isSuccess()) {
                     structure
                         .suggest(preceding, partial)
-                        .filter { it.completes(partial) }
+                        .filter { it.isSuggestedFor(partial) }
                         .map { it.applyTo(partial) }
                         .distinct()
                 } else {
@@ -50,9 +50,11 @@ interface CommandWrapper<E : Environment, S> {
     }
 }
 
-private fun Suggestion.completes(partial: String): Boolean {
+private fun Suggestion.isSuggestedFor(partial: String): Boolean {
     // Allows for completions for things like minecraft:<material> to complete <material>
     val unmatched = partial.drop(index)
+    // Don't suggest aliases when the user hasn't typed anything, to avoid clutter
+    if (isAlias && unmatched.isEmpty()) return false
     return value.length > unmatched.length && value.startsWith(unmatched, ignoreCase = true)
 }
 

@@ -5,6 +5,7 @@ import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SenderValidationResult
+import com.zombachu.stick.SimpleSuggestion
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.EnumParameter
@@ -216,7 +217,10 @@ class ValueFlagImplTest {
         val parameter =
             EnumParameter<TestEnv, Unit, Color>("color", "", mapOf("red" to Color.RED, "green" to Color.GREEN), mapOf("r" to Color.RED))
         val flagParameter = FlagParameter.EnumFlagParameter(parameter)
-        assertEquals(["-red", "-green", "-r"], withValidationContext { flagParameter.suggest([], "") }.map { it.value })
+        assertEquals(
+            [SimpleSuggestion("-red"), SimpleSuggestion("-green"), SimpleSuggestion("-r", isAlias = true)],
+            withValidationContext { flagParameter.suggest([], "") },
+        )
     }
 
     @Test

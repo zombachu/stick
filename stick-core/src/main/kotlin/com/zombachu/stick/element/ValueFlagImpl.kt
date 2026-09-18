@@ -134,6 +134,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         ) {
 
         private val primaryValues = enumParameter.primaryValues.keys.toList().map { "-$it" }
+        private val aliasedValues = enumParameter.aliasedValues.keys.map { "-$it" }
 
         context(validationContext: ValidationContext<E, S>)
         override fun match(args: List<String>): MatchResult {
@@ -147,7 +148,8 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         }
 
         context(validationContext: ValidationContext<E, S>)
-        override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = aliases.toSuggestions()
+        override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+            primaryValues.toSuggestions() + aliasedValues.toSuggestions(isAlias = true)
 
         context(validationContext: ValidationContext<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<T> {

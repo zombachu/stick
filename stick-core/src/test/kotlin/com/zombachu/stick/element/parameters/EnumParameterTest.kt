@@ -1,6 +1,7 @@
 package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.MatchResult
+import com.zombachu.stick.SimpleSuggestion
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectUnmatched
@@ -56,8 +57,16 @@ class EnumParameterTest {
     }
 
     @Test
-    fun `suggests primary and aliased values`() {
-        assertEquals(["red", "green", "blue", "r"], withValidationContext { parameter.suggest([], "") }.map { it.value })
+    fun `suggests primary values before aliased ones`() {
+        assertEquals(
+            [
+                SimpleSuggestion("red"),
+                SimpleSuggestion("green"),
+                SimpleSuggestion("blue"),
+                SimpleSuggestion("r", isAlias = true),
+            ],
+            withValidationContext { parameter.suggest([], "") },
+        )
     }
 
     private enum class Color {

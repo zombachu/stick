@@ -71,7 +71,7 @@ class SuggestionTest {
         }
 
         assertEquals([], warpCommand.suggest(server, zombachu, "/warp"))
-        assertEquals(["goto", "tp", "info"], warpCommand.suggest(server, zombachu, "/warp "))
+        assertEquals(["tp", "info"], warpCommand.suggest(server, zombachu, "/warp "))
         assertEquals(["goto"], warpCommand.suggest(server, zombachu, "/warp GO"))
         assertEquals([], warpCommand.suggest(server, zombachu, "/warp goto"))
         assertEquals(["spawn", "shop"], warpCommand.suggest(server, zombachu, "/warp tp "))
@@ -109,6 +109,10 @@ class SuggestionTest {
         assertEquals(
             ["minecraft:stone", "minecraft:dirt"],
             giveCommand.suggest(server, zombachu, "/give Steve minecraft:"),
+        )
+        assertEquals(
+            ["minecraft:andesite"],
+            giveCommand.suggest(server, zombachu, "/give Steve minecraft:a"),
         )
         assertEquals(
             ["stone,minecraft:stone", "stone,minecraft:dirt"],
@@ -216,7 +220,11 @@ class SuggestionTest {
         override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
             val colon = partial.indexOf(':')
             if (colon < 0) return ["minecraft:"].toSuggestions()
-            return [SimpleSuggestion("stone", colon + 1), SimpleSuggestion("dirt", colon + 1)]
+            return [
+                SimpleSuggestion("stone", colon + 1),
+                SimpleSuggestion("dirt", colon + 1),
+                SimpleSuggestion("andesite", colon + 1, isAlias = true),
+            ]
         }
 
         context(validationContext: ValidationContext<E, S>)
