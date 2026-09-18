@@ -6,6 +6,7 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
+import com.zombachu.stick.GroupResult
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
@@ -42,13 +43,13 @@ sealed interface ConsumingElement<in E : Environment, S, out T> : SyntaxElement<
     override fun parse(args: List<String>): ConsumingResult<T>
 }
 
-sealed interface Groupable<in E : Environment, S, out T> : SyntaxElement<E, S, T> {
+sealed interface Groupable<in E : Environment, S, T> : SyntaxElement<E, S, T> {
     val type: GroupableType
 
     context(validationContext: ValidationContext<E, S>)
     fun getGroupedSyntax(): String = name
 
-    sealed interface Positioned<in E : Environment, S, out T, out P : Position> :
+    sealed interface Positioned<in E : Environment, S, T, out P : Position> :
         Groupable<E, S, T>, Element.Positioned<E, S, T, P>
 }
 
@@ -64,13 +65,16 @@ sealed interface ValueFlag<in E : Environment, S, out T> : Flag<E, S, T>
 
 sealed interface HybridFlag<in E : Environment, S, out T> : Flag<E, S, HybridFlagResult<T>>
 
-sealed interface Group<in E : Environment, S, out G, out P : Position> : Groupable.Positioned<E, S, G, P>
+sealed interface Group<in E : Environment, S, G, out P : Position> : Groupable.Positioned<E, S, G, P>
 
-sealed interface Structure<in E : Environment, S, out T_ : Arguments> :
+sealed interface Structure<in E : Environment, S, T_ : Arguments> :
     Groupable.Positioned<E, S, T_, Position.Last>, Aliasable, SenderValidator<E, S>
 
-sealed interface ValidatedParameter<in E : Environment, S, out T, out P : Position> :
+sealed interface ValidatedParameter<in E : Environment, S, T, out P : Position> :
     Groupable.Positioned<E, S, T, P>, ConsumingElement<E, S, T>
 
 sealed interface OptionalParameter<in E : Environment, S, out T, out P : Position> :
     Element.Positioned<E, S, T, P>, ConsumingElement<E, S, T>
+
+sealed interface OptionalGroup<in E : Environment, S, out G : GroupResult?, out P : Position> :
+    Element.Positioned<E, S, G, P>, SyntaxElement<E, S, G>

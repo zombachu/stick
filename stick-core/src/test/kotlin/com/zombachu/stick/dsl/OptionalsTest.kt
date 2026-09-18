@@ -1,5 +1,7 @@
 package com.zombachu.stick.dsl
 
+import com.zombachu.stick.GroupResult
+import com.zombachu.stick.GroupResult2
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
@@ -80,16 +82,17 @@ class OptionalsTest {
     }
 
     @Test
-    fun `optionally infers nullable type from null defaults`() = structureTest<String> {
-        val optional =
-            optionally(
-                ifInvalid = invalidDefault(null, requirement { it.sender == "correct" }),
-                ifAbsent = default(null),
-                parameter = intParameter,
-            )
+    fun `optionallyNullable gates the parameter from its requirement`() = structureTest<String> {
+        val optional = optionallyNullable(intParameter, requirement { it.sender == "correct" })
 
         assertNull(withInvocationSender("correct") { optional.parse([]) }.expectSuccessValue())
         assertEquals(1, withInvocationSender("correct") { optional.parse(["1"]) }.expectSuccessValue())
+
+        assertNull(withInvocationSender("incorrect") { optional.parse([]) }.expectSuccessValue())
+        assertSame(
+            Feedback.InvalidSender,
+            withInvocationSender("incorrect", "5") { optional.parse(["5"]) }.expectFailure().feedback,
+        )
     }
 
     @Test
@@ -188,5 +191,42 @@ class OptionalsTest {
         val syntax = withValidationContext { structure.getSyntax() }
 
         assertEquals("cmd <a> [b] [-raw] [-silent] [c]", syntax)
+    }
+
+    @Test
+    fun `optionally group defaults`() = structureTest {
+        val optional = optionally(default(GroupResult.ResultA("off")), group(literalParameter("on")))
+        assertEquals(GroupResult.ResultA("off"), withInvocation { optional.parse([]) }.expectSuccessValue())
+    }
+
+    @Test
+    fun `optionallyNullable group defaults to null`() = structureTest {
+        val structure =
+            command("cmd")(
+                optionals(
+                    optionallyNullable(group(literalParameter("on"), literalParameter("off"))),
+                    optionallyNullable(stringParameter("reason"))
+                )
+            ) { (toggle: GroupResult2<String, String>?, reason: String?) -> }
+
+        val none = withInvocation("cmd") { structure.parse(["cmd"]) }.expectSuccessValue()
+        val both = withInvocation("cmd", "off", "someReason") { structure.parse(["cmd", "off", "someReason"]) }.expectSuccessValue()
+
+        assertNull(none.a.a)
+        assertIs<GroupResult.ResultB<String>>(both.a.a)
+        assertEquals("someReason", both.a.b)
+    }
+
+    @Test
+    fun `optional group has correct syntax`() = structureTest {
+        val structure =
+            command("cmd")(
+                stringParameter("a"),
+                optionallyNullable(group(literalParameter("on"), literalParameter("off"))),
+            ) { a, toggle -> }
+
+        val syntax = withValidationContext { structure.getSyntax() }
+
+        assertEquals("cmd <a> [on|off]", syntax)
     }
 }

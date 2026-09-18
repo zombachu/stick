@@ -1,7 +1,8 @@
 package com.zombachu.stick.element
 
-import com.zombachu.stick.ConsumingResult
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
+import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
@@ -9,19 +10,18 @@ import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
-import com.zombachu.stick.consuming
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 
-internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
-    val requirementDefault: InvalidSenderDefault<E, S, T>,
-    val presenceDefault: ValidSenderDefault<E, S, T>,
-    val parameter: Parameter<E, S, out T, *>,
-) : OptionalParameter<E, S, T, P> {
+internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Position>(
+    val requirementDefault: InvalidSenderDefault<E, S, G>,
+    val presenceDefault: ValidSenderDefault<E, S, G>,
+    val group: Group<E, S, out G, *>,
+) : OptionalGroup<E, S, G, P> {
 
-    override val size: Size = parameter.size.orNothing()
-    override val name: String = parameter.name
-    override val description: String = parameter.description
+    override val size: Size = group.size.orNothing()
+    override val name: String = group.name
+    override val description: String = group.description
 
     context(validationContext: ValidationContext<E, S>)
     override fun match(args: List<String>): MatchResult {
@@ -29,7 +29,7 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
         requirementDefault.validateSender().propagateError {
             return MatchResult.unmatched(it)
         }
-        return parameter.match(args)
+        return group.match(args)
     }
 
     context(validationContext: ValidationContext<E, S>)
@@ -37,39 +37,36 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
         requirementDefault.validateSender().propagateError {
             return []
         }
-        return parameter.suggest(preceding, partial)
+        return group.suggest(preceding, partial)
     }
 
     context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> {
+    override fun parse(args: List<String>): CommandResult<G> {
         if (args.isEmpty()) {
-            // If the sender isn't allowed to provide a value use the default
+            // If the sender isn't allowed to specify an alternative use the default
             requirementDefault.validateSender().propagateError {
-                return requirementDefault.value(inv).consuming(0)
+                return requirementDefault.value(inv)
             }
-            // Check if the value is required to be specified by the sender
+            // Check if an alternative is required to be specified by the sender
             presenceDefault.validateSender().propagateError {
                 return ParsingResult.failSyntax(inv.getSyntax())
             }
-            return presenceDefault.value(inv).consuming(0)
+            return presenceDefault.value(inv)
         }
 
-        // Check if the sender provided a value when they're not allowed to
+        // Check if the sender specified an alternative when they're not allowed to
         requirementDefault.validateSender().propagateError {
             return it
         }
 
-        if (!parameter.size.matches(args.size)) return ParsingResult.failSyntax(inv.getSyntax())
-        return parameter.parse(args)
+        return group.parse(args)
     }
 
     context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String {
-        // Check if the sender is allowed to provide a value
+        // Check if the sender is allowed to specify an alternative
         if (!requirementDefault.validateSender().isSuccess()) return ""
-        if (!presenceDefault.validateSender().isSuccess()) return parameter.getSyntax()
-        return "[${name}]"
+        if (!presenceDefault.validateSender().isSuccess()) return group.getSyntax()
+        return "[${group.getGroupedSyntax()}]"
     }
 }
-
-internal fun Size.orNothing(): Size = if (this is Size.Bounded) Size.between(0, max) else Size.atLeast(0)

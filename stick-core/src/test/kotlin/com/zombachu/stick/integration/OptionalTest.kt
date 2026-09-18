@@ -2,6 +2,7 @@ package com.zombachu.stick.integration
 
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.default
+import com.zombachu.stick.dsl.group
 import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invalidDefault
 import com.zombachu.stick.dsl.invoke
@@ -21,13 +22,14 @@ import com.zombachu.stick.integration.fixtures.execute
 import com.zombachu.stick.integration.fixtures.executeExpectingError
 import com.zombachu.stick.integration.fixtures.permission
 import com.zombachu.stick.integration.fixtures.playerParameter
+import com.zombachu.stick.integration.fixtures.suggest
 import com.zombachu.stick.integration.fixtures.targetPlayerParameter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class OptionalTest {
 
-    private val zombachu = Player("zombachu", ["server.gift.amount", "server.speed.change"])
+    private val zombachu = Player("zombachu", ["server.gift.amount", "server.speed.change", "server.weather.set"])
     private val steve = Player("Steve")
     private val console = Console()
     private val server = SynergyServer([zombachu, steve])
@@ -179,6 +181,65 @@ class OptionalTest {
         assertEquals(
             Feedback.LiteralNotMatched(["here"], "there"),
             tpCommand.executeExpectingError(server, zombachu, "/tp there"),
+        )
+    }
+
+    @Test
+    fun `home - subcommand group can be optional`() {
+        val homeCommand = structure(Server::class, Sender::class) {
+            command("home")(
+                optionallyNullable(
+                    group(
+                        command("set")(stringParameter("name")) { name -> sender.log("Home $name set") },
+                        command("delete")(stringParameter("name")) { name -> sender.log("Home $name deleted") },
+                    )
+                )
+            ) { subcommand ->
+                if (subcommand == null) sender.log("Teleported to bed")
+            }
+        }
+
+        homeCommand.execute(server, zombachu, "/home")
+        assertEquals(["Teleported to bed"], zombachu.logs)
+
+        homeCommand.execute(server, zombachu, "/home set farm")
+        assertEquals(["Home farm set"], zombachu.logs)
+
+        assertEquals(["set", "delete"], homeCommand.suggest(server, zombachu, "/home "))
+
+        assertEquals(
+            Feedback.InvalidSyntax("/home [set|delete]"),
+            homeCommand.executeExpectingError(server, zombachu, "/home list"),
+        )
+    }
+
+    @Test
+    fun `weather - optional group can be gated by permission`() {
+        val weatherCommand = structure(Server::class, Sender::class) {
+            command("weather")(
+                optionallyNullable(
+                    group(literalParameter("rain"), literalParameter("sun")),
+                    requirement = permission("server.weather.set"),
+                )
+            ) { weather ->
+                sender.log("Weather set to ${weather?.value ?: "clear"}")
+            }
+        }
+
+        weatherCommand.execute(server, zombachu, "/weather")
+        assertEquals(["Weather set to clear"], zombachu.logs)
+
+        weatherCommand.execute(server, zombachu, "/weather sun")
+        assertEquals(["Weather set to sun"], zombachu.logs)
+
+        weatherCommand.execute(server, steve, "/weather")
+        assertEquals(["Weather set to clear"], steve.logs)
+
+        assertEquals(Feedback.InvalidPermission, weatherCommand.executeExpectingError(server, steve, "/weather rain"))
+
+        assertEquals(
+            Feedback.InvalidSyntax("/weather [rain|sun]"),
+            weatherCommand.executeExpectingError(server, zombachu, "/weather snow"),
         )
     }
 }
