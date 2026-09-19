@@ -11,6 +11,7 @@ import com.zombachu.stick.dsl.booleanParameter
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.doubleParameter
 import com.zombachu.stick.dsl.enumParameter
+import com.zombachu.stick.dsl.flag
 import com.zombachu.stick.dsl.group
 import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invoke
@@ -381,6 +382,70 @@ class GroupTest {
         assertEquals(
             Feedback.InvalidSyntax("/portal <link|unlink>"),
             portalCommand.executeExpectingError(server, zombachu, "/portal delete"),
+        )
+    }
+
+    @Test
+    fun `portal - matched subcommand with flags does not fall through`() {
+        val portalCommand = structure(Server::class, Sender::class) {
+            command("portal")(
+                group(
+                    command("link")(
+                        flag("confirm"),
+                        stringParameter("name")
+                    ) { _, name ->
+                        sender.log("Linked $name")
+                    },
+                    command("unlink")(
+                        flag("confirm"),
+                        stringParameter("name")
+                    ) { _, name ->
+                        sender.log("Unlinked $name")
+                    },
+                    stringParameter("dimension"),
+                )
+            ) { result ->
+                if (result is GroupResult.ResultC) {
+                    sender.log("Teleported to ${result.value}")
+                }
+            }
+        }
+
+        portalCommand.execute(server, zombachu, "/portal nether")
+        assertEquals(["Teleported to nether"], zombachu.logs)
+
+        assertEquals(
+            Feedback.InvalidSyntax("/portal link <name> [-confirm]"),
+            portalCommand.executeExpectingError(server, zombachu, "/portal link"),
+        )
+
+        assertEquals(
+            Feedback.InvalidSyntax("/portal link <name> [-confirm]"),
+            portalCommand.executeExpectingError(server, zombachu, "/portal link -confirm"),
+        )
+    }
+
+    @Test
+    fun `portal - invalid syntax in nested subcommand echoes typed args`() {
+        val portalCommand = structure(Server::class, Sender::class) {
+            command("portal", aliases = ["p"])(
+                subcommands(
+                    command("link")(
+                        stringParameter("name"),
+                        flag("confirm"),
+                        subcommands(
+                            command("to")(
+                                stringParameter("destination")
+                            )
+                        ),
+                    )
+                )
+            )
+        }
+
+        assertEquals(
+            Feedback.InvalidSyntax("/p link -confirm nether to <destination>"),
+            portalCommand.executeExpectingError(server, zombachu, "/p link -confirm nether to"),
         )
     }
 
