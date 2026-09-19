@@ -19,7 +19,7 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
     override val size: Size,
     override val name: String,
     override val description: String,
-) : Groupable.Positioned<E, S, T, P>, ConsumingElement<E, S, T> {
+) : Groupable<E, S, T, P>, SignatureElement<E, S, T, P>, ConsumingElement<E, S, T> {
 
     override val type: GroupableType = GroupableType.Default
 

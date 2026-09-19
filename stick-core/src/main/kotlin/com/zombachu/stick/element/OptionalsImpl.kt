@@ -18,7 +18,7 @@ import com.zombachu.stick.Position
 internal open class OptionalsImpl<E : Environment, S, T : Arguments>(
     internal val elements: List<Element<E, S, Any?>>,
     internal val combine: (List<Any?>) -> T,
-) : Element.Positioned<E, S, T, Position.Last> {
+) : SignatureElement<E, S, T, Position.Last> {
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = unusedValue()

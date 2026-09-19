@@ -26,78 +26,78 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.SubcommandsImpl
 
 fun <E_ : Environment, S, A, P : Position> StructureScope<E_, S>.group(
-    element: Groupable.Positioned<E_, S, A, P>,
+    element: Groupable<E_, S, A, P>,
     description: String = "",
 ): Group<E_, S, GroupResult1<A>, P> = createGroup { Group1Impl(name, description, element) }
 
 fun <E_ : Environment, S, A, B, P : Position> StructureScope<E_, S>.group(
-    elementA: Groupable.Positioned<E_, S, A, P>,
-    elementB: Groupable.Positioned<E_, S, B, P>,
+    elementA: Groupable<E_, S, A, P>,
+    elementB: Groupable<E_, S, B, P>,
     description: String = "",
 ): Group<E_, S, GroupResult2<A, B>, P> = createGroup { Group2Impl(name, description, elementA, elementB) }
 
 fun <E_ : Environment, S, A, B, C, P : Position> StructureScope<E_, S>.group(
-    elementA: Groupable.Positioned<E_, S, A, P>,
-    elementB: Groupable.Positioned<E_, S, B, P>,
-    elementC: Groupable.Positioned<E_, S, C, P>,
+    elementA: Groupable<E_, S, A, P>,
+    elementB: Groupable<E_, S, B, P>,
+    elementC: Groupable<E_, S, C, P>,
     description: String = "",
 ): Group<E_, S, GroupResult3<A, B, C>, P> = createGroup { Group3Impl(name, description, elementA, elementB, elementC) }
 
 fun <E_ : Environment, S, A, B, C, D, P : Position> StructureScope<E_, S>.group(
-    elementA: Groupable.Positioned<E_, S, A, P>,
-    elementB: Groupable.Positioned<E_, S, B, P>,
-    elementC: Groupable.Positioned<E_, S, C, P>,
-    elementD: Groupable.Positioned<E_, S, D, P>,
+    elementA: Groupable<E_, S, A, P>,
+    elementB: Groupable<E_, S, B, P>,
+    elementC: Groupable<E_, S, C, P>,
+    elementD: Groupable<E_, S, D, P>,
     description: String = "",
 ): Group<E_, S, GroupResult4<A, B, C, D>, P> = createGroup {
     Group4Impl(name, description, elementA, elementB, elementC, elementD)
 }
 
 fun <E_ : Environment, S, A, B, C, D, E, P : Position> StructureScope<E_, S>.group(
-    elementA: Groupable.Positioned<E_, S, A, P>,
-    elementB: Groupable.Positioned<E_, S, B, P>,
-    elementC: Groupable.Positioned<E_, S, C, P>,
-    elementD: Groupable.Positioned<E_, S, D, P>,
-    elementE: Groupable.Positioned<E_, S, E, P>,
+    elementA: Groupable<E_, S, A, P>,
+    elementB: Groupable<E_, S, B, P>,
+    elementC: Groupable<E_, S, C, P>,
+    elementD: Groupable<E_, S, D, P>,
+    elementE: Groupable<E_, S, E, P>,
     description: String = "",
 ): Group<E_, S, GroupResult5<A, B, C, D, E>, P> = createGroup {
     Group5Impl(name, description, elementA, elementB, elementC, elementD, elementE)
 }
 
 fun <E_ : Environment, S, A, B, C, D, E, F, P : Position> StructureScope<E_, S>.group(
-    elementA: Groupable.Positioned<E_, S, A, P>,
-    elementB: Groupable.Positioned<E_, S, B, P>,
-    elementC: Groupable.Positioned<E_, S, C, P>,
-    elementD: Groupable.Positioned<E_, S, D, P>,
-    elementE: Groupable.Positioned<E_, S, E, P>,
-    elementF: Groupable.Positioned<E_, S, F, P>,
+    elementA: Groupable<E_, S, A, P>,
+    elementB: Groupable<E_, S, B, P>,
+    elementC: Groupable<E_, S, C, P>,
+    elementD: Groupable<E_, S, D, P>,
+    elementE: Groupable<E_, S, E, P>,
+    elementF: Groupable<E_, S, F, P>,
     description: String = "",
 ): Group<E_, S, GroupResult6<A, B, C, D, E, F>, P> = createGroup {
     Group6Impl(name, description, elementA, elementB, elementC, elementD, elementE, elementF)
 }
 
 fun <E_ : Environment, S, A, B, C, D, E, F, G, P : Position> StructureScope<E_, S>.group(
-    elementA: Groupable.Positioned<E_, S, A, P>,
-    elementB: Groupable.Positioned<E_, S, B, P>,
-    elementC: Groupable.Positioned<E_, S, C, P>,
-    elementD: Groupable.Positioned<E_, S, D, P>,
-    elementE: Groupable.Positioned<E_, S, E, P>,
-    elementF: Groupable.Positioned<E_, S, F, P>,
-    elementG: Groupable.Positioned<E_, S, G, P>,
+    elementA: Groupable<E_, S, A, P>,
+    elementB: Groupable<E_, S, B, P>,
+    elementC: Groupable<E_, S, C, P>,
+    elementD: Groupable<E_, S, D, P>,
+    elementE: Groupable<E_, S, E, P>,
+    elementF: Groupable<E_, S, F, P>,
+    elementG: Groupable<E_, S, G, P>,
     description: String = "",
 ): Group<E_, S, GroupResult7<A, B, C, D, E, F, G>, P> = createGroup {
     Group7Impl(name, description, elementA, elementB, elementC, elementD, elementE, elementF, elementG)
 }
 
 fun <E_ : Environment, S, A, B, C, D, E, F, G, H, P : Position> StructureScope<E_, S>.group(
-    elementA: Groupable.Positioned<E_, S, A, P>,
-    elementB: Groupable.Positioned<E_, S, B, P>,
-    elementC: Groupable.Positioned<E_, S, C, P>,
-    elementD: Groupable.Positioned<E_, S, D, P>,
-    elementE: Groupable.Positioned<E_, S, E, P>,
-    elementF: Groupable.Positioned<E_, S, F, P>,
-    elementG: Groupable.Positioned<E_, S, G, P>,
-    elementH: Groupable.Positioned<E_, S, H, P>,
+    elementA: Groupable<E_, S, A, P>,
+    elementB: Groupable<E_, S, B, P>,
+    elementC: Groupable<E_, S, C, P>,
+    elementD: Groupable<E_, S, D, P>,
+    elementE: Groupable<E_, S, E, P>,
+    elementF: Groupable<E_, S, F, P>,
+    elementG: Groupable<E_, S, G, P>,
+    elementH: Groupable<E_, S, H, P>,
     description: String = "",
 ): Group<E_, S, GroupResult8<A, B, C, D, E, F, G, H>, P> = createGroup {
     Group8Impl(name, description, elementA, elementB, elementC, elementD, elementE, elementF, elementG, elementH)

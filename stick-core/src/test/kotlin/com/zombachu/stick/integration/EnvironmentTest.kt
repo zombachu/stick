@@ -84,12 +84,12 @@ class EnvironmentTest {
         val baseScope = StructureScope.empty<Server, Sender>()
         val worldFlag: ValueFlag<WarpableServer, Sender, String> =
             with(baseScope) { valueFlag("world", default = "overworld", parameter = stringParameter("world")) }
-        val worldParameter: Groupable.Positioned<WarpableServer, Sender, String, Position.Leading> =
+        val worldParameter: Groupable<WarpableServer, Sender, String, Position.Leading> =
             WorldParameter<Server, Sender>("world")
         val someSubCommand: Structure<WarpableServer, Sender, Arguments1<String>> =
             with(baseScope) { command("somesubcommand")(WorldParameter<Server, Sender>("world")) { _ -> } }
         // Shouldn't compile
-        // val warpParameter: Groupable<GameServer, Sender, Warp> =
+        // val warpParameter: Groupable<GameServer, Sender, Warp, Position.Leading> =
         //     with(StructureScope.empty<HasWarps, Sender>()) { warpParameter("warp") }
         val warpCommand = structure(WarpableServer::class, Sender::class) {
             command("nonsense")(

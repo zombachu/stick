@@ -19,9 +19,9 @@ import com.zombachu.stick.ValidationContext
 sealed interface Element<in E : Environment, S, out T> {
     context(inv: Invocation<E, S>)
     fun parse(args: List<String>): CommandResult<T>
-
-    sealed interface Positioned<in E : Environment, S, out T, out P : Position> : Element<E, S, T>
 }
+
+sealed interface SignatureElement<in E : Environment, S, out T, out P : Position> : Element<E, S, T>
 
 sealed interface SyntaxElement<in E : Environment, S, out T> : Element<E, S, T> {
     val size: Size
@@ -43,20 +43,17 @@ sealed interface ConsumingElement<in E : Environment, S, out T> : SyntaxElement<
     override fun parse(args: List<String>): ConsumingResult<T>
 }
 
-sealed interface Groupable<in E : Environment, S, T> : SyntaxElement<E, S, T> {
+sealed interface Groupable<in E : Environment, S, T, out P : Position> : SyntaxElement<E, S, T> {
     val type: GroupableType
 
     context(validationContext: ValidationContext<E, S>)
     fun getGroupedSyntax(): String = name
-
-    sealed interface Positioned<in E : Environment, S, T, out P : Position> :
-        Groupable<E, S, T>, Element.Positioned<E, S, T, P>
 }
 
-sealed interface Helper<in E : Environment, S, out T> : Element.Positioned<E, S, T, Position.Leading>
+sealed interface Helper<in E : Environment, S, out T> : SignatureElement<E, S, T, Position.Leading>
 
 sealed interface Flag<in E : Environment, S, out T> :
-    Element.Positioned<E, S, T, Position.Anywhere>, ConsumingElement<E, S, T>, SenderValidator<E, S> {
+    SignatureElement<E, S, T, Position.Anywhere>, ConsumingElement<E, S, T>, SenderValidator<E, S> {
     override val size: Size.Bounded
     val default: ContextualValue<E, S, T>
 }
@@ -65,16 +62,16 @@ sealed interface ValueFlag<in E : Environment, S, out T> : Flag<E, S, T>
 
 sealed interface HybridFlag<in E : Environment, S, out T> : Flag<E, S, HybridFlagResult<T>>
 
-sealed interface Group<in E : Environment, S, G, out P : Position> : Groupable.Positioned<E, S, G, P>
+sealed interface Group<in E : Environment, S, G, out P : Position> : Groupable<E, S, G, P>, SignatureElement<E, S, G, P>
 
 sealed interface Structure<in E : Environment, S, T_ : Arguments> :
-    Groupable.Positioned<E, S, T_, Position.Last>, Aliasable, SenderValidator<E, S>
+    Groupable<E, S, T_, Position.Last>, SignatureElement<E, S, T_, Position.Last>, Aliasable, SenderValidator<E, S>
 
 sealed interface ValidatedParameter<in E : Environment, S, T, out P : Position> :
-    Groupable.Positioned<E, S, T, P>, ConsumingElement<E, S, T>
+    Groupable<E, S, T, P>, SignatureElement<E, S, T, P>, ConsumingElement<E, S, T>
 
 sealed interface OptionalParameter<in E : Environment, S, out T, out P : Position> :
-    Element.Positioned<E, S, T, P>, ConsumingElement<E, S, T>
+    SignatureElement<E, S, T, P>, ConsumingElement<E, S, T>
 
 sealed interface OptionalGroup<in E : Environment, S, out G : GroupResult?, out P : Position> :
-    Element.Positioned<E, S, G, P>, SyntaxElement<E, S, G>
+    SignatureElement<E, S, G, P>, SyntaxElement<E, S, G>
