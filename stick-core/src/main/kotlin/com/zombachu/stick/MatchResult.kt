@@ -3,9 +3,10 @@ package com.zombachu.stick
 import com.zombachu.stick.element.ConsumingElement
 
 sealed interface MatchResult {
+    val canConsumeMore: Boolean
 
     @ConsistentCopyVisibility
-    data class Matched internal constructor(val consumed: Int, val canConsumeMore: Boolean) : MatchResult {
+    data class Matched internal constructor(val consumed: Int, override val canConsumeMore: Boolean) : MatchResult {
 
         internal var resolvedBy: ConsumingElement<*, *, *>? = null
             private set
@@ -24,10 +25,14 @@ sealed interface MatchResult {
         }
     }
 
-    data object Partial : MatchResult
+    data object Partial : MatchResult {
+        override val canConsumeMore = true
+    }
 
     @ConsistentCopyVisibility
-    data class Unmatched internal constructor(val failure: CommandResult.InternalFailure) : MatchResult
+    data class Unmatched internal constructor(val failure: CommandResult.InternalFailure) : MatchResult {
+        override val canConsumeMore = false
+    }
 
     companion object {
         private val silent: Unmatched = Unmatched(ParsingResult.failTypeInternal())

@@ -61,29 +61,48 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
     override val type: GroupableType = GroupableType.Default
 
     context(validationContext: ValidationContext<E, S>)
-    override fun match(args: List<String>): MatchResult {
+    override fun match(args: List<String>): MatchResult = matchBranches(args).result
+
+    context(validationContext: ValidationContext<E, S>)
+    internal fun matchBranches(args: List<String>): GroupMatch {
+        val branchResults = ArrayList<MatchResult>(prioritizedElements.size)
         var incomplete: MatchResult.Partial? = null
         var mismatch: MatchResult.Unmatched? = null
+
         for (element in prioritizedElements) {
-            element.groupable.validateSender().propagateError { continue }
-            when (val match = element.groupable.match(args)) {
+            element.groupable.validateSender().propagateError {
+                branchResults.add(MatchResult.unmatched())
+                continue
+            }
+
+            val match = element.groupable.match(args)
+            branchResults.add(match)
+
+            when (match) {
                 // A higher-priority element that's partial could still take args
-                is MatchResult.Matched ->
-                    return if (incomplete == null) match else MatchResult.matchedAtLeast(match.consumed)
+                is MatchResult.Matched -> {
+                    val result = if (incomplete == null) match else MatchResult.matchedAtLeast(match.consumed)
+                    return GroupMatch(result, branchResults)
+                }
                 is MatchResult.Partial -> incomplete = incomplete ?: match
                 is MatchResult.Unmatched -> if (!match.failure.isMismatch()) mismatch = mismatch ?: match
             }
         }
-        return incomplete ?: mismatch ?: MatchResult.unmatched()
+        return GroupMatch(incomplete ?: mismatch ?: MatchResult.unmatched(), branchResults)
     }
 
     context(validationContext: ValidationContext<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = buildList {
-        for (element in prioritizedElements) {
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = suggest(preceding, partial, null)
+
+    context(validationContext: ValidationContext<E, S>)
+    internal fun suggest(preceding: List<String>, partial: String, matched: GroupMatch?): List<Suggestion> = buildList {
+        for ((index, element) in prioritizedElements.withIndex()) {
             val groupable = element.groupable
             val size = groupable.size
             if (size is Size.Bounded && preceding.size >= size.max) continue
             groupable.validateSender().propagateError { continue }
+            val canConsumeMore = matched?.branchResults?.getOrNull(index)?.canConsumeMore ?: true
+            if (!canConsumeMore) continue
             addAll(groupable.suggest(preceding, partial))
         }
     }
@@ -143,6 +162,8 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
         onSuccess(groupElement.toResult(value))
     }
 }
+
+internal class GroupMatch(val result: MatchResult, val branchResults: List<MatchResult>)
 
 private fun CommandResult.InternalFailure.isMismatch(): Boolean =
     when (this) {

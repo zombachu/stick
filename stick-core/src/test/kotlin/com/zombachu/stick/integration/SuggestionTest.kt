@@ -165,12 +165,29 @@ class SuggestionTest {
 
         assertEquals(["all", "x=", "near"], selectCommand.suggest(server, zombachu, "/select "))
         assertEquals([], selectCommand.suggest(server, zombachu, "/select all "))
+        assertEquals(["y="], selectCommand.suggest(server, zombachu, "/select x=1 "))
         assertEquals(["z="], selectCommand.suggest(server, zombachu, "/select x=1 y=2 "))
 
-        // KNOWN LIMITATION: "x=1" rules out near, but the group keeps branches by size not by what matched
+        // KNOWN LIMITATION: Parameter.Fixed.match reports a short window as Partial without reading it, so point stays
+        // open after "near"
         // TODO: fix
-        assertEquals(["y=", "zombachu", "Steve"], selectCommand.suggest(server, zombachu, "/select x=1 "))
         assertEquals(["y=", "zombachu", "Steve"], selectCommand.suggest(server, zombachu, "/select near "))
+    }
+
+    @Test
+    fun `rejecting - group branches match once`() {
+        val rejectingParameter = RejectingParameter<Server, Sender>()
+        val rejectingCommand = structure(Server::class, Sender::class) {
+            command("rejecting")(
+                group(
+                    PointParameter(),
+                    rejectingParameter,
+                )
+            ) { }
+        }
+
+        assertEquals(["y="], rejectingCommand.suggest(server, zombachu, "/rejecting x=1 "))
+        assertEquals(1, rejectingParameter.count)
     }
 
     @Test
@@ -284,6 +301,16 @@ class SuggestionTest {
             }
             if (args.size < 3) return ParsingResult.failSize()
             return point.resolve(args)
+        }
+    }
+
+    private class RejectingParameter<E : Environment, S> : Parameter.Bounded<E, S, String>(Size.between(1, 2), "", "") {
+        var count = 0
+
+        context(validationContext: ValidationContext<E, S>)
+        override fun resolve(args: List<String>): ConsumingResult<String> {
+            count++
+            return ParsingResult.failType("", args.first())
         }
     }
 

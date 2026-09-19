@@ -69,7 +69,13 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
     context(validationContext: ValidationContext<E, S>)
     fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
         return SuggestionProcessor(preceding).process().flatMap { candidate ->
-            candidate.element.suggest(preceding.subList(candidate.startIndex, preceding.size), partial)
+            val element = candidate.element
+            val window = preceding.subList(candidate.startIndex, preceding.size)
+            if (element is GroupImpl<E, S, *, *>) {
+                element.suggest(window, partial, candidate.groupMatch)
+            } else {
+                element.suggest(window, partial)
+            }
         }
     }
 
@@ -182,12 +188,14 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
 
         context(validationContext: ValidationContext<E, S>)
         private fun matchElement(element: SyntaxElement<E, S, *>): MatchResult {
-            val match = element.match(preceding.subList(index, preceding.size))
+            val window = preceding.subList(index, preceding.size)
+            val groupMatch = if (element is GroupImpl<E, S, *, *>) element.matchBranches(window) else null
+            val match = groupMatch?.result ?: element.match(window)
             if (match is MatchResult.Matched) {
-                openCandidate = if (match.canConsumeMore) Candidate(element, index) else null
+                openCandidate = if (match.canConsumeMore) Candidate(element, index, groupMatch) else null
                 index += match.consumed
             } else if (match is MatchResult.Partial) {
-                openCandidate = Candidate(element, index)
+                openCandidate = Candidate(element, index, groupMatch)
                 index = preceding.size
                 unprocessedFlags.clear()
             }
@@ -237,6 +245,10 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
             }
         }
 
-        inner class Candidate(val element: SyntaxElement<E, S, *>, val startIndex: Int)
+        inner class Candidate(
+            val element: SyntaxElement<E, S, *>,
+            val startIndex: Int,
+            val groupMatch: GroupMatch? = null,
+        )
     }
 }
