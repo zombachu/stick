@@ -16,7 +16,7 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.Position
 
 internal open class OptionalsImpl<E : Environment, S, T : Arguments>(
-    internal val elements: List<Element<E, S, Any?>>,
+    internal val elements: List<SignatureElement<E, S, Any?, *>>,
     internal val combine: (List<Any?>) -> T,
 ) : SignatureElement<E, S, T, Position.Last> {
 
@@ -25,8 +25,8 @@ internal open class OptionalsImpl<E : Environment, S, T : Arguments>(
 }
 
 internal class Optionals2Impl<E_ : Environment, S, A, B>(
-    elementA: Element<E_, S, A>,
-    elementB: Element<E_, S, B>,
+    elementA: SignatureElement<E_, S, A, *>,
+    elementB: SignatureElement<E_, S, B, *>,
 ) :
     OptionalsImpl<E_, S, Arguments2<A, B>>(
         [elementA, elementB],
@@ -34,9 +34,9 @@ internal class Optionals2Impl<E_ : Environment, S, A, B>(
     )
 
 internal class Optionals3Impl<E_ : Environment, S, A, B, C>(
-    elementA: Element<E_, S, A>,
-    elementB: Element<E_, S, B>,
-    elementC: Element<E_, S, C>,
+    elementA: SignatureElement<E_, S, A, *>,
+    elementB: SignatureElement<E_, S, B, *>,
+    elementC: SignatureElement<E_, S, C, *>,
 ) :
     OptionalsImpl<E_, S, Arguments3<A, B, C>>(
         [elementA, elementB, elementC],
@@ -44,10 +44,10 @@ internal class Optionals3Impl<E_ : Environment, S, A, B, C>(
     )
 
 internal class Optionals4Impl<E_ : Environment, S, A, B, C, D>(
-    elementA: Element<E_, S, A>,
-    elementB: Element<E_, S, B>,
-    elementC: Element<E_, S, C>,
-    elementD: Element<E_, S, D>,
+    elementA: SignatureElement<E_, S, A, *>,
+    elementB: SignatureElement<E_, S, B, *>,
+    elementC: SignatureElement<E_, S, C, *>,
+    elementD: SignatureElement<E_, S, D, *>,
 ) :
     OptionalsImpl<E_, S, Arguments4<A, B, C, D>>(
         [elementA, elementB, elementC, elementD],
@@ -55,11 +55,11 @@ internal class Optionals4Impl<E_ : Environment, S, A, B, C, D>(
     )
 
 internal class Optionals5Impl<E_ : Environment, S, A, B, C, D, E>(
-    elementA: Element<E_, S, A>,
-    elementB: Element<E_, S, B>,
-    elementC: Element<E_, S, C>,
-    elementD: Element<E_, S, D>,
-    elementE: Element<E_, S, E>,
+    elementA: SignatureElement<E_, S, A, *>,
+    elementB: SignatureElement<E_, S, B, *>,
+    elementC: SignatureElement<E_, S, C, *>,
+    elementD: SignatureElement<E_, S, D, *>,
+    elementE: SignatureElement<E_, S, E, *>,
 ) :
     OptionalsImpl<E_, S, Arguments5<A, B, C, D, E>>(
         [elementA, elementB, elementC, elementD, elementE],
@@ -67,12 +67,12 @@ internal class Optionals5Impl<E_ : Environment, S, A, B, C, D, E>(
     )
 
 internal class Optionals6Impl<E_ : Environment, S, A, B, C, D, E, F>(
-    elementA: Element<E_, S, A>,
-    elementB: Element<E_, S, B>,
-    elementC: Element<E_, S, C>,
-    elementD: Element<E_, S, D>,
-    elementE: Element<E_, S, E>,
-    elementF: Element<E_, S, F>,
+    elementA: SignatureElement<E_, S, A, *>,
+    elementB: SignatureElement<E_, S, B, *>,
+    elementC: SignatureElement<E_, S, C, *>,
+    elementD: SignatureElement<E_, S, D, *>,
+    elementE: SignatureElement<E_, S, E, *>,
+    elementF: SignatureElement<E_, S, F, *>,
 ) :
     OptionalsImpl<E_, S, Arguments6<A, B, C, D, E, F>>(
         [elementA, elementB, elementC, elementD, elementE, elementF],
@@ -82,13 +82,13 @@ internal class Optionals6Impl<E_ : Environment, S, A, B, C, D, E, F>(
     )
 
 internal class Optionals7Impl<E_ : Environment, S, A, B, C, D, E, F, G>(
-    elementA: Element<E_, S, A>,
-    elementB: Element<E_, S, B>,
-    elementC: Element<E_, S, C>,
-    elementD: Element<E_, S, D>,
-    elementE: Element<E_, S, E>,
-    elementF: Element<E_, S, F>,
-    elementG: Element<E_, S, G>,
+    elementA: SignatureElement<E_, S, A, *>,
+    elementB: SignatureElement<E_, S, B, *>,
+    elementC: SignatureElement<E_, S, C, *>,
+    elementD: SignatureElement<E_, S, D, *>,
+    elementE: SignatureElement<E_, S, E, *>,
+    elementF: SignatureElement<E_, S, F, *>,
+    elementG: SignatureElement<E_, S, G, *>,
 ) :
     OptionalsImpl<E_, S, Arguments7<A, B, C, D, E, F, G>>(
         [elementA, elementB, elementC, elementD, elementE, elementF, elementG],
@@ -106,14 +106,14 @@ internal class Optionals7Impl<E_ : Environment, S, A, B, C, D, E, F, G>(
     )
 
 internal class Optionals8Impl<E_ : Environment, S, A, B, C, D, E, F, G, H>(
-    elementA: Element<E_, S, A>,
-    elementB: Element<E_, S, B>,
-    elementC: Element<E_, S, C>,
-    elementD: Element<E_, S, D>,
-    elementE: Element<E_, S, E>,
-    elementF: Element<E_, S, F>,
-    elementG: Element<E_, S, G>,
-    elementH: Element<E_, S, H>,
+    elementA: SignatureElement<E_, S, A, *>,
+    elementB: SignatureElement<E_, S, B, *>,
+    elementC: SignatureElement<E_, S, C, *>,
+    elementD: SignatureElement<E_, S, D, *>,
+    elementE: SignatureElement<E_, S, E, *>,
+    elementF: SignatureElement<E_, S, F, *>,
+    elementG: SignatureElement<E_, S, G, *>,
+    elementH: SignatureElement<E_, S, H, *>,
 ) :
     OptionalsImpl<E_, S, Arguments8<A, B, C, D, E, F, G, H>>(
         [elementA, elementB, elementC, elementD, elementE, elementF, elementG, elementH],

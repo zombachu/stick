@@ -15,7 +15,7 @@ import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 
-internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: List<Element<E, S, Any?>>) {
+internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: List<SignatureElement<E, S, Any?, *>>) {
 
     private val flags: List<IndexedElement<E, S, Flag<E, S, Any?>>>
     private val linearElements: List<IndexedElement<E, S, Element<E, S, Any?>>>
