@@ -1,6 +1,7 @@
 package com.zombachu.stick
 
 import com.zombachu.stick.element.Signature
+import com.zombachu.stick.element.SignatureElement
 import com.zombachu.stick.element.StructureImpl
 
 class StructureScope<E : Environment, S>(
@@ -24,7 +25,9 @@ class StructureScope<E : Environment, S>(
         )
     }
 
-    internal fun <T_ : Arguments> build(signature: Signature<E, S, T_>): StructureImpl<E, S, T_> {
+    internal fun <T_ : Arguments> build(
+        signature: (SignatureElement<E, S, Any?, *>) -> Signature<E, S, T_>
+    ): StructureImpl<E, S, T_> {
         return StructureImpl(this.name, this.aliases, this.description, this.requirement, signature)
     }
 

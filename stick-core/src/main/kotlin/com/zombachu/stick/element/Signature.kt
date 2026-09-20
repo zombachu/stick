@@ -15,7 +15,10 @@ import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 
-internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: List<SignatureElement<E, S, Any?, *>>) {
+internal sealed class Signature<E : Environment, S, T_ : Arguments>(
+    elements: List<SignatureElement<E, S, Any?, *>>,
+    leading: SignatureElement<E, S, Any?, *>?,
+) {
 
     private val flags: List<IndexedElement<E, S, Flag<E, S, Any?>>>
     private val linearElements: List<IndexedElement<E, S, Element<E, S, Any?>>>
@@ -26,7 +29,8 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
 
     init {
         val flattenedElements =
-            elements.dropLast(if (trailingOptionals == null) 0 else 1).mapIndexed { i, e -> IndexedElement(i, e) } +
+            listOfNotNull(leading?.let { IndexedElement(null, it) }) +
+                elements.dropLast(if (trailingOptionals == null) 0 else 1).mapIndexed { i, e -> IndexedElement(i, e) } +
                 trailingOptionals?.elements.orEmpty().mapIndexed { i, e -> IndexedElement(elementsCount + i, e) }
 
         val partitioned = flattenedElements.partition { it.element is Flag<*, *, *> }
@@ -85,7 +89,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
         element: IndexedElement<E, S, Element<E, S, Any?>>,
     ): CommandResult<Any?> {
         val processResult = inv.processElement(element.element)
-        if (processResult.isSuccess()) {
+        if (processResult.isSuccess() && element.index != null) {
             values[element.index] = processResult.value
         }
         return processResult
@@ -129,7 +133,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
 
         // Populate unused flag values with defaults
         for ((index, flag) in unprocessedFlags) {
-            values[index] =
+            values[index!!] =
                 flag.default(inv).valueOrPropagateError {
                     return it
                 }
@@ -179,7 +183,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
         } while (progressed)
     }
 
-    private data class IndexedElement<E : Environment, S, out L : Element<E, S, *>>(val index: Int, val element: L)
+    private data class IndexedElement<E : Environment, S, out L : Element<E, S, *>>(val index: Int?, val element: L)
 
     private inner class SuggestionProcessor(private val preceding: List<String>) {
         private val unprocessedFlags: MutableList<IndexedElement<E, S, Flag<E, S, Any?>>> = flags.toMutableList()
@@ -237,9 +241,12 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(elements: Li
             if (index != preceding.size) return []
             return buildList {
                 openCandidate?.let { add(it) }
-                for ((_, flag) in unprocessedFlags) {
-                    flag.validateSender().propagateError { continue }
-                    add(Candidate(flag, index))
+                // Avoid suggesting subcommand flags before the subcommand's label
+                if (nextLinear == null || nextLinear !== linearElements.first().element) {
+                    for ((_, flag) in unprocessedFlags) {
+                        flag.validateSender().propagateError { continue }
+                        add(Candidate(flag, index))
+                    }
                 }
                 if (nextLinear != null) add(Candidate(nextLinear, index))
             }

@@ -1,5 +1,6 @@
 package com.zombachu.stick
 
+import com.zombachu.stick.element.Branch
 import com.zombachu.stick.element.ConsumingElement
 import com.zombachu.stick.element.Element
 import com.zombachu.stick.element.Signature0
@@ -28,10 +29,10 @@ internal open class InvocationImpl<E : Environment, S>(
             root.rootConsumedArgs = value
         }
 
-    private val rootEnteredStructures: MutableList<EnteredStructure> =
-        mutableListOf(context(this) { EnteredStructure { structure.getSyntax() } })
-    private val enteredStructures: MutableList<EnteredStructure>
-        get() = root.rootEnteredStructures
+    private val rootEnteredBranches: MutableList<EnteredBranch> =
+        mutableListOf(context(this) { EnteredBranch { structure.getSyntax() } })
+    private val enteredBranches: MutableList<EnteredBranch>
+        get() = root.rootEnteredBranches
 
     private var rootCurrentMatch: MatchResult.Matched? = null
     internal var currentMatch: MatchResult.Matched?
@@ -58,7 +59,7 @@ internal open class InvocationImpl<E : Environment, S>(
     }
 
     override fun getSyntax(): String {
-        val entered = enteredStructures
+        val entered = enteredBranches
         val segments = entered.dropLast(1).flatMap { it.args } + entered.last().getSyntax()
         return "/${segments.joinToString(" ")}"
     }
@@ -68,13 +69,9 @@ internal open class InvocationImpl<E : Environment, S>(
     }
 
     private fun consume(peeked: PeekingResult.Success, count: Int) {
-        enteredStructures.last().args += peeked.value.subList(0, count)
+        enteredBranches.last().args += peeked.value.subList(0, count)
         peeked.consume(count)
         consumedArgs += count
-    }
-
-    internal fun consumeLabel(peeked: PeekingResult.Success) {
-        consume(peeked, 1)
     }
 
     internal fun peek(size: Size): PeekingResult {
@@ -96,10 +93,10 @@ internal open class InvocationImpl<E : Environment, S>(
                 return PeekingResult.failSize()
             }
 
-            if (element is Structure) {
-                this@InvocationImpl.enteredStructures += EnteredStructure { element.getSyntax() }
+            if (element is Branch) {
+                this@InvocationImpl.enteredBranches += EnteredBranch { element.getSyntax() }
                 val result = element.parse(peeked.value)
-                this@InvocationImpl.enteredStructures.removeLast()
+                this@InvocationImpl.enteredBranches.removeLast()
                 return result
             }
 
@@ -132,7 +129,7 @@ internal open class InvocationImpl<E : Environment, S>(
     }
 }
 
-private class EnteredStructure(val getSyntax: () -> String) {
+private class EnteredBranch(val getSyntax: () -> String) {
     val args: MutableList<String> = mutableListOf()
 }
 
@@ -142,7 +139,9 @@ private class TransformedInvocationImpl<E : Environment, S, S2>(val base: Invoca
         base.env,
         base.label,
         base.args,
-        StructureImpl("", [], "", Requirement { SenderValidationResult.success() }, Signature0({}, [])), // Unused
+        StructureImpl("", [], "", Requirement { SenderValidationResult.success() }) {
+            Signature0({}, [], it)
+        }, // Unused
         parent = base,
     ) {
     override var unparsed: MutableList<String> = base.unparsed

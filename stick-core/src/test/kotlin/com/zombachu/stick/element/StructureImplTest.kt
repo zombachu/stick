@@ -25,7 +25,7 @@ class StructureImplTest {
 
     @Test
     fun `matches name case-insensitively`() {
-        val structure = structure(name = "cmd")
+        val structure = structure(name = "cMd")
 
         val result = withInvocation("CMD") { structure.parse(["CMD"]) }
 
@@ -102,15 +102,10 @@ class StructureImplTest {
     @Test
     fun `getSyntax returns signature syntax`() {
         val parameter = StringParameter<TestEnv, Unit>("arg", "")
-        val signature = Signature1<TestEnv, Unit, String>({}, [parameter])
         val structure =
-            StructureImpl(
-                "cmd",
-                [],
-                "",
-                Requirement { SenderValidationResult.success() },
-                signature,
-            )
+            StructureImpl("cmd", [], "", Requirement<TestEnv, Unit> { SenderValidationResult.success() }) {
+                Signature1<TestEnv, Unit, String>({}, [parameter], it)
+            }
 
         assertEquals("cmd <arg>", withValidationContext { structure.getSyntax() })
     }
@@ -154,5 +149,5 @@ class StructureImplTest {
         requirement: Requirement<TestEnv, Unit> = Requirement { SenderValidationResult.success() },
         onExecute: () -> Unit = {},
     ): StructureImpl<TestEnv, Unit, Arguments0> =
-        StructureImpl(name, aliases, "", requirement, Signature0({ onExecute() }, []))
+        StructureImpl(name, aliases, "", requirement) { Signature0({ onExecute() }, [], it) }
 }

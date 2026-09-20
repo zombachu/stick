@@ -57,7 +57,7 @@ class StructureScopeTest {
                 Requirement { SenderValidationResult.success() },
             )
 
-        val structure = scope.build(Signature0({}, []))
+        val structure = scope.build { Signature0({}, [], it) }
 
         assertEquals("sub", structure.name)
         assertEquals(["s"], structure.aliases)

@@ -60,13 +60,9 @@ class TransformedElementTest {
     @Test
     fun `TransformedStructure suggests its label`() {
         val base =
-            StructureImpl(
-                "teleport",
-                ["tp"],
-                "",
-                Requirement<TestEnv, Int> { SenderValidationResult.success() },
-                Signature0<TestEnv, Int>({}, []),
-            )
+            StructureImpl("teleport", ["tp"], "", Requirement<TestEnv, Int> { SenderValidationResult.success() }) {
+                Signature0({}, [], it)
+            }
         val transformed = TransformedStructure(base, String::length, allowed)
 
         val suggestions = withValidationContext("zombachu") { transformed.suggest([], "") }

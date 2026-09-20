@@ -3,80 +3,40 @@ package com.zombachu.stick.element
 import com.zombachu.stick.Arguments
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
-import com.zombachu.stick.InvocationImpl
-import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Requirement
-import com.zombachu.stick.Size
-import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
-import com.zombachu.stick.propagateError
-import com.zombachu.stick.suggestAliases
-import com.zombachu.stick.valueOrPropagateError
+import com.zombachu.stick.element.parameters.LiteralParameter
 
-internal open class StructureImpl<E : Environment, S, T_ : Arguments>(
-    override val name: String,
-    override val aliases: Set<String>,
-    override val description: String,
-    internal val requirement: Requirement<E, S>,
-    internal val signature: Signature<E, S, T_>,
-) : Structure<E, S, T_> {
+internal class StructureImpl<E : Environment, S, T_ : Arguments>
+private constructor(
+    literal: LabelParameter<E, S>,
+    private val requirement: Requirement<E, S>,
+    signature: (LabelParameter<E, S>) -> Signature<E, S, T_>,
+) : BranchImpl<E, S, T_>(literal, signature(literal)), Structure<E, S, T_> {
 
-    override val size: Size = Size.atLeast(1)
-    override val type: GroupableType = GroupableType.Literal
-    override val label: String = name
+    constructor(
+        name: String,
+        aliases: Set<String>,
+        description: String,
+        requirement: Requirement<E, S>,
+        signature: (SignatureElement<E, S, Any?, *>) -> Signature<E, S, T_>,
+    ) : this(LabelParameter(name, aliases, description), requirement, signature)
 
-    context(validationContext: ValidationContext<E, S>)
-    override fun match(args: List<String>): MatchResult {
-        val label = args.firstOrNull() ?: return MatchResult.partial()
-        if (!matches(label.lowercase())) return MatchResult.unmatched()
-        return MatchResult.matchedAtLeast(args.size)
-    }
-
-    context(validationContext: ValidationContext<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        validateSender().propagateError {
-            return []
-        }
-        if (preceding.isEmpty()) return suggestAliases()
-        if (!matches(preceding.first().lowercase())) return []
-        return signature.suggest(preceding.subList(1, preceding.size), partial)
-    }
-
-    context(inv: Invocation<E, S>)
-    override fun parse(args: List<String>): CommandResult<T_> {
-        val invocation = inv as InvocationImpl
-        val peeked = invocation.peek(Size(1))
-        if (peeked !is PeekingResult.Success) {
-            return ParsingResult.failTypeInternal()
-        }
-        val label = peeked.value.first().lowercase()
-        if (!matches(label)) {
-            return ParsingResult.failTypeInternal()
-        }
-        invocation.consumeLabel(peeked)
-        validateSender().propagateError {
-            return it
-        }
-        val parsedValuesTuple =
-            signature.execute().valueOrPropagateError {
-                return it
-            }
-        return ParsingResult.success(parsedValuesTuple)
-    }
-
-    context(validationContext: ValidationContext<E, S>)
-    override fun getSyntax(): String {
-        val signatureSyntax = signature.getSyntax()
-        return if (signatureSyntax.isEmpty()) {
-            name
-        } else {
-            "${name} $signatureSyntax"
-        }
-    }
+    override val label: String = literal.label
+    override val aliases: Set<String> = literal.aliases
 
     context(validationContext: ValidationContext<E, S>)
     override fun validateSender(): CommandResult<Unit> = requirement.validateSender()
+}
+
+private class LabelParameter<E : Environment, S>(name: String, aliases: Set<String>, description: String) :
+    LiteralParameter<E, S>(name, aliases, description) {
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun getSyntax(): String = name
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun resolve(arg0: String): CommandResult<String> =
+        if (matches(arg0.lowercase())) ParsingResult.success(arg0) else ParsingResult.failTypeInternal()
 }

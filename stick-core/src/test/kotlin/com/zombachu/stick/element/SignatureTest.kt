@@ -89,8 +89,9 @@ class SignatureTest {
                 [],
                 "",
                 Requirement { SenderValidationResult.success() },
-                Signature0({}, []),
-            )
+            ) {
+                Signature0({}, [], it)
+            }
         val signature = Signature1<TestEnv, Unit, Arguments0>({}, [structure])
 
         val result = withInvocation("other") { signature.execute() }

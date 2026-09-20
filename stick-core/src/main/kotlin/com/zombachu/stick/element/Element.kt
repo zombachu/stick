@@ -65,7 +65,9 @@ sealed interface HybridFlag<in E : Environment, S, out T> : Flag<E, S, HybridFla
 sealed interface Group<in E : Environment, S, G, out P : Position> : Groupable<E, S, G, P>, SignatureElement<E, S, G, P>
 
 sealed interface Structure<in E : Environment, S, T_ : Arguments> :
-    Groupable<E, S, T_, Position.Last>, SignatureElement<E, S, T_, Position.Last>, Aliasable, SenderValidator<E, S>
+    Branch<E, S, T_>, SignatureElement<E, S, T_, Position.Last>, Aliasable, SenderValidator<E, S>
+
+sealed interface Branch<in E : Environment, S, T_ : Arguments> : Groupable<E, S, T_, Position.Last>
 
 sealed interface ValidatedParameter<in E : Environment, S, T, out P : Position> :
     Groupable<E, S, T, P>, SignatureElement<E, S, T, P>, ConsumingElement<E, S, T>

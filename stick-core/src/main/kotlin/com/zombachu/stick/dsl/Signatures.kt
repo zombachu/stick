@@ -35,25 +35,25 @@ import com.zombachu.stick.element.Structure
 
 operator fun <E_ : Environment, S> StructureScope<E_, S>.invoke(
     execute: Invocation<E_, S>.() -> Unit = {}
-): Structure<E_, S, Arguments0> = this@invoke.build(Signature0(execute, []))
+): Structure<E_, S, Arguments0> = this@invoke.build { Signature0(execute, [], it) }
 
 operator fun <E_ : Environment, S, A> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Last>,
     execute: Invocation<E_, S>.(A) -> Unit = { a -> },
-): Structure<E_, S, Arguments1<A>> = this@invoke.build(Signature1(execute, [elementA]))
+): Structure<E_, S, Arguments1<A>> = this@invoke.build { Signature1(execute, [elementA], it) }
 
 operator fun <E_ : Environment, S, A, B> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Leading>,
     elementB: SignatureElement<E_, S, B, Position.Last>,
     execute: Invocation<E_, S>.(A, B) -> Unit = { a, b -> },
-): Structure<E_, S, Arguments2<A, B>> = this@invoke.build(Signature2(execute, [elementA, elementB]))
+): Structure<E_, S, Arguments2<A, B>> = this@invoke.build { Signature2(execute, [elementA, elementB], it) }
 
 operator fun <E_ : Environment, S, A, B, C> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Leading>,
     elementB: SignatureElement<E_, S, B, Position.Leading>,
     elementC: SignatureElement<E_, S, C, Position.Last>,
     execute: Invocation<E_, S>.(A, B, C) -> Unit = { a, b, c -> },
-): Structure<E_, S, Arguments3<A, B, C>> = this@invoke.build(Signature3(execute, [elementA, elementB, elementC]))
+): Structure<E_, S, Arguments3<A, B, C>> = this@invoke.build { Signature3(execute, [elementA, elementB, elementC], it) }
 
 operator fun <E_ : Environment, S, A, B, C, D> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Leading>,
@@ -62,7 +62,7 @@ operator fun <E_ : Environment, S, A, B, C, D> StructureScope<E_, S>.invoke(
     elementD: SignatureElement<E_, S, D, Position.Last>,
     execute: Invocation<E_, S>.(A, B, C, D) -> Unit = { a, b, c, d -> },
 ): Structure<E_, S, Arguments4<A, B, C, D>> =
-    this@invoke.build(Signature4(execute, [elementA, elementB, elementC, elementD]))
+    this@invoke.build { Signature4(execute, [elementA, elementB, elementC, elementD], it) }
 
 operator fun <E_ : Environment, S, A, B, C, D, E> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Leading>,
@@ -72,7 +72,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E> StructureScope<E_, S>.invoke(
     elementE: SignatureElement<E_, S, E, Position.Last>,
     execute: Invocation<E_, S>.(A, B, C, D, E) -> Unit = { a, b, c, d, e -> },
 ): Structure<E_, S, Arguments5<A, B, C, D, E>> =
-    this@invoke.build(Signature5(execute, [elementA, elementB, elementC, elementD, elementE]))
+    this@invoke.build { Signature5(execute, [elementA, elementB, elementC, elementD, elementE], it) }
 
 operator fun <E_ : Environment, S, A, B, C, D, E, F> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Leading>,
@@ -83,7 +83,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F> StructureScope<E_, S>.invok
     elementF: SignatureElement<E_, S, F, Position.Last>,
     execute: Invocation<E_, S>.(A, B, C, D, E, F) -> Unit = { a, b, c, d, e, f -> },
 ): Structure<E_, S, Arguments6<A, B, C, D, E, F>> =
-    this@invoke.build(Signature6(execute, [elementA, elementB, elementC, elementD, elementE, elementF]))
+    this@invoke.build { Signature6(execute, [elementA, elementB, elementC, elementD, elementE, elementF], it) }
 
 operator fun <E_ : Environment, S, A, B, C, D, E, F, G> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Leading>,
@@ -95,7 +95,9 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G> StructureScope<E_, S>.in
     elementG: SignatureElement<E_, S, G, Position.Last>,
     execute: Invocation<E_, S>.(A, B, C, D, E, F, G) -> Unit = { a, b, c, d, e, f, g -> },
 ): Structure<E_, S, Arguments7<A, B, C, D, E, F, G>> =
-    this@invoke.build(Signature7(execute, [elementA, elementB, elementC, elementD, elementE, elementF, elementG]))
+    this@invoke.build {
+        Signature7(execute, [elementA, elementB, elementC, elementD, elementE, elementF, elementG], it)
+    }
 
 operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Leading>,
@@ -108,9 +110,9 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H> StructureScope<E_, S>
     elementH: SignatureElement<E_, S, H, Position.Last>,
     execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H) -> Unit = { a, b, c, d, e, f, g, h -> },
 ): Structure<E_, S, Arguments8<A, B, C, D, E, F, G, H>> =
-    this@invoke.build(
-        Signature8(execute, [elementA, elementB, elementC, elementD, elementE, elementF, elementG, elementH])
-    )
+    this@invoke.build {
+        Signature8(execute, [elementA, elementB, elementC, elementD, elementE, elementF, elementG, elementH], it)
+    }
 
 operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Leading>,
@@ -124,9 +126,13 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I> StructureScope<E_,
     elementI: SignatureElement<E_, S, I, Position.Last>,
     execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H, I) -> Unit = { a, b, c, d, e, f, g, h, i -> },
 ): Structure<E_, S, Arguments9<A, B, C, D, E, F, G, H, I>> =
-    this@invoke.build(
-        Signature9(execute, [elementA, elementB, elementC, elementD, elementE, elementF, elementG, elementH, elementI])
-    )
+    this@invoke.build {
+        Signature9(
+            execute,
+            [elementA, elementB, elementC, elementD, elementE, elementF, elementG, elementH, elementI],
+            it,
+        )
+    }
 
 operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Leading>,
@@ -141,12 +147,13 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J> StructureScope<
     elementJ: SignatureElement<E_, S, J, Position.Last>,
     execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H, I, J) -> Unit = { a, b, c, d, e, f, g, h, i, j -> },
 ): Structure<E_, S, Arguments10<A, B, C, D, E, F, G, H, I, J>> =
-    this@invoke.build(
+    this@invoke.build {
         Signature10(
             execute,
             [elementA, elementB, elementC, elementD, elementE, elementF, elementG, elementH, elementI, elementJ],
+            it,
         )
-    )
+    }
 
 operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Leading>,
@@ -162,7 +169,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K> StructureSco
     elementK: SignatureElement<E_, S, K, Position.Last>,
     execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H, I, J, K) -> Unit = { a, b, c, d, e, f, g, h, i, j, k -> },
 ): Structure<E_, S, Arguments11<A, B, C, D, E, F, G, H, I, J, K>> =
-    this@invoke.build(
+    this@invoke.build {
         Signature11(
             execute,
             [
@@ -178,8 +185,9 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K> StructureSco
                 elementJ,
                 elementK,
             ],
+            it,
         )
-    )
+    }
 
 operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K, L> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Leading>,
@@ -196,7 +204,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K, L> Structure
     elementL: SignatureElement<E_, S, L, Position.Last>,
     execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H, I, J, K, L) -> Unit = { a, b, c, d, e, f, g, h, i, j, k, l -> },
 ): Structure<E_, S, Arguments12<A, B, C, D, E, F, G, H, I, J, K, L>> =
-    this@invoke.build(
+    this@invoke.build {
         Signature12(
             execute,
             [
@@ -213,5 +221,6 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K, L> Structure
                 elementK,
                 elementL,
             ],
+            it,
         )
-    )
+    }

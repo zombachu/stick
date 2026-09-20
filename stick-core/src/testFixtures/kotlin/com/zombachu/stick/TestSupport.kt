@@ -16,7 +16,7 @@ import kotlin.test.fail
 object TestEnv : Environment
 
 private fun <E : Environment, S> emptyStructure(): Structure<E, S, *> =
-    StructureImpl("", [], "", Requirement { SenderValidationResult.success() }, Signature0({}, []))
+    StructureImpl("", [], "", Requirement { SenderValidationResult.success() }) { Signature0({}, [], it) }
 
 internal fun testInvocation(
     vararg args: String = [],
