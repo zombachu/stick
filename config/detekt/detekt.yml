@@ -5,6 +5,8 @@ complexity:
     active: false
 
 style:
+  ForbiddenComment:
+    active: false
   LoopWithTooManyJumpStatements:
     active: false
   ReturnCount:
