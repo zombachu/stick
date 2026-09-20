@@ -188,8 +188,8 @@ internal class GroupElement<E : Environment, S, T, G>(
 internal class SubcommandsImpl<E : Environment, S>(
     name: String,
     description: String,
-    structures: List<Structure<E, S, *>>,
-) : GroupImpl<E, S, Unit, Position.Last>(name, description, structures.map { it to {} }) {
+    subcommands: List<Branch<E, S, *>>,
+) : GroupImpl<E, S, Unit, Position.Last>(name, description, subcommands.map { it to {} }) {
     override val type: GroupableType = GroupableType.Literal
 }
 

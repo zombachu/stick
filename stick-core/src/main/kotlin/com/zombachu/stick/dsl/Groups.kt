@@ -12,6 +12,7 @@ import com.zombachu.stick.GroupResult8
 import com.zombachu.stick.Position
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.StructureScope
+import com.zombachu.stick.element.Branch
 import com.zombachu.stick.element.Group
 import com.zombachu.stick.element.Group1Impl
 import com.zombachu.stick.element.Group2Impl
@@ -22,7 +23,6 @@ import com.zombachu.stick.element.Group6Impl
 import com.zombachu.stick.element.Group7Impl
 import com.zombachu.stick.element.Group8Impl
 import com.zombachu.stick.element.Groupable
-import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.SubcommandsImpl
 
 fun <E_ : Environment, S, A, P : Position> StructureScope<E_, S>.group(
@@ -104,8 +104,8 @@ fun <E_ : Environment, S, A, B, C, D, E, F, G, H, P : Position> StructureScope<E
 }
 
 fun <E_ : Environment, S> StructureScope<E_, S>.subcommands(
-    first: Structure<E_, S, *>,
-    vararg rest: Structure<E_, S, *>,
+    first: Branch<E_, S, *>,
+    vararg rest: Branch<E_, S, *>,
     description: String = "",
 ): Group<E_, S, Unit, Position.Last> = createGroup { SubcommandsImpl(name, description, [first] + rest) }
 

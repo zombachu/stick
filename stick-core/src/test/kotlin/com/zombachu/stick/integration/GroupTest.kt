@@ -3,26 +3,35 @@ package com.zombachu.stick.integration
 import com.zombachu.stick.Arguments1
 import com.zombachu.stick.Arguments2
 import com.zombachu.stick.Command
+import com.zombachu.stick.CommandResult
+import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult2
 import com.zombachu.stick.GroupResult5
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.TypedIdentifier
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.dsl.booleanParameter
+import com.zombachu.stick.dsl.branch
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.doubleParameter
 import com.zombachu.stick.dsl.enumParameter
 import com.zombachu.stick.dsl.flag
 import com.zombachu.stick.dsl.group
+import com.zombachu.stick.dsl.helper
+import com.zombachu.stick.dsl.id
 import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.listElementParameter
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.requireIs
+import com.zombachu.stick.dsl.store
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.subcommands
 import com.zombachu.stick.dsl.textParameter
 import com.zombachu.stick.dsl.uuidParameter
+import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.parameters.ListElementResult
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.integration.fixtures.Console
@@ -522,5 +531,239 @@ class GroupTest {
             Feedback.InvalidSyntax("/warp <list|warp>"),
             warpCommand.executeExpectingError(server, console, "/warp"),
         )
+    }
+
+    @Test
+    fun `warp - branch parses parameter before its subcommands`() {
+        val targetWarp: TypedIdentifier<Warp> = id("warp")
+        val warpCommand = structure(WarpableServer::class, Player::class) {
+            command("warp")(
+                subcommands(
+                    command("list")() {
+                        sender.log("Warps: ${env.warps.names.joinToString(", ")}")
+                    },
+                    command("create")(
+                        stringParameter("name")
+                    ) { name ->
+                        env.warps.add(Warp(name, sender.name, sender.world))
+                        sender.log("Created warp $name")
+                    },
+                    branch(warpParameter("warp").store(targetWarp))(
+                        subcommands(
+                            command("tp")(
+                                helper(targetWarp)
+                            ) { warp ->
+                                sender.world = warp.world
+                                sender.log("Teleported to ${warp.name}")
+                            },
+                            command("delete")(
+                                helper(targetWarp)
+                            ) { warp ->
+                                val unused = env.warps.remove(warp.name)
+                                sender.log("Deleted ${warp.name}")
+                            },
+                        ),
+                    ),
+                )
+            )
+        }
+
+        warpCommand.execute(server, zombachu, "/warp list")
+        assertEquals(["Warps: spawn, shop"], zombachu.logs)
+
+        warpCommand.execute(server, zombachu, "/warp create home")
+        assertEquals(["Created warp home"], zombachu.logs)
+
+        warpCommand.execute(server, zombachu, "/warp shop tp")
+        assertEquals(["Teleported to shop"], zombachu.logs)
+        assertEquals("nether", zombachu.world)
+
+        warpCommand.execute(server, zombachu, "/warp shop delete")
+        assertEquals(["Deleted shop"], zombachu.logs)
+        assertEquals(["spawn", "home"], server.warps.names)
+    }
+
+    @Test
+    fun `warp - branch suggests leading parameter`() {
+        val targetWarp: TypedIdentifier<Warp> = id("warp")
+        val warpCommand = structure(WarpableServer::class, Player::class) {
+            command("warp")(
+                subcommands(
+                    command("list")() {
+                        sender.log("Warps: ${env.warps.names.joinToString(", ")}")
+                    },
+                    branch(warpParameter("warp").store(targetWarp))(
+                        subcommands(
+                            command("tp")(
+                                helper(targetWarp)
+                            ) { warp ->
+                                sender.log("Teleported to ${warp.name}")
+                            },
+                            command("delete")(
+                                helper(targetWarp)
+                            ) { warp ->
+                                sender.log("Deleted ${warp.name}")
+                            },
+                        ),
+                    ),
+                )
+            )
+        }
+
+        assertEquals(["list", "spawn", "shop"], warpCommand.suggest(server, zombachu, "/warp "))
+        assertEquals(["spawn", "shop"], warpCommand.suggest(server, zombachu, "/warp s"))
+        assertEquals(["tp", "delete"], warpCommand.suggest(server, zombachu, "/warp shop "))
+        assertEquals([], warpCommand.suggest(server, zombachu, "/warp nowhere "))
+    }
+
+    @Test
+    fun `pay - unmatched branch falls through to next branch`() {
+        val payCommand = structure(Server::class, Player::class) {
+            command("pay")(
+                subcommands(
+                    branch(intParameter("amount"))(
+                        playerParameter("player"),
+                    ) { amount, player ->
+                        sender.log("Paid ${player.name} $amount")
+                    },
+                    branch(playerParameter("player"))(
+                        intParameter("amount"),
+                    ) { player, amount ->
+                        sender.log("Paid ${player.name} $amount")
+                    },
+                )
+            )
+        }
+
+        payCommand.execute(server, zombachu, "/pay 5 Steve")
+        assertEquals(["Paid Steve 5"], zombachu.logs)
+
+        payCommand.execute(server, zombachu, "/pay Steve 5")
+        assertEquals(["Paid Steve 5"], zombachu.logs)
+
+        assertEquals(
+            Feedback.InvalidSyntax("/pay <player> <amount>"),
+            payCommand.executeExpectingError(server, zombachu, "/pay Steve"),
+        )
+    }
+
+    @Test
+    fun `warp - branch parses in group using result`() {
+        val targetWarp: TypedIdentifier<Warp> = id("warp")
+        val warpCommand = structure(WarpableServer::class, Player::class) {
+            command("warp")(
+                group(
+                    branch(warpParameter("warp").store(targetWarp))(
+                        subcommands(
+                            command("tp")(
+                                helper(targetWarp)
+                            ) { warp ->
+                                sender.log("Teleported to ${warp.name}")
+                            },
+                        ),
+                    ),
+                    intParameter("page"),
+                )
+            ) { target ->
+                if (target is GroupResult.ResultB) {
+                    sender.log("Warps page ${target.value}")
+                }
+            }
+        }
+
+        warpCommand.execute(server, zombachu, "/warp shop tp")
+        assertEquals(["Teleported to shop"], zombachu.logs)
+
+        warpCommand.execute(server, zombachu, "/warp 2")
+        assertEquals(["Warps page 2"], zombachu.logs)
+    }
+
+    @Test
+    fun `warp - branch with literal leading parameter parses before before sibling parameter`() {
+        server.warps.add(Warp("all", "zombachu", "nether"))
+        val warpCommand = structure(WarpableServer::class, Player::class) {
+            command("warp")(
+                group(
+                    warpParameter("warp"),
+                    branch(literalParameter("all"))(
+                        intParameter("page"),
+                    ) { _, page ->
+                        sender.log("All warps, page $page")
+                    },
+                )
+            ) { target ->
+                if (target is GroupResult.ResultA) {
+                    sender.log("Warp ${target.value.name}")
+                }
+            }
+        }
+
+        warpCommand.execute(server, zombachu, "/warp all 2")
+        assertEquals(["All warps, page 2"], zombachu.logs)
+
+        warpCommand.execute(server, zombachu, "/warp shop")
+        assertEquals(["Warp shop"], zombachu.logs)
+    }
+
+    @Test
+    fun `waypoint - branch with missing arguments falls through to next branch`() {
+        val columnCommand = structure(Server::class, Player::class) {
+            command("waypoint")(
+                subcommands(
+                    branch(PointParameter())() { point ->
+                        sender.log("waypoint point $point")
+                    },
+                    branch(stringParameter("name"))() { name ->
+                        sender.log("waypoint name $name")
+                    },
+                )
+            )
+        }
+
+        columnCommand.execute(server, zombachu, "/waypoint 4 7")
+        assertEquals(["waypoint point 4,7"], zombachu.logs)
+
+        columnCommand.execute(server, zombachu, "/waypoint spawn")
+        assertEquals(["waypoint name spawn"], zombachu.logs)
+    }
+
+    @Test
+    fun `warp - subcommand parses before branch leading parameter`() {
+        server.warps.add(Warp("list", "zombachu", "nether"))
+        val targetWarp: TypedIdentifier<Warp> = id("warp")
+        val warpCommand = structure(WarpableServer::class, Player::class) {
+            command("warp")(
+                subcommands(
+                    command("list")() {
+                        sender.log("Warps: ${env.warps.names.joinToString(", ")}")
+                    },
+                    branch(warpParameter("warp").store(targetWarp))(
+                        subcommands(
+                            command("tp")(
+                                helper(targetWarp)
+                            ) { warp ->
+                                sender.log("Teleported to ${warp.name}")
+                            },
+                        ),
+                    ),
+                )
+            )
+        }
+
+        assertEquals(
+            Feedback.InvalidSyntax("/warp list"),
+            warpCommand.executeExpectingError(server, zombachu, "/warp list tp"),
+        )
+
+        // KNOWN LIMITATION: the list subcommand should be resolved, but the group suggests branches by size, leading to
+        // tp still being suggested
+        // TODO: fix
+        assertEquals(["tp"], warpCommand.suggest(server, zombachu, "/warp list "))
+    }
+
+    private class PointParameter<E : Environment, S> : Parameter.Size2<E, S, String>("point", "") {
+
+        context(validationContext: ValidationContext<E, S>)
+        override fun resolve(arg0: String, arg1: String): CommandResult<String> = ParsingResult.success("$arg0,$arg1")
     }
 }

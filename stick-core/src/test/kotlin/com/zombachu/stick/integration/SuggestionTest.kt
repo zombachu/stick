@@ -10,6 +10,7 @@ import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.dsl.booleanParameter
+import com.zombachu.stick.dsl.branch
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.default
 import com.zombachu.stick.dsl.enumParameter
@@ -25,6 +26,7 @@ import com.zombachu.stick.dsl.optionallyNullable
 import com.zombachu.stick.dsl.optionals
 import com.zombachu.stick.dsl.requireIs
 import com.zombachu.stick.dsl.structure
+import com.zombachu.stick.dsl.subcommands
 import com.zombachu.stick.dsl.valueFlag
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.integration.fixtures.Console
@@ -188,6 +190,28 @@ class SuggestionTest {
 
         assertEquals(["y="], rejectingCommand.suggest(server, zombachu, "/rejecting x=1 "))
         assertEquals(1, rejectingParameter.count)
+    }
+
+    @Test
+    fun `warp - branch flags do not suggest before leading parameter`() {
+        val warpCommand = structure(WarpableServer::class, Sender::class) {
+            command("warp")(
+                subcommands(
+                    command("tp")(
+                        flag("silent"),
+                        playerParameter("player")
+                    ) { _, _ -> },
+                    branch(warpParameter("warp"))(
+                        flag("confirm"),
+                        literalParameter("delete")
+                    ),
+                )
+            ) { }
+        }
+
+        assertEquals(["tp", "spawn", "shop"], warpCommand.suggest(server, zombachu, "/warp "))
+        assertEquals(["-silent", "zombachu", "Steve"], warpCommand.suggest(server, zombachu, "/warp tp "))
+        assertEquals(["-confirm", "delete"], warpCommand.suggest(server, zombachu, "/warp shop "))
     }
 
     @Test
