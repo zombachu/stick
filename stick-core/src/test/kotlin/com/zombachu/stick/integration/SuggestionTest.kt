@@ -36,6 +36,7 @@ import com.zombachu.stick.integration.fixtures.Sender
 import com.zombachu.stick.integration.fixtures.Server
 import com.zombachu.stick.integration.fixtures.SynergyServer
 import com.zombachu.stick.integration.fixtures.Warp
+import com.zombachu.stick.integration.fixtures.WarpParameter
 import com.zombachu.stick.integration.fixtures.WarpRegistry
 import com.zombachu.stick.integration.fixtures.WarpableServer
 import com.zombachu.stick.integration.fixtures.permission
@@ -212,6 +213,24 @@ class SuggestionTest {
         assertEquals(["tp", "spawn", "shop"], warpCommand.suggest(server, zombachu, "/warp "))
         assertEquals(["-silent", "zombachu", "Steve"], warpCommand.suggest(server, zombachu, "/warp tp "))
         assertEquals(["-confirm", "delete"], warpCommand.suggest(server, zombachu, "/warp shop "))
+    }
+
+    @Test
+    fun `portal - branch flags suggest after repeated element reference`() {
+        val warp = WarpParameter<WarpableServer, Sender>("warp")
+        val linkCommand = structure(WarpableServer::class, Sender::class) {
+            command("portal")(
+                subcommands(
+                    branch(warp)(
+                        warp,
+                        flag("force"),
+                    ),
+                )
+            ) { }
+        }
+
+        assertEquals(["spawn", "shop"], linkCommand.suggest(server, zombachu, "/portal "))
+        assertEquals(["-force", "spawn", "shop"], linkCommand.suggest(server, zombachu, "/portal shop "))
     }
 
     @Test

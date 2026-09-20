@@ -158,9 +158,11 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         processFlag: (IndexedElement<E, S, Flag<E, S, Any?>>) -> Boolean,
         processLinear: (IndexedElement<E, S, Element<E, S, Any?>>) -> Unit,
     ): CommandResult<Unit> {
-        // Flags may appear in any order, so attempt to process them around each element
-        for (linear in linearElements) {
-            processFlags(unprocessedFlags, processFlag)
+        for ((index, linear) in linearElements.withIndex()) {
+            // Flags may appear anywhere except before the leading element
+            if (index > 0) {
+                processFlags(unprocessedFlags, processFlag)
+            }
             linear.element.validateSender().propagateError {
                 return it
             }
@@ -247,8 +249,8 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
             if (index != preceding.size) return []
             return buildList {
                 openCandidate?.let { add(it) }
-                // Avoid suggesting subcommand flags before the subcommand's label
-                if (nextLinear == null || nextLinear !== linearElements.first().element) {
+                // Avoid suggesting branch flags before the branch's leading element
+                if (index > 0) {
                     for ((_, flag) in unprocessedFlags) {
                         flag.validateSender().propagateError { continue }
                         add(Candidate(flag, index))

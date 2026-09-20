@@ -679,6 +679,29 @@ class GroupTest {
     }
 
     @Test
+    fun `warp - flag does not parse before branch leading parameter`() {
+        val warpCommand = structure(Server::class, Sender::class) {
+            command("warp")(
+                subcommands(
+                    branch(stringParameter("name"))(
+                        flag("bypass"),
+                    ) { name, bypass ->
+                        sender.log("Warped to $name. Bypassed: $bypass")
+                    },
+                )
+            )
+        }
+
+        warpCommand.execute(server, zombachu, "/warp spawn -bypass")
+        assertEquals(["Warped to spawn. Bypassed: true"], zombachu.logs)
+
+        assertEquals(
+            Feedback.InvalidSyntax("/warp <name> [-bypass]"),
+            warpCommand.executeExpectingError(server, zombachu, "/warp -bypass spawn"),
+        )
+    }
+
+    @Test
     fun `warp - branch with literal leading parameter parses before before sibling parameter`() {
         server.warps.add(Warp("all", "zombachu", "nether"))
         val warpCommand = structure(WarpableServer::class, Player::class) {
