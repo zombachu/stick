@@ -6,6 +6,7 @@ import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.IntParameter
+import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.element.parameters.TextParameter
 import com.zombachu.stick.expectFailure
@@ -21,41 +22,58 @@ import kotlin.test.assertIs
 
 class SignatureTest {
 
+    private val label = LiteralParameter<TestEnv, Unit>("cmd", [], "")
     private val amount = IntParameter<TestEnv, Unit>("amount", "", Int.MIN_VALUE, Int.MAX_VALUE)
 
     @Test
     fun `linear elements fill values in declared order`() {
         val name = StringParameter<TestEnv, Unit>("", "")
-        val signature = Signature2<TestEnv, Unit, Int, String>({ a, b -> }, [amount, name])
+        val signature =
+            Signature2<TestEnv, Unit, Int, String>({ a, b -> }, LeadingElementType.Label, [label, amount, name])
 
-        val args = withInvocation("5", "bob") { signature.execute() }.expectSuccessValue()
+        val args = withInvocation("cmd", "5", "bob") { signature.execute() }.expectSuccessValue()
 
         assertEquals([5, "bob"], [args.a, args.b])
     }
 
     @Test
     fun `flag parses before linear element`() {
-        val signature = Signature2<TestEnv, Unit, Int, Boolean>({ a, loud -> }, [amount, loudFlag()])
+        val signature =
+            Signature2<TestEnv, Unit, Int, Boolean>(
+                { a, loud -> },
+                LeadingElementType.Label,
+                [label, amount, loudFlag()],
+            )
 
-        val args = withInvocation("-loud", "5") { signature.execute() }.expectSuccessValue()
+        val args = withInvocation("cmd", "-loud", "5") { signature.execute() }.expectSuccessValue()
 
         assertEquals([5, true], [args.a, args.b])
     }
 
     @Test
     fun `flag parses after linear element`() {
-        val signature = Signature2<TestEnv, Unit, Int, Boolean>({ a, loud -> }, [amount, loudFlag()])
+        val signature =
+            Signature2<TestEnv, Unit, Int, Boolean>(
+                { a, loud -> },
+                LeadingElementType.Label,
+                [label, amount, loudFlag()],
+            )
 
-        val args = withInvocation("5", "-loud") { signature.execute() }.expectSuccessValue()
+        val args = withInvocation("cmd", "5", "-loud") { signature.execute() }.expectSuccessValue()
 
         assertEquals([5, true], [args.a, args.b])
     }
 
     @Test
     fun `absent flag parses default value`() {
-        val signature = Signature2<TestEnv, Unit, Int, Boolean>({ a, loud -> }, [amount, loudFlag()])
+        val signature =
+            Signature2<TestEnv, Unit, Int, Boolean>(
+                { a, loud -> },
+                LeadingElementType.Label,
+                [label, amount, loudFlag()],
+            )
 
-        val args = withInvocation("5") { signature.execute() }.expectSuccessValue()
+        val args = withInvocation("cmd", "5") { signature.execute() }.expectSuccessValue()
 
         assertEquals([5, false], [args.a, args.b])
     }
@@ -65,18 +83,18 @@ class SignatureTest {
         val base = presenceValueFlag<TestEnv, String, Boolean>("loud", false, true)
         val invalidDefault = invalidSenderDefault<TestEnv, Unit, Boolean>(true) { SenderValidationResult.failSender() }
         val gatedFlag = TransformedValueFlag(base, { _: Unit -> "x" }, invalidDefault)
-        val signature = Signature1<TestEnv, Unit, Boolean>({ loud -> }, [gatedFlag])
+        val signature = Signature1<TestEnv, Unit, Boolean>({ loud -> }, LeadingElementType.Label, [label, gatedFlag])
 
-        val args = withInvocation { signature.execute() }.expectSuccessValue()
+        val args = withInvocation("cmd") { signature.execute() }.expectSuccessValue()
 
         assertEquals(true, args.a)
     }
 
     @Test
     fun `InvalidSizeError fails with InvalidSyntax`() {
-        val signature = Signature1<TestEnv, Unit, Int>({}, [amount])
+        val signature = Signature1<TestEnv, Unit, Int>({}, LeadingElementType.Label, [label, amount])
 
-        val result = withInvocation { signature.execute() }
+        val result = withInvocation("cmd") { signature.execute() }
 
         assertIs<Feedback.InvalidSyntax>(result.expectFailure().feedback)
     }
@@ -90,11 +108,11 @@ class SignatureTest {
                 "",
                 Requirement { SenderValidationResult.success() },
             ) {
-                Signature0({}, [], it)
+                Signature0({}, LeadingElementType.Label, [it])
             }
-        val signature = Signature1<TestEnv, Unit, Arguments0>({}, [structure])
+        val signature = Signature1<TestEnv, Unit, Arguments0>({}, LeadingElementType.Label, [label, structure])
 
-        val result = withInvocation("other") { signature.execute() }
+        val result = withInvocation("cmd", "other") { signature.execute() }
 
         assertIs<Feedback.InvalidSyntax>(result.expectFailure().feedback)
     }
@@ -103,9 +121,9 @@ class SignatureTest {
     fun `flag parsing error propagates`() {
         val flagParameter = FlagParameter.ParameterFlagParameter("amount", amount, [])
         val flag = ValueFlagImpl("amount", { ParsingResult.success(0) }, flagParameter)
-        val signature = Signature1<TestEnv, Unit, Int>({}, [flag])
+        val signature = Signature1<TestEnv, Unit, Int>({}, LeadingElementType.Label, [label, flag])
 
-        val result = withInvocation("-amount", "not-a-number") { signature.execute() }
+        val result = withInvocation("cmd", "-amount", "not-a-number") { signature.execute() }
 
         assertEquals(Feedback.TypeNotMatched("integer", "not-a-number"), result.expectFailure().feedback)
     }
@@ -113,9 +131,9 @@ class SignatureTest {
     @Test
     fun `leftover args fail with InvalidSyntax`() {
         val name = StringParameter<TestEnv, Unit>("", "")
-        val signature = Signature1<TestEnv, Unit, String>({}, [name])
+        val signature = Signature1<TestEnv, Unit, String>({}, LeadingElementType.Label, [label, name])
 
-        val result = withInvocation("bob", "extra") { signature.execute() }
+        val result = withInvocation("cmd", "bob", "extra") { signature.execute() }
 
         assertIs<Feedback.InvalidSyntax>(result.expectFailure().feedback)
     }
@@ -124,11 +142,16 @@ class SignatureTest {
     fun `getSyntax places flags after linear elements but before terminating element`() {
         val str = StringParameter<TestEnv, Unit>("str", "")
         val text = TextParameter<TestEnv, Unit>("text", "")
-        val signature = Signature3<TestEnv, Unit, String, Boolean, String>({ _, _, _ -> }, [loudFlag(), str, text])
+        val signature =
+            Signature3<TestEnv, Unit, String, Boolean, String>(
+                { _, _, _ -> },
+                LeadingElementType.Label,
+                [label, loudFlag(), str, text],
+            )
 
         val syntax = withValidationContext { signature.getSyntax() }
 
-        assertEquals("<str> [-loud] <text>", syntax)
+        assertEquals("<cmd> <str> [-loud] <text>", syntax)
     }
 
     private fun loudFlag(): ValueFlagImpl<TestEnv, Unit, Boolean> = presenceValueFlag("loud", false, true)

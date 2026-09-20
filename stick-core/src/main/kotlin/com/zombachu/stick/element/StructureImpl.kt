@@ -13,14 +13,14 @@ private constructor(
     literal: LabelParameter<E, S>,
     private val requirement: Requirement<E, S>,
     signature: (LabelParameter<E, S>) -> Signature<E, S, T_>,
-) : BranchImpl<E, S, T_>(literal, signature(literal)), Structure<E, S, T_> {
+) : BranchImpl<E, S, T_>(signature(literal)), Structure<E, S, T_> {
 
     constructor(
         name: String,
         aliases: Set<String>,
         description: String,
         requirement: Requirement<E, S>,
-        signature: (SignatureElement<E, S, Any?, *>) -> Signature<E, S, T_>,
+        signature: (Parameter<E, S, *, *>) -> Signature<E, S, T_>,
     ) : this(LabelParameter(name, aliases, description), requirement, signature)
 
     override val label: String = literal.label

@@ -14,10 +14,10 @@ import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 
-internal open class BranchImpl<E : Environment, S, T_ : Arguments>(
-    private val leading: Parameter<E, S, *, *>,
-    private val signature: Signature<E, S, T_>,
-) : Branch<E, S, T_> {
+internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val signature: Signature<E, S, T_>) :
+    Branch<E, S, T_> {
+
+    private val leading: Parameter<E, S, *, *> = signature.leading
 
     override val name: String = leading.name
     override val description: String = leading.description

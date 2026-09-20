@@ -1,6 +1,7 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.withInvocation
@@ -11,11 +12,16 @@ class SignatureNTest {
 
     @Test
     fun `signature returns arguments in order`() {
+        val label = LiteralParameter<TestEnv, Unit>("cmd", [], "")
         val elements = (1..5).map { StringParameter<TestEnv, Unit>("", "") }
         val signature =
-            Signature5<TestEnv, Unit, String, String, String, String, String>({ a, b, c, d, e -> }, elements)
+            Signature5<TestEnv, Unit, String, String, String, String, String>(
+                { a, b, c, d, e -> },
+                LeadingElementType.Label,
+                [label] + elements,
+            )
 
-        val args = withInvocation("a", "b", "c", "d", "e") { signature.execute() }.expectSuccessValue()
+        val args = withInvocation("cmd", "a", "b", "c", "d", "e") { signature.execute() }.expectSuccessValue()
 
         assertEquals(["a", "b", "c", "d", "e"], [args.a, args.b, args.c, args.d, args.e])
     }

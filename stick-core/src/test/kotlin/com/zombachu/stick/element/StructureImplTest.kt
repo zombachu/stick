@@ -104,7 +104,7 @@ class StructureImplTest {
         val parameter = StringParameter<TestEnv, Unit>("arg", "")
         val structure =
             StructureImpl("cmd", [], "", Requirement<TestEnv, Unit> { SenderValidationResult.success() }) {
-                Signature1<TestEnv, Unit, String>({}, [parameter], it)
+                Signature1<TestEnv, Unit, String>({}, LeadingElementType.Label, [it, parameter])
             }
 
         assertEquals("cmd <arg>", withValidationContext { structure.getSyntax() })
@@ -149,5 +149,5 @@ class StructureImplTest {
         requirement: Requirement<TestEnv, Unit> = Requirement { SenderValidationResult.success() },
         onExecute: () -> Unit = {},
     ): StructureImpl<TestEnv, Unit, Arguments0> =
-        StructureImpl(name, aliases, "", requirement) { Signature0({ onExecute() }, [], it) }
+        StructureImpl(name, aliases, "", requirement) { Signature0({ onExecute() }, LeadingElementType.Label, [it]) }
 }

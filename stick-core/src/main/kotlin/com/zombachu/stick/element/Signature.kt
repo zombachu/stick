@@ -16,22 +16,28 @@ import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 
 internal sealed class Signature<E : Environment, S, T_ : Arguments>(
+    leadingElementType: LeadingElementType,
     elements: List<SignatureElement<E, S, Any?, *>>,
-    leading: SignatureElement<E, S, Any?, *>?,
 ) {
+
+    @Suppress("UNCHECKED_CAST") internal val leading: Parameter<E, S, *, *> = elements.first() as Parameter<E, S, *, *>
+
+    // Parsed label value isn't passed to signature arguments
+    private val slotOffset: Int = if (leadingElementType == LeadingElementType.Label) 1 else 0
 
     private val flags: List<IndexedElement<E, S, Flag<E, S, Any?>>>
     private val linearElements: List<IndexedElement<E, S, Element<E, S, Any?>>>
-    private val trailingOptionals: OptionalsImpl<E, S, *>? = elements.lastOrNull() as? OptionalsImpl<E, S, *>
+    private val trailingOptionals: OptionalsImpl<E, S, *>? = elements.last() as? OptionalsImpl<E, S, *>
 
     private val elementsCount: Int = elements.size
     private val flattenedElementsCount: Int = elementsCount + (trailingOptionals?.elements?.size ?: 0)
 
     init {
-        val flattenedElements =
-            listOfNotNull(leading?.let { IndexedElement(null, it) }) +
-                elements.dropLast(if (trailingOptionals == null) 0 else 1).mapIndexed { i, e -> IndexedElement(i, e) } +
-                trailingOptionals?.elements.orEmpty().mapIndexed { i, e -> IndexedElement(elementsCount + i, e) }
+        val indexedPrimaryElements =
+            elements.dropLast(if (trailingOptionals == null) 0 else 1).mapIndexed { i, e -> IndexedElement(i, e) }
+        val indexedTrailingOptionals =
+            trailingOptionals?.elements.orEmpty().mapIndexed { i, e -> IndexedElement(elementsCount + i, e) }
+        val flattenedElements = indexedPrimaryElements + indexedTrailingOptionals
 
         val partitioned = flattenedElements.partition { it.element is Flag<*, *, *> }
         @Suppress("UNCHECKED_CAST")
@@ -89,7 +95,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         element: IndexedElement<E, S, Element<E, S, Any?>>,
     ): CommandResult<Any?> {
         val processResult = inv.processElement(element.element)
-        if (processResult.isSuccess() && element.index != null) {
+        if (processResult.isSuccess()) {
             values[element.index] = processResult.value
         }
         return processResult
@@ -133,7 +139,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
 
         // Populate unused flag values with defaults
         for ((index, flag) in unprocessedFlags) {
-            values[index!!] =
+            values[index] =
                 flag.default(inv).valueOrPropagateError {
                     return it
                 }
@@ -143,7 +149,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         trailingOptionals?.let {
             values[elementsCount - 1] = it.combine(values.subList(elementsCount, flattenedElementsCount))
         }
-        return ParsingResult.success(values.subList(0, elementsCount))
+        return ParsingResult.success(values.subList(slotOffset, elementsCount))
     }
 
     context(validationContext: ValidationContext<E, S>)
@@ -183,7 +189,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         } while (progressed)
     }
 
-    private data class IndexedElement<E : Environment, S, out L : Element<E, S, *>>(val index: Int?, val element: L)
+    private data class IndexedElement<E : Environment, S, out L : Element<E, S, *>>(val index: Int, val element: L)
 
     private inner class SuggestionProcessor(private val preceding: List<String>) {
         private val unprocessedFlags: MutableList<IndexedElement<E, S, Flag<E, S, Any?>>> = flags.toMutableList()
@@ -258,4 +264,11 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
             val groupMatch: GroupMatch? = null,
         )
     }
+}
+
+internal enum class LeadingElementType {
+    /** Used by structures. */
+    Label,
+    /** Used by non-structure branches. */
+    Argument,
 }

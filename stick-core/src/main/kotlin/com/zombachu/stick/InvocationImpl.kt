@@ -3,6 +3,7 @@ package com.zombachu.stick
 import com.zombachu.stick.element.Branch
 import com.zombachu.stick.element.ConsumingElement
 import com.zombachu.stick.element.Element
+import com.zombachu.stick.element.LeadingElementType
 import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
@@ -140,7 +141,7 @@ private class TransformedInvocationImpl<E : Environment, S, S2>(val base: Invoca
         base.label,
         base.args,
         StructureImpl("", [], "", Requirement { SenderValidationResult.success() }) {
-            Signature0({}, [], it)
+            Signature0({}, LeadingElementType.Label, [it])
         }, // Unused
         parent = base,
     ) {

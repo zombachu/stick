@@ -1,5 +1,6 @@
 package com.zombachu.stick
 
+import com.zombachu.stick.element.LeadingElementType
 import com.zombachu.stick.element.Signature0
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -57,7 +58,7 @@ class StructureScopeTest {
                 Requirement { SenderValidationResult.success() },
             )
 
-        val structure = scope.build { Signature0({}, [], it) }
+        val structure = scope.build { Signature0({}, LeadingElementType.Label, [it]) }
 
         assertEquals("sub", structure.name)
         assertEquals(["s"], structure.aliases)

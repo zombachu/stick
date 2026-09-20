@@ -2,6 +2,7 @@ package com.zombachu.stick
 
 import com.zombachu.stick.element.FlagParameter
 import com.zombachu.stick.element.InvalidSenderDefault
+import com.zombachu.stick.element.LeadingElementType
 import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
@@ -16,7 +17,9 @@ import kotlin.test.fail
 object TestEnv : Environment
 
 private fun <E : Environment, S> emptyStructure(): Structure<E, S, *> =
-    StructureImpl("", [], "", Requirement { SenderValidationResult.success() }) { Signature0({}, [], it) }
+    StructureImpl("", [], "", Requirement { SenderValidationResult.success() }) {
+        Signature0({}, LeadingElementType.Label, [it])
+    }
 
 internal fun testInvocation(
     vararg args: String = [],

@@ -1,7 +1,8 @@
 package com.zombachu.stick
 
+import com.zombachu.stick.element.LeadingElementType
+import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Signature
-import com.zombachu.stick.element.SignatureElement
 import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Signature1
 import com.zombachu.stick.element.StructureImpl
@@ -16,7 +17,7 @@ class CommandWrapperTest {
 
     @Test
     fun `successful parse does not invoke failure handler`() {
-        val structure = structure("cmd") { Signature0({}, [], it) }
+        val structure = structure("cmd") { Signature0({}, LeadingElementType.Label, [it]) }
         val handler = RecordingFailureHandler()
 
         wrapper(structure, handler).execute(Unit, ["cmd"])
@@ -26,7 +27,7 @@ class CommandWrapperTest {
 
     @Test
     fun `InternalFailure is swallowed, not reported`() {
-        val structure = structure("cmd") { Signature0({}, [], it) }
+        val structure = structure("cmd") { Signature0({}, LeadingElementType.Label, [it]) }
         val handler = RecordingFailureHandler()
 
         wrapper(structure, handler).execute(Unit, ["other"])
@@ -37,7 +38,8 @@ class CommandWrapperTest {
     @Test
     fun `missing args invokes failure handler with feedback`() {
         val parameter = StringParameter<TestEnv, Unit>("", "")
-        val structure = structure("cmd") { Signature1<TestEnv, Unit, String>({}, [parameter], it) }
+        val structure =
+            structure("cmd") { Signature1<TestEnv, Unit, String>({}, LeadingElementType.Label, [it, parameter]) }
         val handler = RecordingFailureHandler()
 
         wrapper(structure, handler).execute(Unit, ["cmd"])
@@ -48,7 +50,7 @@ class CommandWrapperTest {
 
     private fun <T_ : Arguments> structure(
         label: String,
-        signature: (SignatureElement<TestEnv, Unit, Any?, *>) -> Signature<TestEnv, Unit, T_>,
+        signature: (Parameter<TestEnv, Unit, *, *>) -> Signature<TestEnv, Unit, T_>,
     ): StructureImpl<TestEnv, Unit, T_> =
         StructureImpl(label, [], "", Requirement { SenderValidationResult.success() }, signature)
 

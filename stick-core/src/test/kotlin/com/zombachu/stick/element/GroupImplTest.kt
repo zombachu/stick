@@ -148,7 +148,7 @@ class GroupImplTest {
                 "",
                 Requirement { SenderValidationResult.success() },
             ) {
-                Signature1({ _ -> }, [LiteralParameter("sun", [], "")], it)
+                Signature1({ _ -> }, LeadingElementType.Label, [it, LiteralParameter("sun", [], "")])
             }
         val neverTried = StringParameter<TestEnv, Unit>("ok", "")
         val group = group2(committing, neverTried)

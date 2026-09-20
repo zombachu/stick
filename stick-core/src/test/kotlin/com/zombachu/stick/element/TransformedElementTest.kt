@@ -61,7 +61,7 @@ class TransformedElementTest {
     fun `TransformedStructure suggests its label`() {
         val base =
             StructureImpl("teleport", ["tp"], "", Requirement<TestEnv, Int> { SenderValidationResult.success() }) {
-                Signature0({}, [], it)
+                Signature0({}, LeadingElementType.Label, [it])
             }
         val transformed = TransformedStructure(base, String::length, allowed)
 
