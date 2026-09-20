@@ -702,6 +702,33 @@ class GroupTest {
     }
 
     @Test
+    fun `warp - branch resolves leading parameter once`() {
+        val targetWarp: TypedIdentifier<String> = id("warp")
+        val warpParameter = CountingParameter<Server, Sender>("warp")
+        val warpCommand = structure(Server::class, Sender::class) {
+            command("warp")(
+                subcommands(
+                    command("list")() {},
+                    branch(warpParameter.store(targetWarp))(
+                        subcommands(
+                            command("tp")(
+                                helper(targetWarp)
+                            ) { warp ->
+                                sender.log("Teleported to $warp")
+                            },
+                        ),
+                    ),
+                )
+            )
+        }
+
+        warpCommand.execute(server, zombachu, "/warp shop tp")
+
+        assertEquals(["Teleported to shop"], zombachu.logs)
+        assertEquals(1, warpParameter.invocations)
+    }
+
+    @Test
     fun `warp - branch with literal leading parameter parses before before sibling parameter`() {
         server.warps.add(Warp("all", "zombachu", "nether"))
         val warpCommand = structure(WarpableServer::class, Player::class) {
@@ -788,5 +815,15 @@ class GroupTest {
 
         context(validationContext: ValidationContext<E, S>)
         override fun resolve(arg0: String, arg1: String): CommandResult<String> = ParsingResult.success("$arg0,$arg1")
+    }
+
+    private class CountingParameter<E : Environment, S>(name: String) : Parameter.Size1<E, S, String>(name, "") {
+        var invocations = 0
+
+        context(validationContext: ValidationContext<E, S>)
+        override fun resolve(arg0: String): CommandResult<String> {
+            invocations++
+            return ParsingResult.success(arg0)
+        }
     }
 }

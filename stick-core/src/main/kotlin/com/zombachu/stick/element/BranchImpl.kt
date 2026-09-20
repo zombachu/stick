@@ -37,7 +37,8 @@ internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val s
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T_> {
-        when (val match = leading.match(args)) {
+        val invocation = inv as InvocationImpl
+        when (val match = invocation.matchAhead(leading)) {
             is MatchResult.Unmatched -> return match.failure
             is MatchResult.Partial -> return PeekingResult.failSize()
             is MatchResult.Matched -> {}
@@ -47,10 +48,9 @@ internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val s
             return it
         }
         val parsedArgs =
-            context(inv as InvocationImpl) { signature.execute() }
-                .valueOrPropagateError {
-                    return it
-                }
+            signature.execute().valueOrPropagateError {
+                return it
+            }
         return ParsingResult.success(parsedArgs)
     }
 
