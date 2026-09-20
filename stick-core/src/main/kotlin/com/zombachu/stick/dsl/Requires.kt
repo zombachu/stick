@@ -9,10 +9,12 @@ import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.StructureScope
+import com.zombachu.stick.element.Branch
 import com.zombachu.stick.element.HybridFlag
 import com.zombachu.stick.element.InvalidSenderDefault
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
+import com.zombachu.stick.element.TransformedBranch
 import com.zombachu.stick.element.TransformedHybridFlag
 import com.zombachu.stick.element.TransformedParameter
 import com.zombachu.stick.element.TransformedStructure
@@ -53,6 +55,15 @@ fun <E : Environment, S : Any, S2 : Any, T_ : Arguments> StructureScope<E, S>.re
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     command: StructureScope<E, S2>.() -> Structure<E, S2, T_>,
 ): Structure<E, S, T_> = TransformedStructure(command(this.forSender()), transform, requirement)
+
+// TODO: unify with requireAs once T_ can be inferred
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, S2 : Any, T_ : Arguments> StructureScope<E, S>.branchRequireAs(
+    transform: (S) -> S2,
+    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    branch: StructureScope<E, S2>.() -> Branch<E, S2, T_>,
+): Branch<E, S, T_> = TransformedBranch(branch(this.forSender()), transform, requirement)
 
 @OverloadResolutionByLambdaReturnType
 inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> StructureScope<E, S>.requireIs(
@@ -114,6 +125,20 @@ inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureS
         command,
     )
 
+// TODO: unify with requireIs once T_ can be inferred
+@OverloadResolutionByLambdaReturnType
+inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureScope<E, S>.branchRequireIs(
+    @Suppress("UnusedParameter") senderType: KClass<S2>,
+    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    noinline branch: StructureScope<E, S2>.() -> Branch<E, S2, T_>,
+): Branch<E, S, T_> =
+    branchRequireAs(
+        { it as S2 },
+        requirement + requirement({ SenderValidationResult.failSenderType() }) { it.sender is S2 },
+        branch,
+    )
+
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T, P : Position> StructureScope<E, S>.require(
     requirement: Requirement<E, S>,
@@ -141,3 +166,11 @@ fun <E : Environment, S : Any, T : Arguments> StructureScope<E, S>.require(
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     command: StructureScope<E, S>.() -> Structure<E, S, T>,
 ): Structure<E, S, T> = requireAs({ it }, requirement, command)
+
+// TODO: unify with require once T_ can be inferred
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, T : Arguments> StructureScope<E, S>.branchRequire(
+    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    branch: StructureScope<E, S>.() -> Branch<E, S, T>,
+): Branch<E, S, T> = branchRequireAs({ it }, requirement, branch)

@@ -13,6 +13,8 @@ import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.dsl.booleanParameter
 import com.zombachu.stick.dsl.branch
+import com.zombachu.stick.dsl.branchRequire
+import com.zombachu.stick.dsl.branchRequireIs
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.doubleParameter
 import com.zombachu.stick.dsl.enumParameter
@@ -584,6 +586,56 @@ class GroupTest {
     }
 
     @Test
+    fun `warp - invalid syntax in branch returns branch syntax`() {
+        val targetWarp: TypedIdentifier<Warp> = id("warp")
+        val warpCommand = structure(WarpableServer::class, Sender::class) {
+            command("warp")(
+                subcommands(
+                    command("list")() { },
+                    branchRequire(permission("server.warp.tp")) {
+                        branch(warpParameter("warp").store(targetWarp))(
+                            subcommands(
+                                command("tp")(
+                                    helper(targetWarp)
+                                ) { warp -> },
+                                command("rename")(
+                                    helper(targetWarp),
+                                    stringParameter("name")
+                                ) { warp, name -> },
+                            ),
+                        )
+                    },
+                )
+            )
+        }
+
+        assertEquals(
+            Feedback.InvalidSyntax("/warp <list|warp>"),
+            warpCommand.executeExpectingError(server, zombachu, "/warp"),
+        )
+
+        assertEquals(
+            Feedback.InvalidSyntax("/warp <list>"),
+            warpCommand.executeExpectingError(server, steve, "/warp"),
+        )
+
+        assertEquals(
+            Feedback.InvalidSyntax("/warp <warp> <tp|rename>"),
+            warpCommand.executeExpectingError(server, zombachu, "/warp shop"),
+        )
+
+        assertEquals(
+            Feedback.InvalidSyntax("/warp shop rename <name>"),
+            warpCommand.executeExpectingError(server, zombachu, "/warp shop rename"),
+        )
+
+        assertEquals(
+            "Unknown warp: nowhere",
+            warpCommand.executeExpectingError(server, zombachu, "/warp nowhere tp").message,
+        )
+    }
+
+    @Test
     fun `warp - branch suggests leading parameter`() {
         val targetWarp: TypedIdentifier<Warp> = id("warp")
         val warpCommand = structure(WarpableServer::class, Player::class) {
@@ -676,6 +728,48 @@ class GroupTest {
 
         warpCommand.execute(server, zombachu, "/warp 2")
         assertEquals(["Warps page 2"], zombachu.logs)
+    }
+
+    @Test
+    fun `warp - requireIs narrows branch sender`() {
+        val targetWarp: TypedIdentifier<Warp> = id("warp")
+        val warpCommand = structure(WarpableServer::class, Sender::class) {
+            command("warp")(
+                subcommands(
+                    command("list")() {
+                        sender.log("Warps: ${env.warps.names.joinToString(", ")}")
+                    },
+                    branchRequireIs(Player::class) {
+                        branch(warpParameter("warp").store(targetWarp))(
+                            subcommands(
+                                command("tp")(
+                                    helper(targetWarp)
+                                ) { warp ->
+                                    sender.world = warp.world
+                                    sender.log("Teleported to ${warp.name}")
+                                },
+                            ),
+                        )
+                    },
+                )
+            )
+        }
+
+        warpCommand.execute(server, zombachu, "/warp shop tp")
+        assertEquals("nether", zombachu.world)
+
+        assertEquals(
+            Feedback.InvalidSyntax("/warp <list|warp>"),
+            warpCommand.executeExpectingError(server, zombachu, "/warp"),
+        )
+
+        assertEquals(
+            Feedback.InvalidSyntax("/warp <list>"),
+            warpCommand.executeExpectingError(server, console, "/warp shop tp"),
+        )
+
+        assertEquals(["tp"], warpCommand.suggest(server, zombachu, "/warp shop "))
+        assertEquals(["list"], warpCommand.suggest(server, console, "/warp "))
     }
 
     @Test

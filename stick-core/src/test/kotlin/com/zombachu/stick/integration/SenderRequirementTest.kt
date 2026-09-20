@@ -3,6 +3,8 @@ package com.zombachu.stick.integration
 import com.zombachu.stick.Arguments1
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.HybridFlagResult
+import com.zombachu.stick.dsl.branch
+import com.zombachu.stick.dsl.branchRequireAs
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.group
 import com.zombachu.stick.dsl.hybridFlag
@@ -162,6 +164,34 @@ class SenderRequirementTest {
         zombachu.socialData.nicknames["Alex"] = "Alexandra"
 
         realNameCommand.execute(server, zombachu, "/realname player Alexandra")
+        assertEquals(["That player's real name is: Alex"], zombachu.logs)
+
+        assertEquals(
+            Feedback.InvalidSyntax("/realname <me>"),
+            realNameCommand.executeExpectingError(server, console, "/realname Alexandra"),
+        )
+    }
+
+    @Test
+    fun `realname - requireAs validates and transforms sender for branch`() {
+        val realNameCommand = structure(Server::class, Sender::class) {
+            command("realname")(
+                group(
+                    literalParameter("me"),
+                    branchRequireAs(
+                        { (it as Player).socialData },
+                        requirement { it.sender is Player },
+                    ) {
+                        branch(realNameParameter("nickname"))() { realName ->
+                            sender.player.log("That player's real name is: $realName")
+                        }
+                    },
+                )
+            )
+        }
+        zombachu.socialData.nicknames["Alex"] = "Alexandra"
+
+        realNameCommand.execute(server, zombachu, "/realname Alexandra")
         assertEquals(["That player's real name is: Alex"], zombachu.logs)
 
         assertEquals(

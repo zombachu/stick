@@ -175,17 +175,24 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
 }
 
 internal class TransformedStructure<E : Environment, S, S2 : Any, T_ : Arguments>(
-    private val base: Structure<E, S2, T_>,
+    base: Structure<E, S2, T_>,
+    transform: (S) -> S2,
+    requirement: Requirement<E, S>,
+) : TransformedBranch<E, S, S2, T_>(base, transform, requirement), Structure<E, S, T_> {
+    override val label: String = base.label
+    override val aliases: Set<String> = base.aliases
+}
+
+internal open class TransformedBranch<E : Environment, S, S2 : Any, T_ : Arguments>(
+    private val base: Branch<E, S2, T_>,
     private val transform: (S) -> S2,
     private val requirement: Requirement<E, S>,
-) : Structure<E, S, T_> {
+) : Branch<E, S, T_>, SenderValidator<E, S> {
 
     override val name: String = base.name
-    override val aliases: Set<String> = base.aliases
     override val description: String = base.description
     override val size: Size = base.size
     override val type: GroupableType = base.type
-    override val label: String = base.label
 
     context(validationContext: ValidationContext<E, S>)
     override fun match(args: List<String>): MatchResult {
@@ -216,6 +223,14 @@ internal class TransformedStructure<E : Environment, S, S2 : Any, T_ : Arguments
         val transformedValidationContext = validationContext.forSender(transform)
         context(transformedValidationContext) {
             return base.getSyntax()
+        }
+    }
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun getGroupedSyntax(): String {
+        val transformedValidationContext = validationContext.forSender(transform)
+        context(transformedValidationContext) {
+            return base.getGroupedSyntax()
         }
     }
 
