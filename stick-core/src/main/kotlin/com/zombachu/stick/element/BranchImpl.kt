@@ -7,7 +7,6 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
@@ -34,20 +33,15 @@ internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val s
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T_> {
-        val invocation = inv as InvocationImpl
-        when (val match = invocation.matchAhead(leading)) {
-            is MatchResult.Unmatched -> return match.failure
-            is MatchResult.Partial -> return PeekingResult.failSize()
-            is MatchResult.Matched -> {}
-        }
         // Run validation in case this branch is a Structure
         validateSender().propagateError {
             return it
         }
         val parsedArgs =
-            signature.execute().valueOrPropagateError {
-                return it
-            }
+            context(inv as InvocationImpl) { signature.execute() }
+                .valueOrPropagateError {
+                    return it
+                }
         return ParsingResult.success(parsedArgs)
     }
 

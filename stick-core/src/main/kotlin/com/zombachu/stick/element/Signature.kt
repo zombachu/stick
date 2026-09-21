@@ -122,6 +122,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
             },
             processLinear = { element ->
                 parseElement(values, element).propagateError {
+                    if (element.index == 0) return it
                     return if (it is PeekingResult.InvalidSizeError || it is ParsingResult.TypeNotMatchedInternal) {
                         ParsingResult.failSyntax(inv.getSyntax())
                     } else {

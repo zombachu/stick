@@ -42,13 +42,6 @@ internal open class InvocationImpl<E : Environment, S>(
             root.rootCurrentMatch = value
         }
 
-    private var rootPendingMatch: MatchResult.Matched? = null
-    private var pendingMatch: MatchResult.Matched?
-        get() = root.rootPendingMatch
-        set(value) {
-            root.rootPendingMatch = value
-        }
-
     override fun <T> get(id: TypedIdentifier<T>): T {
         @Suppress("UNCHECKED_CAST")
         return parsed[id] as T
@@ -90,22 +83,6 @@ internal open class InvocationImpl<E : Environment, S>(
         return PeekingResult.failSize()
     }
 
-    internal fun matchAhead(element: ConsumingElement<E, S, *>): MatchResult {
-        val peeked = peek(element.size)
-        if (peeked !is PeekingResult.Success) return MatchResult.partial()
-        val match = context(this) { element.match(peeked.value) }
-        if (match is MatchResult.Matched) {
-            pendingMatch = match
-        }
-        return match
-    }
-
-    private fun takePendingMatch(): MatchResult.Matched? {
-        val pending = pendingMatch
-        pendingMatch = null
-        return pending
-    }
-
     internal fun <T> processElement(element: Element<E, S, T>): CommandResult<T> {
         context(this) {
             if (element !is SyntaxElement) {
@@ -129,7 +106,7 @@ internal open class InvocationImpl<E : Environment, S>(
             }
 
             val matched =
-                when (val match = this@InvocationImpl.takePendingMatch() ?: element.match(peeked.value)) {
+                when (val match = element.match(peeked.value)) {
                     is MatchResult.Unmatched -> return match.failure
                     is MatchResult.Partial -> return PeekingResult.failSize()
                     is MatchResult.Matched -> match
