@@ -77,8 +77,8 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
     }
 
     context(validationContext: ValidationContext<E, S>)
-    fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        return SuggestionProcessor(preceding).process().flatMap { candidate ->
+    fun suggest(preceding: List<String>, partial: String, leadingMatch: MatchResult?): List<Suggestion> {
+        return SuggestionProcessor(preceding, leadingMatch).process().flatMap { candidate ->
             val element = candidate.element
             val window = preceding.subList(candidate.startIndex, preceding.size)
             if (element is GroupImpl<E, S, *, *>) {
@@ -186,7 +186,10 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
 
     private data class IndexedElement<E : Environment, S, out L : Element<E, S, *>>(val index: Int, val element: L)
 
-    private inner class SuggestionProcessor(private val preceding: List<String>) {
+    private inner class SuggestionProcessor(
+        private val preceding: List<String>,
+        private var leadingMatch: MatchResult?,
+    ) {
         private val unprocessedFlags: MutableList<IndexedElement<E, S, Flag<E, S, Any?>>> = flags.toMutableList()
         private var index: Int = 0
         private var openCandidate: Candidate? = null
@@ -195,7 +198,8 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         private fun matchElement(element: SyntaxElement<E, S, *>): MatchResult {
             val window = preceding.subList(index, preceding.size)
             val groupMatch = if (element is GroupImpl<E, S, *, *>) element.matchBranches(window) else null
-            val match = groupMatch?.result ?: element.match(window)
+            val match = groupMatch?.result ?: leadingMatch ?: element.match(window)
+            leadingMatch = null
             if (match is MatchResult.Matched) {
                 openCandidate = if (match.canConsumeMore) Candidate(element, index, groupMatch) else null
                 index += match.consumed

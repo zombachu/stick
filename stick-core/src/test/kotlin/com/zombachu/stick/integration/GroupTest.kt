@@ -823,6 +823,33 @@ class GroupTest {
     }
 
     @Test
+    fun `warp - branch suggestion resolves leading parameter once`() {
+        val targetWarp: TypedIdentifier<String> = id("warp")
+        val warpParameter = CountingParameter<Server, Sender>("warp")
+        val warpCommand = structure(Server::class, Sender::class) {
+            command("warp")(
+                subcommands(
+                    command("list")() {},
+                    branch(warpParameter.store(targetWarp))(
+                        subcommands(
+                            command("tp")(
+                                helper(targetWarp)
+                            ) { warp ->
+                                sender.log("Teleported to $warp")
+                            },
+                        ),
+                    ),
+                )
+            )
+        }
+
+        val suggestions = warpCommand.suggest(server, zombachu, "/warp shop ")
+
+        assertEquals(["tp"], suggestions)
+        assertEquals(1, warpParameter.invocations)
+    }
+
+    @Test
     fun `warp - branch with literal leading parameter parses before before sibling parameter`() {
         server.warps.add(Warp("all", "zombachu", "nether"))
         val warpCommand = structure(WarpableServer::class, Player::class) {

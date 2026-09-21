@@ -15,7 +15,7 @@ import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 
 internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val signature: Signature<E, S, T_>) :
-    Branch<E, S, T_> {
+    InternalBranch<E, S, T_> {
 
     private val leading: Parameter<E, S, *, *> = signature.leading
 
@@ -24,16 +24,13 @@ internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val s
     override val size: Size = Size.atLeast(1)
     override val type: GroupableType = leading.type
 
+    // GroupImpl.matchBranches handles the rest of matching once a branch is committed
     context(validationContext: ValidationContext<E, S>)
-    override fun match(args: List<String>): MatchResult =
-        when (val match = leading.match(args)) {
-            is MatchResult.Matched -> MatchResult.matchedAtLeast(args.size)
-            else -> match
-        }
+    override fun match(args: List<String>): MatchResult = leading.match(args)
 
     context(validationContext: ValidationContext<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
-        signature.suggest(preceding, partial)
+    override fun suggestBranch(preceding: List<String>, partial: String, leadingMatch: MatchResult?): List<Suggestion> =
+        signature.suggest(preceding, partial, leadingMatch)
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T_> {

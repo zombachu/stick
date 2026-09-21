@@ -51,12 +51,12 @@ class StructureImplTest {
     }
 
     @Test
-    fun `match claims whole window`() {
+    fun `match covers only label`() {
         val structure = structure(name = "cmd", aliases = ["c"])
 
         val result = withValidationContext { structure.match(["C", "arg"]) }
 
-        assertEquals(MatchResult.matchedAtLeast(2), result)
+        assertEquals(MatchResult.matchedExactly(1), result)
     }
 
     @Test

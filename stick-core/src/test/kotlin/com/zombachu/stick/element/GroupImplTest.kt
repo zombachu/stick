@@ -181,6 +181,19 @@ class GroupImplTest {
     }
 
     @Test
+    fun `matched branch claims remaining args`() {
+        val structure =
+            StructureImpl("cmd", [], "", Requirement<TestEnv, Unit> { SenderValidationResult.success() }) {
+                Signature0({}, LeadingElementType.Label, [it])
+            }
+        val group = group1(structure)
+
+        val result = withValidationContext { group.match(["cmd", "arg"]) }
+
+        assertEquals(MatchResult.matchedAtLeast(2), result)
+    }
+
+    @Test
     fun `match allows higher-priority elements to continue consuming when lower-priority elements are full`() {
         val pair =
             object : Parameter.Size2<TestEnv, Unit, String>("pair", "") {

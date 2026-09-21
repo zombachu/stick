@@ -68,6 +68,16 @@ sealed interface Structure<in E : Environment, S, T_ : Arguments> : Branch<E, S,
 
 sealed interface Branch<in E : Environment, S, T_ : Arguments> : Groupable<E, S, T_, Position.Last>
 
+internal interface InternalBranch<in E : Environment, S, T_ : Arguments> : Branch<E, S, T_> {
+
+    context(validationContext: ValidationContext<E, S>)
+    fun suggestBranch(preceding: List<String>, partial: String, leadingMatch: MatchResult?): List<Suggestion>
+
+    context(validationContext: ValidationContext<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        suggestBranch(preceding, partial, null)
+}
+
 sealed interface ValidatedParameter<in E : Environment, S, T, out P : Position> :
     Groupable<E, S, T, P>, ConsumingElement<E, S, T>
 

@@ -70,17 +70,21 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
         var mismatch: MatchResult.Unmatched? = null
 
         for (element in prioritizedElements) {
-            element.groupable.validateSender().propagateError {
+            val groupable = element.groupable
+            groupable.validateSender().propagateError {
                 branchResults.add(MatchResult.unmatched())
                 continue
             }
 
-            val match = element.groupable.match(args)
+            val match = groupable.match(args)
             branchResults.add(match)
 
             when (match) {
                 // A higher-priority element that's partial could still take args
                 is MatchResult.Matched -> {
+                    if (groupable is Branch<E, S, *>) {
+                        return GroupMatch(MatchResult.matchedAtLeast(args.size), branchResults)
+                    }
                     val result = if (incomplete == null) match else MatchResult.matchedAtLeast(match.consumed)
                     return GroupMatch(result, branchResults)
                 }
@@ -101,8 +105,12 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
             val size = groupable.size
             if (size is Size.Bounded && preceding.size >= size.max) continue
             groupable.validateSender().propagateError { continue }
-            val canConsumeMore = matched?.branchResults?.getOrNull(index)?.canConsumeMore ?: true
-            if (!canConsumeMore) continue
+            val match = matched?.branchResults?.getOrNull(index)
+            if (groupable is InternalBranch<E, S, *>) {
+                addAll(groupable.suggestBranch(preceding, partial, match))
+                continue
+            }
+            if (match?.canConsumeMore == false) continue
             addAll(groupable.suggest(preceding, partial))
         }
     }

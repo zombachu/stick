@@ -184,10 +184,12 @@ internal class TransformedStructure<E : Environment, S, S2 : Any, T_ : Arguments
 }
 
 internal open class TransformedBranch<E : Environment, S, S2 : Any, T_ : Arguments>(
-    private val base: Branch<E, S2, T_>,
+    base: Branch<E, S2, T_>,
     private val transform: (S) -> S2,
     private val requirement: Requirement<E, S>,
-) : Branch<E, S, T_>, SenderValidator<E, S> {
+) : InternalBranch<E, S, T_>, SenderValidator<E, S> {
+
+    private val base: InternalBranch<E, S2, T_> = base as InternalBranch<E, S2, T_>
 
     override val name: String = base.name
     override val description: String = base.description
@@ -203,10 +205,10 @@ internal open class TransformedBranch<E : Environment, S, S2 : Any, T_ : Argumen
     }
 
     context(validationContext: ValidationContext<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+    override fun suggestBranch(preceding: List<String>, partial: String, leadingMatch: MatchResult?): List<Suggestion> {
         val transformedValidationContext = validationContext.forSender(transform)
         context(transformedValidationContext) {
-            return base.suggest(preceding, partial)
+            return base.suggestBranch(preceding, partial, leadingMatch)
         }
     }
 
