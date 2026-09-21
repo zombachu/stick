@@ -11,6 +11,7 @@ import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.TypeNotMatchedInternal
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.element.parameters.LiteralParameter
@@ -70,7 +71,7 @@ class GroupImplTest {
 
         val result = withInvocation("x") { group.parse(["x"]) }
 
-        assertSame(ParsingResult.TypeNotMatchedInternal, result)
+        assertSame(TypeNotMatchedInternal, result)
     }
 
     @Test
@@ -217,7 +218,7 @@ class GroupImplTest {
 
         val result = withValidationContext { group.match(["drop"]) }
 
-        assertSame(ParsingResult.TypeNotMatchedInternal, result.expectUnmatched())
+        assertSame(TypeNotMatchedInternal, result.expectUnmatched())
     }
 
     @Test
@@ -228,7 +229,7 @@ class GroupImplTest {
 
         val result = withValidationContext { group.match(["x"]) }
 
-        assertSame(ParsingResult.TypeNotMatchedInternal, result.expectUnmatched())
+        assertSame(TypeNotMatchedInternal, result.expectUnmatched())
     }
 
     @Test

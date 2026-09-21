@@ -10,6 +10,7 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
+import com.zombachu.stick.TypeNotMatchedInternal
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
@@ -112,7 +113,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
                 parseElement(values, flag).propagateError {
                     when (it) {
                         // Ignore matching errors
-                        is ParsingResult.TypeNotMatchedInternal,
+                        is TypeNotMatchedInternal,
                         is PeekingResult.InvalidSizeError -> return@processElements false
                         // If the flag matched and an error occurred in parsing then propagate it up
                         else -> return it
@@ -123,7 +124,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
             processLinear = { element ->
                 parseElement(values, element).propagateError {
                     if (element.index == 0) return it
-                    return if (it is PeekingResult.InvalidSizeError || it is ParsingResult.TypeNotMatchedInternal) {
+                    return if (it is PeekingResult.InvalidSizeError || it is TypeNotMatchedInternal) {
                         ParsingResult.failSyntax(inv.getSyntax())
                     } else {
                         it

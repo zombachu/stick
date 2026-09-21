@@ -7,7 +7,7 @@ class MatchResultTest {
 
     @Test
     fun `unmatched defaults to TypeNotMatchedInternal`() {
-        assertSame(ParsingResult.TypeNotMatchedInternal, MatchResult.unmatched().failure)
+        assertSame(TypeNotMatchedInternal, MatchResult.unmatched().failure)
     }
 
     @Test

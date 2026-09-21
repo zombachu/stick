@@ -3,6 +3,7 @@ package com.zombachu.stick.integration
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SimpleSuggestion
 import com.zombachu.stick.Size
@@ -320,9 +321,12 @@ class SuggestionTest {
             if (preceding.isEmpty()) ["near"].toSuggestions() else validationContext.env.playerNames.toSuggestions()
 
         context(validationContext: ValidationContext<E, S>)
+        override fun match(args: List<String>): MatchResult =
+            if (args.firstOrNull() == "near") super.match(args)
+            else MatchResult.unmatched(ParsingResult.failType("near", args.firstOrNull() ?: ""))
+
+        context(validationContext: ValidationContext<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<Player> {
-            if (args.firstOrNull() != "near") return ParsingResult.failType("near", args.firstOrNull() ?: "")
-            if (args.size < 2) return ParsingResult.failSize()
             val player = validationContext.env.getPlayer(args[1]) ?: return ParsingResult.failType("player", args[1])
             return ParsingResult.success(player).consuming(2)
         }
@@ -340,11 +344,14 @@ class SuggestionTest {
             else point.suggest(preceding, partial)
 
         context(validationContext: ValidationContext<E, S>)
+        override fun match(args: List<String>): MatchResult =
+            if (args.firstOrNull() != "~" && args.size < 3) MatchResult.partial() else super.match(args)
+
+        context(validationContext: ValidationContext<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<Location> {
             if (args.firstOrNull() == "~") {
                 return ParsingResult.success(validationContext.sender.position).consuming(1, canConsumeMore = false)
             }
-            if (args.size < 3) return ParsingResult.failSize()
             return point.resolve(args)
         }
     }

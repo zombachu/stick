@@ -42,8 +42,6 @@ sealed interface ParsingResult<out T> : CommandResult<T> {
 
     object HandledError : InternalFailure
 
-    object TypeNotMatchedInternal : InternalFailure
-
     class TypeNotMatchedError internal constructor(override val feedback: Feedback.TypeNotMatched) :
         Failure<Feedback.TypeNotMatched>
 
@@ -77,10 +75,10 @@ sealed interface ParsingResult<out T> : CommandResult<T> {
 
         fun failRange(min: String, max: String, arg: String): OutOfRangeError =
             OutOfRangeError(Feedback.OutOfRange(min, max, arg))
-
-        fun failSize(): CommandResult.InternalFailure = PeekingResult.failSize()
     }
 }
+
+internal object TypeNotMatchedInternal : ParsingResult.InternalFailure
 
 sealed interface SenderValidationResult {
     object Success : SenderValidationResult, CommandResult.Success<Unit> {

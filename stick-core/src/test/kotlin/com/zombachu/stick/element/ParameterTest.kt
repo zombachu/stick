@@ -24,7 +24,6 @@ class ParameterTest {
             context(validationContext: ValidationContext<TestEnv, Unit>)
             override fun resolve(args: List<String>): ConsumingResult<String> =
                 when {
-                    args.isEmpty() -> ParsingResult.failSize()
                     args[0] == "wide" -> ParsingResult.success("wide").consuming(2)
                     args[0] == "narrow" -> ParsingResult.success("narrow").consuming(1)
                     args[0] == "exact" -> ParsingResult.success("exact").consuming(1, canConsumeMore = false)
@@ -59,10 +58,33 @@ class ParameterTest {
         val parameter =
             object : Parameter.Size2<TestEnv, Unit, String>("", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun resolve(arg0: String, arg1: String): CommandResult<String> = ParsingResult.failSize()
+                override fun resolve(arg0: String, arg1: String): CommandResult<String> = ParsingResult.success(arg0)
             }
 
-        assertEquals(MatchResult.partial(), withValidationContext { parameter.match(["a", "b"]) })
+        assertEquals(MatchResult.partial(), withValidationContext { parameter.match(["a"]) })
+    }
+
+    @Test
+    fun `match trims arguments to max`() {
+        val parameter =
+            object : Parameter.Bounded<TestEnv, Unit, String>(Size.between(1, 2), "", "") {
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(args: List<String>): ConsumingResult<String> =
+                    ParsingResult.success("").consuming(args.size)
+            }
+
+        assertEquals(MatchResult.matchedExactly(2), withValidationContext { parameter.match(["a", "b", "c"]) })
+    }
+
+    @Test
+    fun `unbounded match with too few arguments returns partial`() {
+        val parameter =
+            object : Parameter.Unbounded<TestEnv, Unit, String>(Size.atLeast(2), "", "") {
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(args: List<String>): ConsumingResult<String> =
+                    ParsingResult.success("").consuming(args.size)
+            }
+
         assertEquals(MatchResult.partial(), withValidationContext { parameter.match(["a"]) })
     }
 

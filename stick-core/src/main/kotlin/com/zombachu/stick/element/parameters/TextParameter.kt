@@ -16,7 +16,6 @@ open class TextParameter<E : Environment, S>(name: String, description: String) 
 
     context(validationContext: ValidationContext<E, S>)
     override fun resolve(args: List<String>): ConsumingResult<String> {
-        if (args.isEmpty()) return ParsingResult.failSize()
         return ParsingResult.success(args.joinToString(" ")).consuming(args.size)
     }
 }

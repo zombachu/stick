@@ -8,6 +8,7 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.TypeNotMatchedInternal
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.element.parameters.IntParameter
@@ -73,7 +74,7 @@ class HybridFlagImplTest {
     @Test
     fun `empty args fails with TypeNotMatchedInternal`() {
         val result = withInvocation { flag.parse([]) }
-        assertIs<ParsingResult.TypeNotMatchedInternal>(result)
+        assertIs<TypeNotMatchedInternal>(result)
     }
 
     @Test
@@ -104,7 +105,7 @@ class HybridFlagImplTest {
     @Test
     fun `match unmatched fails with TypeNotMatchedInternal`() {
         val result = withValidationContext { flag.match(["-other"]) }
-        assertSame(ParsingResult.TypeNotMatchedInternal, result.expectUnmatched())
+        assertSame(TypeNotMatchedInternal, result.expectUnmatched())
     }
 
     @Test
@@ -116,7 +117,7 @@ class HybridFlagImplTest {
     @Test
     fun `mismatch fails with TypeNotMatchedInternal`() {
         val result = withInvocation { flag.parse(["-other"]) }
-        assertIs<ParsingResult.TypeNotMatchedInternal>(result)
+        assertIs<TypeNotMatchedInternal>(result)
     }
 
     @Test

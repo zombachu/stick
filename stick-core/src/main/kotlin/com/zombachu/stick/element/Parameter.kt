@@ -43,7 +43,10 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
         }
 
         context(validationContext: ValidationContext<E, S>)
-        override fun match(args: List<String>): MatchResult = resolve(args).toMatchResult(this)
+        override fun match(args: List<String>): MatchResult {
+            if (args.size < size.min) return MatchResult.partial()
+            return resolve(if (args.size > size.max) args.subList(0, size.max) else args).toMatchResult(this)
+        }
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(args: List<String>): ConsumingResult<T>
@@ -276,7 +279,10 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
         }
 
         context(validationContext: ValidationContext<E, S>)
-        override fun match(args: List<String>): MatchResult = resolve(args).toMatchResult(this)
+        override fun match(args: List<String>): MatchResult {
+            if (args.size < size.min) return MatchResult.partial()
+            return resolve(args).toMatchResult(this)
+        }
 
         context(validationContext: ValidationContext<E, S>)
         abstract fun resolve(args: List<String>): ConsumingResult<T>

@@ -26,6 +26,7 @@ import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
+import com.zombachu.stick.TypeNotMatchedInternal
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.GroupElement.Companion.to
 import com.zombachu.stick.isSuccess
@@ -175,7 +176,7 @@ internal class GroupMatch(val result: MatchResult, val branchResults: List<Match
 
 private fun CommandResult.InternalFailure.isMismatch(): Boolean =
     when (this) {
-        is ParsingResult.TypeNotMatchedInternal,
+        is TypeNotMatchedInternal,
         is ParsingResult.TypeNotMatchedError,
         is ParsingResult.LiteralNotMatchedError,
         is PeekingResult.InvalidSizeError -> true

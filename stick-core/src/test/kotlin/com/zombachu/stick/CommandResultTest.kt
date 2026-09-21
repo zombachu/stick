@@ -44,7 +44,7 @@ class CommandResultTest {
     fun `failTypeInternal returns TypeNotMatchedInternal singleton`() {
         val result = ParsingResult.failTypeInternal()
         assertFalse(result.isSuccess())
-        assertSame(ParsingResult.TypeNotMatchedInternal, result)
+        assertSame(TypeNotMatchedInternal, result)
     }
 
     @Test

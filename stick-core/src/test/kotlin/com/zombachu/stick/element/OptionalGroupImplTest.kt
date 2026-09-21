@@ -4,11 +4,11 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult2
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.TypeNotMatchedInternal
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue
@@ -64,7 +64,7 @@ class OptionalGroupImplTest {
     fun `args matching nothing fails with TypeNotMatchedInternal`() {
         val optional = optionalGroup(groupAllowed = true, presenceAllowed = true)
         val result = withInvocation("asdf") { optional.parse(["asdf"]) }
-        assertSame(ParsingResult.TypeNotMatchedInternal, result)
+        assertSame(TypeNotMatchedInternal, result)
     }
 
     @Test

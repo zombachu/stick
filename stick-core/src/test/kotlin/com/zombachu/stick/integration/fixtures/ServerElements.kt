@@ -102,7 +102,6 @@ class BioParameter<E : Environment>(name: String) :
 
     context(validationContext: ValidationContext<E, SocialData>)
     override fun resolve(args: List<String>): ConsumingResult<String> {
-        if (args.isEmpty()) return ParsingResult.failSize()
         val bioLine = args.joinToString(" ")
         return ParsingResult.success(bioLine).consuming(args.size)
     }

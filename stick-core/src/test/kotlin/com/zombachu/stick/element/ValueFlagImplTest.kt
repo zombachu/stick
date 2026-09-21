@@ -7,6 +7,7 @@ import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.SimpleSuggestion
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.TypeNotMatchedInternal
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.element.parameters.IntParameter
@@ -118,7 +119,7 @@ class ValueFlagImplTest {
     @Test
     fun `PresenceFlagParameter mismatch fails with TypeNotMatchedInternal`() {
         val result = withInvocation { presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true).parse(["-other"]) }
-        assertSame(ParsingResult.TypeNotMatchedInternal, result)
+        assertSame(TypeNotMatchedInternal, result)
     }
 
     @Test
@@ -131,7 +132,7 @@ class ValueFlagImplTest {
     fun `PresenceFlagParameter match unmatched fails with TypeNotMatchedInternal`() {
         val flagParameter = presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true)
         val result = withValidationContext { flagParameter.match(["-other"]) }
-        assertSame(ParsingResult.TypeNotMatchedInternal, result.expectUnmatched())
+        assertSame(TypeNotMatchedInternal, result.expectUnmatched())
     }
 
     @Test
@@ -167,7 +168,7 @@ class ValueFlagImplTest {
     fun `ParameterFlagParameter invalid argument fails with TypeNotMatchedInternal`() {
         val flagParameter = FlagParameter.ParameterFlagParameter("amount", amountParameter, [])
         val result = withInvocation { flagParameter.parse(["-other", "42"]) }
-        assertSame(ParsingResult.TypeNotMatchedInternal, result)
+        assertSame(TypeNotMatchedInternal, result)
     }
 
     @Test
@@ -180,7 +181,7 @@ class ValueFlagImplTest {
     fun `EnumFlagParameter match of an unknown key fails with TypeNotMatchedInternal`() {
         val flagParameter = FlagParameter.EnumFlagParameter(colorParameter)
         val result = withValidationContext { flagParameter.match(["-purple"]) }
-        assertSame(ParsingResult.TypeNotMatchedInternal, result.expectUnmatched())
+        assertSame(TypeNotMatchedInternal, result.expectUnmatched())
     }
 
     @Test
@@ -194,22 +195,22 @@ class ValueFlagImplTest {
     fun `EnumFlagParameter invalid argument fails with TypeNotMatchedInternal`() {
         val flagParameter = FlagParameter.EnumFlagParameter(colorParameter)
         val result = withInvocation { flagParameter.parse(["-blue"]) }
-        assertSame(ParsingResult.TypeNotMatchedInternal, result)
+        assertSame(TypeNotMatchedInternal, result)
     }
 
     @Test
     fun `EnumFlagParameter empty args fails with TypeNotMatchedInternal`() {
         val flagParameter = FlagParameter.EnumFlagParameter(colorParameter)
         val result = withInvocation { flagParameter.parse([]) }
-        assertSame(ParsingResult.TypeNotMatchedInternal, result)
+        assertSame(TypeNotMatchedInternal, result)
     }
 
     @Test
     fun `EnumFlagParameter argument with no prefix fails with TypeNotMatchedInternal`() {
         val flagParameter = FlagParameter.EnumFlagParameter(colorParameter)
 
-        assertSame(ParsingResult.TypeNotMatchedInternal, withInvocation { flagParameter.parse([""]) })
-        assertSame(ParsingResult.TypeNotMatchedInternal, withInvocation { flagParameter.parse(["red"]) })
+        assertSame(TypeNotMatchedInternal, withInvocation { flagParameter.parse([""]) })
+        assertSame(TypeNotMatchedInternal, withInvocation { flagParameter.parse(["red"]) })
     }
 
     @Test

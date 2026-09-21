@@ -2,7 +2,6 @@ package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.GroupableType
@@ -12,7 +11,6 @@ import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertSame
 
 class TextParameterTest {
 
@@ -29,12 +27,6 @@ class TextParameterTest {
         val result = withInvocation { parameter.parse(["a", "b", "c"]) }
         assertIs<ConsumingResult.Success<String>>(result)
         assertEquals(3, result.consumed)
-    }
-
-    @Test
-    fun `empty args fail with InvalidSizeError`() {
-        val result = withInvocation { parameter.parse([]) }
-        assertSame(PeekingResult.InvalidSizeError, result)
     }
 
     @Test

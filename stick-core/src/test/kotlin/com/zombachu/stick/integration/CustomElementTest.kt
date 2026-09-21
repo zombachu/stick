@@ -4,6 +4,7 @@ import com.zombachu.stick.Arguments1
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.StructureScope
@@ -82,12 +83,15 @@ class CustomElementTest {
         class LocationParameter<E : Environment, S : Player>(name: String) :
             Parameter.Bounded<E, S, Location>(Size.between(1, 3), name, "") {
             context(validationContext: ValidationContext<E, S>)
+            override fun match(args: List<String>): MatchResult {
+                if (args.firstOrNull()?.lowercase() != "here" && args.size < 3) return MatchResult.partial()
+                return super.match(args)
+            }
+
+            context(validationContext: ValidationContext<E, S>)
             override fun resolve(args: List<String>): ConsumingResult<Location> {
                 if (args.firstOrNull()?.lowercase() == "here") {
                     return ParsingResult.success(validationContext.sender.position).consuming(1)
-                }
-                if (args.size < 3) {
-                    return ParsingResult.failSize()
                 }
                 val x = args[0].toIntOrNull() ?: return ParsingResult.failType("integer", args[0])
                 val y = args[1].toIntOrNull() ?: return ParsingResult.failType("integer", args[1])

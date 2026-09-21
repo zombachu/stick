@@ -2,10 +2,10 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.Arguments0
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.TypeNotMatchedInternal
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectUnmatched
@@ -47,7 +47,7 @@ class StructureImplTest {
 
         val result = withInvocation("other") { structure.parse(["other"]) }
 
-        assertIs<ParsingResult.TypeNotMatchedInternal>(result)
+        assertIs<TypeNotMatchedInternal>(result)
     }
 
     @Test
@@ -65,7 +65,7 @@ class StructureImplTest {
 
         val result = withValidationContext { structure.match(["other"]) }
 
-        assertSame(ParsingResult.TypeNotMatchedInternal, result.expectUnmatched())
+        assertSame(TypeNotMatchedInternal, result.expectUnmatched())
     }
 
     @Test

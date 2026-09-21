@@ -102,7 +102,7 @@ class InvocationImplTest {
 
         val result = inv.processElement(parameter)
 
-        assertSame(ParsingResult.TypeNotMatchedInternal, result)
+        assertSame(TypeNotMatchedInternal, result)
         assertFalse(parsed)
         assertEquals(["foo"], inv.unparsed)
     }
@@ -123,7 +123,11 @@ class InvocationImplTest {
         val parameter =
             object : Parameter.Bounded<TestEnv, Unit, String>(Size.between(0, 2), "", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun resolve(args: List<String>): ConsumingResult<String> = ParsingResult.failSize()
+                override fun match(args: List<String>): MatchResult = MatchResult.partial()
+
+                context(validationContext: ValidationContext<TestEnv, Unit>)
+                override fun resolve(args: List<String>): ConsumingResult<String> =
+                    ParsingResult.success("").consuming(1)
             }
 
         val result = inv.processElement(parameter)

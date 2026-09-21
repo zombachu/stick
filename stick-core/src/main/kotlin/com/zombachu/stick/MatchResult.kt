@@ -30,7 +30,7 @@ sealed interface MatchResult {
     }
 
     @ConsistentCopyVisibility
-    data class Unmatched internal constructor(val failure: CommandResult.InternalFailure) : MatchResult {
+    data class Unmatched internal constructor(internal val failure: CommandResult.InternalFailure) : MatchResult {
         override val canConsumeMore = false
     }
 
@@ -53,8 +53,7 @@ internal fun <T> ConsumingResult<T>.toMatchResult(element: ConsumingElement<*, *
     when (this) {
         is ConsumingResult.Success ->
             MatchResult.Matched(consumed, canConsumeMore && !element.size.isFull(consumed), element, value)
-        is CommandResult.InternalFailure ->
-            if (this is PeekingResult.InvalidSizeError) MatchResult.partial() else MatchResult.unmatched(this)
+        is CommandResult.InternalFailure -> MatchResult.unmatched(this)
     }
 
 private fun Size.isFull(consumed: Int): Boolean = this is Size.Bounded && consumed >= max
