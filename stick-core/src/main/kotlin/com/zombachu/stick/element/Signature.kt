@@ -107,32 +107,29 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         val unprocessedFlags = flags.toMutableList()
 
         processElements(
-                unprocessedFlags,
-                processFlag = { flag ->
-                    parseElement(values, flag).propagateError {
-                        when (it) {
-                            // Ignore matching errors
-                            is ParsingResult.TypeNotMatchedInternal,
-                            is PeekingResult.InvalidSizeError -> return@processElements false
-                            // If the flag matched and an error occurred in parsing then propagate it up
-                            else -> return it
-                        }
+            unprocessedFlags,
+            processFlag = { flag ->
+                parseElement(values, flag).propagateError {
+                    when (it) {
+                        // Ignore matching errors
+                        is ParsingResult.TypeNotMatchedInternal,
+                        is PeekingResult.InvalidSizeError -> return@processElements false
+                        // If the flag matched and an error occurred in parsing then propagate it up
+                        else -> return it
                     }
-                    true
-                },
-                processLinear = { element ->
-                    parseElement(values, element).propagateError {
-                        return if (it is PeekingResult.InvalidSizeError || it is ParsingResult.TypeNotMatchedInternal) {
-                            ParsingResult.failSyntax(inv.getSyntax())
-                        } else {
-                            it
-                        }
+                }
+                true
+            },
+            processLinear = { element ->
+                parseElement(values, element).propagateError {
+                    return if (it is PeekingResult.InvalidSizeError || it is ParsingResult.TypeNotMatchedInternal) {
+                        ParsingResult.failSyntax(inv.getSyntax())
+                    } else {
+                        it
                     }
-                },
-            )
-            .propagateError {
-                return it
-            }
+                }
+            },
+        )
 
         // If there are unused args then the sender used invalid syntax
         if (inv.unparsed.isNotEmpty()) return ParsingResult.failSyntax(inv.getSyntax())
@@ -157,19 +154,15 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         unprocessedFlags: MutableList<IndexedElement<E, S, Flag<E, S, Any?>>>,
         processFlag: (IndexedElement<E, S, Flag<E, S, Any?>>) -> Boolean,
         processLinear: (IndexedElement<E, S, Element<E, S, Any?>>) -> Unit,
-    ): CommandResult<Unit> {
+    ) {
         for ((index, linear) in linearElements.withIndex()) {
             // Flags may appear anywhere except before the leading element
             if (index > 0) {
                 processFlags(unprocessedFlags, processFlag)
             }
-            linear.element.validateSender().propagateError {
-                return it
-            }
             processLinear(linear)
         }
         processFlags(unprocessedFlags, processFlag)
-        return ParsingResult.success(Unit)
     }
 
     context(validationContext: ValidationContext<E, S>)
@@ -217,29 +210,24 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         context(validationContext: ValidationContext<E, S>)
         private fun matchElements(): SyntaxElement<E, S, *>? {
             processElements(
-                    unprocessedFlags,
-                    processFlag = { (_, flag) ->
-                        if (index == preceding.size) false
-                        else
-                            when (matchElement(flag)) {
-                                is MatchResult.Matched -> true
-                                is MatchResult.Partial -> return null
-                                is MatchResult.Unmatched -> false
-                            }
-                    },
-                    processLinear = { (_, element) ->
-                        // Helpers can't make suggestions
-                        if (element is SyntaxElement) {
-                            if (index == preceding.size) return element
-                            if (matchElement(element) !is MatchResult.Matched) return null
+                unprocessedFlags,
+                processFlag = { (_, flag) ->
+                    if (index == preceding.size) false
+                    else
+                        when (matchElement(flag)) {
+                            is MatchResult.Matched -> true
+                            is MatchResult.Partial -> return null
+                            is MatchResult.Unmatched -> false
                         }
-                    },
-                )
-                .propagateError {
-                    openCandidate = null
-                    unprocessedFlags.clear()
-                    return null
-                }
+                },
+                processLinear = { (_, element) ->
+                    // Helpers can't make suggestions
+                    if (element is SyntaxElement) {
+                        if (index == preceding.size) return element
+                        if (matchElement(element) !is MatchResult.Matched) return null
+                    }
+                },
+            )
             return null
         }
 

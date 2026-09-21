@@ -1,10 +1,10 @@
 package com.zombachu.stick.element
 
-import com.zombachu.stick.Arguments0
+import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
@@ -101,16 +101,11 @@ class SignatureTest {
 
     @Test
     fun `silent mismatch fails with InvalidSyntax`() {
-        val structure =
-            StructureImpl<TestEnv, Unit, Arguments0>(
-                "sub",
-                [],
-                "",
-                Requirement { SenderValidationResult.success() },
-            ) {
-                Signature0({}, LeadingElementType.Label, [it])
-            }
-        val signature = Signature1<TestEnv, Unit, Arguments0>({}, LeadingElementType.Label, [label, structure])
+        class SilentParameter : Parameter.Size1<TestEnv, Unit, String>("", "") {
+            context(validationContext: ValidationContext<TestEnv, Unit>)
+            override fun resolve(arg0: String): CommandResult<String> = ParsingResult.failTypeInternal()
+        }
+        val signature = Signature1<TestEnv, Unit, String>({}, LeadingElementType.Label, [label, SilentParameter()])
 
         val result = withInvocation("cmd", "other") { signature.execute() }
 
@@ -154,5 +149,9 @@ class SignatureTest {
         assertEquals("<cmd> <str> [-loud] <text>", syntax)
     }
 
-    private fun loudFlag(): ValueFlagImpl<TestEnv, Unit, Boolean> = presenceValueFlag("loud", false, true)
+    private fun loudFlag(): ValueFlagImpl<TestEnv, Unit, Boolean> = presenceValueFlag(
+        "loud",
+        default = false,
+        presentValue = true
+    )
 }

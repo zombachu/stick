@@ -236,15 +236,17 @@ class SuggestionTest {
     @Test
     fun `setwarp - variable size parameter can complete early`() {
         val setWarpCommand = structure(Server::class, Sender::class) {
-            command("setwarp")(
-                flag("announce"),
-                requireIs(Player::class) { LocationParameter() },
-                optionally(
-                    ifInvalid = invalidDefault(Privacy.Private, permission("server.warp.privacy")),
-                    ifAbsent = default(Privacy.Private),
-                    parameter = enumParameter("privacy", Privacy::class),
-                ),
-            ) { _, _, _ -> }
+            requireIs(Player::class) {
+                command("setwarp")(
+                    flag("announce"),
+                    LocationParameter(),
+                    optionally(
+                        ifInvalid = invalidDefault(Privacy.Private, permission("server.warp.privacy")),
+                        ifAbsent = default(Privacy.Private),
+                        parameter = enumParameter("privacy", Privacy::class),
+                    ),
+                ) { _, _, _ -> }
+            }
         }
 
         assertEquals(["-announce", "~", "x="], setWarpCommand.suggest(server, zombachu, "/setwarp "))
