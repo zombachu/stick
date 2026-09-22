@@ -17,7 +17,7 @@ class SignatureNTest {
         val signature =
             Signature5<TestEnv, Unit, String, String, String, String, String>(
                 { a, b, c, d, e -> },
-                LeadingElementType.Label,
+                LeadingParameterRole.Label,
                 [label] + elements,
             )
 

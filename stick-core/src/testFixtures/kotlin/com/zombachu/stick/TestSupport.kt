@@ -2,7 +2,7 @@ package com.zombachu.stick
 
 import com.zombachu.stick.element.FlagParameter
 import com.zombachu.stick.element.InvalidSenderDefault
-import com.zombachu.stick.element.LeadingElementType
+import com.zombachu.stick.element.LeadingParameterRole
 import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
@@ -18,7 +18,7 @@ object TestEnv : Environment
 
 private fun <E : Environment, S> emptyStructure(): Structure<E, S, *> =
     StructureImpl("", [], "", Requirement { SenderValidationResult.success() }) {
-        Signature0({}, LeadingElementType.Label, [it])
+        Signature0({}, LeadingParameterRole.Label, [it])
     }
 
 internal fun testInvocation(

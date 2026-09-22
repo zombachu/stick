@@ -29,7 +29,7 @@ class SignatureTest {
     fun `linear elements fill values in declared order`() {
         val name = StringParameter<TestEnv, Unit>("", "")
         val signature =
-            Signature2<TestEnv, Unit, Int, String>({ a, b -> }, LeadingElementType.Label, [label, amount, name])
+            Signature2<TestEnv, Unit, Int, String>({ a, b -> }, LeadingParameterRole.Label, [label, amount, name])
 
         val args = withInvocation("cmd", "5", "bob") { signature.execute() }.expectSuccessValue()
 
@@ -41,7 +41,7 @@ class SignatureTest {
         val signature =
             Signature2<TestEnv, Unit, Int, Boolean>(
                 { a, loud -> },
-                LeadingElementType.Label,
+                LeadingParameterRole.Label,
                 [label, amount, loudFlag()],
             )
 
@@ -55,7 +55,7 @@ class SignatureTest {
         val signature =
             Signature2<TestEnv, Unit, Int, Boolean>(
                 { a, loud -> },
-                LeadingElementType.Label,
+                LeadingParameterRole.Label,
                 [label, amount, loudFlag()],
             )
 
@@ -69,7 +69,7 @@ class SignatureTest {
         val signature =
             Signature2<TestEnv, Unit, Int, Boolean>(
                 { a, loud -> },
-                LeadingElementType.Label,
+                LeadingParameterRole.Label,
                 [label, amount, loudFlag()],
             )
 
@@ -83,7 +83,7 @@ class SignatureTest {
         val base = presenceValueFlag<TestEnv, String, Boolean>("loud", false, true)
         val invalidDefault = invalidSenderDefault<TestEnv, Unit, Boolean>(true) { SenderValidationResult.failSender() }
         val gatedFlag = TransformedValueFlag(base, { _: Unit -> "x" }, invalidDefault)
-        val signature = Signature1<TestEnv, Unit, Boolean>({ loud -> }, LeadingElementType.Label, [label, gatedFlag])
+        val signature = Signature1<TestEnv, Unit, Boolean>({ loud -> }, LeadingParameterRole.Label, [label, gatedFlag])
 
         val args = withInvocation("cmd") { signature.execute() }.expectSuccessValue()
 
@@ -92,7 +92,7 @@ class SignatureTest {
 
     @Test
     fun `InvalidSizeError fails with InvalidSyntax`() {
-        val signature = Signature1<TestEnv, Unit, Int>({}, LeadingElementType.Label, [label, amount])
+        val signature = Signature1<TestEnv, Unit, Int>({}, LeadingParameterRole.Label, [label, amount])
 
         val result = withInvocation("cmd") { signature.execute() }
 
@@ -105,7 +105,7 @@ class SignatureTest {
             context(validationContext: ValidationContext<TestEnv, Unit>)
             override fun resolve(arg0: String): CommandResult<String> = ParsingResult.failTypeInternal()
         }
-        val signature = Signature1<TestEnv, Unit, String>({}, LeadingElementType.Label, [label, SilentParameter()])
+        val signature = Signature1<TestEnv, Unit, String>({}, LeadingParameterRole.Label, [label, SilentParameter()])
 
         val result = withInvocation("cmd", "other") { signature.execute() }
 
@@ -116,7 +116,7 @@ class SignatureTest {
     fun `flag parsing error propagates`() {
         val flagParameter = FlagParameter.ParameterFlagParameter("amount", amount, [])
         val flag = ValueFlagImpl("amount", { ParsingResult.success(0) }, flagParameter)
-        val signature = Signature1<TestEnv, Unit, Int>({}, LeadingElementType.Label, [label, flag])
+        val signature = Signature1<TestEnv, Unit, Int>({}, LeadingParameterRole.Label, [label, flag])
 
         val result = withInvocation("cmd", "-amount", "not-a-number") { signature.execute() }
 
@@ -126,7 +126,7 @@ class SignatureTest {
     @Test
     fun `leftover args fail with InvalidSyntax`() {
         val name = StringParameter<TestEnv, Unit>("", "")
-        val signature = Signature1<TestEnv, Unit, String>({}, LeadingElementType.Label, [label, name])
+        val signature = Signature1<TestEnv, Unit, String>({}, LeadingParameterRole.Label, [label, name])
 
         val result = withInvocation("cmd", "bob", "extra") { signature.execute() }
 
@@ -140,7 +140,7 @@ class SignatureTest {
         val signature =
             Signature3<TestEnv, Unit, String, Boolean, String>(
                 { _, _, _ -> },
-                LeadingElementType.Label,
+                LeadingParameterRole.Label,
                 [label, loudFlag(), str, text],
             )
 

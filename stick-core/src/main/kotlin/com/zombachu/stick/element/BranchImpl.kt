@@ -16,20 +16,23 @@ import com.zombachu.stick.valueOrPropagateError
 internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val signature: Signature<E, S, T_>) :
     InternalBranch<E, S, T_> {
 
-    private val leading: Parameter<E, S, *, *> = signature.leading
+    private val leadingParameter: Parameter<E, S, *, *> = signature.leadingParameter
 
-    override val name: String = leading.name
-    override val description: String = leading.description
+    override val name: String = leadingParameter.name
+    override val description: String = leadingParameter.description
     override val size: Size = Size.atLeast(1)
-    override val type: GroupableType = leading.type
+    override val type: GroupableType = leadingParameter.type
 
     // GroupImpl.matchBranches handles the rest of matching once a branch is committed
     context(validationContext: ValidationContext<E, S>)
-    override fun match(args: List<String>): MatchResult = leading.match(args)
+    override fun match(args: List<String>): MatchResult = leadingParameter.match(args)
 
     context(validationContext: ValidationContext<E, S>)
-    override fun suggestBranch(preceding: List<String>, partial: String, leadingMatch: MatchResult?): List<Suggestion> =
-        signature.suggest(preceding, partial, leadingMatch)
+    override fun suggestBranch(
+        preceding: List<String>,
+        partial: String,
+        leadingParameterMatch: MatchResult?,
+    ): List<Suggestion> = signature.suggest(preceding, partial, leadingParameterMatch)
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T_> {
@@ -49,5 +52,5 @@ internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val s
     override fun getSyntax(): String = signature.getSyntax()
 
     context(validationContext: ValidationContext<E, S>)
-    override fun getGroupedSyntax(): String = leading.getGroupedSyntax()
+    override fun getGroupedSyntax(): String = leadingParameter.getGroupedSyntax()
 }

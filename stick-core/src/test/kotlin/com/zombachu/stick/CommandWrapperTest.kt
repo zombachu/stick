@@ -1,6 +1,6 @@
 package com.zombachu.stick
 
-import com.zombachu.stick.element.LeadingElementType
+import com.zombachu.stick.element.LeadingParameterRole
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Signature
 import com.zombachu.stick.element.Signature0
@@ -17,7 +17,7 @@ class CommandWrapperTest {
 
     @Test
     fun `successful parse does not invoke failure handler`() {
-        val structure = structure("cmd") { Signature0({}, LeadingElementType.Label, [it]) }
+        val structure = structure("cmd") { Signature0({}, LeadingParameterRole.Label, [it]) }
         val handler = RecordingFailureHandler()
 
         wrapper(structure, handler).execute(Unit, ["cmd"])
@@ -27,7 +27,7 @@ class CommandWrapperTest {
 
     @Test
     fun `InternalFailure is swallowed, not reported`() {
-        val structure = structure("cmd") { Signature0({}, LeadingElementType.Label, [it]) }
+        val structure = structure("cmd") { Signature0({}, LeadingParameterRole.Label, [it]) }
         val handler = RecordingFailureHandler()
 
         wrapper(structure, handler).execute(Unit, ["other"])
@@ -39,7 +39,7 @@ class CommandWrapperTest {
     fun `missing args invokes failure handler with feedback`() {
         val parameter = StringParameter<TestEnv, Unit>("", "")
         val structure =
-            structure("cmd") { Signature1<TestEnv, Unit, String>({}, LeadingElementType.Label, [it, parameter]) }
+            structure("cmd") { Signature1<TestEnv, Unit, String>({}, LeadingParameterRole.Label, [it, parameter]) }
         val handler = RecordingFailureHandler()
 
         wrapper(structure, handler).execute(Unit, ["cmd"])

@@ -17,7 +17,7 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.Position
 import com.zombachu.stick.StructureScope
-import com.zombachu.stick.element.LeadingElementType
+import com.zombachu.stick.element.LeadingParameterRole
 import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Signature1
 import com.zombachu.stick.element.Signature10
@@ -36,19 +36,20 @@ import com.zombachu.stick.element.Structure
 
 operator fun <E_ : Environment, S> StructureScope<E_, S>.invoke(
     execute: Invocation<E_, S>.() -> Unit = {}
-): Structure<E_, S, Arguments0> = this@invoke.build { Signature0(execute, LeadingElementType.Label, [it]) }
+): Structure<E_, S, Arguments0> = this@invoke.build { Signature0(execute, LeadingParameterRole.Label, [it]) }
 
 operator fun <E_ : Environment, S, A> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Last>,
     execute: Invocation<E_, S>.(A) -> Unit = { a -> },
-): Structure<E_, S, Arguments1<A>> = this@invoke.build { Signature1(execute, LeadingElementType.Label, [it, elementA]) }
+): Structure<E_, S, Arguments1<A>> =
+    this@invoke.build { Signature1(execute, LeadingParameterRole.Label, [it, elementA]) }
 
 operator fun <E_ : Environment, S, A, B> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Leading>,
     elementB: SignatureElement<E_, S, B, Position.Last>,
     execute: Invocation<E_, S>.(A, B) -> Unit = { a, b -> },
 ): Structure<E_, S, Arguments2<A, B>> =
-    this@invoke.build { Signature2(execute, LeadingElementType.Label, [it, elementA, elementB]) }
+    this@invoke.build { Signature2(execute, LeadingParameterRole.Label, [it, elementA, elementB]) }
 
 operator fun <E_ : Environment, S, A, B, C> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Leading>,
@@ -56,7 +57,7 @@ operator fun <E_ : Environment, S, A, B, C> StructureScope<E_, S>.invoke(
     elementC: SignatureElement<E_, S, C, Position.Last>,
     execute: Invocation<E_, S>.(A, B, C) -> Unit = { a, b, c -> },
 ): Structure<E_, S, Arguments3<A, B, C>> =
-    this@invoke.build { Signature3(execute, LeadingElementType.Label, [it, elementA, elementB, elementC]) }
+    this@invoke.build { Signature3(execute, LeadingParameterRole.Label, [it, elementA, elementB, elementC]) }
 
 operator fun <E_ : Environment, S, A, B, C, D> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Leading>,
@@ -65,7 +66,7 @@ operator fun <E_ : Environment, S, A, B, C, D> StructureScope<E_, S>.invoke(
     elementD: SignatureElement<E_, S, D, Position.Last>,
     execute: Invocation<E_, S>.(A, B, C, D) -> Unit = { a, b, c, d -> },
 ): Structure<E_, S, Arguments4<A, B, C, D>> =
-    this@invoke.build { Signature4(execute, LeadingElementType.Label, [it, elementA, elementB, elementC, elementD]) }
+    this@invoke.build { Signature4(execute, LeadingParameterRole.Label, [it, elementA, elementB, elementC, elementD]) }
 
 operator fun <E_ : Environment, S, A, B, C, D, E> StructureScope<E_, S>.invoke(
     elementA: SignatureElement<E_, S, A, Position.Leading>,
@@ -76,7 +77,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E> StructureScope<E_, S>.invoke(
     execute: Invocation<E_, S>.(A, B, C, D, E) -> Unit = { a, b, c, d, e -> },
 ): Structure<E_, S, Arguments5<A, B, C, D, E>> =
     this@invoke.build {
-        Signature5(execute, LeadingElementType.Label, [it, elementA, elementB, elementC, elementD, elementE])
+        Signature5(execute, LeadingParameterRole.Label, [it, elementA, elementB, elementC, elementD, elementE])
     }
 
 operator fun <E_ : Environment, S, A, B, C, D, E, F> StructureScope<E_, S>.invoke(
@@ -89,7 +90,11 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F> StructureScope<E_, S>.invok
     execute: Invocation<E_, S>.(A, B, C, D, E, F) -> Unit = { a, b, c, d, e, f -> },
 ): Structure<E_, S, Arguments6<A, B, C, D, E, F>> =
     this@invoke.build {
-        Signature6(execute, LeadingElementType.Label, [it, elementA, elementB, elementC, elementD, elementE, elementF])
+        Signature6(
+            execute,
+            LeadingParameterRole.Label,
+            [it, elementA, elementB, elementC, elementD, elementE, elementF],
+        )
     }
 
 operator fun <E_ : Environment, S, A, B, C, D, E, F, G> StructureScope<E_, S>.invoke(
@@ -105,7 +110,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G> StructureScope<E_, S>.in
     this@invoke.build {
         Signature7(
             execute,
-            LeadingElementType.Label,
+            LeadingParameterRole.Label,
             [it, elementA, elementB, elementC, elementD, elementE, elementF, elementG],
         )
     }
@@ -124,7 +129,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H> StructureScope<E_, S>
     this@invoke.build {
         Signature8(
             execute,
-            LeadingElementType.Label,
+            LeadingParameterRole.Label,
             [it, elementA, elementB, elementC, elementD, elementE, elementF, elementG, elementH],
         )
     }
@@ -144,7 +149,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I> StructureScope<E_,
     this@invoke.build {
         Signature9(
             execute,
-            LeadingElementType.Label,
+            LeadingParameterRole.Label,
             [it, elementA, elementB, elementC, elementD, elementE, elementF, elementG, elementH, elementI],
         )
     }
@@ -165,7 +170,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J> StructureScope<
     this@invoke.build {
         Signature10(
             execute,
-            LeadingElementType.Label,
+            LeadingParameterRole.Label,
             [it, elementA, elementB, elementC, elementD, elementE, elementF, elementG, elementH, elementI, elementJ],
         )
     }
@@ -187,7 +192,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K> StructureSco
     this@invoke.build {
         Signature11(
             execute,
-            LeadingElementType.Label,
+            LeadingParameterRole.Label,
             [
                 it,
                 elementA,
@@ -223,7 +228,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K, L> Structure
     this@invoke.build {
         Signature12(
             execute,
-            LeadingElementType.Label,
+            LeadingParameterRole.Label,
             [
                 it,
                 elementA,

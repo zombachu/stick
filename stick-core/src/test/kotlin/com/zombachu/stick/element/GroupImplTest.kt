@@ -149,7 +149,7 @@ class GroupImplTest {
                 "",
                 Requirement { SenderValidationResult.success() },
             ) {
-                Signature1({ _ -> }, LeadingElementType.Label, [it, LiteralParameter("sun", [], "")])
+                Signature1({ _ -> }, LeadingParameterRole.Label, [it, LiteralParameter("sun", [], "")])
             }
         val neverTried = StringParameter<TestEnv, Unit>("ok", "")
         val group = group2(committing, neverTried)
@@ -185,7 +185,7 @@ class GroupImplTest {
     fun `matched branch claims remaining args`() {
         val structure =
             StructureImpl("cmd", [], "", Requirement<TestEnv, Unit> { SenderValidationResult.success() }) {
-                Signature0({}, LeadingElementType.Label, [it])
+                Signature0({}, LeadingParameterRole.Label, [it])
             }
         val group = group1(structure)
 

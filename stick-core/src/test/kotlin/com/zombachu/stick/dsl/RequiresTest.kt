@@ -3,7 +3,7 @@ package com.zombachu.stick.dsl
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.element.LeadingElementType
+import com.zombachu.stick.element.LeadingParameterRole
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Signature1
 import com.zombachu.stick.element.parse
@@ -54,7 +54,7 @@ class RequiresTest {
     fun `requireIs on ValueFlag falls back to invalidDefault`() = structureTest<BaseSender> {
         val gatedFlag = requireIs(Player::class, invalidDefault(999)) { valueFlag("n", 0, intParameter("n")) }
         val signature =
-            Signature1<TestEnv, BaseSender, Int>({}, LeadingElementType.Label, [literalParameter("cmd"), gatedFlag])
+            Signature1<TestEnv, BaseSender, Int>({}, LeadingParameterRole.Label, [literalParameter("cmd"), gatedFlag])
 
         val player: BaseSender = Player("steve")
         val console = BaseSender("console")

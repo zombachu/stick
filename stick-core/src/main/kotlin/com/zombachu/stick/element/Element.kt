@@ -90,7 +90,7 @@ sealed interface Branch<in E : Environment, S, T_ : Arguments> : Groupable<E, S,
 internal interface InternalBranch<in E : Environment, S, T_ : Arguments> : Branch<E, S, T_>, InternalElement<E, S, T_> {
 
     context(validationContext: ValidationContext<E, S>)
-    fun suggestBranch(preceding: List<String>, partial: String, leadingMatch: MatchResult?): List<Suggestion>
+    fun suggestBranch(preceding: List<String>, partial: String, leadingParameterMatch: MatchResult?): List<Suggestion>
 
     context(validationContext: ValidationContext<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =

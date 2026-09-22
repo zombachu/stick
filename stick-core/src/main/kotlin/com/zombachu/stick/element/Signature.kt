@@ -17,14 +17,15 @@ import com.zombachu.stick.propagateError
 import com.zombachu.stick.valueOrPropagateError
 
 internal sealed class Signature<E : Environment, S, T_ : Arguments>(
-    leadingElementType: LeadingElementType,
+    leadingParameterRole: LeadingParameterRole,
     elements: List<SignatureElement<E, S, Any?, *>>,
 ) {
 
-    @Suppress("UNCHECKED_CAST") internal val leading: Parameter<E, S, *, *> = elements.first() as Parameter<E, S, *, *>
+    @Suppress("UNCHECKED_CAST")
+    internal val leadingParameter: Parameter<E, S, *, *> = elements.first() as Parameter<E, S, *, *>
 
     // Parsed label value isn't passed to signature arguments
-    private val slotOffset: Int = if (leadingElementType == LeadingElementType.Label) 1 else 0
+    private val slotOffset: Int = if (leadingParameterRole == LeadingParameterRole.Label) 1 else 0
 
     private val flags: List<IndexedElement<E, S, Flag<E, S, Any?>>>
     private val linearElements: List<IndexedElement<E, S, Element<E, S, Any?>>>
@@ -78,8 +79,8 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
     }
 
     context(validationContext: ValidationContext<E, S>)
-    fun suggest(preceding: List<String>, partial: String, leadingMatch: MatchResult?): List<Suggestion> {
-        return SuggestionProcessor(preceding, leadingMatch).process().flatMap { candidate ->
+    fun suggest(preceding: List<String>, partial: String, leadingParameterMatch: MatchResult?): List<Suggestion> {
+        return SuggestionProcessor(preceding, leadingParameterMatch).process().flatMap { candidate ->
             val element = candidate.element
             val window = preceding.subList(candidate.startIndex, preceding.size)
             if (element is GroupImpl<E, S, *, *>) {
@@ -158,7 +159,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         processLinear: (IndexedElement<E, S, Element<E, S, Any?>>) -> Unit,
     ) {
         for ((index, linear) in linearElements.withIndex()) {
-            // Flags may appear anywhere except before the leading element
+            // Flags may appear anywhere except before the leading parameter
             if (index > 0) {
                 processFlags(unprocessedFlags, processFlag)
             }
@@ -190,7 +191,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
 
     private inner class SuggestionProcessor(
         private val preceding: List<String>,
-        private var leadingMatch: MatchResult?,
+        private var leadingParameterMatch: MatchResult?,
     ) {
         private val unprocessedFlags: MutableList<IndexedElement<E, S, Flag<E, S, Any?>>> = flags.toMutableList()
         private var index: Int = 0
@@ -200,8 +201,8 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         private fun matchElement(element: SyntaxElement<E, S, *>): MatchResult {
             val window = preceding.subList(index, preceding.size)
             val groupMatch = if (element is GroupImpl<E, S, *, *>) element.matchBranches(window) else null
-            val match = groupMatch?.result ?: leadingMatch ?: element.match(window)
-            leadingMatch = null
+            val match = groupMatch?.result ?: leadingParameterMatch ?: element.match(window)
+            leadingParameterMatch = null
             if (match is MatchResult.Matched) {
                 openCandidate = if (match.canConsumeMore) Candidate(element, index, groupMatch) else null
                 index += match.consumed
@@ -243,7 +244,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
             if (index != preceding.size) return []
             return buildList {
                 openCandidate?.let { add(it) }
-                // Avoid suggesting branch flags before the branch's leading element
+                // Avoid suggesting branch flags before the branch's leading parameter
                 if (index > 0) {
                     for ((_, flag) in unprocessedFlags) {
                         flag.validateSender().propagateError { continue }
@@ -262,7 +263,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
     }
 }
 
-internal enum class LeadingElementType {
+internal enum class LeadingParameterRole {
     /** Used by structures. */
     Label,
     /** Used by non-structure branches. */
