@@ -1,7 +1,5 @@
 package com.zombachu.stick
 
-import com.zombachu.stick.ConsumingResult
-import com.zombachu.stick.consuming
 import com.zombachu.stick.feedback.Feedback
 import kotlin.test.Test
 import kotlin.test.assertEquals

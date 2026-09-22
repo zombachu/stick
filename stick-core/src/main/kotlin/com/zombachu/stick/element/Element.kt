@@ -16,10 +16,19 @@ import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 
-sealed interface Element<in E : Environment, S, out T> {
+sealed interface Element<in E : Environment, S, out T>
+
+internal sealed interface InternalElement<in E : Environment, S, out T> : Element<E, S, T> {
     context(inv: Invocation<E, S>)
     fun parse(args: List<String>): CommandResult<T>
 }
+
+context(inv: Invocation<E, S>)
+internal fun <E : Environment, S, T> Element<E, S, T>.parse(args: List<String>): CommandResult<T> =
+    when (this) {
+        is Parameter<E, S, out T, *> -> parse(args)
+        is InternalElement -> parse(args)
+    }
 
 sealed interface SignatureElement<in E : Environment, S, out T, out P : Position> : Element<E, S, T>
 
@@ -38,10 +47,20 @@ sealed interface SyntaxElement<in E : Environment, S, out T> : Element<E, S, T> 
     fun getSyntax(): String
 }
 
-sealed interface ConsumingElement<in E : Environment, S, out T> : SyntaxElement<E, S, T> {
+sealed interface ConsumingElement<in E : Environment, S, out T> : SyntaxElement<E, S, T>
+
+internal sealed interface InternalConsumingElement<in E : Environment, S, out T> :
+    InternalElement<E, S, T>, ConsumingElement<E, S, T> {
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T>
 }
+
+context(inv: Invocation<E, S>)
+internal fun <E : Environment, S, T> ConsumingElement<E, S, T>.parse(args: List<String>): ConsumingResult<T> =
+    when (this) {
+        is Parameter<E, S, out T, *> -> parse(args)
+        is InternalConsumingElement -> parse(args)
+    }
 
 sealed interface Groupable<in E : Environment, S, T, out P : Position> : SyntaxElement<E, S, T> {
     val type: GroupableType
@@ -68,7 +87,7 @@ sealed interface Structure<in E : Environment, S, T_ : Arguments> : Branch<E, S,
 
 sealed interface Branch<in E : Environment, S, T_ : Arguments> : Groupable<E, S, T_, Position.Last>
 
-internal interface InternalBranch<in E : Environment, S, T_ : Arguments> : Branch<E, S, T_> {
+internal interface InternalBranch<in E : Environment, S, T_ : Arguments> : Branch<E, S, T_>, InternalElement<E, S, T_> {
 
     context(validationContext: ValidationContext<E, S>)
     fun suggestBranch(preceding: List<String>, partial: String, leadingMatch: MatchResult?): List<Suggestion>

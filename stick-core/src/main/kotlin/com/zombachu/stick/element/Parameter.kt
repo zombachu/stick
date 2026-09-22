@@ -23,6 +23,10 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
 
     override val type: GroupableType = GroupableType.Default
 
+    // Declared here instead of implementing InternalConsumingElement or else it would expose parse() to subclasses
+    context(inv: Invocation<E, S>)
+    internal abstract fun parse(args: List<String>): ConsumingResult<T>
+
     context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String = "<${name}>"
 

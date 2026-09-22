@@ -1,9 +1,7 @@
 package com.zombachu.stick
 
-interface ValidationContext<out E : Environment, S> : SenderContext<S> {
+sealed interface ValidationContext<out E : Environment, S> : SenderContext<S> {
     val env: E
-
-    fun <S2 : Any> forSender(transform: (S) -> S2): ValidationContext<E, S2>
 
     companion object {
         operator fun <E : Environment, S> invoke(env: E, sender: S): ValidationContext<E, S> {

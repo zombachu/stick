@@ -2,7 +2,7 @@ package com.zombachu.stick
 
 import com.zombachu.stick.element.Structure
 
-interface Invocation<out E : Environment, S> : ValidationContext<E, S> {
+sealed interface Invocation<out E : Environment, S> : ValidationContext<E, S> {
     val label: String
     val args: List<String>
 

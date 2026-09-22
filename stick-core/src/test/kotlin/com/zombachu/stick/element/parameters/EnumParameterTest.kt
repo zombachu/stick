@@ -4,8 +4,8 @@ import com.zombachu.stick.MatchResult
 import com.zombachu.stick.SimpleSuggestion
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.expectFailure
-import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.expectSuccessValue
+import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withValidationContext

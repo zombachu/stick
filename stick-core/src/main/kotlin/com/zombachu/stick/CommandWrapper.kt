@@ -1,6 +1,7 @@
 package com.zombachu.stick
 
 import com.zombachu.stick.element.Structure
+import com.zombachu.stick.element.parse
 import com.zombachu.stick.feedback.FailureHandler
 
 interface CommandWrapper<E : Environment, S> {

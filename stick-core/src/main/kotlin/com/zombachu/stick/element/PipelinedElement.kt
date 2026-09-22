@@ -40,7 +40,7 @@ internal class PipelinedParameter<E : Environment, S, A, T, P : Position>(
 internal class PipelinedValueFlag<E : Environment, S, A, T>(
     private val base: ValueFlag<E, S, A>,
     private val operations: List<PipelineOperation<E, S, *, *>>,
-) : ValueFlag<E, S, T> {
+) : ValueFlag<E, S, T>, InternalConsumingElement<E, S, T> {
 
     override val size: Size.Bounded = base.size
     override val name: String = base.name
@@ -83,7 +83,7 @@ internal class PipelinedValueFlag<E : Environment, S, A, T>(
 internal class PipelinedOptionalParameter<E : Environment, S, A, T, P : Position>(
     private val base: OptionalParameter<E, S, A, P>,
     private val operations: List<PipelineOperation<E, S, *, *>>,
-) : OptionalParameter<E, S, T, P> {
+) : OptionalParameter<E, S, T, P>, InternalConsumingElement<E, S, T> {
 
     override val size: Size = base.size
     override val name: String = base.name

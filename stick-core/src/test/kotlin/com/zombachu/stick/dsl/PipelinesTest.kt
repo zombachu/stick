@@ -1,6 +1,7 @@
 package com.zombachu.stick.dsl
 
 import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.element.parse
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.structureTest
 import com.zombachu.stick.withInvocation

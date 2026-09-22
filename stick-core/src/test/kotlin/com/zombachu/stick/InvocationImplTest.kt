@@ -1,7 +1,5 @@
 package com.zombachu.stick
 
-import com.zombachu.stick.ConsumingResult
-import com.zombachu.stick.consuming
 import com.zombachu.stick.dsl.id
 import com.zombachu.stick.element.Group1Impl
 import com.zombachu.stick.element.OptionalParameterImpl

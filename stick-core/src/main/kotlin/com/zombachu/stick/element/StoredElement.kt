@@ -14,7 +14,7 @@ import com.zombachu.stick.valueOrPropagateError
 internal class StoredHelper<E : Environment, S, T>(
     private val base: Helper<E, S, T>,
     private val id: TypedIdentifier<T>,
-) : Helper<E, S, T> by base {
+) : Helper<E, S, T> by base, InternalElement<E, S, T> {
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = base.parse(args).storedAs(id)
@@ -38,7 +38,7 @@ internal class StoredParameter<E : Environment, S, T, P : Position>(
 internal class StoredOptionalParameter<E : Environment, S, T, P : Position>(
     private val base: OptionalParameter<E, S, T, P>,
     private val id: TypedIdentifier<T>,
-) : OptionalParameter<E, S, T, P> by base {
+) : OptionalParameter<E, S, T, P> by base, InternalConsumingElement<E, S, T> {
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = base.parse(args).storedAs(id)

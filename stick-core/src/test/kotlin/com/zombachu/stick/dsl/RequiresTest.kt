@@ -6,6 +6,7 @@ import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.LeadingElementType
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Signature1
+import com.zombachu.stick.element.parse
 import com.zombachu.stick.element.validateSender
 import com.zombachu.stick.expectFailure
 import com.zombachu.stick.expectSuccessValue

@@ -3,6 +3,7 @@ package com.zombachu.stick.dsl
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.element.parameters.TextParameter
+import com.zombachu.stick.element.parse
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.structureTest
 import com.zombachu.stick.withInvocation

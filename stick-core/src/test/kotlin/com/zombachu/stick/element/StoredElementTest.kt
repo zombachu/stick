@@ -1,7 +1,6 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
-import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TestEnv

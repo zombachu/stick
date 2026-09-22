@@ -17,7 +17,7 @@ internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Posit
     val requirementDefault: InvalidSenderDefault<E, S, G>,
     val presenceDefault: ValidSenderDefault<E, S, G>,
     val group: Group<E, S, out G, *>,
-) : OptionalGroup<E, S, G, P> {
+) : OptionalGroup<E, S, G, P>, InternalElement<E, S, G> {
 
     override val size: Size = group.size.orNothing()
     override val name: String = group.name

@@ -17,7 +17,7 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
     val requirementDefault: InvalidSenderDefault<E, S, T>,
     val presenceDefault: ValidSenderDefault<E, S, T>,
     val parameter: Parameter<E, S, out T, *>,
-) : OptionalParameter<E, S, T, P> {
+) : OptionalParameter<E, S, T, P>, InternalConsumingElement<E, S, T> {
 
     override val size: Size = parameter.size.orNothing()
     override val name: String = parameter.name

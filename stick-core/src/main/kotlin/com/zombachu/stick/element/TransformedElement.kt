@@ -16,6 +16,7 @@ import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.forSender
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 
@@ -23,7 +24,7 @@ internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T, P : P
     val base: Parameter<E, S2, T, P>,
     val transform: (S) -> S2,
     val requirement: Requirement<E, S>,
-) : ValidatedParameter<E, S, T, P>, SenderValidator<E, S> {
+) : ValidatedParameter<E, S, T, P>, InternalConsumingElement<E, S, T>, SenderValidator<E, S> {
 
     override val size: Size = base.size
     override val type: GroupableType = base.type
@@ -70,7 +71,7 @@ internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
     private val base: ValueFlag<E, S2, T>,
     private val transform: (S) -> S2,
     private val invalidSenderDefault: InvalidSenderDefault<E, S, T>,
-) : ValueFlag<E, S, T> {
+) : ValueFlag<E, S, T>, InternalConsumingElement<E, S, T> {
 
     override val default: ContextualValue<E, S, T> = {
         if (validateSender().isSuccess()) {
@@ -125,7 +126,7 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
     private val base: HybridFlag<E, S2, T>,
     private val transform: (S) -> S2,
     private val invalidSenderDefault: InvalidSenderDefault<E, S, HybridFlagResult<T>>,
-) : HybridFlag<E, S, T> {
+) : HybridFlag<E, S, T>, InternalConsumingElement<E, S, HybridFlagResult<T>> {
 
     override val size: Size.Bounded = base.size
     override val name: String = base.name

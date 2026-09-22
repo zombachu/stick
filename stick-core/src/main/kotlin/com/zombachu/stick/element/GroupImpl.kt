@@ -40,7 +40,7 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
     override val name: String,
     override val description: String,
     private val elements: List<GroupElement<E, S, *, G>>,
-) : Group<E, S, G, P> {
+) : Group<E, S, G, P>, InternalElement<E, S, G> {
 
     private val prioritizedElements: List<GroupElement<E, S, *, G>> =
         elements.sortedWith(

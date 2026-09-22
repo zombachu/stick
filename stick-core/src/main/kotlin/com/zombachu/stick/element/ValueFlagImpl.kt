@@ -23,7 +23,7 @@ internal open class ValueFlagImpl<E : Environment, S, T>(
     override val name: String,
     override val default: ContextualValue<E, S, T>,
     private val flagParameter: FlagParameter<E, S, T>,
-) : ValueFlag<E, S, T> {
+) : ValueFlag<E, S, T>, InternalConsumingElement<E, S, T> {
 
     override val size: Size.Bounded = flagParameter.size
     override val description: String = flagParameter.description

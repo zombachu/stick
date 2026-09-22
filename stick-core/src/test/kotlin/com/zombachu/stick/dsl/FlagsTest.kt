@@ -4,6 +4,7 @@ import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.IntParameter
+import com.zombachu.stick.element.parse
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.structureTest
 import com.zombachu.stick.testInvocation

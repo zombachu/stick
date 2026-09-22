@@ -8,6 +8,7 @@ import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
 import com.zombachu.stick.element.SyntaxElement
+import com.zombachu.stick.element.parse
 
 internal open class InvocationImpl<E : Environment, S>(
     override val sender: S,
@@ -65,7 +66,7 @@ internal open class InvocationImpl<E : Environment, S>(
         return "/${segments.joinToString(" ")}"
     }
 
-    override fun <S2 : Any> forSender(transform: (S) -> S2): InvocationImpl<E, S2> {
+    fun <S2 : Any> forSender(transform: (S) -> S2): InvocationImpl<E, S2> {
         return TransformedInvocationImpl(this, transform)
     }
 

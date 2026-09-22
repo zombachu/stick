@@ -22,7 +22,7 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
     override val name: String,
     private val parameter: Parameter.Bounded<E, S, T>,
     aliases: Set<String>,
-) : HybridFlag<E, S, T>, Aliasable {
+) : HybridFlag<E, S, T>, InternalConsumingElement<E, S, HybridFlagResult<T>>, Aliasable {
 
     override val size: Size.Bounded = Size.between(1, 1 + parameter.size.max)
     override val description: String = parameter.description
