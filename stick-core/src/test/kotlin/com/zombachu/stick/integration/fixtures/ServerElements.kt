@@ -38,7 +38,7 @@ class CustomError(message: String) : ParsingResult.CustomError<CustomFeedback> {
 
 fun <E : Environment, S : Sender> StructureScope<E, S>.permission(
     node: String,
-): Requirement<E, S> = requirement(SenderValidationResult::failPermission) { it.sender.hasPermission(node) }
+): Requirement<E, S> = requirement(SenderValidationResult::failPermission) { sender.hasPermission(node) }
 
 fun <E : Environment, S : Sender, T> StructureScope<E, S>.permissionedValue(
     node: String,
@@ -117,7 +117,7 @@ fun <E : Environment, T_ : Arguments> StructureScope<E, Sender>.requireSocialDat
 ): Structure<E, Sender, T_> =
     requireAs(
         { (it as Player).socialData },
-        requirement { it.sender is Player },
+        requirement { sender is Player },
         command,
     )
 
@@ -127,7 +127,7 @@ fun <E : Environment, T, P : Position> StructureScope<E, Sender>.requireSocialDa
 ): ValidatedParameter<E, Sender, T, P> =
     requireAs(
         { (it as Player).socialData },
-        requirement { it.sender is Player },
+        requirement { sender is Player },
         parameter
     )
 

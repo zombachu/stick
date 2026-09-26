@@ -74,7 +74,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> Structure
 ): ValidatedParameter<E, S, T, P> =
     requireAs(
         { it as S2 },
-        requirement + requirement({ SenderValidationResult.failSenderType() }) { it.sender is S2 },
+        requirement + requirement({ SenderValidationResult.failSenderType() }) { sender is S2 },
         parameter,
     )
 
@@ -90,7 +90,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
         invalidDefault(
             invalidSenderDefault.value,
             requirement(invalidSenderDefault) +
-                requirement({ SenderValidationResult.failSenderType() }) { it.sender is S2 },
+                requirement({ SenderValidationResult.failSenderType() }) { sender is S2 },
         ),
         flag,
     )
@@ -107,7 +107,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
         invalidDefault(
             invalidSenderDefault.value,
             requirement(invalidSenderDefault) +
-                requirement({ SenderValidationResult.failSenderType() }) { it.sender is S2 },
+                requirement({ SenderValidationResult.failSenderType() }) { sender is S2 },
         ),
         flag,
     )
@@ -121,7 +121,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureS
 ): Structure<E, S, T_> =
     requireAs(
         { it as S2 },
-        requirement + requirement({ SenderValidationResult.failSenderType() }) { it.sender is S2 },
+        requirement + requirement({ SenderValidationResult.failSenderType() }) { sender is S2 },
         command,
     )
 
@@ -135,7 +135,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureS
 ): Branch<E, S, T_> =
     branchRequireAs(
         { it as S2 },
-        requirement + requirement({ SenderValidationResult.failSenderType() }) { it.sender is S2 },
+        requirement + requirement({ SenderValidationResult.failSenderType() }) { sender is S2 },
         branch,
     )
 

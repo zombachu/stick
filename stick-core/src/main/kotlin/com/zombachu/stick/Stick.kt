@@ -32,7 +32,7 @@ abstract class Stick<E : Environment, S : Any>(
         env: E2,
         failureHandler: FailureHandler<E2, S2>,
         transform: (S) -> S2,
-        validate: (validationContext: ValidationContext<E2, S>) -> CommandResult<Unit>,
+        validate: ValidationContext<E2, S>.() -> CommandResult<Unit>,
         block: context(E2, FailureHandler<E2, S2>) StickScope<E2, S2>.() -> Unit,
     ) {
         val transformedStick: TransformedStick<E, E2, S, S2> = TransformedStick(this, transform, Requirement(validate))
@@ -44,14 +44,14 @@ abstract class Stick<E : Environment, S : Any>(
         failureHandler: FailureHandler<E2, S2>,
         transform: (S) -> S2,
         failureResult: CommandResult<Unit>,
-        validate: (validationContext: ValidationContext<E2, S>) -> Boolean,
+        validate: ValidationContext<E2, S>.() -> Boolean,
         block: context(E2, FailureHandler<E2, S2>) StickScope<E2, S2>.() -> Unit,
     ) {
         withContext(
             env,
             failureHandler,
             transform,
-            { if (validate(it)) SenderValidationResult.success() else failureResult },
+            { if (validate()) SenderValidationResult.success() else failureResult },
             block,
         )
     }
@@ -71,7 +71,7 @@ abstract class Stick<E : Environment, S : Any>(
                 with(emptyContext) {
                     requireAs(
                         castSender,
-                        requirement({ SenderValidationResult.failSenderType() }) { isSenderRequiredType(it.sender) },
+                        requirement({ SenderValidationResult.failSenderType() }) { isSenderRequiredType(sender) },
                     ) {
                         command.structure
                     }

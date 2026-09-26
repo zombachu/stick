@@ -151,7 +151,7 @@ class SenderRequirementTest {
                     literalParameter("me"),
                     requireAs<Server, Sender, SocialData, Arguments1<String>>(
                         { (it as Player).socialData },
-                        requirement { it.sender is Player },
+                        requirement { sender is Player },
                     ) {
                         command("player")(
                             realNameParameter("nickname")
@@ -181,7 +181,7 @@ class SenderRequirementTest {
                     literalParameter("me"),
                     branchRequireAs(
                         { (it as Player).socialData },
-                        requirement { it.sender is Player },
+                        requirement { sender is Player },
                     ) {
                         branch(realNameParameter("nickname"))() { realName ->
                             sender.player.log("That player's real name is: $realName")
@@ -207,7 +207,7 @@ class SenderRequirementTest {
             command("realname")(
                 requireAs(
                     { (it as Player).socialData },
-                    invalidDefault("   ", requirement { it.sender is Player }),
+                    invalidDefault("   ", requirement { sender is Player }),
                 ) {
                     nullableValueFlag(name = "nickname", parameter = realNameParameter("name"))
                 }
@@ -239,7 +239,7 @@ class SenderRequirementTest {
             command("realname")(
                 requireAs<Server, Sender, SocialData, String>(
                     { (it as Player).socialData },
-                    invalidDefault(HybridFlagResult.Absent(), requirement { it.sender is Player }),
+                    invalidDefault(HybridFlagResult.Absent(), requirement { sender is Player }),
                 ) {
                     hybridFlag("nickname", realNameParameter("name"))
                 }

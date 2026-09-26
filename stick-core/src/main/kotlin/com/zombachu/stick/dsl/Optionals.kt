@@ -55,7 +55,7 @@ fun <E : Environment, S, T> StructureScope<E, S>.invalidDefault(
     ValidatedDefaultImpl({ ParsingResult.success(value) }) { requirement.validateSender() }
 
 inline fun <E : Environment, S : Any, reified S2 : S> StructureScope<E, S>.defaultSender():
-    ValidSenderDefault<E, S, S2> = default({ ParsingResult.success(sender as S2) }, requirement { it.sender is S2 })
+    ValidSenderDefault<E, S, S2> = default({ ParsingResult.success(sender as S2) }, requirement { sender is S2 })
 
 fun <E : Environment, S, T> StructureScope<E, S>.optionally(
     ifInvalid: InvalidSenderDefault<E, S, T>,

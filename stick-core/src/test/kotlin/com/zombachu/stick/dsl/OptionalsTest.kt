@@ -64,7 +64,7 @@ class OptionalsTest {
 
     @Test
     fun `optionally resolves defaults by sender validity`() = structureTest<String> {
-        val invalidDefault = invalidDefault(-1, requirement { it.sender == "correct" })
+        val invalidDefault = invalidDefault(-1, requirement { sender == "correct" })
         val optional = optionally(invalidDefault, default(0), intParameter)
 
         assertEquals(0, withInvocationSender("correct") { optional.parse([]) }.expectSuccessValue())
@@ -84,7 +84,7 @@ class OptionalsTest {
 
     @Test
     fun `optionallyNullable gates the parameter from its requirement`() = structureTest<String> {
-        val optional = optionallyNullable(intParameter, requirement { it.sender == "correct" })
+        val optional = optionallyNullable(intParameter, requirement { sender == "correct" })
 
         assertNull(withInvocationSender("correct") { optional.parse([]) }.expectSuccessValue())
         assertEquals(1, withInvocationSender("correct") { optional.parse(["1"]) }.expectSuccessValue())
