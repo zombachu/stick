@@ -3,7 +3,6 @@ package com.zombachu.stick.dsl
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.FlagParameter
@@ -14,6 +13,7 @@ import com.zombachu.stick.element.ValueFlag
 import com.zombachu.stick.element.ValueFlagImpl
 import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.lowercase
+import com.zombachu.stick.success
 
 fun <E : Environment, S> StructureScope<E, S>.flag(
     name: String,
@@ -22,8 +22,8 @@ fun <E : Environment, S> StructureScope<E, S>.flag(
 ): ValueFlag<E, S, Boolean> =
     ValueFlagImpl(
         name,
-        { ParsingResult.success(false) },
-        FlagParameter.PresenceFlagParameter(name, { ParsingResult.success(true) }, aliases.lowercase(), description),
+        { success(false) },
+        FlagParameter.PresenceFlagParameter(name, { success(true) }, aliases.lowercase(), description),
     )
 
 fun <E : Environment, S, T> StructureScope<E, S>.flag(
@@ -52,7 +52,7 @@ fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     default: T,
     parameter: Parameter.Bounded<E, S, T>,
     aliases: Set<String> = [],
-): ValueFlag<E, S, T> = valueFlag(name, { ParsingResult.success(default) }, parameter, aliases.lowercase())
+): ValueFlag<E, S, T> = valueFlag(name, { success(default) }, parameter, aliases.lowercase())
 
 fun <E : Environment, S, T> StructureScope<E, S>.nullableValueFlag(
     name: String,
@@ -62,7 +62,7 @@ fun <E : Environment, S, T> StructureScope<E, S>.nullableValueFlag(
     @Suppress("UNCHECKED_CAST")
     ValueFlagImpl(
         name,
-        { ParsingResult.success(null) },
+        { success(null) },
         FlagParameter.ParameterFlagParameter(name, parameter, aliases.lowercase())
             as FlagParameter.ParameterFlagParameter<E, S, T?>,
     )
@@ -75,7 +75,7 @@ fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.enumFlag(
 fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.enumFlag(
     default: T,
     from: EnumParameter<E, S, T>,
-): ValueFlag<E, S, T> = enumFlag({ ParsingResult.success(default) }, from)
+): ValueFlag<E, S, T> = enumFlag({ success(default) }, from)
 
 fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.nullableEnumFlag(
     from: EnumParameter<E, S, T>
@@ -83,7 +83,7 @@ fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.nullableEnumFlag(
     @Suppress("UNCHECKED_CAST")
     ValueFlagImpl(
         from.name,
-        { ParsingResult.success(null) },
+        { success(null) },
         FlagParameter.EnumFlagParameter(from) as FlagParameter<E, S, T?>,
     )
 

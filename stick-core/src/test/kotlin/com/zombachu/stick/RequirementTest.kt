@@ -1,6 +1,6 @@
 package com.zombachu.stick
 
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.Reason
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -12,16 +12,16 @@ class RequirementTest {
 
     @Test
     fun `success passes through`() {
-        val requirement = Requirement<TestEnv, Unit> { SenderValidationResult.success() }
+        val requirement = Requirement<TestEnv, Unit> { success() }
         val result = withValidationContext { requirement.validateSender() }
         assertTrue(result.isSuccess())
     }
 
     @Test
     fun `failure passes through`() {
-        val requirement = Requirement<TestEnv, Unit> { SenderValidationResult.failSender() }
+        val requirement = Requirement<TestEnv, Unit> { failSender() }
         val result = withValidationContext { requirement.validateSender() }
-        assertSame(Feedback.InvalidSender, result.expectFailure().feedback)
+        assertSame(Reason.InvalidSender, result.expectReason())
     }
 
     @Test
@@ -30,12 +30,12 @@ class RequirementTest {
         val a =
             Requirement<TestEnv, Unit> {
                 callOrder += "a"
-                SenderValidationResult.success()
+                success()
             }
         val b =
             Requirement<TestEnv, Unit> {
                 callOrder += "b"
-                SenderValidationResult.success()
+                success()
             }
 
         val result = withValidationContext { (a + b).validateSender() }
@@ -47,27 +47,27 @@ class RequirementTest {
     @Test
     fun `plus short-circuits on first failure`() {
         var bCalled = false
-        val a = Requirement<TestEnv, Unit> { SenderValidationResult.failSender() }
+        val a = Requirement<TestEnv, Unit> { failSender() }
         val b =
             Requirement<TestEnv, Unit> {
                 bCalled = true
-                SenderValidationResult.success()
+                success()
             }
 
         val result = withValidationContext { (a + b).validateSender() }
 
-        assertSame(Feedback.InvalidSender, result.expectFailure().feedback)
+        assertSame(Reason.InvalidSender, result.expectReason())
         assertFalse(bCalled)
     }
 
     @Test
     fun `plus does not mutate operands operands`() {
         var bCalled = false
-        val a = Requirement<TestEnv, Unit> { SenderValidationResult.success() }
+        val a = Requirement<TestEnv, Unit> { success() }
         val b =
             Requirement<TestEnv, Unit> {
                 bCalled = true
-                SenderValidationResult.success()
+                success()
             }
 
         val combined = a + b

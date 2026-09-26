@@ -7,15 +7,15 @@ import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.ParsingResult.LiteralNotMatchedError
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.commit
 import com.zombachu.stick.consuming
 import com.zombachu.stick.element.parameters.EnumParameter
+import com.zombachu.stick.noMatch
 import com.zombachu.stick.propagateError
+import com.zombachu.stick.success
 import com.zombachu.stick.suggestAliases
 import com.zombachu.stick.toSuggestions
 
@@ -42,7 +42,7 @@ internal open class ValueFlagImpl<E : Environment, S, T>(
     override fun getSyntax(): String = flagParameter.getSyntax()
 
     context(validationContext: ValidationContext<E, S>)
-    override fun validateSender(): CommandResult<Unit> = SenderValidationResult.success()
+    override fun validateSender(): CommandResult<Unit> = success()
 }
 
 internal sealed class FlagParameter<E : Environment, S, T>(
@@ -75,11 +75,11 @@ internal sealed class FlagParameter<E : Environment, S, T>(
 
         context(validationContext: ValidationContext<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<T> {
-            if (args.isEmpty()) return ParsingResult.failTypeInternal()
+            if (args.isEmpty()) return noMatch()
             if (matches(args.first().lowercase())) {
                 return validationContext.presentValue().consuming(1)
             }
-            return ParsingResult.failTypeInternal()
+            return noMatch()
         }
 
         context(validationContext: ValidationContext<E, S>)
@@ -108,15 +108,15 @@ internal sealed class FlagParameter<E : Environment, S, T>(
 
         context(validationContext: ValidationContext<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<T> {
-            if (args.isEmpty()) return ParsingResult.failTypeInternal()
+            if (args.isEmpty()) return noMatch()
             if (matches(args.first().lowercase())) {
                 val result = parameter.resolve(args.subList(1, args.size))
                 result.propagateError {
-                    return it
+                    return it.commit()
                 }
                 return result.consuming(1 + result.consumed)
             }
-            return ParsingResult.failTypeInternal()
+            return noMatch()
         }
 
         context(validationContext: ValidationContext<E, S>)
@@ -154,12 +154,12 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         context(validationContext: ValidationContext<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<T> {
             val flagArg = args.firstOrNull()
-            if (flagArg == null || !flagArg.startsWith("-")) return ParsingResult.failTypeInternal()
+            if (flagArg == null || !flagArg.startsWith("-")) return noMatch()
 
             // Ignore the - before passing it to the enum parameter
             val result = enumParameter.resolve(flagArg.substring(1))
-            if (result is LiteralNotMatchedError) {
-                return ParsingResult.failTypeInternal()
+            if (result is CommandResult.Failure.NoMatch) {
+                return noMatch()
             }
             return result.consuming(1)
         }
@@ -179,6 +179,6 @@ internal fun MatchResult.Matched.claimedBy(element: ConsumingElement<*, *, *>, c
 internal fun MatchResult.includeLabelClaimedBy(element: ConsumingElement<*, *, *>): MatchResult =
     when (this) {
         is MatchResult.Matched -> claimedBy(element, 1 + consumed)
-        is MatchResult.Partial,
-        is MatchResult.Unmatched -> this
+        is MatchResult.Partial -> this
+        is MatchResult.Unmatched -> MatchResult.unmatched(failure.commit())
     }

@@ -2,9 +2,10 @@ package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.Parameter
+import com.zombachu.stick.failType
+import com.zombachu.stick.success
 import java.util.*
 
 open class UUIDParameter<E : Environment, S>(name: String, description: String) :
@@ -14,9 +15,9 @@ open class UUIDParameter<E : Environment, S>(name: String, description: String) 
     override fun resolve(arg0: String): CommandResult<UUID> {
         try {
             val uuid = UUID.fromString(arg0)
-            return ParsingResult.success(uuid)
+            return success(uuid)
         } catch (_: IllegalArgumentException) {
-            return ParsingResult.failType("UUID", arg0)
+            return failType("UUID", arg0)
         }
     }
 }

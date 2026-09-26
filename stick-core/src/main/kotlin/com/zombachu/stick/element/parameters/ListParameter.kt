@@ -3,10 +3,10 @@ package com.zombachu.stick.element.parameters
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.Parameter
+import com.zombachu.stick.success
 import com.zombachu.stick.valueOrPropagateError
 
 open class ListParameter<E : Environment, S, T>(name: String, description: String, val parameter: Size1<E, S, T>) :
@@ -35,7 +35,7 @@ open class ListParameter<E : Environment, S, T>(name: String, description: Strin
                 return it
             }
         }
-        return ParsingResult.success(parsedValues)
+        return success(parsedValues)
     }
 
     companion object {

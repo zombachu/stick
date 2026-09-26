@@ -1,13 +1,12 @@
-package com.zombachu.stick.feedback
+package com.zombachu.stick.failure
 
-import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.InvocationImpl
 
 interface FailureHandler<in E : Environment, S> {
     context(inv: Invocation<E, S>)
-    fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>)
+    fun onFailure(reason: Reason)
 }
 
 internal class TransformedFailureHandler<E : Environment, S, S2 : Any>(
@@ -15,8 +14,8 @@ internal class TransformedFailureHandler<E : Environment, S, S2 : Any>(
     val transform: (S) -> S2,
 ) : FailureHandler<E, S> {
     context(inv: Invocation<E, S>)
-    override fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>) {
+    override fun onFailure(reason: Reason) {
         val transformedInvocation = (inv as InvocationImpl).forSender(transform)
-        context(transformedInvocation) { base.onFailure(failure) }
+        context(transformedInvocation) { base.onFailure(reason) }
     }
 }

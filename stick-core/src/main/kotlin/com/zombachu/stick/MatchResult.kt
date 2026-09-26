@@ -30,22 +30,21 @@ sealed interface MatchResult {
     }
 
     @ConsistentCopyVisibility
-    data class Unmatched internal constructor(internal val failure: CommandResult.InternalFailure) : MatchResult {
+    data class Unmatched internal constructor(internal val failure: CommandResult.Failure) : MatchResult {
         override val canConsumeMore = false
     }
 
     companion object {
-        private val silent: Unmatched = Unmatched(ParsingResult.failTypeInternal())
-
         fun matchedExactly(consumed: Int): Matched = Matched(consumed, canConsumeMore = false)
 
         fun matchedAtLeast(consumed: Int): Matched = Matched(consumed, canConsumeMore = true)
 
         fun partial(): Partial = Partial
 
-        fun unmatched(): Unmatched = silent
+        context(_: ValidationContext<*, *>)
+        fun unmatched(): Unmatched = Unmatched(noMatch())
 
-        fun unmatched(failure: CommandResult.InternalFailure): Unmatched = Unmatched(failure)
+        fun unmatched(failure: CommandResult.Failure): Unmatched = Unmatched(failure)
     }
 }
 
@@ -53,7 +52,7 @@ internal fun <T> ConsumingResult<T>.toMatchResult(element: ConsumingElement<*, *
     when (this) {
         is ConsumingResult.Success ->
             MatchResult.Matched(consumed, canConsumeMore && !element.size.isFull(consumed), element, value)
-        is CommandResult.InternalFailure -> MatchResult.unmatched(this)
+        is CommandResult.Failure -> MatchResult.unmatched(this)
     }
 
 private fun Size.isFull(consumed: Int): Boolean = this is Size.Bounded && consumed >= max

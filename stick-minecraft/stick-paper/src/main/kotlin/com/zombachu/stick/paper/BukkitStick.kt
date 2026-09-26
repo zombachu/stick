@@ -2,7 +2,7 @@ package com.zombachu.stick.paper
 
 import com.zombachu.stick.Stick
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.feedback.FailureHandler
+import com.zombachu.stick.failure.FailureHandler
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandMap
 import org.bukkit.command.CommandSender

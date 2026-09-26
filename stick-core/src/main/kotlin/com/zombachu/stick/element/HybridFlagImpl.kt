@@ -9,13 +9,14 @@ import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.commit
 import com.zombachu.stick.consuming
+import com.zombachu.stick.noMatch
 import com.zombachu.stick.propagateError
+import com.zombachu.stick.success
 import com.zombachu.stick.suggestAliases
 
 internal open class HybridFlagImpl<E : Environment, S, T>(
@@ -26,9 +27,7 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
 
     override val size: Size.Bounded = Size.between(1, 1 + parameter.size.max)
     override val description: String = parameter.description
-    override val default: ContextualValue<E, S, HybridFlagResult<T>> = {
-        ParsingResult.success(HybridFlagResult.Absent())
-    }
+    override val default: ContextualValue<E, S, HybridFlagResult<T>> = { success(HybridFlagResult.Absent()) }
     override val label: String = "-${name.lowercase()}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
 
@@ -49,30 +48,29 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> {
-        if (args.isEmpty()) return ParsingResult.failTypeInternal()
+        if (args.isEmpty()) return noMatch()
         if (matches(args.first().lowercase())) {
             if (args.size == 1) {
-                return ParsingResult.success(HybridFlagResult.Present<T>()).consuming(1)
+                return success(HybridFlagResult.Present<T>()).consuming(1)
             } else {
                 val matched = (inv as InvocationImpl).currentMatch
                 if (matched != null && matched.resolvedBy === this) {
                     @Suppress("UNCHECKED_CAST")
-                    return ParsingResult.success(HybridFlagResult.Value(matched.resolved as T))
-                        .consuming(matched.consumed)
+                    return success(HybridFlagResult.Value(matched.resolved as T)).consuming(matched.consumed)
                 }
                 val result = parameter.parse(args.subList(1, args.size))
                 result.propagateError {
-                    return it
+                    return it.commit()
                 }
-                return ParsingResult.success(HybridFlagResult.Value(result.value)).consuming(1 + result.consumed)
+                return success(HybridFlagResult.Value(result.value)).consuming(1 + result.consumed)
             }
         }
-        return ParsingResult.failTypeInternal()
+        return noMatch()
     }
 
     context(validationContext: ValidationContext<E, S>)
     override fun getSyntax(): String = "[$label [${parameter.getGroupedSyntax()}]]"
 
     context(validationContext: ValidationContext<E, S>)
-    override fun validateSender(): CommandResult<Unit> = SenderValidationResult.success()
+    override fun validateSender(): CommandResult<Unit> = success()
 }

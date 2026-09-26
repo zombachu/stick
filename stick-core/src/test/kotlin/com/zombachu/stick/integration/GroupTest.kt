@@ -8,7 +8,6 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult2
 import com.zombachu.stick.GroupResult5
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.dsl.booleanParameter
@@ -35,23 +34,25 @@ import com.zombachu.stick.dsl.textParameter
 import com.zombachu.stick.dsl.uuidParameter
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.parameters.ListElementResult
-import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.integration.fixtures.Console
 import com.zombachu.stick.integration.fixtures.Player
 import com.zombachu.stick.integration.fixtures.Sender
 import com.zombachu.stick.integration.fixtures.Server
 import com.zombachu.stick.integration.fixtures.SynergyServer
+import com.zombachu.stick.integration.fixtures.UnknownWarp
 import com.zombachu.stick.integration.fixtures.Warp
 import com.zombachu.stick.integration.fixtures.WarpRegistry
 import com.zombachu.stick.integration.fixtures.WarpableServer
 import com.zombachu.stick.integration.fixtures.Weather
 import com.zombachu.stick.integration.fixtures.execute
 import com.zombachu.stick.integration.fixtures.executeExpectingError
+import com.zombachu.stick.integration.fixtures.executeExpectingInvalidSyntax
 import com.zombachu.stick.integration.fixtures.permission
 import com.zombachu.stick.integration.fixtures.playerParameter
 import com.zombachu.stick.integration.fixtures.suggest
 import com.zombachu.stick.integration.fixtures.warpParameter
 import com.zombachu.stick.integration.fixtures.worldHelper
+import com.zombachu.stick.success
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -94,7 +95,7 @@ class GroupTest {
                 command(name = "info")(
                     group(
                         literalParameter("all"),
-                        listElementParameter("index", { ParsingResult.success(env.warps.warps.values.toList()) }),
+                        listElementParameter("index", { success(env.warps.warps.values.toList()) }),
                     ),
                 ) { selection ->
                     val warps = env.warps.names
@@ -137,13 +138,13 @@ class GroupTest {
         assertEquals(["Info about shop: Warp(name=shop, owner=zombachu, world=nether)"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp <tp|create|info>"),
-            warpCommand.executeExpectingError(server, zombachu, "/warp delete"),
+            "/warp <tp|create|info>",
+            warpCommand.executeExpectingInvalidSyntax(server, zombachu, "/warp delete"),
         )
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp <info>"),
-            warpCommand.executeExpectingError(server, console, "/warp delete"),
+            "/warp <info>",
+            warpCommand.executeExpectingInvalidSyntax(server, console, "/warp delete"),
         )
     }
 
@@ -165,18 +166,18 @@ class GroupTest {
         }
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp <info>"),
-            warpCommand.executeExpectingError(server, steve, "/warp delete"),
+            "/warp <info>",
+            warpCommand.executeExpectingInvalidSyntax(server, steve, "/warp delete"),
         )
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp <info>"),
-            warpCommand.executeExpectingError(server, steve, "/warp tp spawn"),
+            "/warp <info>",
+            warpCommand.executeExpectingInvalidSyntax(server, steve, "/warp tp spawn"),
         )
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp tp <warp>"),
-            warpCommand.executeExpectingError(server, zombachu, "/warp tp"),
+            "/warp tp <warp>",
+            warpCommand.executeExpectingInvalidSyntax(server, zombachu, "/warp tp"),
         )
 
         assertEquals(["info"], warpCommand.suggest(server, steve, "/warp "))
@@ -198,7 +199,7 @@ class GroupTest {
                     command("info")(
                         group(
                             literalParameter("all"),
-                            listElementParameter("index", { ParsingResult.success(env.warps.warps.values.toList()) }),
+                            listElementParameter("index", { success(env.warps.warps.values.toList()) }),
                         ),
                     ) { selection ->
                         val warps = env.warps.names
@@ -331,10 +332,7 @@ class GroupTest {
         describeCommand.execute(server, zombachu, "/warp shop")
         assertEquals(["Teleporting to shop in nether"], zombachu.logs)
 
-        assertEquals(
-            "Unknown warp: nowhere",
-            describeCommand.executeExpectingError(server, zombachu, "/warp nowhere").message,
-        )
+        assertEquals(UnknownWarp("nowhere"), describeCommand.executeExpectingError(server, zombachu, "/warp nowhere"))
     }
 
     @Test
@@ -381,18 +379,18 @@ class GroupTest {
         assertEquals(["Linked nether"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/portal link <name>"),
-            portalCommand.executeExpectingError(server, zombachu, "/portal link"),
+            "/portal link <name>",
+            portalCommand.executeExpectingInvalidSyntax(server, zombachu, "/portal link"),
         )
 
         assertEquals(
-            Feedback.InvalidSyntax("/portal link <name>"),
-            portalCommand.executeExpectingError(server, zombachu, "/portal link nether overworld"),
+            "/portal link <name>",
+            portalCommand.executeExpectingInvalidSyntax(server, zombachu, "/portal link nether overworld"),
         )
 
         assertEquals(
-            Feedback.InvalidSyntax("/portal <link|unlink>"),
-            portalCommand.executeExpectingError(server, zombachu, "/portal delete"),
+            "/portal <link|unlink>",
+            portalCommand.executeExpectingInvalidSyntax(server, zombachu, "/portal delete"),
         )
     }
 
@@ -426,13 +424,13 @@ class GroupTest {
         assertEquals(["Teleported to nether"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/portal link <name> [-confirm]"),
-            portalCommand.executeExpectingError(server, zombachu, "/portal link"),
+            "/portal link <name> [-confirm]",
+            portalCommand.executeExpectingInvalidSyntax(server, zombachu, "/portal link"),
         )
 
         assertEquals(
-            Feedback.InvalidSyntax("/portal link <name> [-confirm]"),
-            portalCommand.executeExpectingError(server, zombachu, "/portal link -confirm"),
+            "/portal link <name> [-confirm]",
+            portalCommand.executeExpectingInvalidSyntax(server, zombachu, "/portal link -confirm"),
         )
     }
 
@@ -455,8 +453,8 @@ class GroupTest {
         }
 
         assertEquals(
-            Feedback.InvalidSyntax("/p link -confirm nether to <destination>"),
-            portalCommand.executeExpectingError(server, zombachu, "/p link -confirm nether to"),
+            "/p link -confirm nether to <destination>",
+            portalCommand.executeExpectingInvalidSyntax(server, zombachu, "/p link -confirm nether to"),
         )
     }
 
@@ -485,8 +483,8 @@ class GroupTest {
         assertEquals(["Kicked Steve"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/plot <claim|unclaim|home|info|visit|trust|untrust|deny|kick>"),
-            plotCommand.executeExpectingError(server, zombachu, "/plot sell"),
+            "/plot <claim|unclaim|home|info|visit|trust|untrust|deny|kick>",
+            plotCommand.executeExpectingInvalidSyntax(server, zombachu, "/plot sell"),
         )
     }
 
@@ -525,13 +523,13 @@ class GroupTest {
         assertEquals(["Teleporting to shop"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp <list|delete|warp>"),
-            warpCommand.executeExpectingError(server, zombachu, "/warp"),
+            "/warp <list|delete|warp>",
+            warpCommand.executeExpectingInvalidSyntax(server, zombachu, "/warp"),
         )
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp <list|warp>"),
-            warpCommand.executeExpectingError(server, console, "/warp"),
+            "/warp <list|warp>",
+            warpCommand.executeExpectingInvalidSyntax(server, console, "/warp"),
         )
     }
 
@@ -610,29 +608,26 @@ class GroupTest {
         }
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp <list|warp>"),
-            warpCommand.executeExpectingError(server, zombachu, "/warp"),
+            "/warp <list|warp>",
+            warpCommand.executeExpectingInvalidSyntax(server, zombachu, "/warp"),
         )
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp <list>"),
-            warpCommand.executeExpectingError(server, steve, "/warp"),
+            "/warp <list>",
+            warpCommand.executeExpectingInvalidSyntax(server, steve, "/warp"),
         )
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp <warp> <tp|rename>"),
-            warpCommand.executeExpectingError(server, zombachu, "/warp shop"),
+            "/warp <warp> <tp|rename>",
+            warpCommand.executeExpectingInvalidSyntax(server, zombachu, "/warp shop"),
         )
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp shop rename <name>"),
-            warpCommand.executeExpectingError(server, zombachu, "/warp shop rename"),
+            "/warp shop rename <name>",
+            warpCommand.executeExpectingInvalidSyntax(server, zombachu, "/warp shop rename"),
         )
 
-        assertEquals(
-            "Unknown warp: nowhere",
-            warpCommand.executeExpectingError(server, zombachu, "/warp nowhere tp").message,
-        )
+        assertEquals(UnknownWarp("nowhere"), warpCommand.executeExpectingError(server, zombachu, "/warp nowhere tp"))
     }
 
     @Test
@@ -694,8 +689,8 @@ class GroupTest {
         assertEquals(["Paid Steve 5"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/pay <player> <amount>"),
-            payCommand.executeExpectingError(server, zombachu, "/pay Steve"),
+            "/pay <player> <amount>",
+            payCommand.executeExpectingInvalidSyntax(server, zombachu, "/pay Steve"),
         )
     }
 
@@ -759,13 +754,13 @@ class GroupTest {
         assertEquals("nether", zombachu.world)
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp <list|warp>"),
-            warpCommand.executeExpectingError(server, zombachu, "/warp"),
+            "/warp <list|warp>",
+            warpCommand.executeExpectingInvalidSyntax(server, zombachu, "/warp"),
         )
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp <list>"),
-            warpCommand.executeExpectingError(server, console, "/warp shop tp"),
+            "/warp <list>",
+            warpCommand.executeExpectingInvalidSyntax(server, console, "/warp shop tp"),
         )
 
         assertEquals(["tp"], warpCommand.suggest(server, zombachu, "/warp shop "))
@@ -790,8 +785,8 @@ class GroupTest {
         assertEquals(["Warped to spawn. Bypassed: true"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp <name> [-bypass]"),
-            warpCommand.executeExpectingError(server, zombachu, "/warp -bypass spawn"),
+            "/warp <name> [-bypass]",
+            warpCommand.executeExpectingInvalidSyntax(server, zombachu, "/warp -bypass spawn"),
         )
     }
 
@@ -922,8 +917,8 @@ class GroupTest {
         }
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp list"),
-            warpCommand.executeExpectingError(server, zombachu, "/warp list tp"),
+            "/warp list",
+            warpCommand.executeExpectingInvalidSyntax(server, zombachu, "/warp list tp"),
         )
 
         // KNOWN LIMITATION: the list subcommand should be resolved, but the group suggests branches by size, leading to
@@ -935,7 +930,7 @@ class GroupTest {
     private class PointParameter<E : Environment, S> : Parameter.Size2<E, S, String>("point", "") {
 
         context(validationContext: ValidationContext<E, S>)
-        override fun resolve(arg0: String, arg1: String): CommandResult<String> = ParsingResult.success("$arg0,$arg1")
+        override fun resolve(arg0: String, arg1: String): CommandResult<String> = success("$arg0,$arg1")
     }
 
     private class CountingParameter<E : Environment, S>(name: String) : Parameter.Size1<E, S, String>(name, "") {
@@ -944,7 +939,7 @@ class GroupTest {
         context(validationContext: ValidationContext<E, S>)
         override fun resolve(arg0: String): CommandResult<String> {
             invocations++
-            return ParsingResult.success(arg0)
+            return success(arg0)
         }
     }
 }

@@ -2,10 +2,10 @@ package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.expectFailure
+import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
@@ -30,7 +30,7 @@ class BooleanParameterTest {
     @Test
     fun `rejects non-boolean input`() {
         val result = withInvocation { parameter.parse(["maybe"]) }
-        assertEquals(Feedback.TypeNotMatched("boolean", "maybe"), result.expectFailure().feedback)
+        assertEquals(Reason.TypeNotMatched("boolean", "maybe"), result.expectReason())
     }
 
     @Test
@@ -38,6 +38,6 @@ class BooleanParameterTest {
         assertEquals(MatchResult.matchedExactly(1), withValidationContext { parameter.match(["true"]) })
 
         val result = withValidationContext { parameter.match(["maybe"]) }
-        assertEquals(Feedback.TypeNotMatched("boolean", "maybe"), result.expectUnmatched().expectFailure().feedback)
+        assertEquals(Reason.TypeNotMatched("boolean", "maybe"), result.expectUnmatched().expectReason())
     }
 }

@@ -1,9 +1,9 @@
 package com.zombachu.stick.dsl
 
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.element.parse
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.structureTest
+import com.zombachu.stick.success
 import com.zombachu.stick.testInvocation
 import com.zombachu.stick.withInvocation
 import kotlin.test.Test
@@ -13,7 +13,7 @@ class HelpersTest {
 
     @Test
     fun `helper from contextual value evaluates on parse`() = structureTest {
-        val helper = helper { ParsingResult.success("computed") }
+        val helper = helper { success("computed") }
         val result = withInvocation { helper.parse([]) }
         assertEquals("computed", result.expectSuccessValue())
     }

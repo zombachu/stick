@@ -12,7 +12,7 @@ import com.zombachu.stick.dsl.optionallyNullable
 import com.zombachu.stick.dsl.optionals
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.integration.fixtures.Console
 import com.zombachu.stick.integration.fixtures.Player
 import com.zombachu.stick.integration.fixtures.Sender
@@ -20,6 +20,7 @@ import com.zombachu.stick.integration.fixtures.Server
 import com.zombachu.stick.integration.fixtures.SynergyServer
 import com.zombachu.stick.integration.fixtures.execute
 import com.zombachu.stick.integration.fixtures.executeExpectingError
+import com.zombachu.stick.integration.fixtures.executeExpectingInvalidSyntax
 import com.zombachu.stick.integration.fixtures.permission
 import com.zombachu.stick.integration.fixtures.playerParameter
 import com.zombachu.stick.integration.fixtures.suggest
@@ -67,7 +68,7 @@ class OptionalTest {
         healCommand.execute(server, zombachu, "/heal Steve")
         assertEquals(["You have been healed"], steve.logs)
 
-        assertEquals(Feedback.InvalidSyntax("/heal <player>"), healCommand.executeExpectingError(server, console, "/heal"))
+        assertEquals("/heal <player>", healCommand.executeExpectingInvalidSyntax(server, console, "/heal"))
 
         healCommand.execute(server, console, "/heal Steve")
         assertEquals(["You have been healed"], steve.logs)
@@ -106,11 +107,11 @@ class OptionalTest {
         }
 
         assertEquals(
-            Feedback.InvalidSyntax("/gift <player> [amount]"),
-            giftCommand.executeExpectingError(server, zombachu, "/gift"),
+            "/gift <player> [amount]",
+            giftCommand.executeExpectingInvalidSyntax(server, zombachu, "/gift"),
         )
 
-        assertEquals(Feedback.InvalidSyntax("/gift <player>"), giftCommand.executeExpectingError(server, steve, "/gift"))
+        assertEquals("/gift <player>", giftCommand.executeExpectingInvalidSyntax(server, steve, "/gift"))
     }
 
     @Test
@@ -125,13 +126,13 @@ class OptionalTest {
         }
 
         assertEquals(
-            Feedback.InvalidSyntax("/gamemode <mode> [player]"),
-            gamemodeCommand.executeExpectingError(server, zombachu, "/gamemode"),
+            "/gamemode <mode> [player]",
+            gamemodeCommand.executeExpectingInvalidSyntax(server, zombachu, "/gamemode"),
         )
 
         assertEquals(
-            Feedback.InvalidSyntax("/gamemode <mode> <player>"),
-            gamemodeCommand.executeExpectingError(server, console, "/gamemode"),
+            "/gamemode <mode> <player>",
+            gamemodeCommand.executeExpectingInvalidSyntax(server, console, "/gamemode"),
         )
     }
 
@@ -158,8 +159,8 @@ class OptionalTest {
         speedCommand.execute(server, steve, "/speed")
         assertEquals(["Speed changed to 1"], steve.logs)
 
-        assertEquals(Feedback.InvalidPermission, speedCommand.executeExpectingError(server, steve, "/speed 10"))
-        assertEquals(Feedback.InvalidPermission, speedCommand.executeExpectingError(server, steve, "/speed asdf"))
+        assertEquals(Reason.InvalidPermission, speedCommand.executeExpectingError(server, steve, "/speed 10"))
+        assertEquals(Reason.InvalidPermission, speedCommand.executeExpectingError(server, steve, "/speed asdf"))
     }
 
     @Test
@@ -179,7 +180,7 @@ class OptionalTest {
         assertEquals(["here there"], zombachu.logs)
 
         assertEquals(
-            Feedback.LiteralNotMatched(["here"], "there"),
+            Reason.LiteralNotMatched(["here"], "there"),
             tpCommand.executeExpectingError(server, zombachu, "/tp there"),
         )
     }
@@ -208,8 +209,8 @@ class OptionalTest {
         assertEquals(["set", "delete"], homeCommand.suggest(server, zombachu, "/home "))
 
         assertEquals(
-            Feedback.InvalidSyntax("/home [set|delete]"),
-            homeCommand.executeExpectingError(server, zombachu, "/home list"),
+            "/home [set|delete]",
+            homeCommand.executeExpectingInvalidSyntax(server, zombachu, "/home list"),
         )
     }
 
@@ -235,11 +236,11 @@ class OptionalTest {
         weatherCommand.execute(server, steve, "/weather")
         assertEquals(["Weather set to clear"], steve.logs)
 
-        assertEquals(Feedback.InvalidPermission, weatherCommand.executeExpectingError(server, steve, "/weather rain"))
+        assertEquals(Reason.InvalidPermission, weatherCommand.executeExpectingError(server, steve, "/weather rain"))
 
         assertEquals(
-            Feedback.InvalidSyntax("/weather [rain|sun]"),
-            weatherCommand.executeExpectingError(server, zombachu, "/weather snow"),
+            "/weather [rain|sun]",
+            weatherCommand.executeExpectingInvalidSyntax(server, zombachu, "/weather snow"),
         )
     }
 }

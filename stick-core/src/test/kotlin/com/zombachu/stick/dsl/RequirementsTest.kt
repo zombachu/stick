@@ -1,11 +1,11 @@
 package com.zombachu.stick.dsl
 
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.ValidationContext
-import com.zombachu.stick.expectFailure
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.expectReason
+import com.zombachu.stick.failPermission
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.structureTest
 import com.zombachu.stick.withValidationContext
@@ -17,23 +17,23 @@ class RequirementsTest {
 
     @Test
     fun `requirement from CommandResult lambda passes through`() = structureTest {
-        val requirement = requirement { SenderValidationResult.failPermission() }
+        val requirement = requirement { failPermission() }
         val result = withValidationContext { requirement.validateSender() }
-        assertSame(Feedback.InvalidPermission, result.expectFailure().feedback)
+        assertSame(Reason.InvalidPermission, result.expectReason())
     }
 
     @Test
     fun `requirement from Boolean lambda defaults to failSender`() = structureTest {
         val requirement = requirement { false }
         val result = withValidationContext { requirement.validateSender() }
-        assertSame(Feedback.InvalidSender, result.expectFailure().feedback)
+        assertSame(Reason.InvalidSender, result.expectReason())
     }
 
     @Test
     fun `requirement from Boolean lambda uses failureResult`() = structureTest {
-        val requirement = requirement(failureResult = { SenderValidationResult.failPermission() }) { false }
+        val requirement = requirement(failureResult = { failPermission() }) { false }
         val result = withValidationContext { requirement.validateSender() }
-        assertSame(Feedback.InvalidPermission, result.expectFailure().feedback)
+        assertSame(Reason.InvalidPermission, result.expectReason())
     }
 
     @Test
@@ -47,12 +47,12 @@ class RequirementsTest {
         val validator =
             object : SenderValidator<TestEnv, Unit> {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun validateSender() = SenderValidationResult.failPermission()
+                override fun validateSender() = failPermission()
             }
         val requirement = requirement(validator)
 
         val result = withValidationContext { requirement.validateSender() }
 
-        assertSame(Feedback.InvalidPermission, result.expectFailure().feedback)
+        assertSame(Reason.InvalidPermission, result.expectReason())
     }
 }

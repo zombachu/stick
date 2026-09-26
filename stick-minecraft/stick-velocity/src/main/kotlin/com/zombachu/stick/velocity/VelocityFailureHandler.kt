@@ -1,10 +1,9 @@
 package com.zombachu.stick.velocity
 
 import com.velocitypowered.api.command.CommandSource
-import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.feedback.FailureHandler
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.FailureHandler
+import com.zombachu.stick.failure.Reason
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.slf4j.Logger
@@ -13,12 +12,11 @@ interface VelocityFailureHandler<E : VelocityEnvironment> : FailureHandler<E, Co
 
 open class BasicVelocityFailureHandler(private val logger: Logger) : VelocityFailureHandler<VelocityEnvironment> {
     context(inv: Invocation<VelocityEnvironment, CommandSource>)
-    override fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>) {
-        val feedback = failure.feedback
-        if (feedback is Feedback.Unknown && feedback.cause != null) {
-            logger.error("Command /${inv.label} threw", feedback.cause)
+    override fun onFailure(reason: Reason) {
+        if (reason is Reason.Unknown && reason.cause != null) {
+            logger.error("Command /${inv.label} threw", reason.cause)
         }
-        val message = feedback.message
+        val message = reason.message()
         if (message.isEmpty()) {
             return
         }

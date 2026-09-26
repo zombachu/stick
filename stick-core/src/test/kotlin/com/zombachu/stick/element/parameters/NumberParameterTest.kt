@@ -3,10 +3,10 @@ package com.zombachu.stick.element.parameters
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.Parameter
-import com.zombachu.stick.expectFailure
+import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
@@ -21,8 +21,8 @@ class NumberParameterTest {
         assertEquals(0, parse(parameter, "0"))
         assertEquals(10, parse(parameter, "10"))
 
-        assertEquals(Feedback.OutOfRange("0", "10", "11"), failure(parameter, "11"))
-        assertEquals(Feedback.TypeNotMatched("byte", "x"), failure(parameter, "x"))
+        assertEquals(Reason.OutOfRange("0", "10", "11"), failure(parameter, "11"))
+        assertEquals(Reason.TypeNotMatched("byte", "x"), failure(parameter, "x"))
     }
 
     @Test
@@ -32,8 +32,8 @@ class NumberParameterTest {
         assertEquals(0, parse(parameter, "0"))
         assertEquals(10, parse(parameter, "10"))
 
-        assertEquals(Feedback.OutOfRange("0", "10", "-1"), failure(parameter, "-1"))
-        assertEquals(Feedback.TypeNotMatched("short", "x"), failure(parameter, "x"))
+        assertEquals(Reason.OutOfRange("0", "10", "-1"), failure(parameter, "-1"))
+        assertEquals(Reason.TypeNotMatched("short", "x"), failure(parameter, "x"))
     }
 
     @Test
@@ -43,8 +43,8 @@ class NumberParameterTest {
         assertEquals(0, parse(parameter, "0"))
         assertEquals(10, parse(parameter, "10"))
 
-        assertEquals(Feedback.OutOfRange("0", "10", "11"), failure(parameter, "11"))
-        assertEquals(Feedback.TypeNotMatched("integer", "x"), failure(parameter, "x"))
+        assertEquals(Reason.OutOfRange("0", "10", "11"), failure(parameter, "11"))
+        assertEquals(Reason.TypeNotMatched("integer", "x"), failure(parameter, "x"))
     }
 
     @Test
@@ -54,8 +54,8 @@ class NumberParameterTest {
         assertEquals(0L, parse(parameter, "0"))
         assertEquals(10L, parse(parameter, "10"))
 
-        assertEquals(Feedback.OutOfRange("0", "10", "11"), failure(parameter, "11"))
-        assertEquals(Feedback.TypeNotMatched("long", "x"), failure(parameter, "x"))
+        assertEquals(Reason.OutOfRange("0", "10", "11"), failure(parameter, "11"))
+        assertEquals(Reason.TypeNotMatched("long", "x"), failure(parameter, "x"))
     }
 
     @Test
@@ -65,8 +65,8 @@ class NumberParameterTest {
         assertEquals(0f, parse(parameter, "0"))
         assertEquals(10f, parse(parameter, "10"))
 
-        assertEquals(Feedback.OutOfRange("0.0", "10.0", "11.0"), failure(parameter, "11.0"))
-        assertEquals(Feedback.TypeNotMatched("float", "x"), failure(parameter, "x"))
+        assertEquals(Reason.OutOfRange("0.0", "10.0", "11.0"), failure(parameter, "11.0"))
+        assertEquals(Reason.TypeNotMatched("float", "x"), failure(parameter, "x"))
     }
 
     @Test
@@ -76,8 +76,8 @@ class NumberParameterTest {
         assertEquals(0.0, parse(parameter, "0"))
         assertEquals(10.0, parse(parameter, "10"))
 
-        assertEquals(Feedback.OutOfRange("0.0", "10.0", "11.0"), failure(parameter, "11.0"))
-        assertEquals(Feedback.TypeNotMatched("double", "x"), failure(parameter, "x"))
+        assertEquals(Reason.OutOfRange("0.0", "10.0", "11.0"), failure(parameter, "11.0"))
+        assertEquals(Reason.TypeNotMatched("double", "x"), failure(parameter, "x"))
     }
 
     @Test
@@ -85,18 +85,18 @@ class NumberParameterTest {
         val parameter = IntParameter<TestEnv, Unit>("", "", 0, 10)
 
         assertEquals(MatchResult.matchedExactly(1), match(parameter, "11"))
-        assertEquals(Feedback.TypeNotMatched("integer", "x"), matchFailure(parameter, "x"))
+        assertEquals(Reason.TypeNotMatched("integer", "x"), matchFailure(parameter, "x"))
     }
 
     private fun <T> match(parameter: Parameter.Size1<TestEnv, Unit, T>, arg: String): MatchResult =
         withValidationContext { parameter.match([arg]) }
 
-    private fun <T> matchFailure(parameter: Parameter.Size1<TestEnv, Unit, T>, arg: String): Feedback =
-        withValidationContext { parameter.match([arg]) }.expectUnmatched().expectFailure().feedback
+    private fun <T> matchFailure(parameter: Parameter.Size1<TestEnv, Unit, T>, arg: String): Reason? =
+        withValidationContext { parameter.match([arg]) }.expectUnmatched().expectReason()
 
     private fun <T> parse(parameter: Parameter.Size1<TestEnv, Unit, T>, arg: String): T =
         withInvocation { parameter.parse([arg]) }.expectSuccessValue()
 
-    private fun <T> failure(parameter: Parameter.Size1<TestEnv, Unit, T>, arg: String): Feedback =
-        withInvocation { parameter.parse([arg]) }.expectFailure().feedback
+    private fun <T> failure(parameter: Parameter.Size1<TestEnv, Unit, T>, arg: String): Reason? =
+        withInvocation { parameter.parse([arg]) }.expectReason()
 }

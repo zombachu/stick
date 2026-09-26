@@ -3,14 +3,16 @@ package com.zombachu.stick.element
 import com.zombachu.stick.Arguments0
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Requirement
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.TypeNotMatchedInternal
 import com.zombachu.stick.element.parameters.StringParameter
-import com.zombachu.stick.expectFailure
+import com.zombachu.stick.expectNoMatch
+import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectUnmatched
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failSender
+import com.zombachu.stick.failSenderType
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.isSuccess
+import com.zombachu.stick.success
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withInvocationSender
 import com.zombachu.stick.withValidationContext
@@ -42,12 +44,12 @@ class StructureImplTest {
     }
 
     @Test
-    fun `mismatch fails with TypeNotMatchedInternal`() {
+    fun `mismatch fails with InvalidSyntax NoMatch`() {
         val structure = structure(name = "cmd")
 
         val result = withInvocation("other") { structure.parse(["other"]) }
 
-        assertIs<TypeNotMatchedInternal>(result)
+        assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
     }
 
     @Test
@@ -60,12 +62,12 @@ class StructureImplTest {
     }
 
     @Test
-    fun `match unmatched returns fails with TypeNotMatchedInternal`() {
+    fun `match unmatched returns fails with InvalidSyntax NoMatch`() {
         val structure = structure(name = "cmd")
 
         val result = withValidationContext { structure.match(["other"]) }
 
-        assertSame(TypeNotMatchedInternal, result.expectUnmatched())
+        assertIs<Reason.InvalidSyntax>(result.expectUnmatched().expectNoMatch().reason)
     }
 
     @Test
@@ -83,13 +85,13 @@ class StructureImplTest {
         val structure =
             structure(
                 name = "cmd",
-                requirement = Requirement { SenderValidationResult.failSender() },
+                requirement = Requirement { failSender() },
                 onExecute = { executed = true },
             )
 
         val result = withInvocation("cmd") { structure.parse(["cmd"]) }
 
-        assertSame(Feedback.InvalidSender, result.expectFailure().feedback)
+        assertSame(Reason.InvalidSender, result.expectReason())
         assertFalse(executed)
     }
 
@@ -103,7 +105,7 @@ class StructureImplTest {
     fun `getSyntax returns signature syntax`() {
         val parameter = StringParameter<TestEnv, Unit>("arg", "")
         val structure =
-            StructureImpl("cmd", [], "", Requirement<TestEnv, Unit> { SenderValidationResult.success() }) {
+            StructureImpl("cmd", [], "", Requirement<TestEnv, Unit> { success() }) {
                 Signature1<TestEnv, Unit, String>({}, LeadingParameterRole.Label, [it, parameter])
             }
 
@@ -113,7 +115,7 @@ class StructureImplTest {
     @Test
     fun `TransformedStructure delegates parse to base`() {
         val base = structure(name = "cmd")
-        val requirement = Requirement<TestEnv, Int> { SenderValidationResult.success() }
+        val requirement = Requirement<TestEnv, Int> { success() }
         val transformed = TransformedStructure(base, { _: Int -> }, requirement)
 
         val result = withInvocationSender(1, "cmd") { transformed.parse(["cmd"]) }
@@ -123,8 +125,8 @@ class StructureImplTest {
 
     @Test
     fun `TransformedStructure validateSender includes base requirement`() {
-        val base = structure(name = "cmd", requirement = Requirement { SenderValidationResult.failSender() })
-        val requirement = Requirement<TestEnv, Int> { SenderValidationResult.success() }
+        val base = structure(name = "cmd", requirement = Requirement { failSender() })
+        val requirement = Requirement<TestEnv, Int> { success() }
         val transformed = TransformedStructure(base, { _: Int -> }, requirement)
 
         val result = withValidationContext(1) { transformed.validateSender() }
@@ -135,7 +137,7 @@ class StructureImplTest {
     @Test
     fun `TransformedStructure validateSender skips transform when requirement fails`() {
         val base = structure(name = "cmd")
-        val requirement = Requirement<TestEnv, Int> { SenderValidationResult.failSenderType() }
+        val requirement = Requirement<TestEnv, Int> { failSenderType(String::class) }
         val transformed = TransformedStructure(base, { _: Int -> error("transform ran") }, requirement)
 
         val result = withValidationContext(1) { transformed.validateSender() }
@@ -146,7 +148,7 @@ class StructureImplTest {
     private fun structure(
         name: String,
         aliases: Set<String> = [],
-        requirement: Requirement<TestEnv, Unit> = Requirement { SenderValidationResult.success() },
+        requirement: Requirement<TestEnv, Unit> = Requirement { success() },
         onExecute: () -> Unit = {},
     ): StructureImpl<TestEnv, Unit, Arguments0> =
         StructureImpl(name, aliases, "", requirement) { Signature0({ onExecute() }, LeadingParameterRole.Label, [it]) }

@@ -1,7 +1,6 @@
 package com.zombachu.stick.integration
 
 import com.zombachu.stick.AliasEntry
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.enumParameter
 import com.zombachu.stick.dsl.invoke
@@ -9,7 +8,7 @@ import com.zombachu.stick.dsl.listElementParameter
 import com.zombachu.stick.dsl.listParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.element.parameters.by
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.integration.fixtures.GameMode
 import com.zombachu.stick.integration.fixtures.Material
 import com.zombachu.stick.integration.fixtures.Player
@@ -19,7 +18,9 @@ import com.zombachu.stick.integration.fixtures.SynergyServer
 import com.zombachu.stick.integration.fixtures.Weather
 import com.zombachu.stick.integration.fixtures.execute
 import com.zombachu.stick.integration.fixtures.executeExpectingError
+import com.zombachu.stick.integration.fixtures.executeExpectingInvalidSyntax
 import com.zombachu.stick.integration.fixtures.playerParameter
+import com.zombachu.stick.success
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -43,7 +44,7 @@ class ParameterTest {
         assertEquals(["Whitelisted zombachu, Steve"], zombachu.logs)
 
         assertEquals(
-            Feedback.TypeNotMatched("player", "nobody"),
+            Reason.TypeNotMatched("player", "nobody"),
             whitelistCommand.executeExpectingError(server, zombachu, "/whitelist zombachu,nobody"),
         )
     }
@@ -54,7 +55,7 @@ class ParameterTest {
             command("delete")(
                 listElementParameter(
                     name = "index",
-                    list = { ParsingResult.success(sender.mail) },
+                    list = { success(sender.mail) },
                     oneIndexed = true,
                     onEmpty = { sender.log("You have no mail") },
                 )
@@ -92,8 +93,8 @@ class ParameterTest {
         assertEquals(["Gamemode set to Creative"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/gamemode <survival|creative|spectator>"),
-            gameModeCommand.executeExpectingError(server, zombachu, "/gamemode"),
+            "/gamemode <survival|creative|spectator>",
+            gameModeCommand.executeExpectingInvalidSyntax(server, zombachu, "/gamemode"),
         )
     }
 
@@ -132,7 +133,7 @@ class ParameterTest {
         assertEquals(["Set Grass"], zombachu.logs)
 
         assertEquals(
-            Feedback.LiteralNotMatched(["dirt", "grass"], "bedrock"),
+            Reason.LiteralNotMatched(["dirt", "grass"], "bedrock"),
             setBlockCommand.executeExpectingError(server, zombachu, "/setblock bedrock"),
         )
     }

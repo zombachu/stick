@@ -5,16 +5,18 @@ import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult2
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.TypeNotMatchedInternal
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.LiteralParameter
-import com.zombachu.stick.expectFailure
+import com.zombachu.stick.expectNoMatch
+import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failSender
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.invalidSenderDefault
+import com.zombachu.stick.success
 import com.zombachu.stick.validSenderDefault
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withValidationContext
@@ -36,7 +38,7 @@ class OptionalGroupImplTest {
     fun `empty args with presence not allowed fails with InvalidSyntax`() {
         val optional = optionalGroup(groupAllowed = true, presenceAllowed = false)
         val result = withInvocation { optional.parse([]) }
-        assertIs<Feedback.InvalidSyntax>(result.expectFailure().feedback)
+        assertIs<Reason.InvalidSyntax>(result.expectReason())
     }
 
     @Test
@@ -50,7 +52,7 @@ class OptionalGroupImplTest {
     fun `non-empty args with group not allowed fails with InvalidSender`() {
         val optional = optionalGroup(groupAllowed = false, presenceAllowed = true)
         val result = withInvocation("orange") { optional.parse(["orange"]) }
-        assertSame(Feedback.InvalidSender, result.expectFailure().feedback)
+        assertSame(Reason.InvalidSender, result.expectReason())
     }
 
     @Test
@@ -61,10 +63,10 @@ class OptionalGroupImplTest {
     }
 
     @Test
-    fun `args matching nothing fails with TypeNotMatchedInternal`() {
+    fun `args matching nothing fails with InvalidSyntax NoMatch`() {
         val optional = optionalGroup(groupAllowed = true, presenceAllowed = true)
         val result = withInvocation("asdf") { optional.parse(["asdf"]) }
-        assertSame(TypeNotMatchedInternal, result)
+        assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
     }
 
     @Test
@@ -83,7 +85,7 @@ class OptionalGroupImplTest {
     fun `match on non-empty args with group not allowed fails with InvalidSender`() {
         val optional = optionalGroup(groupAllowed = false, presenceAllowed = true)
         val result = withValidationContext { optional.match(["apple"]) }
-        assertSame(Feedback.InvalidSender, result.expectUnmatched().expectFailure().feedback)
+        assertSame(Reason.InvalidSender, result.expectUnmatched().expectReason())
     }
 
     @Test
@@ -127,6 +129,7 @@ class OptionalGroupImplTest {
                 ),
         )
 
+    context(_: ValidationContext<*, *>)
     private fun validate(allowed: Boolean): CommandResult<Unit> =
-        if (allowed) SenderValidationResult.success() else SenderValidationResult.failSender()
+        if (allowed) success() else failSender()
 }

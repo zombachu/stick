@@ -9,15 +9,15 @@ import com.zombachu.stick.element.StructureImpl
 import com.zombachu.stick.element.ValidSenderDefault
 import com.zombachu.stick.element.ValidatedDefaultImpl
 import com.zombachu.stick.element.ValueFlagImpl
-import com.zombachu.stick.feedback.CustomFeedback
-import com.zombachu.stick.feedback.FailureHandler
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.CustomReason
+import com.zombachu.stick.failure.FailureHandler
+import com.zombachu.stick.failure.Reason
 import kotlin.test.fail
 
 object TestEnv : Environment
 
 private fun <E : Environment, S> emptyStructure(): Structure<E, S, *> =
-    StructureImpl("", [], "", Requirement { SenderValidationResult.success() }) {
+    StructureImpl("", [], "", Requirement { success() }) {
         Signature0({}, LeadingParameterRole.Label, [it])
     }
 
@@ -75,47 +75,57 @@ internal inline fun <S, T> withInvocationSender(
 fun <E : Environment, S> noopFailureHandler(): FailureHandler<E, S> =
     object : FailureHandler<E, S> {
         context(inv: Invocation<E, S>)
-        override fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>) {}
+        override fun onFailure(reason: Reason) {}
     }
 
-fun customFailure(message: String): CommandResult.Failure<CustomFeedback> =
-    object : ParsingResult.CustomError<CustomFeedback> {
-        override val feedback = CustomFeedback { message }
-    }
+data class MessageReason(val text: String) : CustomReason {
+    override fun message() = text
+}
 
 fun <E : Environment, S, T> validSenderDefault(
     value: T,
-    validate: context(ValidationContext<E, S>) () -> CommandResult<Unit> = { SenderValidationResult.success() },
-): ValidSenderDefault<E, S, T> = ValidatedDefaultImpl({ ParsingResult.success(value) }, validate)
+    validate: context(ValidationContext<E, S>) () -> CommandResult<Unit> = { success() },
+): ValidSenderDefault<E, S, T> = ValidatedDefaultImpl({ success(value) }, validate)
 
 fun <E : Environment, S, T> invalidSenderDefault(
     value: T,
-    validate: context(ValidationContext<E, S>) () -> CommandResult<Unit> = { SenderValidationResult.success() },
-): InvalidSenderDefault<E, S, T> = ValidatedDefaultImpl({ ParsingResult.success(value) }, validate)
+    validate: context(ValidationContext<E, S>) () -> CommandResult<Unit> = { success() },
+): InvalidSenderDefault<E, S, T> = ValidatedDefaultImpl({ success(value) }, validate)
 
 internal fun <E : Environment, S, T> presenceValueFlag(
     name: String,
     default: T,
     presentValue: T,
 ): ValueFlagImpl<E, S, T> =
-    ValueFlagImpl(name, { ParsingResult.success(default) }, presenceFlagParameter(name, presentValue))
+    ValueFlagImpl(name, { success(default) }, presenceFlagParameter(name, presentValue))
 
 internal fun <E : Environment, S, T> presenceFlagParameter(
     name: String,
     presentValue: T,
 ): FlagParameter.PresenceFlagParameter<E, S, T> =
-    FlagParameter.PresenceFlagParameter(name, { ParsingResult.success(presentValue) }, [], "")
+    FlagParameter.PresenceFlagParameter(name, { success(presentValue) }, [], "")
 
 fun <T> CommandResult<T>.expectSuccessValue(): T {
     val success = this as? CommandResult.Success<T> ?: fail("Expected success but was $this")
     return success.value
 }
 
-fun <T> CommandResult<T>.expectFailure(): CommandResult.Failure<*> {
-    return this as? CommandResult.Failure<*> ?: fail("Expected failure but was $this")
+fun <T> CommandResult<T>.expectReason(): Reason =
+    when (this) {
+        is CommandResult.Failure.NoMatch -> reason
+        is CommandResult.Failure.Error -> reason
+        else -> fail("Expected NoMatch or Error but was $this")
+    }
+
+fun <T> CommandResult<T>.expectNoMatch(): CommandResult.Failure.NoMatch {
+    return this as? CommandResult.Failure.NoMatch ?: fail("Expected NoMatch but was $this")
 }
 
-fun MatchResult.expectUnmatched(): CommandResult.InternalFailure {
+fun <T> CommandResult<T>.expectError(): CommandResult.Failure.Error {
+    return this as? CommandResult.Failure.Error ?: fail("Expected Error but was $this")
+}
+
+fun MatchResult.expectUnmatched(): CommandResult.Failure {
     val unmatched = this as? MatchResult.Unmatched ?: fail("Expected unmatched but was $this")
     return unmatched.failure
 }

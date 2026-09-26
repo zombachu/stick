@@ -2,10 +2,11 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.StringParameter
+import com.zombachu.stick.failSender
 import com.zombachu.stick.isSuccess
+import com.zombachu.stick.success
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -22,7 +23,7 @@ class ElementValidationTest {
 
     @Test
     fun `SenderValidator fails invalid sender`() {
-        val requirement = Requirement<TestEnv, Unit> { SenderValidationResult.failSender() }
+        val requirement = Requirement<TestEnv, Unit> { failSender() }
         val parameter = transformed(requirement)
 
         val result = withValidationContext { parameter.validateSender() }
@@ -32,7 +33,7 @@ class ElementValidationTest {
 
     @Test
     fun `SenderValidator passes valid sender`() {
-        val requirement = Requirement<TestEnv, Unit> { SenderValidationResult.success() }
+        val requirement = Requirement<TestEnv, Unit> { success() }
         val parameter = transformed(requirement)
 
         val result = withValidationContext { parameter.validateSender() }

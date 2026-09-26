@@ -8,9 +8,9 @@ import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Signature1
 import com.zombachu.stick.element.parse
 import com.zombachu.stick.element.validateSender
-import com.zombachu.stick.expectFailure
+import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.structureTest
 import com.zombachu.stick.withInvocationSender
@@ -47,7 +47,7 @@ class RequiresTest {
         val denied = requireAs({ _: Unit -> }, requirement { false }, parameter)
 
         assertTrue(withValidationContext { allowed.validateSender() }.isSuccess())
-        assertSame(Feedback.InvalidSender, withValidationContext { denied.validateSender() }.expectFailure().feedback)
+        assertSame(Reason.InvalidSender, withValidationContext { denied.validateSender() }.expectReason())
     }
 
     @Test
@@ -74,9 +74,9 @@ class RequiresTest {
         val narrowed = requireIs(Player::class, shared) { stringParameter("") }
 
         assertTrue(withValidationContext(console) { shared.validateSender() }.isSuccess())
-        assertSame(
-            Feedback.InvalidSenderType,
-            withValidationContext(console) { narrowed.validateSender() }.expectFailure().feedback,
+        assertEquals(
+            Reason.InvalidSenderType(Player::class),
+            withValidationContext(console) { narrowed.validateSender() }.expectReason(),
         )
     }
 

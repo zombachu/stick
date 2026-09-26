@@ -2,14 +2,15 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.dsl.id
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectSuccessValue
+import com.zombachu.stick.failType
 import com.zombachu.stick.isSuccess
+import com.zombachu.stick.success
 import com.zombachu.stick.testInvocation
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
@@ -52,7 +53,7 @@ class StoredElementTest {
                 override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun resolve(arg0: String): CommandResult<String> = ParsingResult.failType("", arg0)
+                override fun resolve(arg0: String): CommandResult<String> = failType("", arg0)
             }
         val identifier = id<String>("bad")
         val stored = StoredParameter(parameter, identifier)
@@ -66,7 +67,7 @@ class StoredElementTest {
 
     @Test
     fun `StoredHelper stores contextual value`() {
-        val base = HelperImpl<TestEnv, Unit, String>({ ParsingResult.success("computed") })
+        val base = HelperImpl<TestEnv, Unit, String>({ success("computed") })
         val identifier = id<String>("computed")
         val stored = StoredHelper(base, identifier)
 

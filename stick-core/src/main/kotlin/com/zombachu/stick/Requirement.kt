@@ -13,7 +13,7 @@ private constructor(private val validations: List<ValidationContext<E, S>.() -> 
                 return it
             }
         }
-        return SenderValidationResult.success()
+        return success()
     }
 
     operator fun plus(other: Requirement<E, S>): Requirement<E, S> = Requirement(validations + other.validations)

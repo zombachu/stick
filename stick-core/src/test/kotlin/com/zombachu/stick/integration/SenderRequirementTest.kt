@@ -19,7 +19,7 @@ import com.zombachu.stick.dsl.requirement
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.subcommands
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.integration.fixtures.Console
 import com.zombachu.stick.integration.fixtures.Player
 import com.zombachu.stick.integration.fixtures.Sender
@@ -29,6 +29,7 @@ import com.zombachu.stick.integration.fixtures.SynergyServer
 import com.zombachu.stick.integration.fixtures.bioParameter
 import com.zombachu.stick.integration.fixtures.execute
 import com.zombachu.stick.integration.fixtures.executeExpectingError
+import com.zombachu.stick.integration.fixtures.executeExpectingInvalidSyntax
 import com.zombachu.stick.integration.fixtures.permission
 import com.zombachu.stick.integration.fixtures.playerParameter
 import com.zombachu.stick.integration.fixtures.realNameParameter
@@ -54,7 +55,7 @@ class SenderRequirementTest {
         }
 
         assertEquals(
-            Feedback.InvalidPermission,
+            Reason.InvalidPermission,
             broadcastCommand.executeExpectingError(server, steve, "/broadcast Hello"),
         )
 
@@ -105,16 +106,16 @@ class SenderRequirementTest {
         assertEquals(["You are zombachu, in overworld"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/whois <ip|player>"),
-            whoisCommand.executeExpectingError(server, console, "/whois me"),
+            "/whois <ip|player>",
+            whoisCommand.executeExpectingInvalidSyntax(server, console, "/whois me"),
         )
 
         whoisCommand.execute(server, zombachu, "/whois address 127.0.0.1")
         assertEquals(["Looked up 127.0.0.1"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/whois <me|player>"),
-            whoisCommand.executeExpectingError(server, steve, "/whois address 127.0.0.1"),
+            "/whois <me|player>",
+            whoisCommand.executeExpectingInvalidSyntax(server, steve, "/whois address 127.0.0.1"),
         )
     }
 
@@ -138,8 +139,8 @@ class SenderRequirementTest {
         assertEquals(["Added to bio: My name is zombachu"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/bio <read>"),
-            bioCommand.executeExpectingError(server, console, "/bio My name is Console"),
+            "/bio <read>",
+            bioCommand.executeExpectingInvalidSyntax(server, console, "/bio My name is Console"),
         )
     }
 
@@ -168,8 +169,8 @@ class SenderRequirementTest {
         assertEquals(["That player's real name is: Alex"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/realname <me>"),
-            realNameCommand.executeExpectingError(server, console, "/realname Alexandra"),
+            "/realname <me>",
+            realNameCommand.executeExpectingInvalidSyntax(server, console, "/realname Alexandra"),
         )
     }
 
@@ -196,8 +197,8 @@ class SenderRequirementTest {
         assertEquals(["That player's real name is: Alex"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/realname <me>"),
-            realNameCommand.executeExpectingError(server, console, "/realname Alexandra"),
+            "/realname <me>",
+            realNameCommand.executeExpectingInvalidSyntax(server, console, "/realname Alexandra"),
         )
     }
 
@@ -266,8 +267,8 @@ class SenderRequirementTest {
         assertEquals(["Your name is Console"], console.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/realname"),
-            realNameCommand.executeExpectingError(server, console, "/realname -nickname"),
+            "/realname",
+            realNameCommand.executeExpectingInvalidSyntax(server, console, "/realname -nickname"),
         )
     }
 
@@ -303,7 +304,7 @@ class SenderRequirementTest {
         echoCommand.execute(server, zombachu, "/echo hello")
         assertEquals(["hello"], zombachu.logs)
 
-        assertEquals(Feedback.InvalidPermission, echoCommand.executeExpectingError(server, steve, "/echo hello"))
+        assertEquals(Reason.InvalidPermission, echoCommand.executeExpectingError(server, steve, "/echo hello"))
     }
 
     @Test
@@ -321,7 +322,10 @@ class SenderRequirementTest {
         echoCommand.execute(server, zombachu, "/echo hello")
         assertEquals(["hello"], zombachu.logs)
 
-        assertEquals(Feedback.InvalidSenderType, echoCommand.executeExpectingError(server, console, "/echo hello"))
+        assertEquals(
+            Reason.InvalidSenderType(Player::class),
+            echoCommand.executeExpectingError(server, console, "/echo hello"),
+        )
     }
 
     @Test
@@ -346,8 +350,8 @@ class SenderRequirementTest {
         // KNOWN LIMITATION: if all groupables are inaccessible the syntax renders as <>
         // TODO: fix
         assertEquals(
-            Feedback.InvalidSyntax("/echo <>"),
-            echoCommand.executeExpectingError(server, console, "/echo raw hello"),
+            "/echo <>",
+            echoCommand.executeExpectingInvalidSyntax(server, console, "/echo raw hello"),
         )
     }
 }

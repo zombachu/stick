@@ -1,12 +1,12 @@
 package com.zombachu.stick.dsl
 
 import com.zombachu.stick.HybridFlagResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parse
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.structureTest
+import com.zombachu.stick.success
 import com.zombachu.stick.testInvocation
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withValidationContext
@@ -33,13 +33,13 @@ class FlagsTest {
 
     @Test
     fun `typed flag defaults to absent value`() = structureTest {
-        val typedFlag = flag("boost", { ParsingResult.success(0) }, { ParsingResult.success(10) })
+        val typedFlag = flag("boost", { success(0) }, { success(10) })
         assertEquals(0, typedFlag.default(testInvocation()).expectSuccessValue())
     }
 
     @Test
     fun `typed flag parses to given value`() = structureTest {
-        val typedFlag = flag("boost", { ParsingResult.success(0) }, { ParsingResult.success(10) })
+        val typedFlag = flag("boost", { success(0) }, { success(10) })
         assertEquals(10, withInvocation { typedFlag.parse(["-boost"]) }.expectSuccessValue())
     }
 
@@ -71,7 +71,7 @@ class FlagsTest {
 
     @Test
     fun `valueFlag parses with parameter`() = structureTest {
-        val valueFlag = valueFlag("n", { ParsingResult.success(0) }, intParameter)
+        val valueFlag = valueFlag("n", { success(0) }, intParameter)
         assertEquals(5, withInvocation { valueFlag.parse(["-n", "5"]) }.expectSuccessValue())
     }
 

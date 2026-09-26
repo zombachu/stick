@@ -3,7 +3,6 @@ package com.zombachu.stick.integration
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.intParameter
@@ -13,14 +12,14 @@ import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.element.GroupableType
 import com.zombachu.stick.element.Parameter
-import com.zombachu.stick.feedback.CustomFeedback
-import com.zombachu.stick.feedback.FailureHandler
-import com.zombachu.stick.feedback.Feedback
-import com.zombachu.stick.handle
+import com.zombachu.stick.failure.CustomReason
+import com.zombachu.stick.failure.FailureHandler
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.integration.fixtures.Player
 import com.zombachu.stick.integration.fixtures.Sender
 import com.zombachu.stick.integration.fixtures.Server
 import com.zombachu.stick.integration.fixtures.SynergyServer
+import com.zombachu.stick.integration.fixtures.UnknownWarp
 import com.zombachu.stick.integration.fixtures.Warp
 import com.zombachu.stick.integration.fixtures.WarpRegistry
 import com.zombachu.stick.integration.fixtures.WarpableServer
@@ -28,6 +27,7 @@ import com.zombachu.stick.integration.fixtures.executeExpectingError
 import com.zombachu.stick.integration.fixtures.executeWithHandler
 import com.zombachu.stick.integration.fixtures.permission
 import com.zombachu.stick.integration.fixtures.warpParameter
+import com.zombachu.stick.success
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -78,7 +78,7 @@ class FailureHandlingTest {
     }
 
     @Test
-    fun `warp delete - handlers receive custom feedback`() {
+    fun `warp delete - handlers receive custom reason`() {
         val warpDeleteCommand = structure(WarpableServer::class, Sender::class) {
             command("delete")(
                 warpParameter("warp")
@@ -88,7 +88,7 @@ class FailureHandlingTest {
         }
 
         warpDeleteCommand.executeWithHandler(handler, server, zombachu, "/delete nowhere")
-        assertEquals(["Unknown warp: nowhere"], zombachu.logs)
+        assertEquals(["UNKNOWN WARP: nowhere"], zombachu.logs)
     }
 
     @Test
@@ -97,7 +97,7 @@ class FailureHandlingTest {
             command("delete")(
                 listElementParameter(
                     name = "index",
-                    list = { ParsingResult.success(sender.mail) },
+                    list = { success(sender.mail) },
                     oneIndexed = true,
                     onEmpty = { sender.log("You have no mail") },
                 )
@@ -129,10 +129,10 @@ class FailureHandlingTest {
             }
         }
 
-        val feedback = throwCommand.executeExpectingError(server, zombachu, "/throw blah")
+        val reason = throwCommand.executeExpectingError(server, zombachu, "/throw blah")
 
-        assertIs<Feedback.Unknown>(feedback)
-        assertEquals("this is an exception", feedback.cause?.message)
+        assertIs<Reason.Unknown>(reason)
+        assertEquals("this is an exception", reason.cause?.message)
     }
 
     @Test
@@ -143,28 +143,28 @@ class FailureHandlingTest {
             }
         }
 
-        val feedback = throwCommand.executeExpectingError(server, zombachu, "/throw")
+        val reason = throwCommand.executeExpectingError(server, zombachu, "/throw")
 
-        assertIs<Feedback.Unknown>(feedback)
-        assertEquals("this is an exception", feedback.cause?.message)
+        assertIs<Reason.Unknown>(reason)
+        assertEquals("this is an exception", reason.cause?.message)
     }
 
     private class TestFailureHandler<S : Sender> : FailureHandler<Server, S> {
         context(inv: Invocation<Server, S>)
-        override fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>) {
+        override fun onFailure(reason: Reason) {
             val message =
-                failure.handle {
-                    when (this) {
-                        is Feedback.Unknown -> "SOMETHING BROKE"
-                        Feedback.InvalidPermission -> "PERMISSION DENIED"
-                        Feedback.InvalidSender,
-                        Feedback.InvalidSenderType -> "NOT FOR YOU"
-                        is Feedback.InvalidSyntax -> "USAGE: $usage"
-                        is Feedback.LiteralNotMatched -> "EXPECTED ${validValues.joinToString("|")} NOT $provided"
-                        is Feedback.OutOfRange -> "$min TO $max, NOT $provided"
-                        is Feedback.TypeNotMatched -> "NOT A $expectedType: $provided"
-                        is CustomFeedback -> message
-                    }
+                when (reason) {
+                    is Reason.Unknown -> "SOMETHING BROKE"
+                    Reason.InvalidPermission -> "PERMISSION DENIED"
+                    Reason.InvalidSender -> "NOT FOR YOU"
+                    is Reason.InvalidSenderType -> "${reason.required.simpleName} ONLY"
+                    is Reason.InvalidSyntax -> "USAGE: ${reason.usage}"
+                    is Reason.LiteralNotMatched ->
+                        "EXPECTED ${reason.validValues.joinToString("|")} NOT ${reason.provided}"
+                    is Reason.OutOfRange -> "${reason.min} TO ${reason.max}, NOT ${reason.provided}"
+                    is Reason.TypeNotMatched -> "NOT A ${reason.expectedType}: ${reason.provided}"
+                    is UnknownWarp -> "UNKNOWN WARP: ${reason.name}"
+                    is CustomReason -> reason.message()
                 }
             inv.sender.log(message)
         }

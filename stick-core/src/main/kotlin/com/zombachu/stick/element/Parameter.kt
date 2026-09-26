@@ -8,11 +8,11 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
+import com.zombachu.stick.success
 import com.zombachu.stick.toMatchResult
 
 sealed class Parameter<in E : Environment, S, T, out P : Position>(
@@ -41,7 +41,7 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
             val matched = (inv as InvocationImpl).currentMatch
             if (matched != null && matched.resolvedBy === this) {
                 @Suppress("UNCHECKED_CAST")
-                return ParsingResult.success(matched.resolved as T).consuming(matched.consumed)
+                return success(matched.resolved as T).consuming(matched.consumed)
             }
             return resolve(args)
         }
@@ -277,7 +277,7 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
             val matched = (inv as InvocationImpl).currentMatch
             if (matched != null && matched.resolvedBy === this) {
                 @Suppress("UNCHECKED_CAST")
-                return ParsingResult.success(matched.resolved as T).consuming(matched.consumed)
+                return success(matched.resolved as T).consuming(matched.consumed)
             }
             return resolve(args)
         }

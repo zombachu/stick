@@ -2,7 +2,6 @@ package com.zombachu.stick.dsl
 
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.element.OptionalParameter
@@ -12,6 +11,7 @@ import com.zombachu.stick.element.PipelinedOptionalParameter
 import com.zombachu.stick.element.PipelinedParameter
 import com.zombachu.stick.element.PipelinedValueFlag
 import com.zombachu.stick.element.ValueFlag
+import com.zombachu.stick.success
 
 fun <E_ : Environment, S, A, B, P : Position> Parameter<E_, S, A, P>.pipeline(
     operation: PipelineOperation<E_, S, A, B>
@@ -60,4 +60,4 @@ fun <E_ : Environment, S, A, B, C, D, P : Position> OptionalParameter<E_, S, A, 
 
 fun <E : Environment, S, A, B> StructureScope<E, S>.map(
     block: Invocation<E, S>.(A) -> B
-): PipelineOperation<E, S, A, B> = { ParsingResult.success(block(it)) }
+): PipelineOperation<E, S, A, B> = { success(block(it)) }

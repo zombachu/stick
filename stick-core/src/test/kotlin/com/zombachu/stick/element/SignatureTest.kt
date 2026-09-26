@@ -1,19 +1,20 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
-import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.element.parameters.TextParameter
-import com.zombachu.stick.expectFailure
+import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failSender
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.invalidSenderDefault
+import com.zombachu.stick.noMatch
 import com.zombachu.stick.presenceValueFlag
+import com.zombachu.stick.success
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
@@ -81,7 +82,7 @@ class SignatureTest {
     @Test
     fun `inaccessible flag parses invalidDefault value`() {
         val base = presenceValueFlag<TestEnv, String, Boolean>("loud", false, true)
-        val invalidDefault = invalidSenderDefault<TestEnv, Unit, Boolean>(true) { SenderValidationResult.failSender() }
+        val invalidDefault = invalidSenderDefault<TestEnv, Unit, Boolean>(true) { failSender() }
         val gatedFlag = TransformedValueFlag(base, { _: Unit -> "x" }, invalidDefault)
         val signature = Signature1<TestEnv, Unit, Boolean>({ loud -> }, LeadingParameterRole.Label, [label, gatedFlag])
 
@@ -91,36 +92,36 @@ class SignatureTest {
     }
 
     @Test
-    fun `InvalidSizeError fails with InvalidSyntax`() {
+    fun `missing linear arg fails with InvalidSyntax`() {
         val signature = Signature1<TestEnv, Unit, Int>({}, LeadingParameterRole.Label, [label, amount])
 
         val result = withInvocation("cmd") { signature.execute() }
 
-        assertIs<Feedback.InvalidSyntax>(result.expectFailure().feedback)
+        assertIs<Reason.InvalidSyntax>(result.expectReason())
     }
 
     @Test
-    fun `silent mismatch fails with InvalidSyntax`() {
+    fun `default mismatch fails with InvalidSyntax`() {
         class SilentParameter : Parameter.Size1<TestEnv, Unit, String>("", "") {
             context(validationContext: ValidationContext<TestEnv, Unit>)
-            override fun resolve(arg0: String): CommandResult<String> = ParsingResult.failTypeInternal()
+            override fun resolve(arg0: String): CommandResult<String> = noMatch()
         }
         val signature = Signature1<TestEnv, Unit, String>({}, LeadingParameterRole.Label, [label, SilentParameter()])
 
         val result = withInvocation("cmd", "other") { signature.execute() }
 
-        assertIs<Feedback.InvalidSyntax>(result.expectFailure().feedback)
+        assertIs<Reason.InvalidSyntax>(result.expectReason())
     }
 
     @Test
     fun `flag parsing error propagates`() {
         val flagParameter = FlagParameter.ParameterFlagParameter("amount", amount, [])
-        val flag = ValueFlagImpl("amount", { ParsingResult.success(0) }, flagParameter)
+        val flag = ValueFlagImpl("amount", { success(0) }, flagParameter)
         val signature = Signature1<TestEnv, Unit, Int>({}, LeadingParameterRole.Label, [label, flag])
 
         val result = withInvocation("cmd", "-amount", "not-a-number") { signature.execute() }
 
-        assertEquals(Feedback.TypeNotMatched("integer", "not-a-number"), result.expectFailure().feedback)
+        assertEquals(Reason.TypeNotMatched("integer", "not-a-number"), result.expectReason())
     }
 
     @Test
@@ -130,7 +131,7 @@ class SignatureTest {
 
         val result = withInvocation("cmd", "bob", "extra") { signature.execute() }
 
-        assertIs<Feedback.InvalidSyntax>(result.expectFailure().feedback)
+        assertIs<Reason.InvalidSyntax>(result.expectReason())
     }
 
     @Test

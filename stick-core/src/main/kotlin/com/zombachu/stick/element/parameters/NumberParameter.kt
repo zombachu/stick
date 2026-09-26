@@ -3,9 +3,11 @@ package com.zombachu.stick.element.parameters
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.Parameter
+import com.zombachu.stick.failRange
+import com.zombachu.stick.failType
+import com.zombachu.stick.success
 
 open class NumberParameter<E : Environment, S, T>(
     name: String,
@@ -18,20 +20,20 @@ open class NumberParameter<E : Environment, S, T>(
 
     context(validationContext: ValidationContext<E, S>)
     override fun match(arg0: String): MatchResult {
-        if (arg0.toOrNull() == null) return MatchResult.unmatched(ParsingResult.failType(errorType, arg0))
+        if (arg0.toOrNull() == null) return MatchResult.unmatched(failType(errorType, arg0))
         return MatchResult.matchedExactly(1)
     }
 
     context(validationContext: ValidationContext<E, S>)
     override fun resolve(arg0: String): CommandResult<T> {
-        val number = arg0.toOrNull() ?: return ParsingResult.failType(errorType, arg0)
+        val number = arg0.toOrNull() ?: return failType(errorType, arg0)
 
         // If the given number is not in the valid range then give the sender an error
         if (number !in min..max) {
-            return ParsingResult.failRange(min.toString(), max.toString(), arg0)
+            return failRange(min.toString(), max.toString(), arg0)
         }
 
-        return ParsingResult.success(number)
+        return success(number)
     }
 }
 

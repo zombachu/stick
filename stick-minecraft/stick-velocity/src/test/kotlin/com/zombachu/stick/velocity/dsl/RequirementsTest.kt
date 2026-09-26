@@ -1,10 +1,10 @@
 package com.zombachu.stick.velocity.dsl
 
 import com.velocitypowered.api.command.CommandSource
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.ValidationContext
-import com.zombachu.stick.expectFailure
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.expectReason
+import com.zombachu.stick.failSender
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.structureTest
 import com.zombachu.stick.velocity.BasicVelocityEnvironment
@@ -30,14 +30,14 @@ class RequirementsTest {
     fun `permission fails with InvalidPermission when denied`() = structureTest<VelocityEnvironment, CommandSource> {
         val requirement = permission("stick.perm")
         val result = context(validationContext([])) { requirement.validateSender() }
-        assertSame(Feedback.InvalidPermission, result.expectFailure().feedback)
+        assertSame(Reason.InvalidPermission, result.expectReason())
     }
 
     @Test
     fun `permission uses failureResult`() = structureTest<VelocityEnvironment, CommandSource> {
-        val requirement = permission("stick.perm", failureResult = { SenderValidationResult.failSender() })
+        val requirement = permission("stick.perm", failureResult = { failSender() })
         val result = context(validationContext([])) { requirement.validateSender() }
-        assertSame(Feedback.InvalidSender, result.expectFailure().feedback)
+        assertSame(Reason.InvalidSender, result.expectReason())
     }
 
     private fun validationContext(permissions: Set<String>): ValidationContext<VelocityEnvironment, CommandSource> =

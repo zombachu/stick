@@ -3,15 +3,17 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
+import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
-import com.zombachu.stick.expectFailure
+import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failSender
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.invalidSenderDefault
+import com.zombachu.stick.success
 import com.zombachu.stick.validSenderDefault
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withValidationContext
@@ -45,7 +47,7 @@ class OptionalParameterImplTest {
                 parameter = parameter,
             )
         val result = withInvocation { optional.parse([]) }
-        assertIs<Feedback.InvalidSyntax>(result.expectFailure().feedback)
+        assertIs<Reason.InvalidSyntax>(result.expectReason())
     }
 
     @Test
@@ -69,7 +71,7 @@ class OptionalParameterImplTest {
                 parameter = parameter,
             )
         val result = withInvocation("value") { optional.parse(["value"]) }
-        assertSame(Feedback.InvalidSender, result.expectFailure().feedback)
+        assertSame(Reason.InvalidSender, result.expectReason())
     }
 
     @Test
@@ -81,7 +83,7 @@ class OptionalParameterImplTest {
                 parameter = parameter,
             )
         val result = withInvocation("a", "b") { optional.parse(["a", "b"]) }
-        assertIs<Feedback.InvalidSyntax>(result.expectFailure().feedback)
+        assertIs<Reason.InvalidSyntax>(result.expectReason())
     }
 
     @Test
@@ -94,7 +96,7 @@ class OptionalParameterImplTest {
             )
         val result = withInvocation("word") { optional.parse(["word"]) }
 
-        assertIs<Feedback.TypeNotMatched>(result.expectFailure().feedback)
+        assertIs<Reason.TypeNotMatched>(result.expectReason())
     }
 
     @Test
@@ -140,7 +142,7 @@ class OptionalParameterImplTest {
                 parameter = IntParameter("int", "", Int.MIN_VALUE, Int.MAX_VALUE),
             )
         val result = withValidationContext { optional.match(["word"]) }
-        assertSame(Feedback.InvalidSender, assertIs<MatchResult.Unmatched>(result).failure.expectFailure().feedback)
+        assertSame(Reason.InvalidSender, assertIs<MatchResult.Unmatched>(result).failure.expectReason())
     }
 
     @Test
@@ -185,6 +187,7 @@ class OptionalParameterImplTest {
     private fun validDefault(value: String, allowed: Boolean): ValidSenderDefault<TestEnv, Unit, String> =
         validSenderDefault(value) { validation(allowed) }
 
+    context(_: ValidationContext<*, *>)
     private fun validation(allowed: Boolean): CommandResult<Unit> =
-        if (allowed) SenderValidationResult.success() else SenderValidationResult.failSender()
+        if (allowed) success() else failSender()
 }

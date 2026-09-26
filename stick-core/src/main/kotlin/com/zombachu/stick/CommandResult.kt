@@ -2,20 +2,23 @@
 
 package com.zombachu.stick
 
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.Reason
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlin.reflect.KClass
 
 sealed interface CommandResult<out T> {
     interface Success<out T> : CommandResult<T> {
         val value: T
     }
 
-    sealed interface InternalFailure : ConsumingResult<Nothing>
+    sealed class Failure : ConsumingResult<Nothing> {
+        class NoMatch internal constructor(val reason: Reason) : Failure()
 
-    sealed interface Failure<out F : Feedback> : InternalFailure {
-        val feedback: F
+        class Error internal constructor(val reason: Reason) : Failure()
+
+        data object Handled : Failure()
     }
 }
 
@@ -26,110 +29,58 @@ sealed interface ConsumingResult<out T> : CommandResult<T> {
     }
 }
 
-sealed interface ParsingResult<out T> : CommandResult<T> {
-    class Success<out T> internal constructor(override val value: T) : ParsingResult<T>, CommandResult.Success<T>
+private class ValueSuccess<out T>(override val value: T) : CommandResult.Success<T>
 
-    class ConsumingSuccess<out T>
-    internal constructor(override val value: T, override val consumed: Int, override val canConsumeMore: Boolean) :
-        ParsingResult<T>, ConsumingResult.Success<T>
+private class ConsumingSuccess<out T>(
+    override val value: T,
+    override val consumed: Int,
+    override val canConsumeMore: Boolean,
+) : ConsumingResult.Success<T>
 
-    class UnknownError internal constructor(override val feedback: Feedback.Unknown) :
-        ParsingResult<Nothing>, CommandResult.Failure<Feedback.Unknown>
+context(_: ValidationContext<*, *>)
+fun <T> success(value: T): CommandResult.Success<T> = ValueSuccess(value)
 
-    sealed interface InternalFailure : ParsingResult<Nothing>, CommandResult.InternalFailure
+context(_: ValidationContext<*, *>)
+fun success(): CommandResult.Success<Unit> = ValueSuccess(Unit)
 
-    sealed interface Failure<out F : Feedback> : ParsingResult<Nothing>, CommandResult.Failure<F>
+context(_: ValidationContext<*, *>)
+fun fail(reason: Reason): CommandResult.Failure.Error = CommandResult.Failure.Error(reason)
 
-    object HandledError : InternalFailure
+context(_: ValidationContext<*, *>)
+fun noMatch(reason: Reason = invalidSyntax()): CommandResult.Failure.NoMatch = CommandResult.Failure.NoMatch(reason)
 
-    class TypeNotMatchedError internal constructor(override val feedback: Feedback.TypeNotMatched) :
-        Failure<Feedback.TypeNotMatched>
+context(validationContext: ValidationContext<*, *>)
+private fun invalidSyntax(): Reason.InvalidSyntax =
+    Reason.InvalidSyntax((validationContext as? Invocation<*, *>)?.getSyntax().orEmpty())
 
-    class LiteralNotMatchedError internal constructor(override val feedback: Feedback.LiteralNotMatched) :
-        Failure<Feedback.LiteralNotMatched>
+context(_: ValidationContext<*, *>)
+fun handled(): CommandResult.Failure.Handled = CommandResult.Failure.Handled
 
-    class InvalidSyntaxError internal constructor(override val feedback: Feedback.InvalidSyntax) :
-        Failure<Feedback.InvalidSyntax>
+context(_: ValidationContext<*, *>)
+fun failType(type: String, arg: String): CommandResult.Failure.NoMatch = noMatch(Reason.TypeNotMatched(type, arg))
 
-    class OutOfRangeError internal constructor(override val feedback: Feedback.OutOfRange) :
-        Failure<Feedback.OutOfRange>
+context(_: ValidationContext<*, *>)
+fun failLiteral(valid: List<String>, arg: String): CommandResult.Failure.NoMatch =
+    noMatch(Reason.LiteralNotMatched(valid, arg))
 
-    interface CustomError<out F : Feedback> : Failure<F>
+context(inv: Invocation<*, *>)
+fun failSyntax(): CommandResult.Failure.Error = fail(Reason.InvalidSyntax(inv.getSyntax()))
 
-    companion object {
-        fun <T> success(value: T): Success<T> = Success(value)
+context(_: ValidationContext<*, *>)
+fun failRange(min: String, max: String, arg: String): CommandResult.Failure.Error =
+    fail(Reason.OutOfRange(min, max, arg))
 
-        fun failUnknown(cause: Throwable? = null): UnknownError = UnknownError(Feedback.Unknown(cause))
+context(_: ValidationContext<*, *>)
+fun failSender(): CommandResult.Failure.Error = fail(Reason.InvalidSender)
 
-        fun failHandled(): HandledError = HandledError
+context(_: ValidationContext<*, *>)
+fun failPermission(): CommandResult.Failure.Error = fail(Reason.InvalidPermission)
 
-        internal fun failTypeInternal(): TypeNotMatchedInternal = TypeNotMatchedInternal
-
-        fun failType(type: String, arg: String): TypeNotMatchedError =
-            TypeNotMatchedError(Feedback.TypeNotMatched(type, arg))
-
-        fun failLiteral(valid: List<String>, arg: String): LiteralNotMatchedError =
-            LiteralNotMatchedError(Feedback.LiteralNotMatched(valid, arg))
-
-        fun failSyntax(syntax: String): InvalidSyntaxError = InvalidSyntaxError(Feedback.InvalidSyntax(syntax))
-
-        fun failRange(min: String, max: String, arg: String): OutOfRangeError =
-            OutOfRangeError(Feedback.OutOfRange(min, max, arg))
-    }
-}
-
-internal object TypeNotMatchedInternal : ParsingResult.InternalFailure
-
-sealed interface SenderValidationResult {
-    object Success : SenderValidationResult, CommandResult.Success<Unit> {
-        override val value: Unit = Unit
-    }
-
-    sealed interface Failure<out F : Feedback> : SenderValidationResult, CommandResult.Failure<F>
-
-    class InvalidSenderError internal constructor(override val feedback: Feedback.InvalidSender) :
-        Failure<Feedback.InvalidSender>
-
-    class InvalidSenderPermissionError internal constructor(override val feedback: Feedback.InvalidPermission) :
-        Failure<Feedback.InvalidPermission>
-
-    class InvalidSenderTypeError internal constructor(override val feedback: Feedback.InvalidSenderType) :
-        Failure<Feedback.InvalidSenderType>
-
-    companion object {
-        fun success(): Success = Success
-
-        fun failSender(): InvalidSenderError = InvalidSenderError(Feedback.InvalidSender)
-
-        fun failPermission(): InvalidSenderPermissionError = InvalidSenderPermissionError(Feedback.InvalidPermission)
-
-        fun failSenderType(): InvalidSenderTypeError = InvalidSenderTypeError(Feedback.InvalidSenderType)
-    }
-}
-
-internal sealed interface PeekingResult {
-
-    @ConsistentCopyVisibility
-    data class Success internal constructor(private val mutableArgs: MutableList<String>) :
-        PeekingResult, CommandResult.Success<List<String>> {
-        override val value: List<String> = mutableArgs
-
-        fun consume(count: Int) {
-            mutableArgs.subList(0, count).clear()
-        }
-    }
-
-    object InvalidSizeError : PeekingResult, CommandResult.InternalFailure
-
-    companion object {
-        fun success(mutableArgs: MutableList<String>): Success = Success(mutableArgs)
-
-        fun failSize(): InvalidSizeError = InvalidSizeError
-    }
-}
+context(_: ValidationContext<*, *>)
+fun failSenderType(required: KClass<*>): CommandResult.Failure.Error = fail(Reason.InvalidSenderType(required))
 
 @OptIn(ExperimentalContracts::class)
-inline fun <T> CommandResult<T>.propagateError(onFailure: (CommandResult.InternalFailure) -> Nothing) {
+inline fun <T> CommandResult<T>.propagateError(onFailure: (CommandResult.Failure) -> Nothing) {
     contract {
         returns() implies (this@propagateError is CommandResult.Success)
         callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
@@ -139,18 +90,18 @@ inline fun <T> CommandResult<T>.propagateError(onFailure: (CommandResult.Interna
 }
 
 @OptIn(ExperimentalContracts::class)
-inline fun <T> ConsumingResult<T>.propagateError(onFailure: (CommandResult.InternalFailure) -> Nothing) {
+inline fun <T> ConsumingResult<T>.propagateError(onFailure: (CommandResult.Failure) -> Nothing) {
     contract {
         returns() implies (this@propagateError is ConsumingResult.Success)
         callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
     }
     when (this) {
         is ConsumingResult.Success -> return
-        is CommandResult.InternalFailure -> onFailure(this)
+        is CommandResult.Failure -> onFailure(this)
     }
 }
 
-inline fun <T> CommandResult<T>.valueOrPropagateError(onFailure: (CommandResult.InternalFailure) -> Nothing): T {
+inline fun <T> CommandResult<T>.valueOrPropagateError(onFailure: (CommandResult.Failure) -> Nothing): T {
     contract {
         returns() implies (this@valueOrPropagateError is CommandResult.Success)
         callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
@@ -162,18 +113,17 @@ inline fun <T> CommandResult<T>.valueOrPropagateError(onFailure: (CommandResult.
 fun <T> CommandResult<T>.isSuccess(): Boolean {
     contract {
         returns(true) implies (this@isSuccess is CommandResult.Success)
-        returns(false) implies (this@isSuccess is CommandResult.InternalFailure)
+        returns(false) implies (this@isSuccess is CommandResult.Failure)
     }
     return this is CommandResult.Success
 }
+
+internal fun CommandResult.Failure.commit(): CommandResult.Failure =
+    if (this is CommandResult.Failure.NoMatch) CommandResult.Failure.Error(reason) else this
 
 fun <T> CommandResult<T>.consuming(consumed: Int, canConsumeMore: Boolean = true): ConsumingResult<T> {
     this.propagateError {
         return it
     }
-    return ParsingResult.ConsumingSuccess(this.value, consumed, canConsumeMore)
-}
-
-fun <F : Feedback, R> CommandResult.Failure<F>.handle(block: F.() -> R): R {
-    return this.feedback.block()
+    return ConsumingSuccess(this.value, consumed, canConsumeMore)
 }

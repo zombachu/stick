@@ -1,9 +1,9 @@
 package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.expectFailure
+import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.withInvocation
 import java.util.*
 import kotlin.test.Test
@@ -23,6 +23,6 @@ class UUIDParameterTest {
     @Test
     fun `rejects malformed UUID`() {
         val result = withInvocation { parameter.parse(["not-a-uuid"]) }
-        assertEquals(Feedback.TypeNotMatched("UUID", "not-a-uuid"), result.expectFailure().feedback)
+        assertEquals(Reason.TypeNotMatched("UUID", "not-a-uuid"), result.expectReason())
     }
 }

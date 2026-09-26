@@ -4,7 +4,6 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.SimpleSuggestion
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
@@ -30,6 +29,7 @@ import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.subcommands
 import com.zombachu.stick.dsl.valueFlag
 import com.zombachu.stick.element.Parameter
+import com.zombachu.stick.failType
 import com.zombachu.stick.integration.fixtures.Console
 import com.zombachu.stick.integration.fixtures.Location
 import com.zombachu.stick.integration.fixtures.Player
@@ -44,6 +44,7 @@ import com.zombachu.stick.integration.fixtures.permission
 import com.zombachu.stick.integration.fixtures.playerParameter
 import com.zombachu.stick.integration.fixtures.suggest
 import com.zombachu.stick.integration.fixtures.warpParameter
+import com.zombachu.stick.success
 import com.zombachu.stick.toSuggestions
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -291,7 +292,7 @@ class SuggestionTest {
         }
 
         context(validationContext: ValidationContext<E, S>)
-        override fun resolve(arg0: String): CommandResult<String> = ParsingResult.success(arg0)
+        override fun resolve(arg0: String): CommandResult<String> = success(arg0)
     }
 
     /** x=X y=Y z=Z **/
@@ -306,10 +307,10 @@ class SuggestionTest {
         context(validationContext: ValidationContext<E, S>)
         override fun resolve(arg0: String, arg1: String, arg2: String): CommandResult<Location> {
             val (x, y, z) = [arg0, arg1, arg2].mapIndexed { i, arg ->
-                if (!arg.startsWith(axes[i] + "=")) return ParsingResult.failType("point", arg)
-                arg.drop(2).toIntOrNull() ?: return ParsingResult.failType("point", arg)
+                if (!arg.startsWith(axes[i] + "=")) return failType("point", arg)
+                arg.drop(2).toIntOrNull() ?: return failType("point", arg)
             }
-            return ParsingResult.success(Location(x, y, z))
+            return success(Location(x, y, z))
         }
     }
 
@@ -323,12 +324,12 @@ class SuggestionTest {
         context(validationContext: ValidationContext<E, S>)
         override fun match(args: List<String>): MatchResult =
             if (args.firstOrNull() == "near") super.match(args)
-            else MatchResult.unmatched(ParsingResult.failType("near", args.firstOrNull() ?: ""))
+            else MatchResult.unmatched(failType("near", args.firstOrNull() ?: ""))
 
         context(validationContext: ValidationContext<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<Player> {
-            val player = validationContext.env.getPlayer(args[1]) ?: return ParsingResult.failType("player", args[1])
-            return ParsingResult.success(player).consuming(2)
+            val player = validationContext.env.getPlayer(args[1]) ?: return failType("player", args[1])
+            return success(player).consuming(2)
         }
     }
 
@@ -350,7 +351,7 @@ class SuggestionTest {
         context(validationContext: ValidationContext<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<Location> {
             if (args.firstOrNull() == "~") {
-                return ParsingResult.success(validationContext.sender.position).consuming(1, canConsumeMore = false)
+                return success(validationContext.sender.position).consuming(1, canConsumeMore = false)
             }
             return point.resolve(args)
         }
@@ -362,7 +363,7 @@ class SuggestionTest {
         context(validationContext: ValidationContext<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<String> {
             count++
-            return ParsingResult.failType("", args.first())
+            return failType("", args.first())
         }
     }
 

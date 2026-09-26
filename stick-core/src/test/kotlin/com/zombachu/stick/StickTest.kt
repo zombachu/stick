@@ -4,7 +4,7 @@ import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.feedback.FailureHandler
+import com.zombachu.stick.failure.FailureHandler
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

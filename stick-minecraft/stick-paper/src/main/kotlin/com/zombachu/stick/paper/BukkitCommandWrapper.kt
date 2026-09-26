@@ -3,7 +3,7 @@ package com.zombachu.stick.paper
 import com.zombachu.stick.CommandWrapper
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.feedback.FailureHandler
+import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.isSuccess
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender

@@ -2,7 +2,8 @@ package com.zombachu.stick
 
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.parse
-import com.zombachu.stick.feedback.FailureHandler
+import com.zombachu.stick.failure.FailureHandler
+import com.zombachu.stick.failure.Reason
 
 interface CommandWrapper<E : Environment, S> {
     val env: E
@@ -18,12 +19,15 @@ interface CommandWrapper<E : Environment, S> {
                     val validationResult = structure.validateSender()
                     if (validationResult.isSuccess()) structure.parse(fullArgs) else validationResult
                 } catch (e: Exception) {
-                    ParsingResult.failUnknown(e)
+                    fail(Reason.Unknown(e))
                 }
-            // Ignore InternalFailures
-            if (result is CommandResult.Failure<*>) {
-                failureHandler.onFailure(result)
-            }
+            val reason =
+                when (result) {
+                    is CommandResult.Failure.NoMatch -> result.reason
+                    is CommandResult.Failure.Error -> result.reason
+                    else -> return
+                }
+            failureHandler.onFailure(reason)
         }
     }
 

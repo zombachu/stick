@@ -2,10 +2,10 @@ package com.zombachu.stick.dsl
 
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ContextualValue
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.EnumEntry
 import com.zombachu.stick.structureTest
+import com.zombachu.stick.success
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -87,7 +87,7 @@ class ParametersTest {
         val inner = stringParameter("")
         assertEquals(inner, listParameter("", inner).parameter)
 
-        val source: ContextualValue<TestEnv, Unit, List<String>> = { ParsingResult.success(["a"]) }
+        val source: ContextualValue<TestEnv, Unit, List<String>> = { success(["a"]) }
         assertEquals("item", listElementParameter("item", source).name)
     }
 

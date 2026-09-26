@@ -35,7 +35,7 @@ class StructureScopeTest {
                 ["s"],
                 "desc",
                 parent,
-                Requirement { SenderValidationResult.failSender() },
+                Requirement { failSender() },
             )
 
         val forSender = scope.forSender<TestEnv, String>()
@@ -55,7 +55,7 @@ class StructureScopeTest {
                 ["s"],
                 "desc",
                 null,
-                Requirement { SenderValidationResult.success() },
+                Requirement { success() },
             )
 
         val structure = scope.build { Signature0({}, LeadingParameterRole.Label, [it]) }

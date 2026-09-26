@@ -4,20 +4,20 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.TypeNotMatchedInternal
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.element.parameters.IntParameter
-import com.zombachu.stick.expectFailure
+import com.zombachu.stick.expectNoMatch
+import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failSenderType
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.isSuccess
+import com.zombachu.stick.success
 import com.zombachu.stick.testInvocation
 import com.zombachu.stick.testInvocationSender
 import com.zombachu.stick.withInvocation
@@ -26,7 +26,6 @@ import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class HybridFlagImplTest {
@@ -42,7 +41,7 @@ class HybridFlagImplTest {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> {
                     resolves++
-                    return ParsingResult.success(arg0)
+                    return success(arg0)
                 }
             }
         val countingFlag = HybridFlagImpl("rank", counting, [])
@@ -60,7 +59,7 @@ class HybridFlagImplTest {
         val varying =
             object : Parameter.Bounded<TestEnv, Unit, String>(Size.between(1, 2), "v", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun resolve(args: List<String>): ConsumingResult<String> = ParsingResult.success(args[0]).consuming(1)
+                override fun resolve(args: List<String>): ConsumingResult<String> = success(args[0]).consuming(1)
             }
         val varyingFlag = HybridFlagImpl("boost", varying, [])
 
@@ -72,9 +71,9 @@ class HybridFlagImplTest {
     }
 
     @Test
-    fun `empty args fails with TypeNotMatchedInternal`() {
+    fun `empty args fails with InvalidSyntax NoMatch`() {
         val result = withInvocation { flag.parse([]) }
-        assertIs<TypeNotMatchedInternal>(result)
+        assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
     }
 
     @Test
@@ -103,21 +102,21 @@ class HybridFlagImplTest {
     }
 
     @Test
-    fun `match unmatched fails with TypeNotMatchedInternal`() {
+    fun `match unmatched fails with InvalidSyntax NoMatch`() {
         val result = withValidationContext { flag.match(["-other"]) }
-        assertSame(TypeNotMatchedInternal, result.expectUnmatched())
+        assertIs<Reason.InvalidSyntax>(result.expectUnmatched().expectNoMatch().reason)
     }
 
     @Test
     fun `parameter failure fails with TypeNotMatched`() {
         val result = withInvocation { flag.parse(["-boost", "not-a-number"]) }
-        assertEquals(Feedback.TypeNotMatched("integer", "not-a-number"), result.expectFailure().feedback)
+        assertEquals(Reason.TypeNotMatched("integer", "not-a-number"), result.expectReason())
     }
 
     @Test
-    fun `mismatch fails with TypeNotMatchedInternal`() {
+    fun `mismatch fails with InvalidSyntax NoMatch`() {
         val result = withInvocation { flag.parse(["-other"]) }
-        assertIs<TypeNotMatchedInternal>(result)
+        assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
     }
 
     @Test
@@ -150,7 +149,7 @@ class HybridFlagImplTest {
         val invalidDefault =
             invalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>>(HybridFlagResult.Absent()) {
                 validated = true
-                SenderValidationResult.success()
+                success()
             }
         val transformed = TransformedHybridFlag(flag, { }, invalidDefault)
 
@@ -172,7 +171,7 @@ class HybridFlagImplTest {
     fun `TransformedHybridFlag default for inaccessible flag returns invalid sender default`() {
         val invalidDefault =
             invalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>>(HybridFlagResult.Present()) {
-                SenderValidationResult.failSenderType()
+                failSenderType(String::class)
             }
         val transformed = TransformedHybridFlag(flag, { }, invalidDefault)
 

@@ -10,10 +10,8 @@ import com.zombachu.stick.Arguments8
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.element.Group
 import com.zombachu.stick.element.InvalidSenderDefault
@@ -32,30 +30,30 @@ import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.SignatureElement
 import com.zombachu.stick.element.ValidSenderDefault
 import com.zombachu.stick.element.ValidatedDefaultImpl
+import com.zombachu.stick.success
 
 fun <E : Environment, S, T> StructureScope<E, S>.default(
     value: ContextualValue<E, S, T>,
-    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
+    requirement: Requirement<E, S> = requirement { success() },
 ): ValidSenderDefault<E, S, T> = ValidatedDefaultImpl(value) { requirement.validateSender() }
 
 fun <E : Environment, S, T> StructureScope<E, S>.default(
     value: T,
-    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
-): ValidSenderDefault<E, S, T> = ValidatedDefaultImpl({ ParsingResult.success(value) }) { requirement.validateSender() }
+    requirement: Requirement<E, S> = requirement { success() },
+): ValidSenderDefault<E, S, T> = ValidatedDefaultImpl({ success(value) }) { requirement.validateSender() }
 
 fun <E : Environment, S, T> StructureScope<E, S>.invalidDefault(
     value: ContextualValue<E, S, T>,
-    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
+    requirement: Requirement<E, S> = requirement { success() },
 ): InvalidSenderDefault<E, S, T> = ValidatedDefaultImpl(value) { requirement.validateSender() }
 
 fun <E : Environment, S, T> StructureScope<E, S>.invalidDefault(
     value: T,
-    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
-): InvalidSenderDefault<E, S, T> =
-    ValidatedDefaultImpl({ ParsingResult.success(value) }) { requirement.validateSender() }
+    requirement: Requirement<E, S> = requirement { success() },
+): InvalidSenderDefault<E, S, T> = ValidatedDefaultImpl({ success(value) }) { requirement.validateSender() }
 
 inline fun <E : Environment, S : Any, reified S2 : S> StructureScope<E, S>.defaultSender():
-    ValidSenderDefault<E, S, S2> = default({ ParsingResult.success(sender as S2) }, requirement { sender is S2 })
+    ValidSenderDefault<E, S, S2> = default({ success(sender as S2) }, requirement { sender is S2 })
 
 fun <E : Environment, S, T> StructureScope<E, S>.optionally(
     ifInvalid: InvalidSenderDefault<E, S, T>,

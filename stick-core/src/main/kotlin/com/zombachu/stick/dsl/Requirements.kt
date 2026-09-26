@@ -5,10 +5,11 @@ package com.zombachu.stick.dsl
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Requirement
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.failSender
+import com.zombachu.stick.success
 import kotlin.experimental.ExperimentalTypeInference
 
 @OverloadResolutionByLambdaReturnType
@@ -20,11 +21,11 @@ fun <E : Environment, S> StructureScope<E, S>.requirement(
 @OverloadResolutionByLambdaReturnType
 @JvmName("requirementBoolean")
 fun <E : Environment, S> StructureScope<E, S>.requirement(
-    failureResult: () -> CommandResult.Failure<*> = { SenderValidationResult.failSender() },
+    failureResult: ValidationContext<E, S>.() -> CommandResult.Failure = { failSender() },
     validate: ValidationContext<E, S>.() -> Boolean,
 ): Requirement<E, S> = Requirement {
     if (validate()) {
-        SenderValidationResult.success()
+        success()
     } else {
         failureResult()
     }

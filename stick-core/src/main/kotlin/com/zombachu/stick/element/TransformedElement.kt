@@ -9,7 +9,6 @@ import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidator
@@ -19,6 +18,7 @@ import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.forSender
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
+import com.zombachu.stick.success
 
 internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T, P : Position>(
     val base: Parameter<E, S2, T, P>,
@@ -133,7 +133,7 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
     override val description: String = base.description
     override val default: ContextualValue<E, S, HybridFlagResult<T>> = {
         if (validateSender().isSuccess()) {
-            ParsingResult.success(HybridFlagResult.Absent())
+            success(HybridFlagResult.Absent())
         } else {
             invalidSenderDefault.value(this)
         }

@@ -2,13 +2,14 @@ package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.Parameter
-import com.zombachu.stick.expectFailure
+import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failType
+import com.zombachu.stick.failure.Reason
+import com.zombachu.stick.success
 import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -53,14 +54,14 @@ class ListParameterTest {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> {
                     calls++
-                    return if (arg0 == "bad") ParsingResult.failType("item", arg0) else ParsingResult.success(arg0)
+                    return if (arg0 == "bad") failType("item", arg0) else success(arg0)
                 }
             }
         val listParameter = ListParameter("", "", counting)
 
         val result = withInvocation { listParameter.parse(["a,bad,c"]) }
 
-        assertEquals(Feedback.TypeNotMatched("item", "bad"), result.expectFailure().feedback)
+        assertEquals(Reason.TypeNotMatched("item", "bad"), result.expectReason())
         assertEquals(2, calls)
     }
 }

@@ -9,22 +9,22 @@ import com.zombachu.stick.element.PipelinedOptionalParameter
 import com.zombachu.stick.element.StoredParameter
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.Reason
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
-import kotlin.test.assertSame
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class InvocationImplTest {
 
     @Test
-    fun `peek with too large size fails with InvalidSizeError`() {
+    fun `peek with too large size returns null`() {
         val inv = testInvocation("a")
-        assertSame(PeekingResult.InvalidSizeError, inv.peek(Size(2)))
-        assertSame(PeekingResult.InvalidSizeError, inv.peek(Size.between(2, 4)))
-        assertSame(PeekingResult.InvalidSizeError, inv.peek(Size.atLeast(2)))
+        assertNull(inv.peek(Size(2)))
+        assertNull(inv.peek(Size.between(2, 4)))
+        assertNull(inv.peek(Size.atLeast(2)))
     }
 
     @Test
@@ -33,8 +33,7 @@ class InvocationImplTest {
 
         val peeked = inv.peek(Size(2))
 
-        assertIs<PeekingResult.Success>(peeked)
-        assertEquals(["a", "b"], peeked.value)
+        assertEquals(["a", "b"], peeked)
     }
 
     @Test
@@ -43,8 +42,7 @@ class InvocationImplTest {
 
         val peeked = inv.peek(Size.atLeast(0))
 
-        assertIs<PeekingResult.Success>(peeked)
-        assertEquals(["a", "b", "c"], peeked.value)
+        assertEquals(["a", "b", "c"], peeked)
     }
 
     @Test
@@ -52,12 +50,10 @@ class InvocationImplTest {
         val inv = testInvocation("a", "b", "c")
 
         val smallPeek = inv.peek(Size.between(0, 2))
-        assertIs<PeekingResult.Success>(smallPeek)
-        assertEquals(["a", "b"], smallPeek.value)
+        assertEquals(["a", "b"], smallPeek)
 
         val largePeek = inv.peek(Size.between(0, 5))
-        assertIs<PeekingResult.Success>(largePeek)
-        assertEquals(["a", "b", "c"], largePeek.value)
+        assertEquals(["a", "b", "c"], largePeek)
     }
 
     @Test
@@ -94,13 +90,13 @@ class InvocationImplTest {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> {
                     parsed = true
-                    return ParsingResult.success(arg0)
+                    return success(arg0)
                 }
             }
 
         val result = inv.processElement(parameter)
 
-        assertSame(TypeNotMatchedInternal, result)
+        assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
         assertFalse(parsed)
         assertEquals(["foo"], inv.unparsed)
     }
@@ -112,11 +108,11 @@ class InvocationImplTest {
 
         val result = inv.processElement(parameter)
 
-        assertEquals(Feedback.LiteralNotMatched(["bar"], "foo"), result.expectFailure().feedback)
+        assertEquals(Reason.LiteralNotMatched(["bar"], "foo"), result.expectReason())
     }
 
     @Test
-    fun `processElement fails partial element with InvalidSizeError`() {
+    fun `processElement fails partial element with InvalidSyntax NoMatch`() {
         val inv = testInvocation("a")
         val parameter =
             object : Parameter.Bounded<TestEnv, Unit, String>(Size.between(0, 2), "", "") {
@@ -125,12 +121,12 @@ class InvocationImplTest {
 
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(args: List<String>): ConsumingResult<String> =
-                    ParsingResult.success("").consuming(1)
+                    success("").consuming(1)
             }
 
         val result = inv.processElement(parameter)
 
-        assertSame(PeekingResult.InvalidSizeError, result)
+        assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
     }
 
     @Test
@@ -190,7 +186,7 @@ class InvocationImplTest {
                 validSenderDefault("absent"),
                 countingParameter { resolves++ },
             )
-        val exclaim: PipelineOperation<TestEnv, Unit, String, String> = { ParsingResult.success("$it!") }
+        val exclaim: PipelineOperation<TestEnv, Unit, String, String> = { success("$it!") }
         val piped = PipelinedOptionalParameter<TestEnv, Unit, String, String, Position.Optional>(optional, [exclaim])
 
         val result = testInvocation("a").processElement(piped)
@@ -206,12 +202,12 @@ class InvocationImplTest {
             object : Parameter.Unbounded<TestEnv, Unit, String>(Size.atLeast(1), "", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(args: List<String>): ConsumingResult<String> =
-                    ParsingResult.success(args.joinToString(" ")).consuming(0)
+                    success(args.joinToString(" ")).consuming(0)
             }
 
         val result = inv.processElement(misbehavingParameter)
 
-        assertIs<ParsingResult.UnknownError>(result)
+        assertIs<Reason.Unknown>(result.expectError().reason)
         assertEquals(0, inv.consumedArgs)
     }
 
@@ -224,12 +220,12 @@ class InvocationImplTest {
                 override fun match(args: List<String>): MatchResult = MatchResult.matchedExactly(1)
 
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun resolve(args: List<String>): ConsumingResult<String> = ParsingResult.success("a").consuming(5)
+                override fun resolve(args: List<String>): ConsumingResult<String> = success("a").consuming(5)
             }
 
         val result = inv.processElement(misbehavingParameter)
 
-        assertIs<ParsingResult.UnknownError>(result)
+        assertIs<Reason.Unknown>(result.expectError().reason)
     }
 
     @Test
@@ -272,7 +268,7 @@ class InvocationImplTest {
             context(validationContext: ValidationContext<TestEnv, Unit>)
             override fun resolve(arg0: String): CommandResult<String> {
                 onResolve()
-                return ParsingResult.success(arg0)
+                return success(arg0)
             }
         }
 }

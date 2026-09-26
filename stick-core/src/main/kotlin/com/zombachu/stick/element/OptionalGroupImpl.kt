@@ -5,11 +5,11 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
+import com.zombachu.stick.failSyntax
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 
@@ -49,7 +49,7 @@ internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Posit
             }
             // Check if an alternative is required to be specified by the sender
             presenceDefault.validateSender().propagateError {
-                return ParsingResult.failSyntax(inv.getSyntax())
+                return failSyntax()
             }
             return presenceDefault.value(inv)
         }

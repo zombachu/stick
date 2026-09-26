@@ -3,13 +3,13 @@ package com.zombachu.stick.dsl
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult2
 import com.zombachu.stick.Requirement
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parse
-import com.zombachu.stick.expectFailure
+import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failSender
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.structureTest
 import com.zombachu.stick.testInvocation
@@ -37,9 +37,9 @@ class OptionalsTest {
 
     @Test
     fun `default uses requirement in sender validation`() = structureTest {
-        val default = default("x", Requirement { SenderValidationResult.failSender() })
+        val default = default("x", Requirement { failSender() })
         val validationResult = withValidationContext { default.validateSender() }
-        assertSame(Feedback.InvalidSender, validationResult.expectFailure().feedback)
+        assertSame(Reason.InvalidSender, validationResult.expectReason())
     }
 
     @Test
@@ -59,7 +59,7 @@ class OptionalsTest {
         assertEquals("hello", sender.value(testInvocationSender(stringSender)).expectSuccessValue())
 
         val intSenderResult = withValidationContext(intSender) { sender.validateSender() }
-        assertSame(Feedback.InvalidSender, intSenderResult.expectFailure().feedback)
+        assertSame(Reason.InvalidSender, intSenderResult.expectReason())
     }
 
     @Test
@@ -72,8 +72,8 @@ class OptionalsTest {
 
         assertEquals(-1, withInvocationSender("incorrect") { optional.parse([]) }.expectSuccessValue())
         assertSame(
-            Feedback.InvalidSender,
-            withInvocationSender("incorrect", "5") { optional.parse(["5"]) }.expectFailure().feedback)
+            Reason.InvalidSender,
+            withInvocationSender("incorrect", "5") { optional.parse(["5"]) }.expectReason())
     }
 
     @Test
@@ -91,8 +91,8 @@ class OptionalsTest {
 
         assertNull(withInvocationSender("incorrect") { optional.parse([]) }.expectSuccessValue())
         assertSame(
-            Feedback.InvalidSender,
-            withInvocationSender("incorrect", "5") { optional.parse(["5"]) }.expectFailure().feedback,
+            Reason.InvalidSender,
+            withInvocationSender("incorrect", "5") { optional.parse(["5"]) }.expectReason(),
         )
     }
 
@@ -133,7 +133,7 @@ class OptionalsTest {
 
         val result = withInvocation("cmd", "hello", "world") { structure.parse(["cmd", "hello", "world"]) }
 
-        assertIs<Feedback.TypeNotMatched>(result.expectFailure().feedback)
+        assertIs<Reason.TypeNotMatched>(result.expectReason())
     }
 
     @Test

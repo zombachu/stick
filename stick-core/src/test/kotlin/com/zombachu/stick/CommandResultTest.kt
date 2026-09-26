@@ -1,6 +1,6 @@
 package com.zombachu.stick
 
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.Reason
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -12,85 +12,95 @@ class CommandResultTest {
 
     @Test
     fun `success wraps value`() {
-        val result = ParsingResult.success("value")
+        val result = withValidationContext { success("value") }
         assertTrue(result.isSuccess())
         assertEquals("value", result.value)
     }
 
     @Test
-    fun `failUnknown defaults to no cause`() {
-        val result = ParsingResult.failUnknown()
-        assertFalse(result.isSuccess())
-        assertEquals(Feedback.Unknown(), result.feedback)
-    }
-
-    @Test
-    fun `failUnknown carries its cause`() {
-        val cause = IllegalStateException("boom")
-        val result = ParsingResult.failUnknown(cause)
-        assertSame(cause, result.feedback.cause)
-    }
-
-    @Test
-    fun `failHandled returns HandledError singleton`() {
-        val result = ParsingResult.failHandled()
-        assertFalse(result.isSuccess())
-        assertSame(ParsingResult.HandledError, result)
-    }
-
-    @Test
-    fun `failTypeInternal returns TypeNotMatchedInternal singleton`() {
-        val result = ParsingResult.failTypeInternal()
-        assertFalse(result.isSuccess())
-        assertSame(TypeNotMatchedInternal, result)
-    }
-
-    @Test
-    fun `failType feedback wraps type and arg`() {
-        val result = ParsingResult.failType("boolean", "xyz")
-        assertFalse(result.isSuccess())
-        assertEquals(Feedback.TypeNotMatched("boolean", "xyz"), result.feedback)
-    }
-
-    @Test
-    fun `failLiteral feedback wraps valid values and arg`() {
-        val result = ParsingResult.failLiteral(["a", "b"], "c")
-        assertFalse(result.isSuccess())
-        assertEquals(Feedback.LiteralNotMatched(["a", "b"], "c"), result.feedback)
-    }
-
-    @Test
-    fun `failSyntax feedback wraps usage string`() {
-        val result = ParsingResult.failSyntax("/foo <bar>")
-        assertFalse(result.isSuccess())
-        assertEquals(Feedback.InvalidSyntax("/foo <bar>"), result.feedback)
-    }
-
-    @Test
-    fun `failRange feedback wraps min max and arg`() {
-        val result = ParsingResult.failRange("0", "10", "20")
-        assertFalse(result.isSuccess())
-        assertEquals(Feedback.OutOfRange("0", "10", "20"), result.feedback)
-    }
-
-    @Test
-    fun `senderValidationResult returns Success singleton`() {
-        val result = SenderValidationResult.success()
+    fun `success without value wraps Unit`() {
+        val result = withValidationContext { success() }
         assertTrue(result.isSuccess())
-        assertSame(SenderValidationResult.Success, result)
+        assertSame(Unit, result.value)
     }
 
     @Test
-    fun `senderValidationResult wraps expected feedback`() {
-        assertSame(Feedback.InvalidSender, SenderValidationResult.failSender().feedback)
-        assertSame(Feedback.InvalidPermission, SenderValidationResult.failPermission().feedback)
-        assertSame(Feedback.InvalidSenderType, SenderValidationResult.failSenderType().feedback)
+    fun `fail returns Error with reason`() {
+        val result = withValidationContext { fail(Reason.InvalidSender) }
+        assertSame(Reason.InvalidSender, result.expectError().reason)
+    }
+
+    @Test
+    fun `noMatch defaults to InvalidSyntax`() {
+        val inv = testInvocation()
+        val result = context(inv) { noMatch() }
+        assertEquals(Reason.InvalidSyntax(inv.getSyntax()), result.expectNoMatch().reason)
+    }
+
+    @Test
+    fun `noMatch returns NoMatch with reason`() {
+        val result = withValidationContext { noMatch(Reason.InvalidSender) }
+        assertSame(Reason.InvalidSender, result.expectNoMatch().reason)
+    }
+
+    @Test
+    fun `handled returns Handled`() {
+        val result = withValidationContext { handled() }
+        assertFalse(result.isSuccess())
+        assertSame(CommandResult.Failure.Handled, result)
+    }
+
+    @Test
+    fun `failType returns NoMatch wrapping type and arg`() {
+        val result = withValidationContext { failType("boolean", "xyz") }
+        assertEquals(Reason.TypeNotMatched("boolean", "xyz"), result.expectNoMatch().reason)
+    }
+
+    @Test
+    fun `failLiteral returns NoMatch wrapping valid values and arg`() {
+        val result = withValidationContext { failLiteral(["a", "b"], "c") }
+        assertEquals(Reason.LiteralNotMatched(["a", "b"], "c"), result.expectNoMatch().reason)
+    }
+
+    @Test
+    fun `failSyntax returns Error with InvalidSyntax`() {
+        val inv = testInvocation()
+        val result = context(inv) { failSyntax() }
+        assertEquals(Reason.InvalidSyntax(inv.getSyntax()), result.expectError().reason)
+    }
+
+    @Test
+    fun `failRange returns Error wrapping min, max, and arg`() {
+        val result = withValidationContext { failRange("0", "10", "20") }
+        assertEquals(Reason.OutOfRange("0", "10", "20"), result.expectError().reason)
+    }
+
+    @Test
+    fun `sender failures return Error with expected reason`() {
+        withValidationContext {
+            assertSame(Reason.InvalidSender, failSender().expectError().reason)
+            assertSame(Reason.InvalidPermission, failPermission().expectError().reason)
+            assertEquals(Reason.InvalidSenderType(Int::class), failSenderType(Int::class).expectError().reason)
+        }
+    }
+
+    @Test
+    fun `commit reports default NoMatch as InvalidSyntax`() {
+        val inv = testInvocation()
+        val result = context(inv) { noMatch().commit() }
+        assertEquals(Reason.InvalidSyntax(inv.getSyntax()), result.expectError().reason)
+    }
+
+    @Test
+    fun `commit keeps NoMatch reason`() {
+        val result = withValidationContext { failType("integer", "many").commit() }
+        assertEquals(Reason.TypeNotMatched("integer", "many"), result.expectError().reason)
     }
 
     @Test
     fun `propagateError does not invoke callback on success`() {
         var called = false
-        val result = ParsingResult.success("ok")
+        val result = withValidationContext { success("ok") }
         result.propagateError {
             called = true
             error("shouldn't be called")
@@ -107,13 +117,13 @@ class CommandResultTest {
             }
             return "success:${result.value}"
         }
-        assertEquals("propagated", run(ParsingResult.failUnknown()))
-        assertEquals("success:ok", run(ParsingResult.success("ok")))
+        assertEquals("propagated", run(withValidationContext { fail(Reason.Unknown()) }))
+        assertEquals("success:ok", run(withValidationContext { success("ok") }))
     }
 
     @Test
     fun `valueOrPropagateError returns value on success`() {
-        val result = ParsingResult.success("ok")
+        val result = withValidationContext { success("ok") }
         val value = result.valueOrPropagateError { error("shouldn't be called") }
         assertEquals("ok", value)
     }
@@ -126,12 +136,12 @@ class CommandResultTest {
             }
             return "success:$value"
         }
-        assertEquals("propagated", run(ParsingResult.failUnknown()))
+        assertEquals("propagated", run(withValidationContext { fail(Reason.Unknown()) }))
     }
 
     @Test
     fun `consuming sets consumed count on success`() {
-        val result = ParsingResult.success("ok").consuming(5)
+        val result = withValidationContext { success("ok") }.consuming(5)
 
         assertIs<ConsumingResult.Success<String>>(result)
         assertEquals("ok", result.value)
@@ -140,34 +150,8 @@ class CommandResultTest {
 
     @Test
     fun `consuming passes through failures unchanged`() {
-        val failure = ParsingResult.failSyntax("usage")
+        val failure = withInvocation { failSyntax() }
         val result = failure.consuming(5)
         assertSame(failure, result)
-    }
-
-    @Test
-    fun `handle runs block with feedback as receiver`() {
-        val failure = ParsingResult.failType("boolean", "xyz")
-        val message = failure.handle { message }
-        assertEquals("The argument provided is not a boolean: xyz.", message)
-    }
-
-    @Test
-    fun `PeekingResult success shares mutable backing list with consume`() {
-        val backing = mutableListOf("a", "b", "c")
-        val peeked = PeekingResult.success(backing)
-        val valueRef = peeked.value
-
-        peeked.consume(2)
-
-        assertEquals(["c"], valueRef)
-        assertEquals(["c"], backing)
-    }
-
-    @Test
-    fun `PeekingResult failSize returns InvalidSizeError`() {
-        val result = PeekingResult.failSize()
-        assertFalse(result.isSuccess())
-        assertSame(PeekingResult.InvalidSizeError, result)
     }
 }

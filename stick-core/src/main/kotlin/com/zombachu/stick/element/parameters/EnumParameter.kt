@@ -4,12 +4,13 @@ import com.zombachu.stick.AliasEntry
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.GroupableType
 import com.zombachu.stick.element.Parameter
+import com.zombachu.stick.failLiteral
 import com.zombachu.stick.lowercase
+import com.zombachu.stick.success
 import com.zombachu.stick.toSuggestions
 
 open class EnumParameter<E : Environment, S, T : Enum<T>>(
@@ -29,10 +30,8 @@ open class EnumParameter<E : Environment, S, T : Enum<T>>(
     override fun resolve(arg0: String): CommandResult<T> {
         val label = arg0.lowercase()
         val enumValue =
-            primaryValues[label]
-                ?: aliasedValues[label]
-                ?: return ParsingResult.failLiteral(primaryValues.keys.toList(), arg0)
-        return ParsingResult.success(enumValue)
+            primaryValues[label] ?: aliasedValues[label] ?: return failLiteral(primaryValues.keys.toList(), arg0)
+        return success(enumValue)
     }
 
     context(validationContext: ValidationContext<E, S>)

@@ -1,8 +1,6 @@
-package com.zombachu.stick.feedback
+package com.zombachu.stick.failure
 
-import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.testInvocationSender
 import kotlin.test.Test
@@ -16,14 +14,14 @@ class FailureHandlerTest {
         val base =
             object : FailureHandler<TestEnv, String> {
                 context(inv: Invocation<TestEnv, String>)
-                override fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>) {
+                override fun onFailure(reason: Reason) {
                     sender = inv.sender
                 }
             }
         val transformed = TransformedFailureHandler(base, { it: Int -> it.toString() })
 
         val inv = testInvocationSender(42)
-        context(inv) { transformed.onFailure(ParsingResult.failUnknown()) }
+        context(inv) { transformed.onFailure(Reason.Unknown()) }
 
         assertEquals("42", sender)
     }

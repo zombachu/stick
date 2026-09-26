@@ -4,10 +4,10 @@ import com.zombachu.stick.Arguments
 import com.zombachu.stick.CommandScope
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Requirement
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.lowercase
+import com.zombachu.stick.success
 import kotlin.reflect.KClass
 
 fun <E : Environment, S : Any, T_ : Arguments> structure(
@@ -23,7 +23,7 @@ fun <E : Environment, S : Any, T_ : Arguments> CommandScope<E, S>.structure(
 fun <E : Environment, S> StructureScope<E, S>.command(
     name: String,
     aliases: Set<String> = [],
-    requirement: Requirement<E, S> = requirement { SenderValidationResult.success() },
+    requirement: Requirement<E, S> = requirement { success() },
     description: String = "",
 ): StructureScope<E, S> {
     return StructureScope(

@@ -9,6 +9,7 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
 import com.zombachu.stick.element.SyntaxElement
 import com.zombachu.stick.element.parse
+import com.zombachu.stick.failure.Reason
 
 internal open class InvocationImpl<E : Environment, S>(
     override val sender: S,
@@ -70,18 +71,19 @@ internal open class InvocationImpl<E : Environment, S>(
         return TransformedInvocationImpl(this, transform)
     }
 
-    private fun consume(peeked: PeekingResult.Success, count: Int) {
-        enteredBranches.last().args += peeked.value.subList(0, count)
-        peeked.consume(count)
+    private fun consume(window: MutableList<String>, count: Int) {
+        val consumed = window.subList(0, count)
+        enteredBranches.last().args += consumed
+        consumed.clear()
         consumedArgs += count
     }
 
-    internal fun peek(size: Size): PeekingResult {
-        if (size.matches(unparsed.size)) return PeekingResult.success(unparsed)
+    internal fun peek(size: Size): MutableList<String>? {
+        if (size.matches(unparsed.size)) return unparsed
         if (size is Size.Bounded && unparsed.size > size.max) {
-            return PeekingResult.success(unparsed.subList(0, size.max))
+            return unparsed.subList(0, size.max)
         }
-        return PeekingResult.failSize()
+        return null
     }
 
     internal fun <T> processElement(element: Element<E, S, T>): CommandResult<T> {
@@ -90,42 +92,39 @@ internal open class InvocationImpl<E : Environment, S>(
                 return element.parse([])
             }
 
-            val peeked: PeekingResult = this@InvocationImpl.peek(element.size)
-            if (peeked !is PeekingResult.Success) {
-                return PeekingResult.failSize()
-            }
+            val window = this@InvocationImpl.peek(element.size) ?: return noMatch()
 
             if (element is Branch) {
                 this@InvocationImpl.enteredBranches += EnteredBranch { element.getSyntax() }
-                val result = element.parse(peeked.value)
+                val result = element.parse(window)
                 this@InvocationImpl.enteredBranches.removeLast()
                 return result
             }
 
             if (element !is ConsumingElement) {
-                return element.parse(peeked.value)
+                return element.parse(window)
             }
 
             val matched =
-                when (val match = element.match(peeked.value)) {
+                when (val match = element.match(window)) {
                     is MatchResult.Unmatched -> return match.failure
-                    is MatchResult.Partial -> return PeekingResult.failSize()
+                    is MatchResult.Partial -> return noMatch()
                     is MatchResult.Matched -> match
                 }
 
             this@InvocationImpl.currentMatch = matched
-            val result = element.parse(peeked.value)
+            val result = element.parse(window)
             this@InvocationImpl.currentMatch = null
 
             result.propagateError {
                 return it
             }
-            if (result.consumed !in element.size.min..peeked.value.size) {
+            if (result.consumed !in element.size.min..window.size) {
                 // Bug in element implementation
-                return ParsingResult.failUnknown()
+                return fail(Reason.Unknown())
             }
 
-            this@InvocationImpl.consume(peeked, result.consumed)
+            this@InvocationImpl.consume(window, result.consumed)
             return result
         }
     }
@@ -141,7 +140,7 @@ private class TransformedInvocationImpl<E : Environment, S, S2>(base: Invocation
         base.env,
         base.label,
         base.args,
-        StructureImpl("", [], "", Requirement { SenderValidationResult.success() }) {
+        StructureImpl("", [], "", Requirement { success() }) {
             Signature0({}, LeadingParameterRole.Label, [it])
         }, // Unused
         parent = base,

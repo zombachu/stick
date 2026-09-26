@@ -3,10 +3,10 @@ package com.zombachu.stick.element.parameters
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.SimpleSuggestion
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.expectFailure
+import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.withInvocation
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
@@ -46,14 +46,14 @@ class EnumParameterTest {
     @Test
     fun `match unmatched carries LiteralNotMatched`() {
         val result = withValidationContext { parameter.match("Unknown") }
-        val feedback = result.expectUnmatched().expectFailure().feedback
-        assertEquals(Feedback.LiteralNotMatched(["red", "green", "blue"], "Unknown"), feedback)
+        val reason = result.expectUnmatched().expectReason()
+        assertEquals(Reason.LiteralNotMatched(["red", "green", "blue"], "Unknown"), reason)
     }
 
     @Test
     fun `failure reports primary keys, not aliases`() {
         val result = withInvocation { parameter.parse(["Unknown"]) }
-        assertEquals(Feedback.LiteralNotMatched(["red", "green", "blue"], "Unknown"), result.expectFailure().feedback)
+        assertEquals(Reason.LiteralNotMatched(["red", "green", "blue"], "Unknown"), result.expectReason())
     }
 
     @Test

@@ -3,15 +3,16 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
-import com.zombachu.stick.expectFailure
+import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failType
+import com.zombachu.stick.failure.Reason
+import com.zombachu.stick.success
 import com.zombachu.stick.testInvocation
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
@@ -24,10 +25,10 @@ class ParameterTest {
             context(validationContext: ValidationContext<TestEnv, Unit>)
             override fun resolve(args: List<String>): ConsumingResult<String> =
                 when {
-                    args[0] == "wide" -> ParsingResult.success("wide").consuming(2)
-                    args[0] == "narrow" -> ParsingResult.success("narrow").consuming(1)
-                    args[0] == "exact" -> ParsingResult.success("exact").consuming(1, canConsumeMore = false)
-                    else -> ParsingResult.failType("thing", args[0])
+                    args[0] == "wide" -> success("wide").consuming(2)
+                    args[0] == "narrow" -> success("narrow").consuming(1)
+                    args[0] == "exact" -> success("exact").consuming(1, canConsumeMore = false)
+                    else -> failType("thing", args[0])
                 }
         }
 
@@ -50,7 +51,7 @@ class ParameterTest {
     @Test
     fun `match with failure returns error`() {
         val result = withValidationContext { ranged.match(["other"]) }
-        assertEquals(Feedback.TypeNotMatched("thing", "other"), result.expectUnmatched().expectFailure().feedback)
+        assertEquals(Reason.TypeNotMatched("thing", "other"), result.expectUnmatched().expectReason())
     }
 
     @Test
@@ -58,7 +59,7 @@ class ParameterTest {
         val parameter =
             object : Parameter.Size2<TestEnv, Unit, String>("", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
-                override fun resolve(arg0: String, arg1: String): CommandResult<String> = ParsingResult.success(arg0)
+                override fun resolve(arg0: String, arg1: String): CommandResult<String> = success(arg0)
             }
 
         assertEquals(MatchResult.partial(), withValidationContext { parameter.match(["a"]) })
@@ -70,7 +71,7 @@ class ParameterTest {
             object : Parameter.Bounded<TestEnv, Unit, String>(Size.between(1, 2), "", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(args: List<String>): ConsumingResult<String> =
-                    ParsingResult.success("").consuming(args.size)
+                    success("").consuming(args.size)
             }
 
         assertEquals(MatchResult.matchedExactly(2), withValidationContext { parameter.match(["a", "b", "c"]) })
@@ -82,7 +83,7 @@ class ParameterTest {
             object : Parameter.Unbounded<TestEnv, Unit, String>(Size.atLeast(2), "", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
                 override fun resolve(args: List<String>): ConsumingResult<String> =
-                    ParsingResult.success("").consuming(args.size)
+                    success("").consuming(args.size)
             }
 
         assertEquals(MatchResult.partial(), withValidationContext { parameter.match(["a"]) })
@@ -107,7 +108,7 @@ class ParameterTest {
             context(validationContext: ValidationContext<TestEnv, Unit>)
             override fun resolve(arg0: String): CommandResult<String> {
                 onResolve()
-                return ParsingResult.success(arg0)
+                return success(arg0)
             }
         }
 }

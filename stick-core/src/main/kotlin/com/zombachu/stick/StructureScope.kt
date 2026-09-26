@@ -21,7 +21,7 @@ class StructureScope<E : Environment, S>(
             this.description,
             this.parent,
             // They must have already passed the previous requirement so should be safe to set to true
-            requirement = Requirement { SenderValidationResult.success() },
+            requirement = Requirement { success() },
         )
     }
 
@@ -38,7 +38,7 @@ class StructureScope<E : Environment, S>(
                 aliases = [],
                 description = "",
                 parent = null,
-                requirement = Requirement { SenderValidationResult.success() },
+                requirement = Requirement { success() },
             )
     }
 }

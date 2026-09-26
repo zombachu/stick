@@ -1,10 +1,8 @@
 package com.zombachu.stick.integration
 
 import com.zombachu.stick.Command
-import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Stick
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.default
@@ -14,8 +12,8 @@ import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.optionally
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.feedback.FailureHandler
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.FailureHandler
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.integration.fixtures.Console
 import com.zombachu.stick.integration.fixtures.Player
 import com.zombachu.stick.integration.fixtures.Sender
@@ -28,6 +26,7 @@ import com.zombachu.stick.integration.fixtures.execute
 import com.zombachu.stick.integration.fixtures.executeExpectingError
 import com.zombachu.stick.integration.fixtures.executeWithHandler
 import com.zombachu.stick.noopFailureHandler
+import com.zombachu.stick.success
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
@@ -113,7 +112,7 @@ class RegistrationTest {
             }
         }
 
-        stick.withContext(server, noopFailureHandler(), { Profile(it) }, { SenderValidationResult.success() }) {
+        stick.withContext(server, noopFailureHandler(), { Profile(it) }, { success() }) {
             register(ProfileCommand())
         }
 
@@ -142,7 +141,7 @@ class RegistrationTest {
             server,
             noopFailureHandler(),
             { if (it.hasPermission("server.admin")) AdminProfile(it) else Profile(it) },
-            { SenderValidationResult.success() }
+            { success() }
         ) {
             register(ProfileCommand())
             register(AdminProfileCommand())
@@ -160,7 +159,7 @@ class RegistrationTest {
         assertEquals(["Admin profile for zombachu"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSenderType,
+            Reason.InvalidSenderType(AdminProfile::class),
             stick.executeExpectingError(steve, "/adminprofile"),
         )
     }
@@ -168,12 +167,12 @@ class RegistrationTest {
     @Test
     fun `warps + ping - commands with narrower and base environment register in same context`() {
         class WarpFailureHandler : FailureHandler<WarpableServer, Sender> {
-            var feedback: Feedback? = null
+            var reason: Reason? = null
             var warps: Int = 0
 
             context(inv: Invocation<WarpableServer, Sender>)
-            override fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>) {
-                feedback = failure.feedback
+            override fun onFailure(reason: Reason) {
+                this.reason = reason
                 warps = inv.env.warps.names.size
             }
         }
@@ -209,7 +208,7 @@ class RegistrationTest {
         assertEquals(["Warps in overworld: 1"], zombachu.logs)
 
         stick.executeWithHandler(console, "/warps nether")
-        assertEquals(Feedback.LiteralNotMatched(["overworld"], "nether"), handler.feedback)
+        assertEquals(Reason.LiteralNotMatched(["overworld"], "nether"), handler.reason)
         assertEquals(1, handler.warps)
 
         stick.execute(console, "/ping")
@@ -219,12 +218,12 @@ class RegistrationTest {
     @Test
     fun `selfban - command with custom sender uses custom sender handler`() {
         class ProfileFailureHandler : FailureHandler<Server, Profile> {
-            var feedback: Feedback? = null
+            var reason: Reason? = null
             var name: String? = null
 
             context(inv: Invocation<Server, Profile>)
-            override fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>) {
-                feedback = failure.feedback
+            override fun onFailure(reason: Reason) {
+                this.reason = reason
                 name = inv.sender.sender.name
             }
         }
@@ -239,12 +238,12 @@ class RegistrationTest {
         }
         val handler = ProfileFailureHandler()
 
-        stick.withContext(server, handler, { Profile(it) }, { SenderValidationResult.success() }) {
+        stick.withContext(server, handler, { Profile(it) }, { success() }) {
             register(SelfBanCommand())
         }
 
         stick.executeWithHandler(zombachu, "/selfban 99")
-        assertEquals(Feedback.OutOfRange("1", "60", "99"), handler.feedback)
+        assertEquals(Reason.OutOfRange("1", "60", "99"), handler.reason)
         assertEquals("zombachu", handler.name)
     }
 
@@ -294,7 +293,7 @@ class RegistrationTest {
         assertEquals(["Toggled vanish state"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSenderType,
+            Reason.InvalidSenderType(Player::class),
             stick.executeExpectingError(console, "/vanish"),
         )
     }
@@ -316,7 +315,7 @@ class RegistrationTest {
 
         fun execute(sender: Sender, command: String) = commandFor(command).execute(env, sender, command)
 
-        fun executeExpectingError(sender: Sender, command: String): Feedback =
+        fun executeExpectingError(sender: Sender, command: String): Reason =
             commandFor(command).executeExpectingError(env, sender, command)
 
         fun executeWithHandler(sender: Sender, command: String) =

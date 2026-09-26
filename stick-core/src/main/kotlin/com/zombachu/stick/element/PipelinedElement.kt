@@ -6,13 +6,13 @@ import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.propagateError
+import com.zombachu.stick.success
 import com.zombachu.stick.valueOrPropagateError
 
 @PublishedApi
@@ -75,7 +75,7 @@ internal class PipelinedValueFlag<E : Environment, S, A, T>(
                         return@get it
                     }
             }
-            ParsingResult.success(value as T)
+            success(value as T)
         }
 }
 
@@ -122,5 +122,5 @@ private fun <E : Environment, S, A, T> parsePipeline(
                 return it
             }
     }
-    return ParsingResult.success(value as T).consuming(consumed)
+    return success(value as T).consuming(consumed)
 }

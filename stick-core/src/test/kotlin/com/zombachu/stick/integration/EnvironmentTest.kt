@@ -8,7 +8,6 @@ import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult3
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.ValidationContext
@@ -27,8 +26,8 @@ import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.ValidSenderDefault
 import com.zombachu.stick.element.ValueFlag
-import com.zombachu.stick.feedback.FailureHandler
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.FailureHandler
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.integration.fixtures.Player
 import com.zombachu.stick.integration.fixtures.Sender
 import com.zombachu.stick.integration.fixtures.Server
@@ -43,6 +42,7 @@ import com.zombachu.stick.integration.fixtures.executeWithHandler
 import com.zombachu.stick.integration.fixtures.permission
 import com.zombachu.stick.integration.fixtures.playerParameter
 import com.zombachu.stick.integration.fixtures.warpParameter
+import com.zombachu.stick.success
 import com.zombachu.stick.valueOrPropagateError
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -149,7 +149,7 @@ class EnvironmentTest {
         worldCommand.execute(server, steve, "/spawn")
         assertEquals(["Teleporting to lobby spawn"], steve.logs)
 
-        assertEquals(Feedback.InvalidPermission, worldCommand.executeExpectingError(server, steve, "/spawn nether"))
+        assertEquals(Reason.InvalidPermission, worldCommand.executeExpectingError(server, steve, "/spawn nether"))
     }
 
     @Test
@@ -168,8 +168,8 @@ class EnvironmentTest {
     fun `warpowner - base failure handler works for narrower environments`() {
         class BaseFailureHandler : FailureHandler<Server, Sender> {
             context(inv: Invocation<Server, Sender>)
-            override fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>) {
-                inv.sender.log(failure.feedback.message)
+            override fun onFailure(reason: Reason) {
+                inv.sender.log(reason.message())
             }
         }
         val ownerCommand = structure(WarpableServer::class, Sender::class) {
@@ -208,7 +208,7 @@ class EnvironmentTest {
 
     private class WorldParameter<E : Server, S>(name: String) : Parameter.Size1<E, S, String>(name, "") {
         context(validationContext: ValidationContext<E, S>)
-        override fun resolve(arg0: String): CommandResult<String> = ParsingResult.success(arg0)
+        override fun resolve(arg0: String): CommandResult<String> = success(arg0)
     }
 
     private class WarpNameParameter<S>(name: String) : Parameter.Size1<WarpableServer, S, String>(name, "") {
@@ -220,7 +220,7 @@ class EnvironmentTest {
         context(validationContext: ValidationContext<WarpableServer, S>)
         override fun resolve(arg0: String): CommandResult<String> {
             val warp = warpParameter.resolve(arg0).valueOrPropagateError { return it }
-            return ParsingResult.success(warp.name)
+            return success(warp.name)
         }
     }
 }

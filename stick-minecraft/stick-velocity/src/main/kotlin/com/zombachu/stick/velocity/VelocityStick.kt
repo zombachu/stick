@@ -5,7 +5,7 @@ import com.velocitypowered.api.command.CommandSource
 import com.velocitypowered.api.proxy.ProxyServer
 import com.zombachu.stick.Stick
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.feedback.FailureHandler
+import com.zombachu.stick.failure.FailureHandler
 import org.slf4j.Logger
 
 class VelocityStick(private val plugin: Any, proxy: ProxyServer, logger: Logger) :

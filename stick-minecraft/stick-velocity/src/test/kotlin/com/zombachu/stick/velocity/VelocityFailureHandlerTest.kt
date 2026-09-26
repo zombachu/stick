@@ -2,10 +2,10 @@ package com.zombachu.stick.velocity
 
 import com.velocitypowered.api.command.CommandSource
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.customFailure
+import com.zombachu.stick.MessageReason
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.invoke
+import com.zombachu.stick.failure.Reason
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
@@ -17,10 +17,12 @@ class VelocityFailureHandlerTest {
     private val structure = velocityStructure { command("cmd")() {} }
 
     @Test
-    fun `sends component with feedback`() {
+    fun `sends component with reason`() {
         val sender = FakeCommandSource()
 
-        context(invocation(sender)) { BasicVelocityFailureHandler(FakeLogger()).onFailure(ParsingResult.failUnknown()) }
+        context(invocation(sender)) {
+            BasicVelocityFailureHandler(FakeLogger()).onFailure(Reason.Unknown())
+        }
 
         assertEquals(1, sender.sentMessages.size)
         assertTrue(sender.sentMessages.first().toString().contains("unknown"))
@@ -30,7 +32,9 @@ class VelocityFailureHandlerTest {
     fun `sends nothing when empty message`() {
         val sender = FakeCommandSource()
 
-        context(invocation(sender)) { BasicVelocityFailureHandler(FakeLogger()).onFailure(customFailure("")) }
+        context(invocation(sender)) {
+            BasicVelocityFailureHandler(FakeLogger()).onFailure(MessageReason(""))
+        }
 
         assertEquals(0, sender.sentMessages.size)
     }
@@ -41,7 +45,7 @@ class VelocityFailureHandlerTest {
         val cause = IllegalStateException("boom")
 
         context(invocation(FakeCommandSource())) {
-            BasicVelocityFailureHandler(logger).onFailure(ParsingResult.failUnknown(cause))
+            BasicVelocityFailureHandler(logger).onFailure(Reason.Unknown(cause))
         }
 
         assertSame(cause, logger.logged.single().second)

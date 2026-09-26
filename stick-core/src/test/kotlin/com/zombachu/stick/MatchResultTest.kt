@@ -1,18 +1,21 @@
 package com.zombachu.stick
 
+import com.zombachu.stick.failure.Reason
 import kotlin.test.Test
+import kotlin.test.assertIs
 import kotlin.test.assertSame
 
 class MatchResultTest {
 
     @Test
-    fun `unmatched defaults to TypeNotMatchedInternal`() {
-        assertSame(TypeNotMatchedInternal, MatchResult.unmatched().failure)
+    fun `unmatched defaults to InvalidSyntax`() {
+        val result = withValidationContext { MatchResult.unmatched() }
+        assertIs<Reason.InvalidSyntax>(result.failure.expectNoMatch().reason)
     }
 
     @Test
     fun `unmatched carries the failure parse would have given`() {
-        val failure = ParsingResult.failLiteral(["give"], "take")
+        val failure = withValidationContext { failLiteral(["give"], "take") }
         assertSame(failure, MatchResult.unmatched(failure).failure)
     }
 }

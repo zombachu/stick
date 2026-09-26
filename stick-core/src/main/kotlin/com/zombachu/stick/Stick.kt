@@ -3,8 +3,8 @@ package com.zombachu.stick
 import com.zombachu.stick.dsl.requireAs
 import com.zombachu.stick.dsl.requirement
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.feedback.FailureHandler
-import com.zombachu.stick.feedback.TransformedFailureHandler
+import com.zombachu.stick.failure.FailureHandler
+import com.zombachu.stick.failure.TransformedFailureHandler
 import kotlin.reflect.KClass
 
 abstract class Stick<E : Environment, S : Any>(
@@ -18,8 +18,7 @@ abstract class Stick<E : Environment, S : Any>(
         failureHandler: FailureHandler<E2, S> = defaultFailureHandler.value,
         block: context(E2, FailureHandler<E2, S>) StickScope<E2, S>.() -> Unit,
     ) {
-        val transformedStick: TransformedStick<E, E2, S, S> =
-            TransformedStick(this, { it }, Requirement { SenderValidationResult.success() })
+        val transformedStick: TransformedStick<E, E2, S, S> = TransformedStick(this, { it }, Requirement { success() })
         with(StickScope(transformedStick)) { context(env, failureHandler) { block() } }
     }
 
@@ -43,7 +42,7 @@ abstract class Stick<E : Environment, S : Any>(
         env: E2,
         failureHandler: FailureHandler<E2, S2>,
         transform: (S) -> S2,
-        failureResult: CommandResult<Unit>,
+        failureResult: ValidationContext<E2, S>.() -> CommandResult.Failure,
         validate: ValidationContext<E2, S>.() -> Boolean,
         block: context(E2, FailureHandler<E2, S2>) StickScope<E2, S2>.() -> Unit,
     ) {
@@ -51,7 +50,7 @@ abstract class Stick<E : Environment, S : Any>(
             env,
             failureHandler,
             transform,
-            { if (validate()) SenderValidationResult.success() else failureResult },
+            { if (validate()) success() else failureResult() },
             block,
         )
     }
@@ -71,7 +70,7 @@ abstract class Stick<E : Environment, S : Any>(
                 with(emptyContext) {
                     requireAs(
                         castSender,
-                        requirement({ SenderValidationResult.failSenderType() }) { isSenderRequiredType(sender) },
+                        requirement({ failSenderType(commandSenderClass) }) { isSenderRequiredType(sender) },
                     ) {
                         command.structure
                     }

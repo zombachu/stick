@@ -1,26 +1,40 @@
 package com.zombachu.stick.integration.fixtures
 
-import com.zombachu.stick.CommandResult
 import com.zombachu.stick.CommandWrapper
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.feedback.FailureHandler
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.FailureHandler
+import com.zombachu.stick.failure.Reason
+import kotlin.test.assertIs
 import kotlin.test.fail
 
 internal fun <E : Environment, S> Structure<E, S, *>.execute(env: E, sender: S, command: String) {
-    val feedback = dispatch(env, sender, command)
-    if (feedback != null) fail("Unexpected error: ${feedback.message}")
+    val handler = dispatch(env, sender, command)
+    val reason = handler.reason ?: return
+    fail("Unexpected error: ${reason.message()}")
 }
 
 internal fun <E : Environment, S> Structure<E, S, *>.executeExpectingError(
     env: E,
     sender: S,
     command: String,
-): Feedback = dispatch(env, sender, command) ?: fail("No error returned")
+): Reason = dispatch(env, sender, command).reason ?: fail("No error returned")
 
-private fun <E : Environment, S> Structure<E, S, *>.dispatch(env: E, sender: S, command: String): Feedback? {
+internal fun <E : Environment, S> Structure<E, S, *>.executeExpectingInvalidSyntax(
+    env: E,
+    sender: S,
+    command: String,
+): String {
+    val handler = dispatch(env, sender, command)
+    return assertIs<Reason.InvalidSyntax>(handler.reason).usage
+}
+
+private fun <E : Environment, S> Structure<E, S, *>.dispatch(
+    env: E,
+    sender: S,
+    command: String,
+): RecordingFailureHandler<E, S> {
     clearMessages(env, sender)
 
     val handler = RecordingFailureHandler<E, S>()
@@ -33,7 +47,7 @@ private fun <E : Environment, S> Structure<E, S, *>.dispatch(env: E, sender: S, 
 
     val args = command.replaceFirst("/", "").split(" ")
     wrapper.execute(sender, args)
-    return handler.feedback
+    return handler
 }
 
 internal fun <E : Environment, S> Structure<E, S, *>.suggest(env: E, sender: S, command: String): List<String> {
@@ -73,10 +87,10 @@ private fun clearMessages(env: Environment, sender: Any?) {
 }
 
 private class RecordingFailureHandler<E : Environment, S> : FailureHandler<E, S> {
-    var feedback: Feedback? = null
+    var reason: Reason? = null
 
     context(inv: Invocation<E, S>)
-    override fun <F : Feedback> onFailure(failure: CommandResult.Failure<F>) {
-        feedback = failure.feedback
+    override fun onFailure(reason: Reason) {
+        this.reason = reason
     }
 }

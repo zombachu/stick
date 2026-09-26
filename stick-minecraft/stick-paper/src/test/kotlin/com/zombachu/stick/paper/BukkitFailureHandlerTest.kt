@@ -1,10 +1,10 @@
 package com.zombachu.stick.paper
 
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.customFailure
+import com.zombachu.stick.MessageReason
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.invoke
+import com.zombachu.stick.failure.Reason
 import java.util.logging.Handler
 import java.util.logging.LogRecord
 import org.bukkit.command.CommandSender
@@ -19,10 +19,10 @@ class BukkitFailureHandlerTest {
     private val structure = bukkitStructure { command("cmd")() }
 
     @Test
-    fun `sends component with feedback`() {
+    fun `sends component with reason`() {
         val sender = FakeCommandSender()
 
-        context(invocation(sender)) { BasicBukkitFailureHandler().onFailure(ParsingResult.failUnknown()) }
+        context(invocation(sender)) { BasicBukkitFailureHandler().onFailure(Reason.Unknown()) }
 
         assertEquals(1, sender.sentMessages.size)
         assertTrue(sender.sentMessages.first().toString().contains("unknown"))
@@ -32,7 +32,7 @@ class BukkitFailureHandlerTest {
     fun `sends nothing when empty message`() {
         val sender = FakeCommandSender()
 
-        context(invocation(sender)) { BasicBukkitFailureHandler().onFailure(customFailure("")) }
+        context(invocation(sender)) { BasicBukkitFailureHandler().onFailure(MessageReason("")) }
 
         assertEquals(0, sender.sentMessages.size)
     }
@@ -55,7 +55,7 @@ class BukkitFailureHandlerTest {
 
         try {
             context(invocation(FakeCommandSender())) {
-                BasicBukkitFailureHandler().onFailure(ParsingResult.failUnknown(cause))
+                BasicBukkitFailureHandler().onFailure(Reason.Unknown(cause))
             }
         } finally {
             FakePlugin.logger.removeHandler(captor)

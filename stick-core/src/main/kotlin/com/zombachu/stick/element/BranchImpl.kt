@@ -6,11 +6,11 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.propagateError
+import com.zombachu.stick.success
 import com.zombachu.stick.valueOrPropagateError
 
 internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val signature: Signature<E, S, T_>) :
@@ -45,7 +45,7 @@ internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val s
                 .valueOrPropagateError {
                     return it
                 }
-        return ParsingResult.success(parsedArgs)
+        return success(parsedArgs)
     }
 
     context(validationContext: ValidationContext<E, S>)

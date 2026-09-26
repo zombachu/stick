@@ -1,6 +1,6 @@
 package com.zombachu.stick.integration
 
-import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.MessageReason
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.default
 import com.zombachu.stick.dsl.flag
@@ -13,16 +13,17 @@ import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.textParameter
 import com.zombachu.stick.dsl.valueFlag
-import com.zombachu.stick.integration.fixtures.CustomError
 import com.zombachu.stick.integration.fixtures.Material
 import com.zombachu.stick.integration.fixtures.Player
 import com.zombachu.stick.integration.fixtures.Sender
 import com.zombachu.stick.integration.fixtures.Server
 import com.zombachu.stick.integration.fixtures.SynergyServer
 import com.zombachu.stick.integration.fixtures.WORLDS
+import com.zombachu.stick.integration.fixtures.customError
 import com.zombachu.stick.integration.fixtures.execute
 import com.zombachu.stick.integration.fixtures.executeExpectingError
 import com.zombachu.stick.integration.fixtures.playerParameter
+import com.zombachu.stick.success
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -76,9 +77,9 @@ class PipelineTest {
             command("tphere")(
                 playerParameter("player").pipeline {
                     if (it.world == sender.world) {
-                        ParsingResult.success(it)
+                        success(it)
                     } else {
-                        CustomError("${it.name} is in another world")
+                        customError("${it.name} is in another world")
                     }
                 }
             ) { target ->
@@ -89,8 +90,8 @@ class PipelineTest {
         steve.world = "nether"
 
         assertEquals(
-            "Steve is in another world",
-            tpHereCommand.executeExpectingError(server, zombachu, "/tphere Steve").message,
+            MessageReason("Steve is in another world"),
+            tpHereCommand.executeExpectingError(server, zombachu, "/tphere Steve"),
         )
 
         tpHereCommand.execute(server, zombachu, "/tphere zombachu")
@@ -105,8 +106,8 @@ class PipelineTest {
                     map { it.lowercase() },
                     { name ->
                         Material.entries.find { it.name.lowercase() == name }
-                            ?.let { ParsingResult.success(it) }
-                            ?: CustomError("No item called $name")
+                            ?.let { success(it) }
+                            ?: customError("No item called $name")
                     },
                     map { "Gave a $it block" },
                 )
@@ -119,8 +120,8 @@ class PipelineTest {
         assertEquals(["Gave a Dirt block"], zombachu.logs)
 
         assertEquals(
-            "No item called diamond",
-            giveCommand.executeExpectingError(server, zombachu, "/give diamond").message,
+            MessageReason("No item called diamond"),
+            giveCommand.executeExpectingError(server, zombachu, "/give diamond"),
         )
     }
 
@@ -131,8 +132,8 @@ class PipelineTest {
                 valueFlag(name = "world", default = "overworld", parameter = stringParameter("world")).pipeline(
                     map { it.lowercase() },
                     { name ->
-                        if (name in WORLDS) ParsingResult.success(name)
-                        else CustomError("Unknown world: $name")
+                        if (name in WORLDS) success(name)
+                        else customError("Unknown world: $name")
                     },
                     map { "the $it" },
                 ),
@@ -214,7 +215,7 @@ class PipelineTest {
             command("caps")(
                 textParameter("message").pipeline(
                     map { it.uppercase() },
-                    { ParsingResult.success("$it!") },
+                    { success("$it!") },
                 )
             ) { message ->
                 sender.log(message)

@@ -5,7 +5,6 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.ValidationContext
@@ -21,21 +20,25 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.ValueFlag
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parameters.StringParameter
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failType
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.integration.fixtures.Location
 import com.zombachu.stick.integration.fixtures.Player
 import com.zombachu.stick.integration.fixtures.Sender
 import com.zombachu.stick.integration.fixtures.Server
 import com.zombachu.stick.integration.fixtures.SynergyServer
+import com.zombachu.stick.integration.fixtures.UnknownWarp
 import com.zombachu.stick.integration.fixtures.Warp
 import com.zombachu.stick.integration.fixtures.WarpRegistry
 import com.zombachu.stick.integration.fixtures.WarpableServer
 import com.zombachu.stick.integration.fixtures.execute
 import com.zombachu.stick.integration.fixtures.executeExpectingError
+import com.zombachu.stick.integration.fixtures.executeExpectingInvalidSyntax
 import com.zombachu.stick.integration.fixtures.playerParameter
 import com.zombachu.stick.integration.fixtures.realNameParameter
 import com.zombachu.stick.integration.fixtures.requireSocialData
 import com.zombachu.stick.integration.fixtures.warpParameter
+import com.zombachu.stick.success
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -50,10 +53,10 @@ class CustomElementTest {
         class LocationParameter<E : Environment, S>(name: String) : Parameter.Size3<E, S, Location>(name, "") {
             context(validationContext: ValidationContext<E, S>)
             override fun resolve(arg0: String, arg1: String, arg2: String): CommandResult<Location> {
-                val x = arg0.toIntOrNull() ?: return ParsingResult.failType("integer", arg0)
-                val y = arg1.toIntOrNull() ?: return ParsingResult.failType("integer", arg1)
-                val z = arg2.toIntOrNull() ?: return ParsingResult.failType("integer", arg2)
-                return ParsingResult.success(Location(x, y, z))
+                val x = arg0.toIntOrNull() ?: return failType("integer", arg0)
+                val y = arg1.toIntOrNull() ?: return failType("integer", arg1)
+                val z = arg2.toIntOrNull() ?: return failType("integer", arg2)
+                return success(Location(x, y, z))
             }
         }
         val tpPosCommand = structure(Server::class, Player::class) {
@@ -68,13 +71,13 @@ class CustomElementTest {
         assertEquals(Location(10, 70, -4), zombachu.position)
 
         assertEquals(
-            Feedback.TypeNotMatched("integer", "red"),
+            Reason.TypeNotMatched("integer", "red"),
             tpPosCommand.executeExpectingError(server, zombachu, "/tppos red green blue"),
         )
 
         assertEquals(
-            Feedback.InvalidSyntax("/tppos <position>"),
-            tpPosCommand.executeExpectingError(server, zombachu, "/tppos 10 70"),
+            "/tppos <position>",
+            tpPosCommand.executeExpectingInvalidSyntax(server, zombachu, "/tppos 10 70"),
         )
     }
 
@@ -91,12 +94,12 @@ class CustomElementTest {
             context(validationContext: ValidationContext<E, S>)
             override fun resolve(args: List<String>): ConsumingResult<Location> {
                 if (args.firstOrNull()?.lowercase() == "here") {
-                    return ParsingResult.success(validationContext.sender.position).consuming(1)
+                    return success(validationContext.sender.position).consuming(1)
                 }
-                val x = args[0].toIntOrNull() ?: return ParsingResult.failType("integer", args[0])
-                val y = args[1].toIntOrNull() ?: return ParsingResult.failType("integer", args[1])
-                val z = args[2].toIntOrNull() ?: return ParsingResult.failType("integer", args[2])
-                return ParsingResult.success(Location(x, y, z)).consuming(3)
+                val x = args[0].toIntOrNull() ?: return failType("integer", args[0])
+                val y = args[1].toIntOrNull() ?: return failType("integer", args[1])
+                val z = args[2].toIntOrNull() ?: return failType("integer", args[2])
+                return success(Location(x, y, z)).consuming(3)
             }
         }
         val setWarpCommand = structure(Server::class, Player::class) {
@@ -130,7 +133,7 @@ class CustomElementTest {
         assertEquals(["Jumping to 64"], zombachu.logs)
 
         assertEquals(
-            Feedback.OutOfRange("-64", "320", "500"),
+            Reason.OutOfRange("-64", "320", "500"),
             jumpCommand.executeExpectingError(server, zombachu, "/jump 500"),
         )
     }
@@ -187,8 +190,8 @@ class CustomElementTest {
         assertEquals(["Warp shop in nether belongs to zombachu"], zombachu.logs)
 
         assertEquals(
-            "Unknown warp: nowhere",
-            warpInfoCommand.executeExpectingError(server, zombachu, "/warpinfo nowhere").message,
+            UnknownWarp("nowhere"),
+            warpInfoCommand.executeExpectingError(server, zombachu, "/warpinfo nowhere"),
         )
     }
 

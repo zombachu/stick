@@ -3,11 +3,13 @@ package com.zombachu.stick.element.parameters
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.PipelineOperation
 import com.zombachu.stick.element.PipelinedParameter
+import com.zombachu.stick.failRange
+import com.zombachu.stick.handled
+import com.zombachu.stick.success
 import com.zombachu.stick.valueOrPropagateError
 
 internal fun <E : Environment, S, T> listElementParameter(
@@ -27,18 +29,18 @@ internal fun <E : Environment, S, T> listElementParameter(
 
         if (onEmpty != null && elements.isEmpty()) {
             onEmpty(this)
-            return@lookUp ParsingResult.failHandled()
+            return@lookUp handled()
         }
 
         val oneIndexedAdjustment = if (oneIndexed) 1 else 0
         val min = 0 + oneIndexedAdjustment
         val max = elements.size - 1 + oneIndexedAdjustment
         if (userIndex !in min..max) {
-            return@lookUp ParsingResult.failRange(min.toString(), max.toString(), userIndex.toString())
+            return@lookUp failRange(min.toString(), max.toString(), userIndex.toString())
         }
 
         val elementIndex = userIndex - oneIndexedAdjustment
-        ParsingResult.success(ListElementResult(elements[elementIndex], elements, elementIndex))
+        success(ListElementResult(elements[elementIndex], elements, elementIndex))
     }
 
     return PipelinedParameter(index, [toResult])

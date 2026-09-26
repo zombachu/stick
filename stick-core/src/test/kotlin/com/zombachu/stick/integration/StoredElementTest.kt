@@ -15,7 +15,6 @@ import com.zombachu.stick.dsl.store
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.textParameter
-import com.zombachu.stick.feedback.Feedback
 import com.zombachu.stick.integration.fixtures.Player
 import com.zombachu.stick.integration.fixtures.Sender
 import com.zombachu.stick.integration.fixtures.Server
@@ -25,7 +24,7 @@ import com.zombachu.stick.integration.fixtures.Warp
 import com.zombachu.stick.integration.fixtures.WarpRegistry
 import com.zombachu.stick.integration.fixtures.WarpableServer
 import com.zombachu.stick.integration.fixtures.execute
-import com.zombachu.stick.integration.fixtures.executeExpectingError
+import com.zombachu.stick.integration.fixtures.executeExpectingInvalidSyntax
 import com.zombachu.stick.integration.fixtures.playerParameter
 import com.zombachu.stick.integration.fixtures.socialDataHelper
 import com.zombachu.stick.integration.fixtures.warpParameter
@@ -69,8 +68,8 @@ class StoredElementTest {
         assertEquals("nether", zombachu.world)
 
         assertEquals(
-            Feedback.InvalidSyntax("/warp <warp> <tp|delete>"),
-            warpCommand.executeExpectingError(server, zombachu, "/warp shop rename"),
+            "/warp <warp> <tp|delete>",
+            warpCommand.executeExpectingInvalidSyntax(server, zombachu, "/warp shop rename"),
         )
 
         warpCommand.execute(server, zombachu, "/warp shop delete")

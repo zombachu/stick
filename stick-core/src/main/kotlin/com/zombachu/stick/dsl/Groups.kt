@@ -10,7 +10,6 @@ import com.zombachu.stick.GroupResult6
 import com.zombachu.stick.GroupResult7
 import com.zombachu.stick.GroupResult8
 import com.zombachu.stick.Position
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.element.Branch
 import com.zombachu.stick.element.Group
@@ -24,6 +23,7 @@ import com.zombachu.stick.element.Group7Impl
 import com.zombachu.stick.element.Group8Impl
 import com.zombachu.stick.element.Groupable
 import com.zombachu.stick.element.SubcommandsImpl
+import com.zombachu.stick.success
 
 fun <E_ : Environment, S, A, P : Position> StructureScope<E_, S>.group(
     element: Groupable<E_, S, A, P>,
@@ -118,7 +118,7 @@ private fun <E : Environment, S, R, P : Position, G : Group<E, S, R, P>> Structu
             aliases = [],
             description = "",
             parent = this,
-            requirement = requirement { SenderValidationResult.success() },
+            requirement = requirement { success() },
         )
     return block(scope)
 }

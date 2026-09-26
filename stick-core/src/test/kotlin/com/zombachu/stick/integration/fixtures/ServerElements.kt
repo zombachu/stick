@@ -7,10 +7,9 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
-import com.zombachu.stick.ParsingResult
+import com.zombachu.stick.MessageReason
 import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.Suggestion
@@ -26,25 +25,32 @@ import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.ValidatedParameter
-import com.zombachu.stick.feedback.CustomFeedback
+import com.zombachu.stick.fail
+import com.zombachu.stick.failPermission
+import com.zombachu.stick.failType
+import com.zombachu.stick.failure.CustomReason
+import com.zombachu.stick.success
 import com.zombachu.stick.toSuggestions
 import kotlin.experimental.ExperimentalTypeInference
 
-class CustomError(message: String) : ParsingResult.CustomError<CustomFeedback> {
-    override val feedback: CustomFeedback = CustomFeedback { message }
+data class UnknownWarp(val name: String) : CustomReason {
+    override fun message() = "Unknown warp: $name"
 }
+
+context(_: ValidationContext<*, *>)
+fun customError(message: String): CommandResult.Failure.Error = fail(MessageReason(message))
 
 // --- requirements -------------------------------------------------------------------------------------------------
 
 fun <E : Environment, S : Sender> StructureScope<E, S>.permission(
     node: String,
-): Requirement<E, S> = requirement(SenderValidationResult::failPermission) { sender.hasPermission(node) }
+): Requirement<E, S> = requirement({ failPermission() }) { sender.hasPermission(node) }
 
 fun <E : Environment, S : Sender, T> StructureScope<E, S>.permissionedValue(
     node: String,
     value: T,
     fallback: T,
-): ContextualValue<E, S, T> = { ParsingResult.success(if (sender.hasPermission(node)) value else fallback) }
+): ContextualValue<E, S, T> = { success(if (sender.hasPermission(node)) value else fallback) }
 
 // --- parameters ---------------------------------------------------------------------------------------------------
 
@@ -55,8 +61,8 @@ class PlayerParameter<E : Server, S>(name: String) : Parameter.Size1<E, S, Playe
 
     context(validationContext: ValidationContext<E, S>)
     override fun resolve(arg0: String): CommandResult<Player> {
-        val player = validationContext.env.getPlayer(arg0) ?: return ParsingResult.failType("player", arg0)
-        return ParsingResult.success(player)
+        val player = validationContext.env.getPlayer(arg0) ?: return failType("player", arg0)
+        return success(player)
     }
 }
 
@@ -77,8 +83,8 @@ class WarpParameter<E : WarpableServer, S>(name: String) : Parameter.Size1<E, S,
 
     context(validationContext: ValidationContext<E, S>)
     override fun resolve(arg0: String): CommandResult<Warp> {
-        val warp = validationContext.env.warps[arg0] ?: return CustomError("Unknown warp: $arg0")
-        return ParsingResult.success(warp)
+        val warp = validationContext.env.warps[arg0] ?: return fail(UnknownWarp(arg0))
+        return success(warp)
     }
 }
 
@@ -88,8 +94,8 @@ class RealNameParameter<E : Environment>(name: String) : Parameter.Size1<E, Soci
     context(validationContext: ValidationContext<E, SocialData>)
     override fun resolve(arg0: String): CommandResult<String> {
         val nicknameEntry = validationContext.sender.nicknames.entries.find { it.value == arg0 }
-            ?: return CustomError("Unknown nickname: $arg0")
-        return ParsingResult.success(nicknameEntry.key)
+            ?: return customError("Unknown nickname: $arg0")
+        return success(nicknameEntry.key)
     }
 }
 
@@ -103,7 +109,7 @@ class BioParameter<E : Environment>(name: String) :
     context(validationContext: ValidationContext<E, SocialData>)
     override fun resolve(args: List<String>): ConsumingResult<String> {
         val bioLine = args.joinToString(" ")
-        return ParsingResult.success(bioLine).consuming(args.size)
+        return success(bioLine).consuming(args.size)
     }
 }
 
@@ -134,9 +140,9 @@ fun <E : Environment, T, P : Position> StructureScope<E, Sender>.requireSocialDa
 // --- helpers ------------------------------------------------------------------------------------------------------
 
 fun <E : Environment, S : Player> StructureScope<E, S>.socialDataHelper(): Helper<E, S, SocialData> = helper {
-    ParsingResult.success(sender.socialData)
+    success(sender.socialData)
 }
 
 fun <E : Environment, S : Player> StructureScope<E, S>.worldHelper(): Helper<E, S, String> = helper {
-    ParsingResult.success(sender.world)
+    success(sender.world)
 }

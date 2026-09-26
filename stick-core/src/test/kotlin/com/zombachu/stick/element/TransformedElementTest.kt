@@ -3,22 +3,21 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
-import com.zombachu.stick.SenderValidationResult
 import com.zombachu.stick.SimpleSuggestion
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.invalidSenderDefault
+import com.zombachu.stick.success
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TransformedElementTest {
 
-    private val allowed = Requirement<TestEnv, String> { SenderValidationResult.success() }
+    private val allowed = Requirement<TestEnv, String> { success() }
 
     @Test
     fun `TransformedParameter suggests with the transformed sender`() {
@@ -34,7 +33,7 @@ class TransformedElementTest {
     @Test
     fun `TransformedValueFlag suggests with the transformed sender`() {
         val flagParameter = FlagParameter.ParameterFlagParameter("f", SenderParameter<TestEnv, Int>(), [])
-        val base = ValueFlagImpl("f", { ParsingResult.success("") }, flagParameter)
+        val base = ValueFlagImpl("f", { success("") }, flagParameter)
         val transformed = TransformedValueFlag(base, String::length, invalidSenderDefault<TestEnv, String, String>(""))
 
         val suggestions = withValidationContext("zombachu") { transformed.suggest(["-f"], "") }
@@ -60,7 +59,7 @@ class TransformedElementTest {
     @Test
     fun `TransformedStructure suggests its label`() {
         val base =
-            StructureImpl("teleport", ["tp"], "", Requirement<TestEnv, Int> { SenderValidationResult.success() }) {
+            StructureImpl("teleport", ["tp"], "", Requirement<TestEnv, Int> { success() }) {
                 Signature0({}, LeadingParameterRole.Label, [it])
             }
         val transformed = TransformedStructure(base, String::length, allowed)
@@ -77,6 +76,6 @@ class TransformedElementTest {
             [SimpleSuggestion("${validationContext.sender}")]
 
         context(validationContext: ValidationContext<E, S>)
-        override fun resolve(arg0: String): CommandResult<String> = ParsingResult.success(arg0)
+        override fun resolve(arg0: String): CommandResult<String> = success(arg0)
     }
 }

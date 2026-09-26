@@ -4,12 +4,12 @@ import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
+import com.zombachu.stick.failSyntax
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 
@@ -49,7 +49,7 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
             }
             // Check if the value is required to be specified by the sender
             presenceDefault.validateSender().propagateError {
-                return ParsingResult.failSyntax(inv.getSyntax())
+                return failSyntax()
             }
             return presenceDefault.value(inv).consuming(0)
         }
@@ -59,7 +59,7 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
             return it
         }
 
-        if (!parameter.size.matches(args.size)) return ParsingResult.failSyntax(inv.getSyntax())
+        if (!parameter.size.matches(args.size)) return failSyntax()
         return parameter.parse(args)
     }
 

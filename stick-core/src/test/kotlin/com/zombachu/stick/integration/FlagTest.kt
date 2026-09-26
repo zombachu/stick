@@ -20,7 +20,7 @@ import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.textParameter
 import com.zombachu.stick.dsl.valueFlag
-import com.zombachu.stick.feedback.Feedback
+import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.integration.fixtures.Console
 import com.zombachu.stick.integration.fixtures.GameMode
 import com.zombachu.stick.integration.fixtures.Material
@@ -31,6 +31,7 @@ import com.zombachu.stick.integration.fixtures.SynergyServer
 import com.zombachu.stick.integration.fixtures.Weather
 import com.zombachu.stick.integration.fixtures.execute
 import com.zombachu.stick.integration.fixtures.executeExpectingError
+import com.zombachu.stick.integration.fixtures.executeExpectingInvalidSyntax
 import com.zombachu.stick.integration.fixtures.permission
 import com.zombachu.stick.integration.fixtures.permissionedValue
 import com.zombachu.stick.integration.fixtures.playerParameter
@@ -96,8 +97,8 @@ class FlagTest {
         assertEquals(["Received stone", "zombachu gifted you stone"], steve.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/give <player> <stone> [-silent]"),
-            giveCommand.executeExpectingError(server, zombachu, "/give"),
+            "/give <player> <stone> [-silent]",
+            giveCommand.executeExpectingInvalidSyntax(server, zombachu, "/give"),
         )
     }
 
@@ -119,7 +120,7 @@ class FlagTest {
         assertEquals(["Hello"], zombachu.logs)
 
         assertEquals(
-            Feedback.TypeNotMatched("integer", "many"),
+            Reason.TypeNotMatched("integer", "many"),
             echoCommand.executeExpectingError(server, zombachu, "/echo -times many Hello"),
         )
     }
@@ -324,8 +325,8 @@ class FlagTest {
         assertEquals(["[PLAYER] -prefix abc123 Server restarting"], steve.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/broadcast <message>"),
-            broadcastCommand.executeExpectingError(server, steve, "/broadcast"),
+            "/broadcast <message>",
+            broadcastCommand.executeExpectingInvalidSyntax(server, steve, "/broadcast"),
         )
     }
 
@@ -348,8 +349,8 @@ class FlagTest {
         assertEquals(["Profile at lobby:"], zombachu.logs)
 
         assertEquals(
-            Feedback.InvalidSyntax("/profile"),
-            profileCommand.executeExpectingError(server, console, "/profile -world lobby"),
+            "/profile",
+            profileCommand.executeExpectingInvalidSyntax(server, console, "/profile -world lobby"),
         )
     }
 }

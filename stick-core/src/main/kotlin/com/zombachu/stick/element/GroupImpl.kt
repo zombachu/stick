@@ -21,16 +21,15 @@ import com.zombachu.stick.GroupResult8
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.MatchResult
-import com.zombachu.stick.ParsingResult
-import com.zombachu.stick.PeekingResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
-import com.zombachu.stick.TypeNotMatchedInternal
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.GroupElement.Companion.to
 import com.zombachu.stick.isSuccess
+import com.zombachu.stick.noMatch
 import com.zombachu.stick.propagateError
+import com.zombachu.stick.success
 import com.zombachu.stick.valueOrPropagateError
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -90,7 +89,8 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
                     return GroupMatch(result, branchResults)
                 }
                 is MatchResult.Partial -> incomplete = incomplete ?: match
-                is MatchResult.Unmatched -> if (!match.failure.isMismatch()) mismatch = mismatch ?: match
+                is MatchResult.Unmatched ->
+                    if (match.failure !is CommandResult.Failure.NoMatch) mismatch = mismatch ?: match
             }
         }
         return GroupMatch(incomplete ?: mismatch ?: MatchResult.unmatched(), branchResults)
@@ -122,7 +122,7 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
             processGroupElement(
                 element,
                 onSuccess = {
-                    return ParsingResult.success(it)
+                    return success(it)
                 },
                 onElementMismatch = { continue },
                 onError = {
@@ -130,7 +130,7 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
                 },
             )
         }
-        return ParsingResult.failTypeInternal()
+        return noMatch()
     }
 
     context(validationContext: ValidationContext<E, S>)
@@ -148,7 +148,7 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
         groupElement: GroupElement<E, S, T, G>,
         onSuccess: (G) -> Nothing,
         onElementMismatch: () -> Nothing,
-        onError: (CommandResult.InternalFailure) -> Nothing,
+        onError: (CommandResult.Failure) -> Nothing,
     ) {
         contract {
             callsInPlace(onSuccess, InvocationKind.AT_MOST_ONCE)
@@ -164,7 +164,8 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
         val value =
             invocation.processElement(groupElement.groupable).valueOrPropagateError {
                 // If element mismatched and args weren't committed then treat it as not an error
-                if (it.isMismatch() && invocation.consumedArgs == consumedBefore) onElementMismatch()
+                if (it is CommandResult.Failure.NoMatch && invocation.consumedArgs == consumedBefore)
+                    onElementMismatch()
                 onError(it)
             }
         // If successful, return
@@ -173,15 +174,6 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
 }
 
 internal class GroupMatch(val result: MatchResult, val branchResults: List<MatchResult>)
-
-private fun CommandResult.InternalFailure.isMismatch(): Boolean =
-    when (this) {
-        is TypeNotMatchedInternal,
-        is ParsingResult.TypeNotMatchedError,
-        is ParsingResult.LiteralNotMatchedError,
-        is PeekingResult.InvalidSizeError -> true
-        else -> false
-    }
 
 internal class GroupElement<E : Environment, S, T, G>(
     val groupable: Groupable<E, S, T, *>,
