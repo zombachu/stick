@@ -128,3 +128,5 @@ fun <T> CommandResult<T>.consuming(consumed: Int, canConsumeMore: Boolean = true
     }
     return ConsumingSuccess(this.value, consumed, canConsumeMore)
 }
+
+typealias ContextualValue<E, S, T> = Invocation<E, S>.() -> CommandResult<T>
