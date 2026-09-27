@@ -32,10 +32,12 @@ internal open class InvocationImpl<E : Environment, S>(
             root.rootConsumedArgs = value
         }
 
-    private val rootEnteredBranches: MutableList<EnteredBranch> =
-        mutableListOf(context(this) { EnteredBranch { structure.getSyntax() } })
-    private val enteredBranches: MutableList<EnteredBranch>
-        get() = root.rootEnteredBranches
+    private var rootCurrentBranch: CurrentBranch = CurrentBranch(0) { structure.getSyntax() }
+    private var currentBranch: CurrentBranch
+        get() = root.rootCurrentBranch
+        set(value) {
+            root.rootCurrentBranch = value
+        }
 
     private var rootCurrentMatch: MatchResult.Matched? = null
     internal var currentMatch: MatchResult.Matched?
@@ -62,9 +64,8 @@ internal open class InvocationImpl<E : Environment, S>(
     }
 
     override fun getSyntax(): String {
-        val entered = enteredBranches
-        val segments = entered.dropLast(1).flatMap { it.args } + entered.last().getSyntax()
-        return "/${segments.joinToString(" ")}"
+        val branch = currentBranch
+        return "/${(args.subList(0, branch.start) + branch.getSyntax()).joinToString(" ")}"
     }
 
     override fun <S2 : Any> forSender(transform: (S) -> S2): InvocationImpl<E, S2> {
@@ -72,9 +73,7 @@ internal open class InvocationImpl<E : Environment, S>(
     }
 
     private fun consume(window: MutableList<String>, count: Int) {
-        val consumed = window.subList(0, count)
-        enteredBranches.last().args += consumed
-        consumed.clear()
+        window.subList(0, count).clear()
         consumedArgs += count
     }
 
@@ -95,9 +94,11 @@ internal open class InvocationImpl<E : Environment, S>(
             val window = this@InvocationImpl.peek(element.size) ?: return noMatch()
 
             if (element is Branch) {
-                this@InvocationImpl.enteredBranches += EnteredBranch { element.getSyntax() }
+                val outer = this@InvocationImpl.currentBranch
+                this@InvocationImpl.currentBranch =
+                    CurrentBranch(this@InvocationImpl.consumedArgs) { element.getSyntax() }
                 val result = element.parse(window)
-                this@InvocationImpl.enteredBranches.removeLast()
+                this@InvocationImpl.currentBranch = outer
                 return result
             }
 
@@ -130,9 +131,7 @@ internal open class InvocationImpl<E : Environment, S>(
     }
 }
 
-private class EnteredBranch(val getSyntax: () -> String) {
-    val args: MutableList<String> = mutableListOf()
-}
+private class CurrentBranch(val start: Int, val getSyntax: () -> String)
 
 private class TransformedInvocationImpl<E : Environment, S, S2>(base: InvocationImpl<E, S>, transform: (S) -> S2) :
     InvocationImpl<E, S2>(
