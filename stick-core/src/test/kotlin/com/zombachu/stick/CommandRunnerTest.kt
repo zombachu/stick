@@ -8,6 +8,7 @@ import com.zombachu.stick.element.Signature1
 import com.zombachu.stick.element.StructureImpl
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.failure.FailureHandler
+import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -76,7 +77,7 @@ class CommandRunnerTest {
         var lastReason: Reason? = null
 
         context(inv: Invocation<TestEnv, Unit>)
-        override fun onFailure(reason: Reason) {
+        override fun onFailure(reason: Reason, origin: FailureOrigin) {
             calls++
             lastReason = reason
         }

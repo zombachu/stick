@@ -2,6 +2,7 @@ package com.zombachu.stick.paper
 
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.failure.FailureHandler
+import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
 import java.util.logging.Level
 import net.kyori.adventure.text.Component
@@ -12,11 +13,11 @@ interface BukkitFailureHandler<E : BukkitEnvironment> : FailureHandler<E, Comman
 
 open class BasicBukkitFailureHandler : BukkitFailureHandler<BukkitEnvironment> {
     context(inv: Invocation<BukkitEnvironment, CommandSender>)
-    override fun onFailure(reason: Reason) {
+    override fun onFailure(reason: Reason, origin: FailureOrigin) {
         if (reason is Reason.Unknown && reason.cause != null) {
             inv.env.plugin.logger.log(Level.SEVERE, "Command /${inv.label} threw", reason.cause)
         }
-        val message = reason.message()
+        val message = reason.message(origin)
         if (message.isEmpty()) {
             return
         }

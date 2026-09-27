@@ -1,7 +1,11 @@
 package com.zombachu.stick
 
+import com.zombachu.stick.failure.FailureOrigin
+
 sealed class ValidationContext<out E : Environment, S> : SenderContext<S> {
     abstract val env: E
+
+    internal abstract fun createFailureOrigin(): FailureOrigin
 
     internal abstract fun <S2 : Any> forSender(transform: (S) -> S2): ValidationContext<E, S2>
 

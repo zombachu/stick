@@ -27,6 +27,7 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.ValidSenderDefault
 import com.zombachu.stick.element.ValueFlag
 import com.zombachu.stick.failure.FailureHandler
+import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.integration.fixtures.Player
 import com.zombachu.stick.integration.fixtures.Sender
@@ -168,8 +169,8 @@ class EnvironmentTest {
     fun `warpowner - base failure handler works for narrower environments`() {
         class BaseFailureHandler : FailureHandler<Server, Sender> {
             context(inv: Invocation<Server, Sender>)
-            override fun onFailure(reason: Reason) {
-                inv.sender.log(reason.message())
+            override fun onFailure(reason: Reason, origin: FailureOrigin) {
+                inv.sender.log(reason.message(origin))
             }
         }
         val ownerCommand = structure(WarpableServer::class, Sender::class) {

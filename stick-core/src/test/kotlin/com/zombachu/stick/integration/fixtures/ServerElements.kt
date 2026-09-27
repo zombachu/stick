@@ -29,12 +29,13 @@ import com.zombachu.stick.fail
 import com.zombachu.stick.failPermission
 import com.zombachu.stick.failType
 import com.zombachu.stick.failure.CustomReason
+import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.success
 import com.zombachu.stick.toSuggestions
 import kotlin.experimental.ExperimentalTypeInference
 
 data class UnknownWarp(val name: String) : CustomReason {
-    override fun message() = "Unknown warp: $name"
+    override fun message(origin: FailureOrigin) = "Unknown warp: $name"
 }
 
 context(_: ValidationContext<*, *>)

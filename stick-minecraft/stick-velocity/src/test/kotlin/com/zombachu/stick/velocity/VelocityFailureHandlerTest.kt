@@ -6,6 +6,7 @@ import com.zombachu.stick.MessageReason
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.failure.Reason
+import com.zombachu.stick.failureOrigin
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
@@ -21,7 +22,7 @@ class VelocityFailureHandlerTest {
         val sender = FakeCommandSource()
 
         context(invocation(sender)) {
-            BasicVelocityFailureHandler(FakeLogger()).onFailure(Reason.Unknown())
+            BasicVelocityFailureHandler(FakeLogger()).onFailure(Reason.Unknown(), failureOrigin())
         }
 
         assertEquals(1, sender.sentMessages.size)
@@ -33,7 +34,7 @@ class VelocityFailureHandlerTest {
         val sender = FakeCommandSource()
 
         context(invocation(sender)) {
-            BasicVelocityFailureHandler(FakeLogger()).onFailure(MessageReason(""))
+            BasicVelocityFailureHandler(FakeLogger()).onFailure(MessageReason(""), failureOrigin())
         }
 
         assertEquals(0, sender.sentMessages.size)
@@ -45,7 +46,7 @@ class VelocityFailureHandlerTest {
         val cause = IllegalStateException("boom")
 
         context(invocation(FakeCommandSource())) {
-            BasicVelocityFailureHandler(logger).onFailure(Reason.Unknown(cause))
+            BasicVelocityFailureHandler(logger).onFailure(Reason.Unknown(cause), failureOrigin())
         }
 
         assertSame(cause, logger.logged.single().second)

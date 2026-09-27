@@ -5,14 +5,15 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.failure.FailureHandler
+import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
-import kotlin.test.assertIs
+import kotlin.test.assertSame
 import kotlin.test.fail
 
 internal fun <E : Environment, S> Structure<E, S, *>.execute(env: E, sender: S, command: String) {
     val handler = dispatch(env, sender, command)
     val reason = handler.reason ?: return
-    fail("Unexpected error: ${reason.message()}")
+    fail("Unexpected error: ${reason.message(handler.origin!!)}")
 }
 
 internal fun <E : Environment, S> Structure<E, S, *>.executeExpectingError(
@@ -27,7 +28,8 @@ internal fun <E : Environment, S> Structure<E, S, *>.executeExpectingInvalidSynt
     command: String,
 ): String {
     val handler = dispatch(env, sender, command)
-    return assertIs<Reason.InvalidSyntax>(handler.reason).usage
+    assertSame(Reason.InvalidSyntax, handler.reason)
+    return handler.origin!!.usage
 }
 
 private fun <E : Environment, S> Structure<E, S, *>.dispatch(
@@ -68,9 +70,11 @@ private fun clearMessages(env: Environment, sender: Any?) {
 
 private class RecordingFailureHandler<E : Environment, S> : FailureHandler<E, S> {
     var reason: Reason? = null
+    var origin: FailureOrigin? = null
 
     context(inv: Invocation<E, S>)
-    override fun onFailure(reason: Reason) {
+    override fun onFailure(reason: Reason, origin: FailureOrigin) {
         this.reason = reason
+        this.origin = origin
     }
 }

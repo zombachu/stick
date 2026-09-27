@@ -112,6 +112,18 @@ class InvocationImplTest {
     }
 
     @Test
+    fun `processElement associates element with failure`() {
+        val inv = testInvocation("foo")
+        val parameter = LiteralParameter<TestEnv, Unit>("bar", [], "")
+
+        val result = inv.processElement(parameter)
+
+        val origin = result.expectNoMatch().origin
+        assertEquals("bar", origin.elementName)
+        assertEquals(inv.getSyntax(), origin.usage)
+    }
+
+    @Test
     fun `processElement fails partial element with InvalidSyntax NoMatch`() {
         val inv = testInvocation("a")
         val parameter =

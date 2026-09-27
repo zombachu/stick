@@ -9,6 +9,7 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
 import com.zombachu.stick.element.SyntaxElement
 import com.zombachu.stick.element.parse
+import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
 
 internal open class InvocationImpl<E : Environment, S>(
@@ -63,10 +64,15 @@ internal open class InvocationImpl<E : Environment, S>(
         return value
     }
 
-    override fun getSyntax(): String {
+    override fun getSyntax(): String = captureUsage()()
+
+    private fun captureUsage(): () -> String {
         val branch = currentBranch
-        return "/${(args.subList(0, branch.start) + branch.getSyntax()).joinToString(" ")}"
+        val prefix = args.subList(0, branch.start)
+        return { "/${(prefix + branch.getSyntax()).joinToString(" ")}" }
     }
+
+    override fun createFailureOrigin(): FailureOrigin = FailureOrigin(currentBranch.element?.name, captureUsage())
 
     override fun <S2 : Any> forSender(transform: (S) -> S2): InvocationImpl<E, S2> {
         return TransformedInvocationImpl(this, transform)
@@ -86,6 +92,14 @@ internal open class InvocationImpl<E : Environment, S>(
     }
 
     internal fun <T> processElement(element: Element<E, S, T>): CommandResult<T> {
+        val branch = currentBranch
+        currentBranch = branch.copy(element = element as? SyntaxElement)
+        val result = parseElement(element)
+        currentBranch = branch
+        return result
+    }
+
+    private fun <T> parseElement(element: Element<E, S, T>): CommandResult<T> {
         context(this) {
             if (element !is SyntaxElement) {
                 return element.parse([])
@@ -131,7 +145,11 @@ internal open class InvocationImpl<E : Environment, S>(
     }
 }
 
-private class CurrentBranch(val start: Int, val getSyntax: () -> String)
+private data class CurrentBranch(
+    val start: Int,
+    val element: SyntaxElement<*, *, *>? = null,
+    val getSyntax: () -> String,
+)
 
 private class TransformedInvocationImpl<E : Environment, S, S2>(base: InvocationImpl<E, S>, transform: (S) -> S2) :
     InvocationImpl<E, S2>(

@@ -11,6 +11,7 @@ import com.zombachu.stick.element.ValidatedDefaultImpl
 import com.zombachu.stick.element.ValueFlagImpl
 import com.zombachu.stick.failure.CustomReason
 import com.zombachu.stick.failure.FailureHandler
+import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
 import kotlin.test.fail
 
@@ -78,11 +79,13 @@ internal inline fun <S, T> withInvocationSender(
 fun <E : Environment, S> noopFailureHandler(): FailureHandler<E, S> =
     object : FailureHandler<E, S> {
         context(inv: Invocation<E, S>)
-        override fun onFailure(reason: Reason) {}
+        override fun onFailure(reason: Reason, origin: FailureOrigin) {}
     }
 
+fun failureOrigin(usage: String = "", elementName: String? = null): FailureOrigin = FailureOrigin(elementName) { usage }
+
 data class MessageReason(val text: String) : CustomReason {
-    override fun message() = text
+    override fun message(origin: FailureOrigin) = text
 }
 
 fun <E : Environment, S, T> validSenderDefault(
@@ -114,11 +117,7 @@ fun <T> CommandResult<T>.expectSuccessValue(): T {
 }
 
 fun <T> CommandResult<T>.expectReason(): Reason =
-    when (this) {
-        is CommandResult.Failure.NoMatch -> reason
-        is CommandResult.Failure.Error -> reason
-        else -> fail("Expected NoMatch or Error but was $this")
-    }
+    (this as? CommandResult.Failure.Unhandled)?.reason ?: fail("Expected NoMatch or Error but was $this")
 
 fun <T> CommandResult<T>.expectNoMatch(): CommandResult.Failure.NoMatch {
     return this as? CommandResult.Failure.NoMatch ?: fail("Expected NoMatch but was $this")

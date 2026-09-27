@@ -2,7 +2,6 @@ package com.zombachu.stick
 
 import com.zombachu.stick.failure.Reason
 import kotlin.test.Test
-import kotlin.test.assertIs
 import kotlin.test.assertSame
 
 class MatchResultTest {
@@ -10,7 +9,7 @@ class MatchResultTest {
     @Test
     fun `unmatched defaults to InvalidSyntax`() {
         val result = withValidationContext { MatchResult.unmatched() }
-        assertIs<Reason.InvalidSyntax>(result.failure.expectNoMatch().reason)
+        assertSame(Reason.InvalidSyntax, result.failure.expectNoMatch().reason)
     }
 
     @Test

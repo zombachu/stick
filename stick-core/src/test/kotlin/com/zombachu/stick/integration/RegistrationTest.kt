@@ -13,6 +13,7 @@ import com.zombachu.stick.dsl.optionally
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.failure.FailureHandler
+import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.integration.fixtures.Console
 import com.zombachu.stick.integration.fixtures.Player
@@ -171,7 +172,7 @@ class RegistrationTest {
             var warps: Int = 0
 
             context(inv: Invocation<WarpableServer, Sender>)
-            override fun onFailure(reason: Reason) {
+            override fun onFailure(reason: Reason, origin: FailureOrigin) {
                 this.reason = reason
                 warps = inv.env.warps.names.size
             }
@@ -222,7 +223,7 @@ class RegistrationTest {
             var name: String? = null
 
             context(inv: Invocation<Server, Profile>)
-            override fun onFailure(reason: Reason) {
+            override fun onFailure(reason: Reason, origin: FailureOrigin) {
                 this.reason = reason
                 name = inv.sender.sender.name
             }

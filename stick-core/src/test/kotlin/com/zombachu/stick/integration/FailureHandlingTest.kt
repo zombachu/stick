@@ -14,6 +14,7 @@ import com.zombachu.stick.element.GroupableType
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.failure.CustomReason
 import com.zombachu.stick.failure.FailureHandler
+import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.integration.fixtures.Player
 import com.zombachu.stick.integration.fixtures.Sender
@@ -54,7 +55,7 @@ class FailureHandlingTest {
         assertEquals(["PERMISSION DENIED"], steve.logs)
 
         setLevelCommand.executeWithHandler(handler, server, zombachu, "/setlevel high")
-        assertEquals(["NOT A integer: high"], zombachu.logs)
+        assertEquals(["level IS NOT A integer: high"], zombachu.logs)
 
         setLevelCommand.executeWithHandler(handler, server, zombachu, "/setlevel 99")
         assertEquals(["0 TO 15, NOT 99"], zombachu.logs)
@@ -151,20 +152,21 @@ class FailureHandlingTest {
 
     private class TestFailureHandler<S : Sender> : FailureHandler<Server, S> {
         context(inv: Invocation<Server, S>)
-        override fun onFailure(reason: Reason) {
+        override fun onFailure(reason: Reason, origin: FailureOrigin) {
             val message =
                 when (reason) {
                     is Reason.Unknown -> "SOMETHING BROKE"
                     Reason.InvalidPermission -> "PERMISSION DENIED"
                     Reason.InvalidSender -> "NOT FOR YOU"
                     is Reason.InvalidSenderType -> "${reason.required.simpleName} ONLY"
-                    is Reason.InvalidSyntax -> "USAGE: ${reason.usage}"
+                    Reason.InvalidSyntax -> "USAGE: ${origin.usage}"
                     is Reason.LiteralNotMatched ->
                         "EXPECTED ${reason.validValues.joinToString("|")} NOT ${reason.provided}"
                     is Reason.OutOfRange -> "${reason.min} TO ${reason.max}, NOT ${reason.provided}"
-                    is Reason.TypeNotMatched -> "NOT A ${reason.expectedType}: ${reason.provided}"
+                    is Reason.TypeNotMatched ->
+                        "${origin.elementName} IS NOT A ${reason.expectedType}: ${reason.provided}"
                     is UnknownWarp -> "UNKNOWN WARP: ${reason.name}"
-                    is CustomReason -> reason.message()
+                    is CustomReason -> reason.message(origin)
                 }
             inv.sender.log(message)
         }

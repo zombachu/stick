@@ -32,9 +32,8 @@ class CommandResultTest {
 
     @Test
     fun `noMatch defaults to InvalidSyntax`() {
-        val inv = testInvocation()
-        val result = context(inv) { noMatch() }
-        assertEquals(Reason.InvalidSyntax(inv.getSyntax()), result.expectNoMatch().reason)
+        val result = withValidationContext { noMatch() }
+        assertSame(Reason.InvalidSyntax, result.expectNoMatch().reason)
     }
 
     @Test
@@ -64,9 +63,8 @@ class CommandResultTest {
 
     @Test
     fun `failSyntax returns Error with InvalidSyntax`() {
-        val inv = testInvocation()
-        val result = context(inv) { failSyntax() }
-        assertEquals(Reason.InvalidSyntax(inv.getSyntax()), result.expectError().reason)
+        val result = withValidationContext { failSyntax() }
+        assertSame(Reason.InvalidSyntax, result.expectError().reason)
     }
 
     @Test
@@ -86,14 +84,13 @@ class CommandResultTest {
 
     @Test
     fun `commit reports default NoMatch as InvalidSyntax`() {
-        val inv = testInvocation()
-        val result = context(inv) { noMatch().commit() }
-        assertEquals(Reason.InvalidSyntax(inv.getSyntax()), result.expectError().reason)
+        val result = withValidationContext { noMatch() }.commit()
+        assertSame(Reason.InvalidSyntax, result.expectError().reason)
     }
 
     @Test
     fun `commit keeps NoMatch reason`() {
-        val result = withValidationContext { failType("integer", "many").commit() }
+        val result = withValidationContext { failType("integer", "many") }.commit()
         assertEquals(Reason.TypeNotMatched("integer", "many"), result.expectError().reason)
     }
 
@@ -150,7 +147,7 @@ class CommandResultTest {
 
     @Test
     fun `consuming passes through failures unchanged`() {
-        val failure = withInvocation { failSyntax() }
+        val failure = withValidationContext { failSyntax() }
         val result = failure.consuming(5)
         assertSame(failure, result)
     }

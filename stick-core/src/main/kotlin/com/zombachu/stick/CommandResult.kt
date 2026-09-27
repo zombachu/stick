@@ -2,6 +2,7 @@
 
 package com.zombachu.stick
 
+import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -14,9 +15,11 @@ sealed interface CommandResult<out T> {
     }
 
     sealed class Failure : ConsumingResult<Nothing> {
-        class NoMatch internal constructor(val reason: Reason) : Failure()
+        sealed class Unhandled(val reason: Reason, internal val origin: FailureOrigin) : Failure()
 
-        class Error internal constructor(val reason: Reason) : Failure()
+        class NoMatch internal constructor(reason: Reason, origin: FailureOrigin) : Unhandled(reason, origin)
+
+        class Error internal constructor(reason: Reason, origin: FailureOrigin) : Unhandled(reason, origin)
 
         data object Handled : Failure()
     }
@@ -43,15 +46,13 @@ fun <T> success(value: T): CommandResult.Success<T> = ValueSuccess(value)
 context(_: ValidationContext<*, *>)
 fun success(): CommandResult.Success<Unit> = ValueSuccess(Unit)
 
-context(_: ValidationContext<*, *>)
-fun fail(reason: Reason): CommandResult.Failure.Error = CommandResult.Failure.Error(reason)
-
-context(_: ValidationContext<*, *>)
-fun noMatch(reason: Reason = invalidSyntax()): CommandResult.Failure.NoMatch = CommandResult.Failure.NoMatch(reason)
+context(validationContext: ValidationContext<*, *>)
+fun fail(reason: Reason): CommandResult.Failure.Error =
+    CommandResult.Failure.Error(reason, validationContext.createFailureOrigin())
 
 context(validationContext: ValidationContext<*, *>)
-private fun invalidSyntax(): Reason.InvalidSyntax =
-    Reason.InvalidSyntax((validationContext as? Invocation<*, *>)?.getSyntax().orEmpty())
+fun noMatch(reason: Reason = Reason.InvalidSyntax): CommandResult.Failure.NoMatch =
+    CommandResult.Failure.NoMatch(reason, validationContext.createFailureOrigin())
 
 context(_: ValidationContext<*, *>)
 fun handled(): CommandResult.Failure.Handled = CommandResult.Failure.Handled
@@ -63,8 +64,8 @@ context(_: ValidationContext<*, *>)
 fun failLiteral(valid: List<String>, arg: String): CommandResult.Failure.NoMatch =
     noMatch(Reason.LiteralNotMatched(valid, arg))
 
-context(inv: Invocation<*, *>)
-fun failSyntax(): CommandResult.Failure.Error = fail(Reason.InvalidSyntax(inv.getSyntax()))
+context(_: ValidationContext<*, *>)
+fun failSyntax(): CommandResult.Failure.Error = fail(Reason.InvalidSyntax)
 
 context(_: ValidationContext<*, *>)
 fun failRange(min: String, max: String, arg: String): CommandResult.Failure.Error =
@@ -119,7 +120,7 @@ fun <T> CommandResult<T>.isSuccess(): Boolean {
 }
 
 internal fun CommandResult.Failure.commit(): CommandResult.Failure =
-    if (this is CommandResult.Failure.NoMatch) CommandResult.Failure.Error(reason) else this
+    if (this is CommandResult.Failure.NoMatch) CommandResult.Failure.Error(reason, origin) else this
 
 fun <T> CommandResult<T>.consuming(consumed: Int, canConsumeMore: Boolean = true): ConsumingResult<T> {
     this.propagateError {

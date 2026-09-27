@@ -23,13 +23,7 @@ class CommandRunner<E : Environment, S>(
                 } catch (e: Exception) {
                     fail(Reason.Unknown(e))
                 }
-            val reason =
-                when (result) {
-                    is CommandResult.Failure.NoMatch -> result.reason
-                    is CommandResult.Failure.Error -> result.reason
-                    else -> return
-                }
-            failureHandler.onFailure(reason)
+            if (result is CommandResult.Failure.Unhandled) failureHandler.onFailure(result.reason, result.origin)
         }
     }
 
