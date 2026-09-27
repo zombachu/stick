@@ -24,7 +24,7 @@ sealed class Invocation<out E : Environment, S> : ValidationContext<E, S>() {
             args: List<String>,
             structure: Structure<E, S, *>,
         ): Invocation<E, S> {
-            return InvocationImpl(sender, env, label, args, structure, parent = null)
+            return InvocationImpl(sender, env, label, args, structure)
         }
     }
 }

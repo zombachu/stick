@@ -3,49 +3,25 @@ package com.zombachu.stick
 import com.zombachu.stick.element.Branch
 import com.zombachu.stick.element.ConsumingElement
 import com.zombachu.stick.element.Element
-import com.zombachu.stick.element.LeadingParameterRole
-import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.element.StructureImpl
 import com.zombachu.stick.element.SyntaxElement
 import com.zombachu.stick.element.parse
 import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
 
-internal open class InvocationImpl<E : Environment, S>(
-    override val sender: S,
-    override val env: E,
-    override val label: String,
-    override val args: List<String>,
-    structure: Structure<E, S, *>,
-    parent: InvocationImpl<*, *>?,
-) : Invocation<E, S>() {
+internal class InvocationImpl<E : Environment, S>
+private constructor(override val sender: S, override val env: E, private val state: InvocationState) :
+    Invocation<E, S>(), InvocationState by state {
 
-    private val root: InvocationImpl<*, *> = parent?.root ?: this
-
-    internal open var unparsed: MutableList<String> = args.toMutableList()
-    internal open var parsed: MutableMap<TypedIdentifier<*>, Any?> = mutableMapOf()
-
-    private var rootConsumedArgs: Int = 0
-    internal var consumedArgs: Int
-        get() = root.rootConsumedArgs
-        private set(value) {
-            root.rootConsumedArgs = value
-        }
-
-    private var rootCurrentBranch: CurrentBranch = CurrentBranch(0) { structure.getSyntax() }
-    private var currentBranch: CurrentBranch
-        get() = root.rootCurrentBranch
-        set(value) {
-            root.rootCurrentBranch = value
-        }
-
-    private var rootCurrentMatch: MatchResult.Matched? = null
-    internal var currentMatch: MatchResult.Matched?
-        get() = root.rootCurrentMatch
-        set(value) {
-            root.rootCurrentMatch = value
-        }
+    constructor(
+        sender: S,
+        env: E,
+        label: String,
+        args: List<String>,
+        structure: Structure<E, S, *>,
+    ) : this(sender, env, InvocationStateImpl(label, args)) {
+        currentBranch = CurrentBranch(0) { structure.getSyntax() }
+    }
 
     override fun <T> get(id: TypedIdentifier<T>): T {
         @Suppress("UNCHECKED_CAST")
@@ -74,22 +50,8 @@ internal open class InvocationImpl<E : Environment, S>(
 
     override fun createFailureOrigin(): FailureOrigin = FailureOrigin(currentBranch.element?.name, captureUsage())
 
-    override fun <S2 : Any> forSender(transform: (S) -> S2): InvocationImpl<E, S2> {
-        return TransformedInvocationImpl(this, transform)
-    }
-
-    private fun consume(window: MutableList<String>, count: Int) {
-        window.subList(0, count).clear()
-        consumedArgs += count
-    }
-
-    internal fun peek(size: Size): MutableList<String>? {
-        if (size.matches(unparsed.size)) return unparsed
-        if (size is Size.Bounded && unparsed.size > size.max) {
-            return unparsed.subList(0, size.max)
-        }
-        return null
-    }
+    override fun <S2 : Any> forSender(transform: (S) -> S2): InvocationImpl<E, S2> =
+        InvocationImpl(transform(sender), env, state)
 
     internal fun <T> processElement(element: Element<E, S, T>): CommandResult<T> {
         val branch = currentBranch
@@ -145,23 +107,45 @@ internal open class InvocationImpl<E : Environment, S>(
     }
 }
 
-private data class CurrentBranch(
+internal interface InvocationState {
+    val label: String
+    val args: List<String>
+    val unparsed: MutableList<String>
+    val parsed: MutableMap<TypedIdentifier<*>, Any?>
+    val consumedArgs: Int
+    var currentBranch: CurrentBranch
+    var currentMatch: MatchResult.Matched?
+
+    fun peek(size: Size): MutableList<String>?
+
+    fun consume(window: MutableList<String>, count: Int)
+}
+
+internal class InvocationStateImpl(override val label: String, override val args: List<String>) : InvocationState {
+    override lateinit var currentBranch: CurrentBranch
+    override val unparsed: MutableList<String> = args.toMutableList()
+    override val parsed: MutableMap<TypedIdentifier<*>, Any?> = mutableMapOf()
+    override var consumedArgs: Int = 0
+        private set
+
+    override var currentMatch: MatchResult.Matched? = null
+
+    override fun peek(size: Size): MutableList<String>? {
+        if (size.matches(unparsed.size)) return unparsed
+        if (size is Size.Bounded && unparsed.size > size.max) {
+            return unparsed.subList(0, size.max)
+        }
+        return null
+    }
+
+    override fun consume(window: MutableList<String>, count: Int) {
+        window.subList(0, count).clear()
+        consumedArgs += count
+    }
+}
+
+internal data class CurrentBranch(
     val start: Int,
     val element: SyntaxElement<*, *, *>? = null,
     val getSyntax: () -> String,
 )
-
-private class TransformedInvocationImpl<E : Environment, S, S2>(base: InvocationImpl<E, S>, transform: (S) -> S2) :
-    InvocationImpl<E, S2>(
-        transform(base.sender),
-        base.env,
-        base.label,
-        base.args,
-        StructureImpl("", [], "", Requirement { success() }) {
-            Signature0({}, LeadingParameterRole.Label, [it])
-        }, // Unused
-        parent = base,
-    ) {
-    override var unparsed: MutableList<String> = base.unparsed
-    override var parsed: MutableMap<TypedIdentifier<*>, Any?> = base.parsed
-}
