@@ -17,70 +17,70 @@ import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class InvocationImplTest {
+class ExecutionImplTest {
 
     @Test
     fun `peek with too large size returns null`() {
-        val inv = testInvocation("a")
-        assertNull(inv.peek(Size(2)))
-        assertNull(inv.peek(Size.between(2, 4)))
-        assertNull(inv.peek(Size.atLeast(2)))
+        val ex = testExecution("a")
+        assertNull(ex.peek(Size(2)))
+        assertNull(ex.peek(Size.between(2, 4)))
+        assertNull(ex.peek(Size.atLeast(2)))
     }
 
     @Test
     fun `peek with fixed size returns requested arguments`() {
-        val inv = testInvocation("a", "b", "c")
+        val ex = testExecution("a", "b", "c")
 
-        val peeked = inv.peek(Size(2))
+        val peeked = ex.peek(Size(2))
 
         assertEquals(["a", "b"], peeked)
     }
 
     @Test
     fun `peek with unbounded size returns all args`() {
-        val inv = testInvocation("a", "b", "c")
+        val ex = testExecution("a", "b", "c")
 
-        val peeked = inv.peek(Size.atLeast(0))
+        val peeked = ex.peek(Size.atLeast(0))
 
         assertEquals(["a", "b", "c"], peeked)
     }
 
     @Test
     fun `peek with bounded size returns at most max args`() {
-        val inv = testInvocation("a", "b", "c")
+        val ex = testExecution("a", "b", "c")
 
-        val smallPeek = inv.peek(Size.between(0, 2))
+        val smallPeek = ex.peek(Size.between(0, 2))
         assertEquals(["a", "b"], smallPeek)
 
-        val largePeek = inv.peek(Size.between(0, 5))
+        val largePeek = ex.peek(Size.between(0, 5))
         assertEquals(["a", "b", "c"], largePeek)
     }
 
     @Test
     fun `processElement consumes reported size`() {
-        val inv = testInvocation("a", "b", "c")
+        val ex = testExecution("a", "b", "c")
         val parameter = StringParameter<TestEnv, Unit>("", "")
 
-        val result = inv.processElement(parameter)
+        val result = ex.processElement(parameter)
 
         assertEquals("a", result.expectSuccessValue())
-        assertEquals(["b", "c"], inv.unparsed)
+        assertEquals(["b", "c"], ex.unparsed)
     }
 
     @Test
     fun `processElement consumes parameter size for Group`() {
-        val inv = testInvocation("a", "b", "c")
+        val ex = testExecution("a", "b", "c")
         val group = Group1Impl<TestEnv, Unit, String, Position.Leading>("", "", StringParameter("", ""))
 
-        val result = inv.processElement(group)
+        val result = ex.processElement(group)
 
         assertTrue(result.isSuccess())
-        assertEquals(["b", "c"], inv.unparsed)
+        assertEquals(["b", "c"], ex.unparsed)
     }
 
     @Test
     fun `processElement does not parse non-matching element`() {
-        val inv = testInvocation("foo")
+        val ex = testExecution("foo")
         var parsed = false
         val parameter =
             object : Parameter.Size1<TestEnv, Unit, String>("bar", "") {
@@ -94,38 +94,38 @@ class InvocationImplTest {
                 }
             }
 
-        val result = inv.processElement(parameter)
+        val result = ex.processElement(parameter)
 
         assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
         assertFalse(parsed)
-        assertEquals(["foo"], inv.unparsed)
+        assertEquals(["foo"], ex.unparsed)
     }
 
     @Test
     fun `processElement returns failure Unmatched carries`() {
-        val inv = testInvocation("foo")
+        val ex = testExecution("foo")
         val parameter = LiteralParameter<TestEnv, Unit>("bar", [], "")
 
-        val result = inv.processElement(parameter)
+        val result = ex.processElement(parameter)
 
         assertEquals(Reason.LiteralNotMatched(["bar"], "foo"), result.expectReason())
     }
 
     @Test
     fun `processElement associates element with failure`() {
-        val inv = testInvocation("foo")
+        val ex = testExecution("foo")
         val parameter = LiteralParameter<TestEnv, Unit>("bar", [], "")
 
-        val result = inv.processElement(parameter)
+        val result = ex.processElement(parameter)
 
         val origin = result.expectNoMatch().origin
         assertEquals("bar", origin.elementName)
-        assertEquals(inv.getSyntax(), origin.usage)
+        assertEquals(ex.getSyntax(), origin.usage)
     }
 
     @Test
     fun `processElement fails partial element with InvalidSyntax NoMatch`() {
-        val inv = testInvocation("a")
+        val ex = testExecution("a")
         val parameter =
             object : Parameter.Bounded<TestEnv, Unit, String>(Size.between(0, 2), "", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
@@ -136,32 +136,32 @@ class InvocationImplTest {
                     success("").consuming(1)
             }
 
-        val result = inv.processElement(parameter)
+        val result = ex.processElement(parameter)
 
         assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
     }
 
     @Test
     fun `consumedArgs counts consumed arg`() {
-        val inv = testInvocation("a", "b", "c")
+        val ex = testExecution("a", "b", "c")
         val parameter = StringParameter<TestEnv, Unit>("", "")
 
-        val first = inv.processElement(parameter)
-        val second = inv.processElement(parameter)
+        val first = ex.processElement(parameter)
+        val second = ex.processElement(parameter)
 
         assertTrue(first.isSuccess() && second.isSuccess())
-        assertEquals(2, inv.consumedArgs)
+        assertEquals(2, ex.consumedArgs)
     }
 
     @Test
     fun `forSender shares consumedArgs`() {
-        val inv = testInvocation("a")
-        val transformed = inv.forSender { 1 }
+        val ex = testExecution("a")
+        val transformed = ex.forSender { 1 }
 
         val result = transformed.processElement(StringParameter<TestEnv, Int>("", ""))
 
         assertTrue(result.isSuccess())
-        assertEquals(1, inv.consumedArgs)
+        assertEquals(1, ex.consumedArgs)
     }
 
     @Test
@@ -169,7 +169,7 @@ class InvocationImplTest {
         var resolves = 0
         val parameter = countingParameter { resolves++ }
 
-        val result = testInvocation("a").processElement(parameter)
+        val result = testExecution("a").processElement(parameter)
 
         assertEquals("a", result.expectSuccessValue())
         assertEquals(1, resolves)
@@ -181,11 +181,11 @@ class InvocationImplTest {
         val identifier = id<String>("stored")
         val stored = StoredParameter(countingParameter { resolves++ }, identifier)
 
-        val inv = testInvocation("a")
-        val result = inv.processElement(stored)
+        val ex = testExecution("a")
+        val result = ex.processElement(stored)
 
         assertEquals("a", result.expectSuccessValue())
-        assertEquals("a", inv.get(identifier))
+        assertEquals("a", ex.get(identifier))
         assertEquals(1, resolves)
     }
 
@@ -201,7 +201,7 @@ class InvocationImplTest {
         val exclaim: PipelineOperation<TestEnv, Unit, String, String> = { success("$it!") }
         val piped = PipelinedOptionalParameter<TestEnv, Unit, String, String, Position.Optional>(optional, [exclaim])
 
-        val result = testInvocation("a").processElement(piped)
+        val result = testExecution("a").processElement(piped)
 
         assertEquals("a!", result.expectSuccessValue())
         assertEquals(1, resolves)
@@ -209,7 +209,7 @@ class InvocationImplTest {
 
     @Test
     fun `processElement fails when element claims less than its declared size`() {
-        val inv = testInvocation("a", "b")
+        val ex = testExecution("a", "b")
         val misbehavingParameter =
             object : Parameter.Unbounded<TestEnv, Unit, String>(Size.atLeast(1), "", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
@@ -217,15 +217,15 @@ class InvocationImplTest {
                     success(args.joinToString(" ")).consuming(0)
             }
 
-        val result = inv.processElement(misbehavingParameter)
+        val result = ex.processElement(misbehavingParameter)
 
         assertIs<Reason.Unknown>(result.expectError().reason)
-        assertEquals(0, inv.consumedArgs)
+        assertEquals(0, ex.consumedArgs)
     }
 
     @Test
     fun `processElement fails when element over-consumes`() {
-        val inv = testInvocation("a")
+        val ex = testExecution("a")
         val misbehavingParameter =
             object : Parameter.Bounded<TestEnv, Unit, String>(Size(1), "", "") {
                 context(validationContext: ValidationContext<TestEnv, Unit>)
@@ -235,44 +235,44 @@ class InvocationImplTest {
                 override fun resolve(args: List<String>): ConsumingResult<String> = success("a").consuming(5)
             }
 
-        val result = inv.processElement(misbehavingParameter)
+        val result = ex.processElement(misbehavingParameter)
 
         assertIs<Reason.Unknown>(result.expectError().reason)
     }
 
     @Test
     fun `get put and getOrPut round-trip`() {
-        val inv = testInvocation()
+        val ex = testExecution()
         val identifier = id<String>("name")
 
-        assertEquals("default", inv.getOrPut(identifier, "default"))
-        assertEquals("default", inv.get(identifier))
+        assertEquals("default", ex.getOrPut(identifier, "default"))
+        assertEquals("default", ex.get(identifier))
 
-        inv.put(identifier, "updated")
-        assertEquals("updated", inv.get(identifier))
-        assertEquals("updated", inv.getOrPut(identifier, "ignored"))
+        ex.put(identifier, "updated")
+        assertEquals("updated", ex.get(identifier))
+        assertEquals("updated", ex.getOrPut(identifier, "ignored"))
     }
 
     @Test
     fun `forSender shares backing memory`() {
-        val baseInvocation = testInvocationSender("base-sender", "a", "b")
+        val baseExecution = testExecutionSender("base-sender", "a", "b")
         val identifier = id<String>("shared-identifier")
-        baseInvocation.put(identifier, "from-base")
+        baseExecution.put(identifier, "from-base")
 
-        val transformedInvocation = baseInvocation.forSender { it.length }
+        val transformedExecution = baseExecution.forSender { it.length }
 
-        transformedInvocation.unparsed.removeAt(0)
-        assertEquals(["b"], baseInvocation.unparsed)
-        assertEquals("from-base", transformedInvocation.get(identifier))
+        transformedExecution.unparsed.removeAt(0)
+        assertEquals(["b"], baseExecution.unparsed)
+        assertEquals("from-base", transformedExecution.get(identifier))
 
-        transformedInvocation.put(identifier, "from-transformed")
-        assertEquals("from-transformed", baseInvocation.get(identifier))
+        transformedExecution.put(identifier, "from-transformed")
+        assertEquals("from-transformed", baseExecution.get(identifier))
     }
 
     @Test
     fun `getSyntax prefixes with slash`() {
-        val inv = testInvocation()
-        assertTrue(inv.getSyntax().startsWith("/"))
+        val ex = testExecution()
+        assertTrue(ex.getSyntax().startsWith("/"))
     }
 
     private fun countingParameter(onResolve: () -> Unit) =

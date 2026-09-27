@@ -18,7 +18,7 @@ import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.success
 import com.zombachu.stick.validSenderDefault
-import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withExecution
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -30,42 +30,42 @@ class OptionalGroupImplTest {
     @Test
     fun `empty args with group not allowed returns requirement default`() {
         val optional = optionalGroup(groupAllowed = false, presenceAllowed = true)
-        val result = withInvocation { optional.parse([]) }
+        val result = withExecution { optional.parse([]) }
         assertEquals(GroupResult.ResultA("requirement"), result.expectSuccessValue())
     }
 
     @Test
     fun `empty args with presence not allowed fails with InvalidSyntax`() {
         val optional = optionalGroup(groupAllowed = true, presenceAllowed = false)
-        val result = withInvocation { optional.parse([]) }
+        val result = withExecution { optional.parse([]) }
         assertIs<Reason.InvalidSyntax>(result.expectReason())
     }
 
     @Test
     fun `empty args returns presence default`() {
         val optional = optionalGroup(groupAllowed = true, presenceAllowed = true)
-        val result = withInvocation { optional.parse([]) }
+        val result = withExecution { optional.parse([]) }
         assertEquals(GroupResult.ResultA("presence"), result.expectSuccessValue())
     }
 
     @Test
     fun `non-empty args with group not allowed fails with InvalidSender`() {
         val optional = optionalGroup(groupAllowed = false, presenceAllowed = true)
-        val result = withInvocation("orange") { optional.parse(["orange"]) }
+        val result = withExecution("orange") { optional.parse(["orange"]) }
         assertSame(Reason.InvalidSender, result.expectReason())
     }
 
     @Test
     fun `non-empty args delegates to group`() {
         val optional = optionalGroup(groupAllowed = true, presenceAllowed = true)
-        val result = withInvocation("orange") { optional.parse(["orange"]) }
+        val result = withExecution("orange") { optional.parse(["orange"]) }
         assertEquals(GroupResult.ResultB("orange"), result.expectSuccessValue())
     }
 
     @Test
     fun `args matching nothing fails with InvalidSyntax NoMatch`() {
         val optional = optionalGroup(groupAllowed = true, presenceAllowed = true)
-        val result = withInvocation("asdf") { optional.parse(["asdf"]) }
+        val result = withExecution("asdf") { optional.parse(["asdf"]) }
         assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
     }
 

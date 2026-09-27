@@ -2,7 +2,7 @@ package com.zombachu.stick.integration.fixtures
 
 import com.zombachu.stick.CommandRunner
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
+import com.zombachu.stick.Execution
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.FailureOrigin
@@ -72,7 +72,7 @@ private class RecordingFailureHandler<E : Environment, S> : FailureHandler<E, S>
     var reason: Reason? = null
     var origin: FailureOrigin? = null
 
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     override fun onFailure(reason: Reason, origin: FailureOrigin) {
         this.reason = reason
         this.origin = origin

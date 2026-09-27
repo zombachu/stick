@@ -2,7 +2,7 @@ package com.zombachu.stick
 
 import com.zombachu.stick.element.Structure
 
-sealed class Invocation<out E : Environment, S> : ValidationContext<E, S>() {
+sealed class Execution<out E : Environment, S> : ValidationContext<E, S>() {
     abstract val label: String
     abstract val args: List<String>
 
@@ -14,7 +14,7 @@ sealed class Invocation<out E : Environment, S> : ValidationContext<E, S>() {
 
     abstract fun getSyntax(): String
 
-    abstract override fun <S2 : Any> forSender(transform: (S) -> S2): Invocation<E, S2>
+    abstract override fun <S2 : Any> forSender(transform: (S) -> S2): Execution<E, S2>
 
     companion object {
         internal operator fun <E : Environment, S> invoke(
@@ -23,8 +23,8 @@ sealed class Invocation<out E : Environment, S> : ValidationContext<E, S>() {
             label: String,
             args: List<String>,
             structure: Structure<E, S, *>,
-        ): Invocation<E, S> {
-            return InvocationImpl(sender, env, label, args, structure)
+        ): Execution<E, S> {
+            return ExecutionImpl(sender, env, label, args, structure)
         }
     }
 }

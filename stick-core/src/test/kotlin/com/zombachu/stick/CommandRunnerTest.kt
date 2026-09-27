@@ -76,7 +76,7 @@ class CommandRunnerTest {
         var calls = 0
         var lastReason: Reason? = null
 
-        context(inv: Invocation<TestEnv, Unit>)
+        context(ex: Execution<TestEnv, Unit>)
         override fun onFailure(reason: Reason, origin: FailureOrigin) {
             calls++
             lastReason = reason

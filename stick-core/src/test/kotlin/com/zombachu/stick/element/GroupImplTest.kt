@@ -24,7 +24,7 @@ import com.zombachu.stick.failSender
 import com.zombachu.stick.failType
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.success
-import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withExecution
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -38,7 +38,7 @@ class GroupImplTest {
         val literalParameter = LiteralParameter<TestEnv, Unit>("foo", [], "")
         val group = group2(stringParameter, literalParameter)
 
-        val result = withInvocation("foo") { group.parse(["foo"]) }
+        val result = withExecution("foo") { group.parse(["foo"]) }
 
         assertIs<GroupResult.ResultB<String>>(result.expectSuccessValue())
     }
@@ -49,7 +49,7 @@ class GroupImplTest {
         val longParameter = variableParameter("long", Size.between(1, 3), consumed = 3)
         val group = group2(shortParameter, longParameter)
 
-        val result = withInvocation("a", "b", "c") { group.parse(["a", "b", "c"]) }
+        val result = withExecution("a", "b", "c") { group.parse(["a", "b", "c"]) }
 
         assertIs<GroupResult.ResultB<String>>(result.expectSuccessValue())
     }
@@ -60,7 +60,7 @@ class GroupImplTest {
         val longParameter = variableParameter("long", Size.between(1, 3), consumed = 3)
         val group = group2(exactParameter, longParameter)
 
-        val result = withInvocation("a", "b", "c") { group.parse(["a", "b", "c"]) }
+        val result = withExecution("a", "b", "c") { group.parse(["a", "b", "c"]) }
 
         assertIs<GroupResult.ResultB<String>>(result.expectSuccessValue())
     }
@@ -71,7 +71,7 @@ class GroupImplTest {
         val gated = transformed(StringParameter("gated", ""), requirement)
         val group = group1(gated)
 
-        val result = withInvocation("x") { group.parse(["x"]) }
+        val result = withExecution("x") { group.parse(["x"]) }
 
         assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
     }
@@ -89,7 +89,7 @@ class GroupImplTest {
         val fallback = StringParameter<TestEnv, Unit>("ok", "")
         val group = group2(mismatching, fallback)
 
-        val result = withInvocation("x") { group.parse(["x"]) }
+        val result = withExecution("x") { group.parse(["x"]) }
 
         assertIs<GroupResult.ResultB<String>>(result.expectSuccessValue())
     }
@@ -108,7 +108,7 @@ class GroupImplTest {
         val fallback = StringParameter<TestEnv, Unit>("ok", "")
         val group = group2(twoArgParam, fallback)
 
-        val result = withInvocation("x") { group.parse(["x"]) }
+        val result = withExecution("x") { group.parse(["x"]) }
 
         assertIs<GroupResult.ResultB<String>>(result.expectSuccessValue())
     }
@@ -126,7 +126,7 @@ class GroupImplTest {
         val neverTried = StringParameter<TestEnv, Unit>("ok", "")
         val group = group2(hardFailure, neverTried)
 
-        val result = withInvocation("x") { group.parse(["x"]) }
+        val result = withExecution("x") { group.parse(["x"]) }
 
         assertEquals(Reason.OutOfRange("0", "10", "x"), result.expectReason())
     }
@@ -137,7 +137,7 @@ class GroupImplTest {
         val take = LiteralParameter<TestEnv, Unit>("take", [], "")
         val group = group2(give, take)
 
-        val result = withInvocation("take") { group.parse(["take"]) }
+        val result = withExecution("take") { group.parse(["take"]) }
 
         assertIs<GroupResult.ResultB<String>>(result.expectSuccessValue())
     }
@@ -156,7 +156,7 @@ class GroupImplTest {
         val neverTried = StringParameter<TestEnv, Unit>("ok", "")
         val group = group2(committing, neverTried)
 
-        val result = withInvocation("info", "moon") { group.parse(["info", "moon"]) }
+        val result = withExecution("info", "moon") { group.parse(["info", "moon"]) }
 
         assertEquals(Reason.LiteralNotMatched(["sun"], "moon"), result.expectReason())
     }
@@ -167,7 +167,7 @@ class GroupImplTest {
         val second = LiteralParameter<TestEnv, Unit>("foo", [], "")
         val group = group2(first, second)
 
-        val result = withInvocation("foo") { group.parse(["foo"]) }
+        val result = withExecution("foo") { group.parse(["foo"]) }
 
         assertIs<GroupResult.ResultA<String>>(result.expectSuccessValue())
     }
@@ -270,7 +270,7 @@ class GroupImplTest {
         val nested = group2(give, take)
         val group = group2(nested, StringParameter<TestEnv, Unit>("ok", ""))
 
-        val result = withInvocation("drop") { group.parse(["drop"]) }
+        val result = withExecution("drop") { group.parse(["drop"]) }
 
         assertIs<GroupResult.ResultB<String>>(result.expectSuccessValue())
     }

@@ -4,7 +4,7 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
+import com.zombachu.stick.Execution
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
@@ -29,7 +29,7 @@ internal class PipelinedParameter<E : Environment, S, A, T, P : Position>(
     context(validationContext: ValidationContext<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = parsePipeline(args, base, operations)
 
     context(validationContext: ValidationContext<E, S>)
@@ -52,7 +52,7 @@ internal class PipelinedValueFlag<E : Environment, S, A, T>(
     context(validationContext: ValidationContext<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = parsePipeline(args, base, operations)
 
     context(validationContext: ValidationContext<E, S>)
@@ -95,7 +95,7 @@ internal class PipelinedOptionalParameter<E : Environment, S, A, T, P : Position
     context(validationContext: ValidationContext<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = parsePipeline(args, base, operations)
 
     context(validationContext: ValidationContext<E, S>)
@@ -103,7 +103,7 @@ internal class PipelinedOptionalParameter<E : Environment, S, A, T, P : Position
 }
 
 @Suppress("UNCHECKED_CAST")
-context(inv: Invocation<E, S>)
+context(ex: Execution<E, S>)
 private fun <E : Environment, S, A, T> parsePipeline(
     args: List<String>,
     base: ConsumingElement<E, S, A>,
@@ -118,7 +118,7 @@ private fun <E : Environment, S, A, T> parsePipeline(
     operations.forEach {
         val operation = it as PipelineOperation<E, S, Any?, Any?>
         value =
-            operation(inv, value).valueOrPropagateError {
+            operation(ex, value).valueOrPropagateError {
                 return it
             }
     }

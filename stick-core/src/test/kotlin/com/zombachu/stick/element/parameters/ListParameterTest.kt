@@ -10,7 +10,7 @@ import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.failType
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.success
-import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withExecution
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -21,25 +21,25 @@ class ListParameterTest {
 
     @Test
     fun `splits on commas`() {
-        val result = withInvocation { parameter.parse(["a,b,c"]) }
+        val result = withExecution { parameter.parse(["a,b,c"]) }
         assertEquals(["a", "b", "c"], result.expectSuccessValue())
     }
 
     @Test
     fun `empty string produces single empty element`() {
-        val result = withInvocation { parameter.parse([""]) }
+        val result = withExecution { parameter.parse([""]) }
         assertEquals([""], result.expectSuccessValue())
     }
 
     @Test
     fun `trailing comma produces empty element`() {
-        val result = withInvocation { parameter.parse(["a,b,"]) }
+        val result = withExecution { parameter.parse(["a,b,"]) }
         assertEquals(["a", "b", ""], result.expectSuccessValue())
     }
 
     @Test
     fun `single element produces single-item list`() {
-        val result = withInvocation { parameter.parse(["a"]) }
+        val result = withExecution { parameter.parse(["a"]) }
         assertEquals(["a"], result.expectSuccessValue())
     }
 
@@ -59,7 +59,7 @@ class ListParameterTest {
             }
         val listParameter = ListParameter("", "", counting)
 
-        val result = withInvocation { listParameter.parse(["a,bad,c"]) }
+        val result = withExecution { listParameter.parse(["a,bad,c"]) }
 
         assertEquals(Reason.TypeNotMatched("item", "bad"), result.expectReason())
         assertEquals(2, calls)

@@ -6,9 +6,9 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
+import com.zombachu.stick.Execution
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.HybridFlagResult
-import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.SenderValidator
@@ -19,11 +19,11 @@ import com.zombachu.stick.ValidationContext
 sealed interface Element<in E : Environment, S, out T>
 
 internal sealed interface InternalElement<in E : Environment, S, out T> : Element<E, S, T> {
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     fun parse(args: List<String>): CommandResult<T>
 }
 
-context(inv: Invocation<E, S>)
+context(ex: Execution<E, S>)
 internal fun <E : Environment, S, T> Element<E, S, T>.parse(args: List<String>): CommandResult<T> =
     when (this) {
         is Parameter<E, S, out T, *> -> parse(args)
@@ -51,11 +51,11 @@ sealed interface ConsumingElement<in E : Environment, S, out T> : SyntaxElement<
 
 internal sealed interface InternalConsumingElement<in E : Environment, S, out T> :
     InternalElement<E, S, T>, ConsumingElement<E, S, T> {
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T>
 }
 
-context(inv: Invocation<E, S>)
+context(ex: Execution<E, S>)
 internal fun <E : Environment, S, T> ConsumingElement<E, S, T>.parse(args: List<String>): ConsumingResult<T> =
     when (this) {
         is Parameter<E, S, out T, *> -> parse(args)

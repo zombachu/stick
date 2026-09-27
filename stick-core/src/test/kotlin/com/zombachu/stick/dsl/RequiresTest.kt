@@ -13,7 +13,7 @@ import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.structureTest
-import com.zombachu.stick.withInvocationSender
+import com.zombachu.stick.withExecutionSender
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -31,8 +31,8 @@ class RequiresTest {
         val player: BaseSender = Player("steve")
         val console = BaseSender("console")
 
-        val playerResult = withInvocationSender(player, "bob") { grouped.parse(["bob"]) }
-        val consoleResult = withInvocationSender(console, "bob") { grouped.parse(["bob"]) }
+        val playerResult = withExecutionSender(player, "bob") { grouped.parse(["bob"]) }
+        val consoleResult = withExecutionSender(console, "bob") { grouped.parse(["bob"]) }
 
         assertIs<GroupResult.ResultA<String>>(playerResult.expectSuccessValue())
         assertIs<GroupResult.ResultB<String>>(consoleResult.expectSuccessValue())
@@ -59,8 +59,8 @@ class RequiresTest {
         val player: BaseSender = Player("steve")
         val console = BaseSender("console")
 
-        val consoleResult = withInvocationSender(console, "cmd") { signature.execute() }
-        val playerResult = withInvocationSender(player, "cmd", "-n", "5") { signature.execute() }
+        val consoleResult = withExecutionSender(console, "cmd") { signature.execute() }
+        val playerResult = withExecutionSender(player, "cmd", "-n", "5") { signature.execute() }
 
         assertEquals(999, consoleResult.expectSuccessValue().a)
         assertEquals(5, playerResult.expectSuccessValue().a)

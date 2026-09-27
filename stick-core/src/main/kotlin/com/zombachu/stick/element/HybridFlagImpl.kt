@@ -5,9 +5,9 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
+import com.zombachu.stick.Execution
+import com.zombachu.stick.ExecutionImpl
 import com.zombachu.stick.HybridFlagResult
-import com.zombachu.stick.Invocation
-import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
@@ -46,14 +46,14 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
         return parameter.suggest(preceding.subList(1, preceding.size), partial)
     }
 
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> {
         if (args.isEmpty()) return noMatch()
         if (matches(args.first().lowercase())) {
             if (args.size == 1) {
                 return success(HybridFlagResult.Present<T>()).consuming(1)
             } else {
-                val matched = (inv as InvocationImpl).currentMatch
+                val matched = (ex as ExecutionImpl).currentMatch
                 if (matched != null && matched.resolvedBy === this) {
                     @Suppress("UNCHECKED_CAST")
                     return success(HybridFlagResult.Value(matched.resolved as T)).consuming(matched.consumed)

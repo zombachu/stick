@@ -6,7 +6,7 @@ import com.zombachu.stick.element.parameters.TextParameter
 import com.zombachu.stick.element.parse
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.structureTest
-import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withExecution
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -19,7 +19,7 @@ class GroupsTest {
 
         assertEquals("_group", group.name)
 
-        val result = withInvocation("hello") { group.parse(["hello"]) }
+        val result = withExecution("hello") { group.parse(["hello"]) }
         assertIs<GroupResult.ResultA<String>>(result.expectSuccessValue())
     }
 
@@ -27,7 +27,7 @@ class GroupsTest {
     fun `group accepts terminating Groupable`() = structureTest {
         val group = group(TextParameter("", ""))
 
-        val result = withInvocation("a", "b", "c") { group.parse(["a", "b", "c"]) }
+        val result = withExecution("a", "b", "c") { group.parse(["a", "b", "c"]) }
 
         val tagged = result.expectSuccessValue()
         assertIs<GroupResult.ResultA<String>>(tagged)

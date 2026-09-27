@@ -18,10 +18,10 @@ import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.success
-import com.zombachu.stick.testInvocation
-import com.zombachu.stick.testInvocationSender
-import com.zombachu.stick.withInvocation
-import com.zombachu.stick.withInvocationSender
+import com.zombachu.stick.testExecution
+import com.zombachu.stick.testExecutionSender
+import com.zombachu.stick.withExecution
+import com.zombachu.stick.withExecutionSender
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -46,11 +46,11 @@ class HybridFlagImplTest {
             }
         val countingFlag = HybridFlagImpl("rank", counting, [])
 
-        val inv = testInvocation("-rank", "guest")
-        val result = inv.processElement(countingFlag)
+        val ex = testExecution("-rank", "guest")
+        val result = ex.processElement(countingFlag)
 
         assertEquals("guest", assertIs<HybridFlagResult.Value<String>>(result.expectSuccessValue()).value)
-        assertEquals(2, inv.consumedArgs)
+        assertEquals(2, ex.consumedArgs)
         assertEquals(1, resolves)
     }
 
@@ -63,28 +63,28 @@ class HybridFlagImplTest {
             }
         val varyingFlag = HybridFlagImpl("boost", varying, [])
 
-        val inv = testInvocation("-boost", "a", "b")
-        val result = inv.processElement(varyingFlag)
+        val ex = testExecution("-boost", "a", "b")
+        val result = ex.processElement(varyingFlag)
 
         assertEquals("a", assertIs<HybridFlagResult.Value<String>>(result.expectSuccessValue()).value)
-        assertEquals(2, inv.consumedArgs)
+        assertEquals(2, ex.consumedArgs)
     }
 
     @Test
     fun `empty args fails with InvalidSyntax NoMatch`() {
-        val result = withInvocation { flag.parse([]) }
+        val result = withExecution { flag.parse([]) }
         assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
     }
 
     @Test
     fun `matches with no trailing value returns Present`() {
-        val result = withInvocation { flag.parse(["-boost"]) }
+        val result = withExecution { flag.parse(["-boost"]) }
         assertIs<HybridFlagResult.Present<Int>>(result.expectSuccessValue())
     }
 
     @Test
     fun `matches with trailing value parses value`() {
-        val result = withInvocation { flag.parse(["-boost", "5"]) }
+        val result = withExecution { flag.parse(["-boost", "5"]) }
 
         val value = result.expectSuccessValue()
         assertIs<HybridFlagResult.Value<Int>>(value)
@@ -109,19 +109,19 @@ class HybridFlagImplTest {
 
     @Test
     fun `parameter failure fails with TypeNotMatched`() {
-        val result = withInvocation { flag.parse(["-boost", "not-a-number"]) }
+        val result = withExecution { flag.parse(["-boost", "not-a-number"]) }
         assertEquals(Reason.TypeNotMatched("integer", "not-a-number"), result.expectReason())
     }
 
     @Test
     fun `mismatch fails with InvalidSyntax NoMatch`() {
-        val result = withInvocation { flag.parse(["-other"]) }
+        val result = withExecution { flag.parse(["-other"]) }
         assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
     }
 
     @Test
     fun `default value is Absent`() {
-        val defaultResult = flag.default(testInvocation())
+        val defaultResult = flag.default(testExecution())
         assertIs<HybridFlagResult.Absent<Int>>(defaultResult.expectSuccessValue())
     }
 
@@ -136,7 +136,7 @@ class HybridFlagImplTest {
         val invalidDefault = invalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>>(HybridFlagResult.Absent())
         val transformed = TransformedHybridFlag(flag, { }, invalidDefault)
 
-        val result = withInvocationSender(1) { transformed.parse(["-boost", "5"]) }
+        val result = withExecutionSender(1) { transformed.parse(["-boost", "5"]) }
 
         val value = result.expectSuccessValue()
         assertIs<HybridFlagResult.Value<Int>>(value)
@@ -163,7 +163,7 @@ class HybridFlagImplTest {
     fun `TransformedHybridFlag default for accessible flag returns Absent`() {
         val invalidDefault = invalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>>(HybridFlagResult.Present())
         val transformed = TransformedHybridFlag(flag, { }, invalidDefault)
-        val result = transformed.default(testInvocationSender(1))
+        val result = transformed.default(testExecutionSender(1))
         assertIs<HybridFlagResult.Absent<Int>>(result.expectSuccessValue())
     }
 
@@ -175,7 +175,7 @@ class HybridFlagImplTest {
             }
         val transformed = TransformedHybridFlag(flag, { }, invalidDefault)
 
-        val result = transformed.default(testInvocationSender(1))
+        val result = transformed.default(testExecutionSender(1))
 
         assertIs<HybridFlagResult.Present<Int>>(result.expectSuccessValue())
     }

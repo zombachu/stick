@@ -4,9 +4,9 @@ import com.zombachu.stick.Arguments1
 import com.zombachu.stick.Command
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
+import com.zombachu.stick.Execution
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult3
-import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.StructureScope
@@ -168,9 +168,9 @@ class EnvironmentTest {
     @Test
     fun `warpowner - base failure handler works for narrower environments`() {
         class BaseFailureHandler : FailureHandler<Server, Sender> {
-            context(inv: Invocation<Server, Sender>)
+            context(ex: Execution<Server, Sender>)
             override fun onFailure(reason: Reason, origin: FailureOrigin) {
-                inv.sender.log(reason.message(origin))
+                ex.sender.log(reason.message(origin))
             }
         }
         val ownerCommand = structure(WarpableServer::class, Sender::class) {

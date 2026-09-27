@@ -7,7 +7,7 @@ import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.failure.Reason
-import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withExecution
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -24,18 +24,18 @@ class EnumParameterTest {
 
     @Test
     fun `parses primary value`() {
-        assertEquals(Color.RED, withInvocation { parameter.parse(["red"]) }.expectSuccessValue())
+        assertEquals(Color.RED, withExecution { parameter.parse(["red"]) }.expectSuccessValue())
     }
 
     @Test
     fun `falls back to aliased value`() {
-        assertEquals(Color.RED, withInvocation { parameter.parse(["r"]) }.expectSuccessValue())
+        assertEquals(Color.RED, withExecution { parameter.parse(["r"]) }.expectSuccessValue())
     }
 
     @Test
     fun `matching is case-insensitive`() {
-        assertEquals(Color.RED, withInvocation { parameter.parse(["RED"]) }.expectSuccessValue())
-        assertEquals(Color.RED, withInvocation { parameter.parse(["R"]) }.expectSuccessValue())
+        assertEquals(Color.RED, withExecution { parameter.parse(["RED"]) }.expectSuccessValue())
+        assertEquals(Color.RED, withExecution { parameter.parse(["R"]) }.expectSuccessValue())
     }
 
     @Test
@@ -52,7 +52,7 @@ class EnumParameterTest {
 
     @Test
     fun `failure reports primary keys, not aliases`() {
-        val result = withInvocation { parameter.parse(["Unknown"]) }
+        val result = withExecution { parameter.parse(["Unknown"]) }
         assertEquals(Reason.LiteralNotMatched(["red", "green", "blue"], "Unknown"), result.expectReason())
     }
 

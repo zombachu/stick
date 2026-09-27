@@ -12,7 +12,7 @@ import com.zombachu.stick.Arguments7
 import com.zombachu.stick.Arguments8
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
+import com.zombachu.stick.Execution
 import com.zombachu.stick.Position
 
 internal open class OptionalsImpl<E : Environment, S, T : Arguments>(
@@ -20,7 +20,7 @@ internal open class OptionalsImpl<E : Environment, S, T : Arguments>(
     internal val combine: (List<Any?>) -> T,
 ) : SignatureElement<E, S, T, Position.Last>, InternalElement<E, S, T> {
 
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = unusedValue()
 }
 

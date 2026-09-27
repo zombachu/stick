@@ -9,9 +9,9 @@ import com.zombachu.stick.element.parse
 import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
 
-internal class InvocationImpl<E : Environment, S>
-private constructor(override val sender: S, override val env: E, private val state: InvocationState) :
-    Invocation<E, S>(), InvocationState by state {
+internal class ExecutionImpl<E : Environment, S>
+private constructor(override val sender: S, override val env: E, private val state: ExecutionState) :
+    Execution<E, S>(), ExecutionState by state {
 
     constructor(
         sender: S,
@@ -19,7 +19,7 @@ private constructor(override val sender: S, override val env: E, private val sta
         label: String,
         args: List<String>,
         structure: Structure<E, S, *>,
-    ) : this(sender, env, InvocationStateImpl(label, args)) {
+    ) : this(sender, env, ExecutionStateImpl(label, args)) {
         currentBranch = CurrentBranch(0) { structure.getSyntax() }
     }
 
@@ -50,8 +50,8 @@ private constructor(override val sender: S, override val env: E, private val sta
 
     override fun createFailureOrigin(): FailureOrigin = FailureOrigin(currentBranch.element?.name, captureUsage())
 
-    override fun <S2 : Any> forSender(transform: (S) -> S2): InvocationImpl<E, S2> =
-        InvocationImpl(transform(sender), env, state)
+    override fun <S2 : Any> forSender(transform: (S) -> S2): ExecutionImpl<E, S2> =
+        ExecutionImpl(transform(sender), env, state)
 
     internal fun <T> processElement(element: Element<E, S, T>): CommandResult<T> {
         val branch = currentBranch
@@ -67,14 +67,14 @@ private constructor(override val sender: S, override val env: E, private val sta
                 return element.parse([])
             }
 
-            val window = this@InvocationImpl.peek(element.size) ?: return noMatch()
+            val window = this@ExecutionImpl.peek(element.size) ?: return noMatch()
 
             if (element is Branch) {
-                val outer = this@InvocationImpl.currentBranch
-                this@InvocationImpl.currentBranch =
-                    CurrentBranch(this@InvocationImpl.consumedArgs) { element.getSyntax() }
+                val outer = this@ExecutionImpl.currentBranch
+                this@ExecutionImpl.currentBranch =
+                    CurrentBranch(this@ExecutionImpl.consumedArgs) { element.getSyntax() }
                 val result = element.parse(window)
-                this@InvocationImpl.currentBranch = outer
+                this@ExecutionImpl.currentBranch = outer
                 return result
             }
 
@@ -89,9 +89,9 @@ private constructor(override val sender: S, override val env: E, private val sta
                     is MatchResult.Matched -> match
                 }
 
-            this@InvocationImpl.currentMatch = matched
+            this@ExecutionImpl.currentMatch = matched
             val result = element.parse(window)
-            this@InvocationImpl.currentMatch = null
+            this@ExecutionImpl.currentMatch = null
 
             result.propagateError {
                 return it
@@ -101,13 +101,13 @@ private constructor(override val sender: S, override val env: E, private val sta
                 return fail(Reason.Unknown())
             }
 
-            this@InvocationImpl.consume(window, result.consumed)
+            this@ExecutionImpl.consume(window, result.consumed)
             return result
         }
     }
 }
 
-internal interface InvocationState {
+internal interface ExecutionState {
     val label: String
     val args: List<String>
     val unparsed: MutableList<String>
@@ -121,7 +121,7 @@ internal interface InvocationState {
     fun consume(window: MutableList<String>, count: Int)
 }
 
-internal class InvocationStateImpl(override val label: String, override val args: List<String>) : InvocationState {
+internal class ExecutionStateImpl(override val label: String, override val args: List<String>) : ExecutionState {
     override lateinit var currentBranch: CurrentBranch
     override val unparsed: MutableList<String> = args.toMutableList()
     override val parsed: MutableMap<TypedIdentifier<*>, Any?> = mutableMapOf()

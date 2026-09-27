@@ -2,8 +2,8 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
+import com.zombachu.stick.Execution
 import com.zombachu.stick.GroupResult
-import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
@@ -40,18 +40,18 @@ internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Posit
         return group.suggest(preceding, partial)
     }
 
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     override fun parse(args: List<String>): CommandResult<G> {
         if (args.isEmpty()) {
             // If the sender isn't allowed to specify an alternative use the default
             requirementDefault.validateSender().propagateError {
-                return requirementDefault.value(inv)
+                return requirementDefault.value(ex)
             }
             // Check if an alternative is required to be specified by the sender
             presenceDefault.validateSender().propagateError {
                 return failSyntax()
             }
-            return presenceDefault.value(inv)
+            return presenceDefault.value(ex)
         }
 
         // Check if the sender specified an alternative when they're not allowed to

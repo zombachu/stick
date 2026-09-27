@@ -2,7 +2,7 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
+import com.zombachu.stick.Execution
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
@@ -40,18 +40,18 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
         return parameter.suggest(preceding, partial)
     }
 
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> {
         if (args.isEmpty()) {
             // If the sender isn't allowed to provide a value use the default
             requirementDefault.validateSender().propagateError {
-                return requirementDefault.value(inv).consuming(0)
+                return requirementDefault.value(ex).consuming(0)
             }
             // Check if the value is required to be specified by the sender
             presenceDefault.validateSender().propagateError {
                 return failSyntax()
             }
-            return presenceDefault.value(inv).consuming(0)
+            return presenceDefault.value(ex).consuming(0)
         }
 
         // Check if the sender provided a value when they're not allowed to

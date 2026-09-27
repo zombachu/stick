@@ -3,8 +3,8 @@ package com.zombachu.stick.element
 import com.zombachu.stick.Arguments
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
-import com.zombachu.stick.InvocationImpl
+import com.zombachu.stick.Execution
+import com.zombachu.stick.ExecutionImpl
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
@@ -47,10 +47,10 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         linearElements = partitioned.second
     }
 
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     protected abstract fun executeParsed(parsedValues: List<Any?>): T_
 
-    context(inv: InvocationImpl<E, S>)
+    context(ex: ExecutionImpl<E, S>)
     fun execute(): CommandResult<T_> {
         val parsedValues =
             parse().valueOrPropagateError {
@@ -91,19 +91,19 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         }
     }
 
-    context(inv: InvocationImpl<E, S>)
+    context(ex: ExecutionImpl<E, S>)
     private fun parseElement(
         values: MutableList<Any?>,
         element: IndexedElement<E, S, Element<E, S, Any?>>,
     ): CommandResult<Any?> {
-        val processResult = inv.processElement(element.element)
+        val processResult = ex.processElement(element.element)
         if (processResult.isSuccess()) {
             values[element.index] = processResult.value
         }
         return processResult
     }
 
-    context(inv: InvocationImpl<E, S>)
+    context(ex: ExecutionImpl<E, S>)
     private fun parse(): CommandResult<List<Any?>> {
         val values: MutableList<Any?> = MutableList(flattenedElementsCount) {}
         val unprocessedFlags = flags.toMutableList()
@@ -125,12 +125,12 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         )
 
         // If there are unused args then the sender used invalid syntax
-        if (inv.unparsed.isNotEmpty()) return failSyntax()
+        if (ex.unparsed.isNotEmpty()) return failSyntax()
 
         // Populate unused flag values with defaults
         for ((index, flag) in unprocessedFlags) {
             values[index] =
-                flag.default(inv).valueOrPropagateError {
+                flag.default(ex).valueOrPropagateError {
                     return it
                 }
         }

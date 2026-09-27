@@ -16,72 +16,72 @@ import com.zombachu.stick.Arguments7
 import com.zombachu.stick.Arguments8
 import com.zombachu.stick.Arguments9
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
+import com.zombachu.stick.Execution
 
 internal class Signature0<E_ : Environment, S>(
-    private val execute: Invocation<E_, S>.() -> Unit,
+    private val execute: Execution<E_, S>.() -> Unit,
     leadingParameterRole: LeadingParameterRole,
     elements: List<SignatureElement<E_, S, Any?, *>>,
 ) : Signature<E_, S, Arguments0>(leadingParameterRole, elements) {
-    context(inv: Invocation<E_, S>)
+    context(ex: Execution<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments0 {
-        return Arguments0().apply { inv.execute() }
+        return Arguments0().apply { ex.execute() }
     }
 }
 
 internal class Signature1<E_ : Environment, S, A>(
-    private val execute: Invocation<E_, S>.(A) -> Unit,
+    private val execute: Execution<E_, S>.(A) -> Unit,
     leadingParameterRole: LeadingParameterRole,
     elements: List<SignatureElement<E_, S, Any?, *>>,
 ) : Signature<E_, S, Arguments1<A>>(leadingParameterRole, elements) {
-    context(inv: Invocation<E_, S>)
+    context(ex: Execution<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments1<A> {
-        return Arguments1(parsedValues[0] as A).apply { inv.execute(a) }
+        return Arguments1(parsedValues[0] as A).apply { ex.execute(a) }
     }
 }
 
 internal class Signature2<E_ : Environment, S, A, B>(
-    private val execute: Invocation<E_, S>.(A, B) -> Unit,
+    private val execute: Execution<E_, S>.(A, B) -> Unit,
     leadingParameterRole: LeadingParameterRole,
     elements: List<SignatureElement<E_, S, Any?, *>>,
 ) : Signature<E_, S, Arguments2<A, B>>(leadingParameterRole, elements) {
-    context(inv: Invocation<E_, S>)
+    context(ex: Execution<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments2<A, B> {
-        return Arguments2(parsedValues[0] as A, parsedValues[1] as B).apply { inv.execute(a, b) }
+        return Arguments2(parsedValues[0] as A, parsedValues[1] as B).apply { ex.execute(a, b) }
     }
 }
 
 internal class Signature3<E_ : Environment, S, A, B, C>(
-    private val execute: Invocation<E_, S>.(A, B, C) -> Unit,
+    private val execute: Execution<E_, S>.(A, B, C) -> Unit,
     leadingParameterRole: LeadingParameterRole,
     elements: List<SignatureElement<E_, S, Any?, *>>,
 ) : Signature<E_, S, Arguments3<A, B, C>>(leadingParameterRole, elements) {
-    context(inv: Invocation<E_, S>)
+    context(ex: Execution<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments3<A, B, C> {
         return Arguments3(parsedValues[0] as A, parsedValues[1] as B, parsedValues[2] as C).apply {
-            inv.execute(a, b, c)
+            ex.execute(a, b, c)
         }
     }
 }
 
 internal class Signature4<E_ : Environment, S, A, B, C, D>(
-    private val execute: Invocation<E_, S>.(A, B, C, D) -> Unit,
+    private val execute: Execution<E_, S>.(A, B, C, D) -> Unit,
     leadingParameterRole: LeadingParameterRole,
     elements: List<SignatureElement<E_, S, Any?, *>>,
 ) : Signature<E_, S, Arguments4<A, B, C, D>>(leadingParameterRole, elements) {
-    context(inv: Invocation<E_, S>)
+    context(ex: Execution<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments4<A, B, C, D> {
         return Arguments4(parsedValues[0] as A, parsedValues[1] as B, parsedValues[2] as C, parsedValues[3] as D)
-            .apply { inv.execute(a, b, c, d) }
+            .apply { ex.execute(a, b, c, d) }
     }
 }
 
 internal class Signature5<E_ : Environment, S, A, B, C, D, E>(
-    private val execute: Invocation<E_, S>.(A, B, C, D, E) -> Unit,
+    private val execute: Execution<E_, S>.(A, B, C, D, E) -> Unit,
     leadingParameterRole: LeadingParameterRole,
     elements: List<SignatureElement<E_, S, Any?, *>>,
 ) : Signature<E_, S, Arguments5<A, B, C, D, E>>(leadingParameterRole, elements) {
-    context(inv: Invocation<E_, S>)
+    context(ex: Execution<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments5<A, B, C, D, E> {
         return Arguments5(
                 parsedValues[0] as A,
@@ -90,16 +90,16 @@ internal class Signature5<E_ : Environment, S, A, B, C, D, E>(
                 parsedValues[3] as D,
                 parsedValues[4] as E,
             )
-            .apply { inv.execute(a, b, c, d, e) }
+            .apply { ex.execute(a, b, c, d, e) }
     }
 }
 
 internal class Signature6<E_ : Environment, S, A, B, C, D, E, F>(
-    private val execute: Invocation<E_, S>.(A, B, C, D, E, F) -> Unit,
+    private val execute: Execution<E_, S>.(A, B, C, D, E, F) -> Unit,
     leadingParameterRole: LeadingParameterRole,
     elements: List<SignatureElement<E_, S, Any?, *>>,
 ) : Signature<E_, S, Arguments6<A, B, C, D, E, F>>(leadingParameterRole, elements) {
-    context(inv: Invocation<E_, S>)
+    context(ex: Execution<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments6<A, B, C, D, E, F> {
         return Arguments6(
                 parsedValues[0] as A,
@@ -109,16 +109,16 @@ internal class Signature6<E_ : Environment, S, A, B, C, D, E, F>(
                 parsedValues[4] as E,
                 parsedValues[5] as F,
             )
-            .apply { inv.execute(a, b, c, d, e, f) }
+            .apply { ex.execute(a, b, c, d, e, f) }
     }
 }
 
 internal class Signature7<E_ : Environment, S, A, B, C, D, E, F, G>(
-    private val execute: Invocation<E_, S>.(A, B, C, D, E, F, G) -> Unit,
+    private val execute: Execution<E_, S>.(A, B, C, D, E, F, G) -> Unit,
     leadingParameterRole: LeadingParameterRole,
     elements: List<SignatureElement<E_, S, Any?, *>>,
 ) : Signature<E_, S, Arguments7<A, B, C, D, E, F, G>>(leadingParameterRole, elements) {
-    context(inv: Invocation<E_, S>)
+    context(ex: Execution<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments7<A, B, C, D, E, F, G> {
         return Arguments7(
                 parsedValues[0] as A,
@@ -129,16 +129,16 @@ internal class Signature7<E_ : Environment, S, A, B, C, D, E, F, G>(
                 parsedValues[5] as F,
                 parsedValues[6] as G,
             )
-            .apply { inv.execute(a, b, c, d, e, f, g) }
+            .apply { ex.execute(a, b, c, d, e, f, g) }
     }
 }
 
 internal class Signature8<E_ : Environment, S, A, B, C, D, E, F, G, H>(
-    private val execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H) -> Unit,
+    private val execute: Execution<E_, S>.(A, B, C, D, E, F, G, H) -> Unit,
     leadingParameterRole: LeadingParameterRole,
     elements: List<SignatureElement<E_, S, Any?, *>>,
 ) : Signature<E_, S, Arguments8<A, B, C, D, E, F, G, H>>(leadingParameterRole, elements) {
-    context(inv: Invocation<E_, S>)
+    context(ex: Execution<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments8<A, B, C, D, E, F, G, H> {
         return Arguments8(
                 parsedValues[0] as A,
@@ -150,16 +150,16 @@ internal class Signature8<E_ : Environment, S, A, B, C, D, E, F, G, H>(
                 parsedValues[6] as G,
                 parsedValues[7] as H,
             )
-            .apply { inv.execute(a, b, c, d, e, f, g, h) }
+            .apply { ex.execute(a, b, c, d, e, f, g, h) }
     }
 }
 
 internal class Signature9<E_ : Environment, S, A, B, C, D, E, F, G, H, I>(
-    private val execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H, I) -> Unit,
+    private val execute: Execution<E_, S>.(A, B, C, D, E, F, G, H, I) -> Unit,
     leadingParameterRole: LeadingParameterRole,
     elements: List<SignatureElement<E_, S, Any?, *>>,
 ) : Signature<E_, S, Arguments9<A, B, C, D, E, F, G, H, I>>(leadingParameterRole, elements) {
-    context(inv: Invocation<E_, S>)
+    context(ex: Execution<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments9<A, B, C, D, E, F, G, H, I> {
         return Arguments9(
                 parsedValues[0] as A,
@@ -172,16 +172,16 @@ internal class Signature9<E_ : Environment, S, A, B, C, D, E, F, G, H, I>(
                 parsedValues[7] as H,
                 parsedValues[8] as I,
             )
-            .apply { inv.execute(a, b, c, d, e, f, g, h, i) }
+            .apply { ex.execute(a, b, c, d, e, f, g, h, i) }
     }
 }
 
 internal class Signature10<E_ : Environment, S, A, B, C, D, E, F, G, H, I, J>(
-    private val execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H, I, J) -> Unit,
+    private val execute: Execution<E_, S>.(A, B, C, D, E, F, G, H, I, J) -> Unit,
     leadingParameterRole: LeadingParameterRole,
     elements: List<SignatureElement<E_, S, Any?, *>>,
 ) : Signature<E_, S, Arguments10<A, B, C, D, E, F, G, H, I, J>>(leadingParameterRole, elements) {
-    context(inv: Invocation<E_, S>)
+    context(ex: Execution<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments10<A, B, C, D, E, F, G, H, I, J> {
         return Arguments10(
                 parsedValues[0] as A,
@@ -195,16 +195,16 @@ internal class Signature10<E_ : Environment, S, A, B, C, D, E, F, G, H, I, J>(
                 parsedValues[8] as I,
                 parsedValues[9] as J,
             )
-            .apply { inv.execute(a, b, c, d, e, f, g, h, i, j) }
+            .apply { ex.execute(a, b, c, d, e, f, g, h, i, j) }
     }
 }
 
 internal class Signature11<E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K>(
-    private val execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H, I, J, K) -> Unit,
+    private val execute: Execution<E_, S>.(A, B, C, D, E, F, G, H, I, J, K) -> Unit,
     leadingParameterRole: LeadingParameterRole,
     elements: List<SignatureElement<E_, S, Any?, *>>,
 ) : Signature<E_, S, Arguments11<A, B, C, D, E, F, G, H, I, J, K>>(leadingParameterRole, elements) {
-    context(inv: Invocation<E_, S>)
+    context(ex: Execution<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments11<A, B, C, D, E, F, G, H, I, J, K> {
         return Arguments11(
                 parsedValues[0] as A,
@@ -219,16 +219,16 @@ internal class Signature11<E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K>
                 parsedValues[9] as J,
                 parsedValues[10] as K,
             )
-            .apply { inv.execute(a, b, c, d, e, f, g, h, i, j, k) }
+            .apply { ex.execute(a, b, c, d, e, f, g, h, i, j, k) }
     }
 }
 
 internal class Signature12<E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K, L>(
-    private val execute: Invocation<E_, S>.(A, B, C, D, E, F, G, H, I, J, K, L) -> Unit,
+    private val execute: Execution<E_, S>.(A, B, C, D, E, F, G, H, I, J, K, L) -> Unit,
     leadingParameterRole: LeadingParameterRole,
     elements: List<SignatureElement<E_, S, Any?, *>>,
 ) : Signature<E_, S, Arguments12<A, B, C, D, E, F, G, H, I, J, K, L>>(leadingParameterRole, elements) {
-    context(inv: Invocation<E_, S>)
+    context(ex: Execution<E_, S>)
     override fun executeParsed(parsedValues: List<Any?>): Arguments12<A, B, C, D, E, F, G, H, I, J, K, L> {
         return Arguments12(
                 parsedValues[0] as A,
@@ -244,6 +244,6 @@ internal class Signature12<E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K,
                 parsedValues[10] as K,
                 parsedValues[11] as L,
             )
-            .apply { inv.execute(a, b, c, d, e, f, g, h, i, j, k, l) }
+            .apply { ex.execute(a, b, c, d, e, f, g, h, i, j, k, l) }
     }
 }

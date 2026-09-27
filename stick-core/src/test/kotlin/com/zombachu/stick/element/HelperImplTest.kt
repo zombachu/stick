@@ -3,7 +3,7 @@ package com.zombachu.stick.element
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.success
-import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withExecution
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -12,7 +12,7 @@ class HelperImplTest {
     @Test
     fun `parse evaluates to contextual value`() {
         val helper = HelperImpl<TestEnv, Unit, String>({ success("computed") })
-        val result = withInvocation { helper.parse(["ignored", "args"]) }
+        val result = withExecution { helper.parse(["ignored", "args"]) }
         assertEquals("computed", result.expectSuccessValue())
     }
 }

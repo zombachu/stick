@@ -12,10 +12,10 @@ import com.zombachu.stick.failSender
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.structureTest
-import com.zombachu.stick.testInvocation
-import com.zombachu.stick.testInvocationSender
-import com.zombachu.stick.withInvocation
-import com.zombachu.stick.withInvocationSender
+import com.zombachu.stick.testExecution
+import com.zombachu.stick.testExecutionSender
+import com.zombachu.stick.withExecution
+import com.zombachu.stick.withExecutionSender
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -31,7 +31,7 @@ class OptionalsTest {
     @Test
     fun `default evaluates to given value`() = structureTest {
         val default = default("x")
-        assertEquals("x", default.value(testInvocation()).expectSuccessValue())
+        assertEquals("x", default.value(testExecution()).expectSuccessValue())
         assertTrue(withValidationContext { default.validateSender() }.isSuccess())
     }
 
@@ -45,7 +45,7 @@ class OptionalsTest {
     @Test
     fun `invalidDefault evaluates to given value`() = structureTest {
         val invalidDefault = invalidDefault("x")
-        assertEquals("x", invalidDefault.value(testInvocation()).expectSuccessValue())
+        assertEquals("x", invalidDefault.value(testExecution()).expectSuccessValue())
     }
 
     @Test
@@ -56,7 +56,7 @@ class OptionalsTest {
 
         val stringSenderResult = withValidationContext(stringSender) { sender.validateSender() }
         assertTrue(stringSenderResult.isSuccess())
-        assertEquals("hello", sender.value(testInvocationSender(stringSender)).expectSuccessValue())
+        assertEquals("hello", sender.value(testExecutionSender(stringSender)).expectSuccessValue())
 
         val intSenderResult = withValidationContext(intSender) { sender.validateSender() }
         assertSame(Reason.InvalidSender, intSenderResult.expectReason())
@@ -67,39 +67,39 @@ class OptionalsTest {
         val invalidDefault = invalidDefault(-1, requirement { sender == "correct" })
         val optional = optionally(invalidDefault, default(0), intParameter)
 
-        assertEquals(0, withInvocationSender("correct") { optional.parse([]) }.expectSuccessValue())
-        assertEquals(99, withInvocationSender("correct", "99") { optional.parse(["99"]) }.expectSuccessValue())
+        assertEquals(0, withExecutionSender("correct") { optional.parse([]) }.expectSuccessValue())
+        assertEquals(99, withExecutionSender("correct", "99") { optional.parse(["99"]) }.expectSuccessValue())
 
-        assertEquals(-1, withInvocationSender("incorrect") { optional.parse([]) }.expectSuccessValue())
+        assertEquals(-1, withExecutionSender("incorrect") { optional.parse([]) }.expectSuccessValue())
         assertSame(
             Reason.InvalidSender,
-            withInvocationSender("incorrect", "5") { optional.parse(["5"]) }.expectReason())
+            withExecutionSender("incorrect", "5") { optional.parse(["5"]) }.expectReason())
     }
 
     @Test
     fun `optionally defaults without ifInvalid`() = structureTest<String> {
         val optional = optionally(default(7), intParameter)
-        assertEquals(7, withInvocationSender("sender") { optional.parse([]) }.expectSuccessValue())
+        assertEquals(7, withExecutionSender("sender") { optional.parse([]) }.expectSuccessValue())
     }
 
     @Test
     fun `optionallyNullable gates the parameter from its requirement`() = structureTest<String> {
         val optional = optionallyNullable(intParameter, requirement { sender == "correct" })
 
-        assertNull(withInvocationSender("correct") { optional.parse([]) }.expectSuccessValue())
-        assertEquals(1, withInvocationSender("correct") { optional.parse(["1"]) }.expectSuccessValue())
+        assertNull(withExecutionSender("correct") { optional.parse([]) }.expectSuccessValue())
+        assertEquals(1, withExecutionSender("correct") { optional.parse(["1"]) }.expectSuccessValue())
 
-        assertNull(withInvocationSender("incorrect") { optional.parse([]) }.expectSuccessValue())
+        assertNull(withExecutionSender("incorrect") { optional.parse([]) }.expectSuccessValue())
         assertSame(
             Reason.InvalidSender,
-            withInvocationSender("incorrect", "5") { optional.parse(["5"]) }.expectReason(),
+            withExecutionSender("incorrect", "5") { optional.parse(["5"]) }.expectReason(),
         )
     }
 
     @Test
     fun `optionallyNullable defaults to null`() = structureTest<String> {
         val optional = optionallyNullable(intParameter)
-        assertNull(withInvocationSender("sender") { optional.parse([]) }.expectSuccessValue())
+        assertNull(withExecutionSender("sender") { optional.parse([]) }.expectSuccessValue())
     }
 
     @Test
@@ -112,9 +112,9 @@ class OptionalsTest {
                 )
             ) { (a: Int?, b: String?) -> }
 
-        val none = withInvocation("cmd") { structure.parse(["cmd"]) }.expectSuccessValue()
-        val first = withInvocation("cmd", "5") { structure.parse(["cmd", "5"]) }.expectSuccessValue()
-        val both = withInvocation("cmd", "5", "x") { structure.parse(["cmd", "5", "x"]) }.expectSuccessValue()
+        val none = withExecution("cmd") { structure.parse(["cmd"]) }.expectSuccessValue()
+        val first = withExecution("cmd", "5") { structure.parse(["cmd", "5"]) }.expectSuccessValue()
+        val both = withExecution("cmd", "5", "x") { structure.parse(["cmd", "5", "x"]) }.expectSuccessValue()
 
         assertEquals([null, null], [none.a.a, none.a.b])
         assertEquals([5, null], [first.a.a, first.a.b])
@@ -131,7 +131,7 @@ class OptionalsTest {
                 )
             )
 
-        val result = withInvocation("cmd", "hello", "world") { structure.parse(["cmd", "hello", "world"]) }
+        val result = withExecution("cmd", "hello", "world") { structure.parse(["cmd", "hello", "world"]) }
 
         assertIs<Reason.TypeNotMatched>(result.expectReason())
     }
@@ -147,12 +147,12 @@ class OptionalsTest {
                 ),
             ) { a, (b, silent) -> }
 
-        val none = withInvocation("cmd", "hello") { structure.parse(["cmd",  "hello"]) }.expectSuccessValue()
+        val none = withExecution("cmd", "hello") { structure.parse(["cmd",  "hello"]) }.expectSuccessValue()
         val before =
-            withInvocation("cmd", "-silent", "hello") { structure.parse(["cmd", "-silent", "hello"]) }
+            withExecution("cmd", "-silent", "hello") { structure.parse(["cmd", "-silent", "hello"]) }
                 .expectSuccessValue()
         val after =
-            withInvocation("cmd", "hello", "-silent") { structure.parse(["cmd", "hello", "-silent"]) }
+            withExecution("cmd", "hello", "-silent") { structure.parse(["cmd", "hello", "-silent"]) }
                 .expectSuccessValue()
 
         assertEquals([null, false], [none.b.a, none.b.b])
@@ -170,7 +170,7 @@ class OptionalsTest {
                 ),
             ) { (silent, a) -> }
 
-        val args = withInvocation("cmd", "5") { structure.parse(["cmd", "5"]) }.expectSuccessValue()
+        val args = withExecution("cmd", "5") { structure.parse(["cmd", "5"]) }.expectSuccessValue()
 
         assertEquals([false, 5], [args.a.a, args.a.b])
     }
@@ -197,7 +197,7 @@ class OptionalsTest {
     @Test
     fun `optionally group defaults`() = structureTest {
         val optional = optionally(default(GroupResult.ResultA("off")), group(literalParameter("on")))
-        assertEquals(GroupResult.ResultA("off"), withInvocation { optional.parse([]) }.expectSuccessValue())
+        assertEquals(GroupResult.ResultA("off"), withExecution { optional.parse([]) }.expectSuccessValue())
     }
 
     @Test
@@ -210,8 +210,8 @@ class OptionalsTest {
                 )
             ) { (toggle: GroupResult2<String, String>?, reason: String?) -> }
 
-        val none = withInvocation("cmd") { structure.parse(["cmd"]) }.expectSuccessValue()
-        val both = withInvocation("cmd", "off", "someReason") { structure.parse(["cmd", "off", "someReason"]) }.expectSuccessValue()
+        val none = withExecution("cmd") { structure.parse(["cmd"]) }.expectSuccessValue()
+        val both = withExecution("cmd", "off", "someReason") { structure.parse(["cmd", "off", "someReason"]) }.expectSuccessValue()
 
         assertNull(none.a.a)
         assertIs<GroupResult.ResultB<String>>(both.a.a)

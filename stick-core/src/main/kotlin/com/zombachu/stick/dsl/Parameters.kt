@@ -3,7 +3,7 @@ package com.zombachu.stick.dsl
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
+import com.zombachu.stick.Execution
 import com.zombachu.stick.Position
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.element.Parameter
@@ -137,7 +137,7 @@ fun <E : Environment, S, T> StructureScope<E, S>.listElementParameter(
     name: String,
     list: ContextualValue<E, S, List<T>>,
     oneIndexed: Boolean = false,
-    onEmpty: (Invocation<E, S>.() -> Unit)? = null,
+    onEmpty: (Execution<E, S>.() -> Unit)? = null,
     description: String = "",
 ): Parameter<E, S, ListElementResult<T>, Position.Leading> =
     listElementParameter(name, description, list, oneIndexed, onEmpty)

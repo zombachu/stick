@@ -2,7 +2,7 @@ package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
+import com.zombachu.stick.Execution
 import com.zombachu.stick.Position
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.PipelineOperation
@@ -17,7 +17,7 @@ internal fun <E : Environment, S, T> listElementParameter(
     description: String,
     list: ContextualValue<E, S, List<T>>,
     oneIndexed: Boolean,
-    onEmpty: (Invocation<E, S>.() -> Unit)?,
+    onEmpty: (Execution<E, S>.() -> Unit)?,
 ): Parameter<E, S, ListElementResult<T>, Position.Leading> {
     val index = NumberParameter<E, S, Int>(name, description, { toIntOrNull() }, Int.MIN_VALUE, Int.MAX_VALUE, "index")
 

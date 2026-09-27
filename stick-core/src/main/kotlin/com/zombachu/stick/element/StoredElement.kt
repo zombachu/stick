@@ -3,7 +3,7 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
+import com.zombachu.stick.Execution
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Suggestion
@@ -16,7 +16,7 @@ internal class StoredHelper<E : Environment, S, T>(
     private val id: TypedIdentifier<T>,
 ) : Helper<E, S, T> by base, InternalElement<E, S, T> {
 
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     override fun parse(args: List<String>): CommandResult<T> = base.parse(args).storedAs(id)
 }
 
@@ -31,7 +31,7 @@ internal class StoredParameter<E : Environment, S, T, P : Position>(
     context(validationContext: ValidationContext<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = base.parse(args).storedAs(id)
 }
 
@@ -40,15 +40,15 @@ internal class StoredOptionalParameter<E : Environment, S, T, P : Position>(
     private val id: TypedIdentifier<T>,
 ) : OptionalParameter<E, S, T, P> by base, InternalConsumingElement<E, S, T> {
 
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = base.parse(args).storedAs(id)
 }
 
-context(inv: Invocation<E, S>)
+context(ex: Execution<E, S>)
 private fun <E : Environment, S, T, R : CommandResult<T>> R.storedAs(id: TypedIdentifier<T>): R {
     val value = valueOrPropagateError {
         return this
     }
-    inv.put(id, value)
+    ex.put(id, value)
     return this
 }

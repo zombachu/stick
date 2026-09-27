@@ -1,7 +1,7 @@
 package com.zombachu.stick.dsl
 
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
+import com.zombachu.stick.Execution
 import com.zombachu.stick.Position
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.element.OptionalParameter
@@ -59,5 +59,5 @@ fun <E_ : Environment, S, A, B, C, D, P : Position> OptionalParameter<E_, S, A, 
 ): OptionalParameter<E_, S, D, P> = PipelinedOptionalParameter(this, [operationA, operationB, operationC])
 
 fun <E : Environment, S, A, B> StructureScope<E, S>.map(
-    block: Invocation<E, S>.(A) -> B
+    block: Execution<E, S>.(A) -> B
 ): PipelineOperation<E, S, A, B> = { success(block(it)) }

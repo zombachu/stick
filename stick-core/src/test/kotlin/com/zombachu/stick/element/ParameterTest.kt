@@ -13,7 +13,7 @@ import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.failType
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.success
-import com.zombachu.stick.testInvocation
+import com.zombachu.stick.testExecution
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -95,9 +95,9 @@ class ParameterTest {
         val other = countingParameter {}
         val parameter = countingParameter { resolves++ }
 
-        val inv = testInvocation("a")
-        inv.currentMatch = withValidationContext { other.match(["a"]) } as MatchResult.Matched
-        val result = context(inv) { parameter.parse(["a"]) }
+        val ex = testExecution("a")
+        ex.currentMatch = withValidationContext { other.match(["a"]) } as MatchResult.Matched
+        val result = context(ex) { parameter.parse(["a"]) }
 
         assertEquals("a", result.expectSuccessValue())
         assertEquals(1, resolves)

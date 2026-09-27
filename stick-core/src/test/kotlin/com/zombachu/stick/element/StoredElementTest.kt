@@ -11,7 +11,7 @@ import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.failType
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.success
-import com.zombachu.stick.testInvocation
+import com.zombachu.stick.testExecution
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -26,11 +26,11 @@ class StoredElementTest {
         val identifier = id<String>("name")
         val stored = StoredParameter(base, identifier)
 
-        val inv = testInvocation("bob")
-        val result = context(inv) { stored.parse(["bob"]) }
+        val ex = testExecution("bob")
+        val result = context(ex) { stored.parse(["bob"]) }
 
         assertEquals("bob", result.expectSuccessValue())
-        assertEquals("bob", inv.get(identifier))
+        assertEquals("bob", ex.get(identifier))
     }
 
     @Test
@@ -58,11 +58,11 @@ class StoredElementTest {
         val identifier = id<String>("bad")
         val stored = StoredParameter(parameter, identifier)
 
-        val inv = testInvocation("x")
-        val result = context(inv) { stored.parse(["x"]) }
+        val ex = testExecution("x")
+        val result = context(ex) { stored.parse(["x"]) }
 
         assertFalse(result.isSuccess())
-        assertNull(inv.get(identifier))
+        assertNull(ex.get(identifier))
     }
 
     @Test
@@ -71,10 +71,10 @@ class StoredElementTest {
         val identifier = id<String>("computed")
         val stored = StoredHelper(base, identifier)
 
-        val inv = testInvocation()
-        val result = context(inv) { stored.parse([]) }
+        val ex = testExecution()
+        val result = context(ex) { stored.parse([]) }
 
         assertEquals("computed", result.expectSuccessValue())
-        assertEquals("computed", inv.get(identifier))
+        assertEquals("computed", ex.get(identifier))
     }
 }

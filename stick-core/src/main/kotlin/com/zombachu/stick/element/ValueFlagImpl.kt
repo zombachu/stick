@@ -5,7 +5,7 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
+import com.zombachu.stick.Execution
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
@@ -35,7 +35,7 @@ internal open class ValueFlagImpl<E : Environment, S, T>(
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
         flagParameter.suggest(preceding, partial)
 
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = flagParameter.parse(args)
 
     context(validationContext: ValidationContext<E, S>)

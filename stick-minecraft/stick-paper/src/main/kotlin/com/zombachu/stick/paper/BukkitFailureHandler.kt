@@ -1,6 +1,6 @@
 package com.zombachu.stick.paper
 
-import com.zombachu.stick.Invocation
+import com.zombachu.stick.Execution
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
@@ -12,15 +12,15 @@ import org.bukkit.command.CommandSender
 interface BukkitFailureHandler<E : BukkitEnvironment> : FailureHandler<E, CommandSender>
 
 open class BasicBukkitFailureHandler : BukkitFailureHandler<BukkitEnvironment> {
-    context(inv: Invocation<BukkitEnvironment, CommandSender>)
+    context(ex: Execution<BukkitEnvironment, CommandSender>)
     override fun onFailure(reason: Reason, origin: FailureOrigin) {
         if (reason is Reason.Unknown && reason.cause != null) {
-            inv.env.plugin.logger.log(Level.SEVERE, "Command /${inv.label} threw", reason.cause)
+            ex.env.plugin.logger.log(Level.SEVERE, "Command /${ex.label} threw", reason.cause)
         }
         val message = reason.message(origin)
         if (message.isEmpty()) {
             return
         }
-        inv.sender.sendMessage(Component.text(message, NamedTextColor.RED))
+        ex.sender.sendMessage(Component.text(message, NamedTextColor.RED))
     }
 }

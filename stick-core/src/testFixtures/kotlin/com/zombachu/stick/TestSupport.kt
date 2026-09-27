@@ -22,21 +22,21 @@ private fun <E : Environment, S> emptyStructure(): Structure<E, S, *> =
         Signature0({}, LeadingParameterRole.Label, [it])
     }
 
-internal fun testInvocation(
+internal fun testExecution(
     vararg args: String = [],
-): InvocationImpl<TestEnv, Unit> {
-    return testInvocationSender(Unit, *args)
+): ExecutionImpl<TestEnv, Unit> {
+    return testExecutionSender(Unit, *args)
 }
 
-internal fun <S> testInvocationSender(
+internal fun <S> testExecutionSender(
     sender: S,
     vararg args: String = [],
-): InvocationImpl<TestEnv, S> {
-    return Invocation(sender, TestEnv, "", args.asList(), emptyStructure()) as InvocationImpl<TestEnv, S>
+): ExecutionImpl<TestEnv, S> {
+    return Execution(sender, TestEnv, "", args.asList(), emptyStructure()) as ExecutionImpl<TestEnv, S>
 }
 
-fun <E : Environment, S> testInvocation(env: E, sender: S): Invocation<E, S> =
-    Invocation(sender, env, "", [], emptyStructure())
+fun <E : Environment, S> testExecution(env: E, sender: S): Execution<E, S> =
+    Execution(sender, env, "", [], emptyStructure())
 
 fun <E : Environment, S> testValidationContext(env: E, sender: S): ValidationContext<E, S> =
     ValidationContext(env, sender)
@@ -59,29 +59,29 @@ internal inline fun <S, T> withValidationContext(
     }
 }
 
-internal inline fun <T> withInvocation(
+internal inline fun <T> withExecution(
     vararg args: String = [],
-    block: context(InvocationImpl<TestEnv, Unit>) () -> T,
+    block: context(ExecutionImpl<TestEnv, Unit>) () -> T,
 ): T {
-    withInvocationSender(Unit, *args) {
+    withExecutionSender(Unit, *args) {
         return block()
     }
 }
 
-internal inline fun <S, T> withInvocationSender(
+internal inline fun <S, T> withExecutionSender(
     sender: S,
     vararg args: String = [],
-    block: context(InvocationImpl<TestEnv, S>) () -> T,
+    block: context(ExecutionImpl<TestEnv, S>) () -> T,
 ): T {
-    val inv = testInvocationSender(sender, *args)
-    context(inv) {
+    val ex = testExecutionSender(sender, *args)
+    context(ex) {
         return block()
     }
 }
 
 fun <E : Environment, S> noopFailureHandler(): FailureHandler<E, S> =
     object : FailureHandler<E, S> {
-        context(inv: Invocation<E, S>)
+        context(ex: Execution<E, S>)
         override fun onFailure(reason: Reason, origin: FailureOrigin) {}
     }
 

@@ -3,7 +3,7 @@ package com.zombachu.stick.element.parameters
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.GroupableType
 import com.zombachu.stick.expectSuccessValue
-import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withExecution
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -13,8 +13,8 @@ class StringParameterTest {
 
     @Test
     fun `raw argument passes through`() {
-        assertEquals("Anything", withInvocation { parameter.parse(["Anything"]) }.expectSuccessValue())
-        assertEquals("", withInvocation { parameter.parse([""]) }.expectSuccessValue())
+        assertEquals("Anything", withExecution { parameter.parse(["Anything"]) }.expectSuccessValue())
+        assertEquals("", withExecution { parameter.parse([""]) }.expectSuccessValue())
     }
 
     @Test

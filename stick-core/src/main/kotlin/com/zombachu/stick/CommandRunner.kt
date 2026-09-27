@@ -14,8 +14,8 @@ class CommandRunner<E : Environment, S>(
     @Suppress("TooGenericExceptionCaught")
     fun execute(sender: S, label: String, args: List<String>) {
         val fullArgs = [label] + args
-        val inv = Invocation(sender, env, label, fullArgs, structure)
-        context(env, inv) {
+        val ex = Execution(sender, env, label, fullArgs, structure)
+        context(env, ex) {
             val result =
                 try {
                     val validationResult = structure.validateSender()

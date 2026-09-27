@@ -1,10 +1,10 @@
 package com.zombachu.stick.paper
 
-import com.zombachu.stick.Invocation
+import com.zombachu.stick.Execution
 import com.zombachu.stick.MessageReason
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.failureOrigin
-import com.zombachu.stick.testInvocation
+import com.zombachu.stick.testExecution
 import java.util.logging.Handler
 import java.util.logging.LogRecord
 import kotlin.test.Test
@@ -21,7 +21,7 @@ class BukkitFailureHandlerTest {
     fun `sends component with reason`() {
         val sender = FakeCommandSender()
 
-        context(invocation(sender)) { BasicBukkitFailureHandler().onFailure(Reason.Unknown(), failureOrigin()) }
+        context(execution(sender)) { BasicBukkitFailureHandler().onFailure(Reason.Unknown(), failureOrigin()) }
 
         assertEquals(1, sender.sentMessages.size)
         assertTrue(sender.sentMessages.first().toString().contains("unknown"))
@@ -31,7 +31,7 @@ class BukkitFailureHandlerTest {
     fun `sends nothing when empty message`() {
         val sender = FakeCommandSender()
 
-        context(invocation(sender)) { BasicBukkitFailureHandler().onFailure(MessageReason(""), failureOrigin()) }
+        context(execution(sender)) { BasicBukkitFailureHandler().onFailure(MessageReason(""), failureOrigin()) }
 
         assertEquals(0, sender.sentMessages.size)
     }
@@ -53,7 +53,7 @@ class BukkitFailureHandlerTest {
         FakePlugin.logger.addHandler(captor)
 
         try {
-            context(invocation(FakeCommandSender())) {
+            context(execution(FakeCommandSender())) {
                 BasicBukkitFailureHandler().onFailure(Reason.Unknown(cause), failureOrigin())
             }
         } finally {
@@ -63,6 +63,6 @@ class BukkitFailureHandlerTest {
         assertSame(cause, records.single().thrown)
     }
 
-    private fun invocation(sender: CommandSender): Invocation<BukkitEnvironment, CommandSender> =
-        testInvocation(env, sender)
+    private fun execution(sender: CommandSender): Execution<BukkitEnvironment, CommandSender> =
+        testExecution(env, sender)
 }

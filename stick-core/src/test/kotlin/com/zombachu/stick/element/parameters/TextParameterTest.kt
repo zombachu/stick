@@ -6,7 +6,7 @@ import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.GroupableType
 import com.zombachu.stick.expectSuccessValue
-import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withExecution
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -18,13 +18,13 @@ class TextParameterTest {
 
     @Test
     fun `joins args with single space`() {
-        val result = withInvocation { parameter.parse(["hello", "There", "world"]) }
+        val result = withExecution { parameter.parse(["hello", "There", "world"]) }
         assertEquals("hello There world", result.expectSuccessValue())
     }
 
     @Test
     fun `consumes all args`() {
-        val result = withInvocation { parameter.parse(["a", "b", "c"]) }
+        val result = withExecution { parameter.parse(["a", "b", "c"]) }
         assertIs<ConsumingResult.Success<String>>(result)
         assertEquals(3, result.consumed)
     }

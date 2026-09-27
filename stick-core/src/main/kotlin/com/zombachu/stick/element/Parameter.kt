@@ -5,8 +5,8 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
-import com.zombachu.stick.InvocationImpl
+import com.zombachu.stick.Execution
+import com.zombachu.stick.ExecutionImpl
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
@@ -24,7 +24,7 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
     override val type: GroupableType = GroupableType.Default
 
     // Declared here instead of implementing InternalConsumingElement or else it would expose parse() to subclasses
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     internal abstract fun parse(args: List<String>): ConsumingResult<T>
 
     context(validationContext: ValidationContext<E, S>)
@@ -36,9 +36,9 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
         description: String,
     ) : Parameter<E, S, T, Position.Leading>(size, name, description) {
 
-        context(inv: Invocation<E, S>)
+        context(ex: Execution<E, S>)
         final override fun parse(args: List<String>): ConsumingResult<T> {
-            val matched = (inv as InvocationImpl).currentMatch
+            val matched = (ex as ExecutionImpl).currentMatch
             if (matched != null && matched.resolvedBy === this) {
                 @Suppress("UNCHECKED_CAST")
                 return success(matched.resolved as T).consuming(matched.consumed)
@@ -272,9 +272,9 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
         description: String,
     ) : Parameter<E, S, T, Position.Last>(size, name, description) {
 
-        context(inv: Invocation<E, S>)
+        context(ex: Execution<E, S>)
         final override fun parse(args: List<String>): ConsumingResult<T> {
-            val matched = (inv as InvocationImpl).currentMatch
+            val matched = (ex as ExecutionImpl).currentMatch
             if (matched != null && matched.resolvedBy === this) {
                 @Suppress("UNCHECKED_CAST")
                 return success(matched.resolved as T).consuming(matched.consumed)

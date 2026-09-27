@@ -4,7 +4,7 @@ import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectSuccessValue
-import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withExecution
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -21,7 +21,7 @@ class SignatureNTest {
                 [label] + elements,
             )
 
-        val args = withInvocation("cmd", "a", "b", "c", "d", "e") { signature.execute() }.expectSuccessValue()
+        val args = withExecution("cmd", "a", "b", "c", "d", "e") { signature.execute() }.expectSuccessValue()
 
         assertEquals(["a", "b", "c", "d", "e"], [args.a, args.b, args.c, args.d, args.e])
     }

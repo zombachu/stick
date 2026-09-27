@@ -2,6 +2,8 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
+import com.zombachu.stick.Execution
+import com.zombachu.stick.ExecutionImpl
 import com.zombachu.stick.GroupResult.ResultA
 import com.zombachu.stick.GroupResult.ResultB
 import com.zombachu.stick.GroupResult.ResultC
@@ -18,8 +20,6 @@ import com.zombachu.stick.GroupResult5
 import com.zombachu.stick.GroupResult6
 import com.zombachu.stick.GroupResult7
 import com.zombachu.stick.GroupResult8
-import com.zombachu.stick.Invocation
-import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
@@ -116,7 +116,7 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
         }
     }
 
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     override fun parse(args: List<String>): CommandResult<G> {
         for (element in prioritizedElements) {
             processGroupElement(
@@ -143,7 +143,7 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
             .joinToString("|") { it.groupable.getGroupedSyntax() }
 
     @OptIn(ExperimentalContracts::class)
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     private inline fun <T> processGroupElement(
         groupElement: GroupElement<E, S, T, G>,
         onSuccess: (G) -> Nothing,
@@ -159,13 +159,11 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
         // Ignore elements unable to be accessed by the sender
         groupElement.groupable.validateSender().propagateError { onElementMismatch() }
 
-        val invocation = inv as InvocationImpl
-        val consumedBefore = invocation.consumedArgs
+        val consumedBefore = (ex as ExecutionImpl).consumedArgs
         val value =
-            invocation.processElement(groupElement.groupable).valueOrPropagateError {
+            ex.processElement(groupElement.groupable).valueOrPropagateError {
                 // If element mismatched and args weren't committed then treat it as not an error
-                if (it is CommandResult.Failure.NoMatch && invocation.consumedArgs == consumedBefore)
-                    onElementMismatch()
+                if (it is CommandResult.Failure.NoMatch && ex.consumedArgs == consumedBefore) onElementMismatch()
                 onError(it)
             }
         // If successful, return

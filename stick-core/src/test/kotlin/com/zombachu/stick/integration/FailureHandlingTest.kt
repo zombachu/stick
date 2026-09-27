@@ -1,7 +1,7 @@
 package com.zombachu.stick.integration
 
 import com.zombachu.stick.CommandResult
-import com.zombachu.stick.Invocation
+import com.zombachu.stick.Execution
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.dsl.command
@@ -151,7 +151,7 @@ class FailureHandlingTest {
     }
 
     private class TestFailureHandler<S : Sender> : FailureHandler<Server, S> {
-        context(inv: Invocation<Server, S>)
+        context(ex: Execution<Server, S>)
         override fun onFailure(reason: Reason, origin: FailureOrigin) {
             val message =
                 when (reason) {
@@ -168,7 +168,7 @@ class FailureHandlingTest {
                     is UnknownWarp -> "UNKNOWN WARP: ${reason.name}"
                     is CustomReason -> reason.message(origin)
                 }
-            inv.sender.log(message)
+            ex.sender.log(message)
         }
     }
 }

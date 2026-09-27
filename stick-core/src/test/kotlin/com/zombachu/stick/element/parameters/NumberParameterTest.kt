@@ -7,7 +7,7 @@ import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.failure.Reason
-import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withExecution
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -95,8 +95,8 @@ class NumberParameterTest {
         withValidationContext { parameter.match([arg]) }.expectUnmatched().expectReason()
 
     private fun <T> parse(parameter: Parameter.Size1<TestEnv, Unit, T>, arg: String): T =
-        withInvocation { parameter.parse([arg]) }.expectSuccessValue()
+        withExecution { parameter.parse([arg]) }.expectSuccessValue()
 
     private fun <T> failure(parameter: Parameter.Size1<TestEnv, Unit, T>, arg: String): Reason? =
-        withInvocation { parameter.parse([arg]) }.expectReason()
+        withExecution { parameter.parse([arg]) }.expectReason()
 }

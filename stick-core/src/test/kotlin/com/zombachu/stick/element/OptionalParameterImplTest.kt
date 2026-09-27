@@ -15,7 +15,7 @@ import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.success
 import com.zombachu.stick.validSenderDefault
-import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withExecution
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -34,7 +34,7 @@ class OptionalParameterImplTest {
                 presenceDefault = validDefault("presence-default", allowed = true),
                 parameter = parameter,
             )
-        val result = withInvocation { optional.parse([]) }
+        val result = withExecution { optional.parse([]) }
         assertEquals("forbidden-default", result.expectSuccessValue())
     }
 
@@ -46,7 +46,7 @@ class OptionalParameterImplTest {
                 presenceDefault = validDefault("presence-default", allowed = false),
                 parameter = parameter,
             )
-        val result = withInvocation { optional.parse([]) }
+        val result = withExecution { optional.parse([]) }
         assertIs<Reason.InvalidSyntax>(result.expectReason())
     }
 
@@ -58,7 +58,7 @@ class OptionalParameterImplTest {
                 presenceDefault = validDefault("presence-default", allowed = true),
                 parameter = parameter,
             )
-        val result = withInvocation { optional.parse([]) }
+        val result = withExecution { optional.parse([]) }
         assertEquals("presence-default", result.expectSuccessValue())
     }
 
@@ -70,7 +70,7 @@ class OptionalParameterImplTest {
                 presenceDefault = validDefault("presence-default", allowed = true),
                 parameter = parameter,
             )
-        val result = withInvocation("value") { optional.parse(["value"]) }
+        val result = withExecution("value") { optional.parse(["value"]) }
         assertSame(Reason.InvalidSender, result.expectReason())
     }
 
@@ -82,7 +82,7 @@ class OptionalParameterImplTest {
                 presenceDefault = validDefault("presence-default", allowed = true),
                 parameter = parameter,
             )
-        val result = withInvocation("a", "b") { optional.parse(["a", "b"]) }
+        val result = withExecution("a", "b") { optional.parse(["a", "b"]) }
         assertIs<Reason.InvalidSyntax>(result.expectReason())
     }
 
@@ -94,7 +94,7 @@ class OptionalParameterImplTest {
                 presenceDefault = validSenderDefault(-1),
                 parameter = IntParameter("int", "", Int.MIN_VALUE, Int.MAX_VALUE),
             )
-        val result = withInvocation("word") { optional.parse(["word"]) }
+        val result = withExecution("word") { optional.parse(["word"]) }
 
         assertIs<Reason.TypeNotMatched>(result.expectReason())
     }
@@ -107,7 +107,7 @@ class OptionalParameterImplTest {
                 presenceDefault = validDefault("presence-default", allowed = true),
                 parameter = parameter,
             )
-        val result = withInvocation("value") { optional.parse(["value"]) }
+        val result = withExecution("value") { optional.parse(["value"]) }
         assertEquals("value", result.expectSuccessValue())
     }
 

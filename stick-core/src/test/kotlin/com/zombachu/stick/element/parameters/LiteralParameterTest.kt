@@ -8,7 +8,7 @@ import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.failure.Reason
-import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withExecution
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -19,32 +19,32 @@ class LiteralParameterTest {
 
     @Test
     fun `matches lowercase label`() {
-        assertEquals("foo", withInvocation { parameter.parse(["foo"]) }.expectSuccessValue())
+        assertEquals("foo", withExecution { parameter.parse(["foo"]) }.expectSuccessValue())
     }
 
     @Test
     fun `matching is case-insensitive`() {
-        assertEquals("FOO", withInvocation { parameter.parse(["FOO"]) }.expectSuccessValue())
+        assertEquals("FOO", withExecution { parameter.parse(["FOO"]) }.expectSuccessValue())
     }
 
     @Test
     fun `matches alias case-insensitively`() {
         val aliased = LiteralParameter<TestEnv, Unit>("foo", ["bar", "baz"], "")
-        assertEquals("BAR", withInvocation { aliased.parse(["BAR"]) }.expectSuccessValue())
+        assertEquals("BAR", withExecution { aliased.parse(["BAR"]) }.expectSuccessValue())
     }
 
     @Test
     fun `mismatch reports label, not aliases`() {
         val aliased = LiteralParameter<TestEnv, Unit>("foo", ["bar"], "")
-        val result = withInvocation { aliased.parse(["baz"]) }
+        val result = withExecution { aliased.parse(["baz"]) }
         assertEquals(Reason.LiteralNotMatched(["foo"], "baz"), result.expectReason())
     }
 
     @Test
     fun `matches a mixed-case name`() {
         val mixedCase = LiteralParameter<TestEnv, Unit>("Foo", [], "")
-        assertEquals("Foo", withInvocation { mixedCase.parse(["Foo"]) }.expectSuccessValue())
-        assertEquals("foo", withInvocation { mixedCase.parse(["foo"]) }.expectSuccessValue())
+        assertEquals("Foo", withExecution { mixedCase.parse(["Foo"]) }.expectSuccessValue())
+        assertEquals("foo", withExecution { mixedCase.parse(["foo"]) }.expectSuccessValue())
     }
 
     @Test

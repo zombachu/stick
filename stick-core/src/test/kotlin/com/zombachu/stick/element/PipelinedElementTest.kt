@@ -19,8 +19,8 @@ import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.success
-import com.zombachu.stick.testInvocation
-import com.zombachu.stick.withInvocation
+import com.zombachu.stick.testExecution
+import com.zombachu.stick.withExecution
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -39,7 +39,7 @@ class PipelinedElementTest {
                 [lengthOp, doubleOp],
             )
 
-        val result = withInvocation { pipelined.parse(["hello"]) }
+        val result = withExecution { pipelined.parse(["hello"]) }
 
         assertEquals(10, result.expectSuccessValue())
     }
@@ -79,7 +79,7 @@ class PipelinedElementTest {
                 [failingOp, laterOp],
             )
 
-        val result = withInvocation { pipelined.parse(["x"]) }
+        val result = withExecution { pipelined.parse(["x"]) }
 
         assertFalse(result.isSuccess())
         assertFalse(laterCalled)
@@ -102,7 +102,7 @@ class PipelinedElementTest {
         }
         val pipelined = PipelinedParameter<TestEnv, Unit, String, String, Position.Leading>(failingBase, [op])
 
-        val result = withInvocation { pipelined.parse(["x"]) }
+        val result = withExecution { pipelined.parse(["x"]) }
 
         assertFalse(result.isSuccess())
         assertFalse(opCalled)
@@ -121,7 +121,7 @@ class PipelinedElementTest {
         val op: PipelineOperation<TestEnv, Unit, String, Int> = { success(it.length) }
         val pipelined = PipelinedParameter<TestEnv, Unit, String, Int, Position.Leading>(StringParameter("", ""), [op])
 
-        val result = withInvocation { pipelined.parse(["hi"]) }
+        val result = withExecution { pipelined.parse(["hi"]) }
 
         assertIs<ConsumingResult.Success<Int>>(result)
         assertEquals(1, result.consumed)
@@ -132,7 +132,7 @@ class PipelinedElementTest {
         val op: PipelineOperation<TestEnv, Unit, String, String> = { success(it.uppercase()) }
         val pipelined = PipelinedParameter<TestEnv, Unit, String, String, Position.Last>(TextParameter("", ""), [op])
 
-        val result = withInvocation { pipelined.parse(["a", "b", "c"]) }
+        val result = withExecution { pipelined.parse(["a", "b", "c"]) }
 
         assertIs<ConsumingResult.Success<String>>(result)
         assertEquals(3, result.consumed)
@@ -145,7 +145,7 @@ class PipelinedElementTest {
         val op: PipelineOperation<TestEnv, Unit, Int, Int> = { success(it * 10) }
         val pipelined = PipelinedValueFlag<TestEnv, Unit, Int, Int>(base, [op])
 
-        val result = pipelined.default(testInvocation())
+        val result = pipelined.default(testExecution())
 
         assertEquals(50, result.expectSuccessValue())
     }
@@ -156,7 +156,7 @@ class PipelinedElementTest {
         val op: PipelineOperation<TestEnv, Unit, Int, Int> = { fail(Reason.Unknown()) }
         val pipelined = PipelinedValueFlag<TestEnv, Unit, Int, Int>(base, [op])
 
-        val result = pipelined.default(testInvocation())
+        val result = pipelined.default(testExecution())
 
         assertFalse(result.isSuccess())
     }
@@ -172,7 +172,7 @@ class PipelinedElementTest {
                 [passing],
             )
 
-        val result = pipelined.default(testInvocation())
+        val result = pipelined.default(testExecution())
 
         assertFalse(result.isSuccess())
     }

@@ -20,10 +20,10 @@ import com.zombachu.stick.noMatch
 import com.zombachu.stick.presenceFlagParameter
 import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.success
-import com.zombachu.stick.testInvocation
-import com.zombachu.stick.testInvocationSender
-import com.zombachu.stick.withInvocation
-import com.zombachu.stick.withInvocationSender
+import com.zombachu.stick.testExecution
+import com.zombachu.stick.testExecutionSender
+import com.zombachu.stick.withExecution
+import com.zombachu.stick.withExecutionSender
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -53,8 +53,8 @@ class ValueFlagImplTest {
             FlagParameter.EnumFlagParameter(counting),
         )
 
-        val inv = testInvocation("-red")
-        val result = inv.processElement(flag)
+        val ex = testExecution("-red")
+        val result = ex.processElement(flag)
 
         assertEquals(Color.RED, result.expectSuccessValue())
         assertEquals(1, resolves)
@@ -77,11 +77,11 @@ class ValueFlagImplTest {
             FlagParameter.ParameterFlagParameter("player", counting, []),
         )
 
-        val inv = testInvocation("-player", "steve")
-        val result = inv.processElement(flag)
+        val ex = testExecution("-player", "steve")
+        val result = ex.processElement(flag)
 
         assertEquals("steve", result.expectSuccessValue())
-        assertEquals(2, inv.consumedArgs)
+        assertEquals(2, ex.consumedArgs)
         assertEquals(1, resolves)
     }
 
@@ -105,8 +105,8 @@ class ValueFlagImplTest {
             FlagParameter.ParameterFlagParameter("player", cheaplyMatched, []),
         )
 
-        val inv = testInvocation("-player", "steve")
-        val result = inv.processElement(flag)
+        val ex = testExecution("-player", "steve")
+        val result = ex.processElement(flag)
 
         assertEquals("steve", result.expectSuccessValue())
         assertEquals(1, resolves)
@@ -114,13 +114,13 @@ class ValueFlagImplTest {
 
     @Test
     fun `PresenceFlagParameter parses present value`() {
-        val result = withInvocation { presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true).parse(["-silent"]) }
+        val result = withExecution { presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true).parse(["-silent"]) }
         assertEquals(true, result.expectSuccessValue())
     }
 
     @Test
     fun `PresenceFlagParameter parse for mismatched label fails with InvalidSyntax NoMatch`() {
-        val result = withInvocation { presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true).parse(["-other"]) }
+        val result = withExecution { presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true).parse(["-other"]) }
         assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
     }
 
@@ -147,7 +147,7 @@ class ValueFlagImplTest {
     fun `ParameterFlagParameter parses value and sums consumed size`() {
         val flagParameter = FlagParameter.ParameterFlagParameter("amount", amountParameter, [])
 
-        val result = withInvocation { flagParameter.parse(["-amount", "42"]) }
+        val result = withExecution { flagParameter.parse(["-amount", "42"]) }
 
         assertIs<ConsumingResult.Success<Int>>(result)
         assertEquals(42, result.value)
@@ -192,7 +192,7 @@ class ValueFlagImplTest {
     @Test
     fun `ParameterFlagParameter parse for invalid label fails with InvalidSyntax NoMatch`() {
         val flagParameter = FlagParameter.ParameterFlagParameter("amount", amountParameter, [])
-        val result = withInvocation { flagParameter.parse(["-other", "42"]) }
+        val result = withExecution { flagParameter.parse(["-other", "42"]) }
         assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
     }
 
@@ -212,21 +212,21 @@ class ValueFlagImplTest {
     @Test
     fun `EnumFlagParameter parses flag token as enum key`() {
         val flagParameter = FlagParameter.EnumFlagParameter(colorParameter)
-        val result = withInvocation { flagParameter.parse(["-red"]) }
+        val result = withExecution { flagParameter.parse(["-red"]) }
         assertEquals(Color.RED, result.expectSuccessValue())
     }
 
     @Test
     fun `EnumFlagParameter parse for invalid argument fails with InvalidSyntax NoMatch`() {
         val flagParameter = FlagParameter.EnumFlagParameter(colorParameter)
-        val result = withInvocation { flagParameter.parse(["-blue"]) }
+        val result = withExecution { flagParameter.parse(["-blue"]) }
         assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
     }
 
     @Test
     fun `EnumFlagParameter parse for empty args fails with InvalidSyntax NoMatch`() {
         val flagParameter = FlagParameter.EnumFlagParameter(colorParameter)
-        val result = withInvocation { flagParameter.parse([]) }
+        val result = withExecution { flagParameter.parse([]) }
         assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
     }
 
@@ -234,8 +234,8 @@ class ValueFlagImplTest {
     fun `EnumFlagParameter parse for argument with no prefix fails with InvalidSyntax NoMatch`() {
         val flagParameter = FlagParameter.EnumFlagParameter(colorParameter)
 
-        assertIs<Reason.InvalidSyntax>(withInvocation { flagParameter.parse([""]) }.expectNoMatch().reason)
-        assertIs<Reason.InvalidSyntax>(withInvocation { flagParameter.parse(["red"]) }.expectNoMatch().reason)
+        assertIs<Reason.InvalidSyntax>(withExecution { flagParameter.parse([""]) }.expectNoMatch().reason)
+        assertIs<Reason.InvalidSyntax>(withExecution { flagParameter.parse(["red"]) }.expectNoMatch().reason)
     }
 
     @Test
@@ -253,9 +253,9 @@ class ValueFlagImplTest {
     fun `ValueFlagImpl delegates to flag parameter`() {
         val flag = presenceValueFlag<TestEnv, Unit, Boolean>("silent", false, true)
 
-        assertEquals(true, withInvocation { flag.parse(["-silent"]) }.expectSuccessValue())
+        assertEquals(true, withExecution { flag.parse(["-silent"]) }.expectSuccessValue())
         assertEquals("[-silent]", withValidationContext { flag.getSyntax() })
-        assertEquals(false, flag.default(testInvocation()).expectSuccessValue())
+        assertEquals(false, flag.default(testExecution()).expectSuccessValue())
     }
 
     @Test
@@ -263,7 +263,7 @@ class ValueFlagImplTest {
         val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
         val transformed = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidSenderDefault(false))
 
-        val result = withInvocationSender(1) { transformed.parse(["-silent"]) }
+        val result = withExecutionSender(1) { transformed.parse(["-silent"]) }
 
         assertEquals(true, result.expectSuccessValue())
     }
@@ -289,7 +289,7 @@ class ValueFlagImplTest {
     fun `TransformedValueFlag default for accessible flag returns Absent`() {
         val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
         val transformed = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidSenderDefault(true))
-        val result = transformed.default(testInvocationSender(1))
+        val result = transformed.default(testExecutionSender(1))
         assertEquals(false, result.expectSuccessValue())
     }
 
@@ -300,7 +300,7 @@ class ValueFlagImplTest {
             invalidSenderDefault<TestEnv, Int, Boolean>(true) { failSenderType(String::class) }
         val transformed = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidDefault)
 
-        val result = transformed.default(testInvocationSender(1))
+        val result = transformed.default(testExecutionSender(1))
 
         assertEquals(true, result.expectSuccessValue())
     }

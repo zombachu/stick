@@ -3,8 +3,8 @@ package com.zombachu.stick.element
 import com.zombachu.stick.Arguments
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
-import com.zombachu.stick.InvocationImpl
+import com.zombachu.stick.Execution
+import com.zombachu.stick.ExecutionImpl
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
@@ -34,14 +34,14 @@ internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val s
         leadingParameterMatch: MatchResult?,
     ): List<Suggestion> = signature.suggest(preceding, partial, leadingParameterMatch)
 
-    context(inv: Invocation<E, S>)
+    context(ex: Execution<E, S>)
     override fun parse(args: List<String>): CommandResult<T_> {
         // Run validation in case this branch is a Structure
         validateSender().propagateError {
             return it
         }
         val parsedArgs =
-            context(inv as InvocationImpl) { signature.execute() }
+            context(ex as ExecutionImpl) { signature.execute() }
                 .valueOrPropagateError {
                     return it
                 }

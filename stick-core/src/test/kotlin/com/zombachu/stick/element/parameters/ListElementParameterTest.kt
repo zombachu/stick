@@ -11,7 +11,7 @@ import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.fail
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.success
-import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withExecution
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,8 +28,8 @@ class ListElementParameterTest {
     fun `zero-indexed lookup resolves element`() {
         val parameter = listElementParameter("", "", threeItems, oneIndexed = false, onEmpty = null)
 
-        val first = withInvocation { parameter.parse(["0"]) }.expectSuccessValue()
-        val last = withInvocation { parameter.parse(["2"]) }.expectSuccessValue()
+        val first = withExecution { parameter.parse(["0"]) }.expectSuccessValue()
+        val last = withExecution { parameter.parse(["2"]) }.expectSuccessValue()
 
         assertEquals("a", first.result)
         assertEquals(0, first.index)
@@ -48,7 +48,7 @@ class ListElementParameterTest {
     fun `one-indexed lookup shifts range to zero-based index`() {
         val parameter = listElementParameter("", "", threeItems, oneIndexed = true, onEmpty = null)
 
-        val first = withInvocation { parameter.parse(["1"]) }.expectSuccessValue()
+        val first = withExecution { parameter.parse(["1"]) }.expectSuccessValue()
 
         assertEquals("a", first.result)
         assertEquals(0, first.index)
@@ -73,7 +73,7 @@ class ListElementParameterTest {
                 onEmpty = { onEmptyCalled = true },
             )
 
-        val result = withInvocation { parameter.parse(["0"]) }
+        val result = withExecution { parameter.parse(["0"]) }
 
         assertTrue(onEmptyCalled)
         assertSame(CommandResult.Failure.Handled, result)
@@ -111,5 +111,5 @@ class ListElementParameterTest {
         parameter: Parameter<TestEnv, Unit, ListElementResult<String>, Position.Leading>,
         arg: String,
     ): Reason? =
-        withInvocation { parameter.parse([arg]) }.expectReason()
+        withExecution { parameter.parse([arg]) }.expectReason()
 }

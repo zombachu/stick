@@ -4,7 +4,7 @@ import com.zombachu.stick.element.parse
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.structureTest
-import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withExecution
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -16,7 +16,7 @@ class SignaturesTest {
         var executed = false
         val structure = command("cmd")() { executed = true }
 
-        val result = withInvocation("cmd") { structure.parse(["cmd"]) }
+        val result = withExecution("cmd") { structure.parse(["cmd"]) }
 
         assertTrue(result.isSuccess())
         assertTrue(executed)
@@ -26,7 +26,7 @@ class SignaturesTest {
     fun `structure passes parsed values in order`() = structureTest {
         val structure = command("cmd")(stringParameter(""), intParameter(""), stringParameter("")) { a, b, c -> }
 
-        val args = withInvocation("cmd", "x", "5", "y") { structure.parse(["cmd", "x", "5", "y"]) }.expectSuccessValue()
+        val args = withExecution("cmd", "x", "5", "y") { structure.parse(["cmd", "x", "5", "y"]) }.expectSuccessValue()
 
         assertEquals(["x", 5, "y"], [args.a, args.b, args.c])
     }

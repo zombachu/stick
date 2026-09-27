@@ -15,7 +15,7 @@ import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.noMatch
 import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.success
-import com.zombachu.stick.withInvocation
+import com.zombachu.stick.withExecution
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -32,7 +32,7 @@ class SignatureTest {
         val signature =
             Signature2<TestEnv, Unit, Int, String>({ a, b -> }, LeadingParameterRole.Label, [label, amount, name])
 
-        val args = withInvocation("cmd", "5", "bob") { signature.execute() }.expectSuccessValue()
+        val args = withExecution("cmd", "5", "bob") { signature.execute() }.expectSuccessValue()
 
         assertEquals([5, "bob"], [args.a, args.b])
     }
@@ -46,7 +46,7 @@ class SignatureTest {
                 [label, amount, loudFlag()],
             )
 
-        val args = withInvocation("cmd", "-loud", "5") { signature.execute() }.expectSuccessValue()
+        val args = withExecution("cmd", "-loud", "5") { signature.execute() }.expectSuccessValue()
 
         assertEquals([5, true], [args.a, args.b])
     }
@@ -60,7 +60,7 @@ class SignatureTest {
                 [label, amount, loudFlag()],
             )
 
-        val args = withInvocation("cmd", "5", "-loud") { signature.execute() }.expectSuccessValue()
+        val args = withExecution("cmd", "5", "-loud") { signature.execute() }.expectSuccessValue()
 
         assertEquals([5, true], [args.a, args.b])
     }
@@ -74,7 +74,7 @@ class SignatureTest {
                 [label, amount, loudFlag()],
             )
 
-        val args = withInvocation("cmd", "5") { signature.execute() }.expectSuccessValue()
+        val args = withExecution("cmd", "5") { signature.execute() }.expectSuccessValue()
 
         assertEquals([5, false], [args.a, args.b])
     }
@@ -86,7 +86,7 @@ class SignatureTest {
         val gatedFlag = TransformedValueFlag(base, { _: Unit -> "x" }, invalidDefault)
         val signature = Signature1<TestEnv, Unit, Boolean>({ loud -> }, LeadingParameterRole.Label, [label, gatedFlag])
 
-        val args = withInvocation("cmd") { signature.execute() }.expectSuccessValue()
+        val args = withExecution("cmd") { signature.execute() }.expectSuccessValue()
 
         assertEquals(true, args.a)
     }
@@ -95,7 +95,7 @@ class SignatureTest {
     fun `missing linear arg fails with InvalidSyntax`() {
         val signature = Signature1<TestEnv, Unit, Int>({}, LeadingParameterRole.Label, [label, amount])
 
-        val result = withInvocation("cmd") { signature.execute() }
+        val result = withExecution("cmd") { signature.execute() }
 
         assertIs<Reason.InvalidSyntax>(result.expectReason())
     }
@@ -108,7 +108,7 @@ class SignatureTest {
         }
         val signature = Signature1<TestEnv, Unit, String>({}, LeadingParameterRole.Label, [label, SilentParameter()])
 
-        val result = withInvocation("cmd", "other") { signature.execute() }
+        val result = withExecution("cmd", "other") { signature.execute() }
 
         assertIs<Reason.InvalidSyntax>(result.expectReason())
     }
@@ -119,7 +119,7 @@ class SignatureTest {
         val flag = ValueFlagImpl("amount", { success(0) }, flagParameter)
         val signature = Signature1<TestEnv, Unit, Int>({}, LeadingParameterRole.Label, [label, flag])
 
-        val result = withInvocation("cmd", "-amount", "not-a-number") { signature.execute() }
+        val result = withExecution("cmd", "-amount", "not-a-number") { signature.execute() }
 
         assertEquals(Reason.TypeNotMatched("integer", "not-a-number"), result.expectReason())
     }
@@ -129,7 +129,7 @@ class SignatureTest {
         val name = StringParameter<TestEnv, Unit>("", "")
         val signature = Signature1<TestEnv, Unit, String>({}, LeadingParameterRole.Label, [label, name])
 
-        val result = withInvocation("cmd", "bob", "extra") { signature.execute() }
+        val result = withExecution("cmd", "bob", "extra") { signature.execute() }
 
         assertIs<Reason.InvalidSyntax>(result.expectReason())
     }

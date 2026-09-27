@@ -2,7 +2,7 @@ package com.zombachu.stick.integration
 
 import com.zombachu.stick.Command
 import com.zombachu.stick.Environment
-import com.zombachu.stick.Invocation
+import com.zombachu.stick.Execution
 import com.zombachu.stick.Stick
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.default
@@ -171,10 +171,10 @@ class RegistrationTest {
             var reason: Reason? = null
             var warps: Int = 0
 
-            context(inv: Invocation<WarpableServer, Sender>)
+            context(ex: Execution<WarpableServer, Sender>)
             override fun onFailure(reason: Reason, origin: FailureOrigin) {
                 this.reason = reason
-                warps = inv.env.warps.names.size
+                warps = ex.env.warps.names.size
             }
         }
         class WarpsCommand : Command<WarpableServer, Sender> {
@@ -222,10 +222,10 @@ class RegistrationTest {
             var reason: Reason? = null
             var name: String? = null
 
-            context(inv: Invocation<Server, Profile>)
+            context(ex: Execution<Server, Profile>)
             override fun onFailure(reason: Reason, origin: FailureOrigin) {
                 this.reason = reason
-                name = inv.sender.sender.name
+                name = ex.sender.sender.name
             }
         }
         class SelfBanCommand : Command<Server, Profile> {

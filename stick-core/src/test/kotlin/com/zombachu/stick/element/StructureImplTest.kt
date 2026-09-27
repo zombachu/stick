@@ -13,8 +13,8 @@ import com.zombachu.stick.failSenderType
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.success
-import com.zombachu.stick.withInvocation
-import com.zombachu.stick.withInvocationSender
+import com.zombachu.stick.withExecution
+import com.zombachu.stick.withExecutionSender
 import com.zombachu.stick.withValidationContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -29,7 +29,7 @@ class StructureImplTest {
     fun `matches name case-insensitively`() {
         val structure = structure(name = "cMd")
 
-        val result = withInvocation("CMD") { structure.parse(["CMD"]) }
+        val result = withExecution("CMD") { structure.parse(["CMD"]) }
 
         assertTrue(result.isSuccess())
     }
@@ -38,7 +38,7 @@ class StructureImplTest {
     fun `matches alias case-insensitively`() {
         val structure = structure(name = "cmd", aliases = ["c"])
 
-        val result = withInvocation("C") { structure.parse(["C"]) }
+        val result = withExecution("C") { structure.parse(["C"]) }
 
         assertTrue(result.isSuccess())
     }
@@ -47,7 +47,7 @@ class StructureImplTest {
     fun `mismatch fails with InvalidSyntax NoMatch`() {
         val structure = structure(name = "cmd")
 
-        val result = withInvocation("other") { structure.parse(["other"]) }
+        val result = withExecution("other") { structure.parse(["other"]) }
 
         assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
     }
@@ -89,7 +89,7 @@ class StructureImplTest {
                 onExecute = { executed = true },
             )
 
-        val result = withInvocation("cmd") { structure.parse(["cmd"]) }
+        val result = withExecution("cmd") { structure.parse(["cmd"]) }
 
         assertSame(Reason.InvalidSender, result.expectReason())
         assertFalse(executed)
@@ -118,7 +118,7 @@ class StructureImplTest {
         val requirement = Requirement<TestEnv, Int> { success() }
         val transformed = TransformedStructure(base, { _: Int -> }, requirement)
 
-        val result = withInvocationSender(1, "cmd") { transformed.parse(["cmd"]) }
+        val result = withExecutionSender(1, "cmd") { transformed.parse(["cmd"]) }
 
         assertTrue(result.isSuccess())
     }

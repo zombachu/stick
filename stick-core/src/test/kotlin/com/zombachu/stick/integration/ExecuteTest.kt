@@ -1,7 +1,7 @@
 package com.zombachu.stick.integration
 
 import com.zombachu.stick.Command
-import com.zombachu.stick.Invocation
+import com.zombachu.stick.Execution
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invoke
@@ -59,10 +59,10 @@ class ExecuteTest {
                 )
             }
 
-            private fun heal(inv: Invocation<Server, Sender>, target: Player) {
+            private fun heal(ex: Execution<Server, Sender>, target: Player) {
                 target.log("You have been healed")
-                if (target !== inv.sender) {
-                    inv.sender.log("Healed ${target.name}")
+                if (target !== ex.sender) {
+                    ex.sender.log("Healed ${target.name}")
                 }
             }
         }
@@ -74,7 +74,7 @@ class ExecuteTest {
     }
 
     @Test
-    fun `feed - execute can be a function with invocation receiver`() {
+    fun `feed - execute can be a function with execution receiver`() {
         class FeedCommand : Command<Server, Sender> {
             override val structure = structure {
                 command(
@@ -86,7 +86,7 @@ class ExecuteTest {
                 )
             }
 
-            private fun feed() = fun Invocation<Server, Sender>.(target: Player) {
+            private fun feed() = fun Execution<Server, Sender>.(target: Player) {
                 target.log("You have been fed")
                 if (target !== sender) {
                     sender.log("Fed ${target.name}")
@@ -106,7 +106,7 @@ class ExecuteTest {
             override val structure = structure {
                 command("nick")(
                     stringParameter("name"),
-                    Invocation<Server, Sender>::nick,
+                    Execution<Server, Sender>::nick,
                 )
             }
         }
@@ -128,9 +128,9 @@ class ExecuteTest {
                 }
             }
 
-            private fun spawn(inv: Invocation<Server, Player>, world: String) {
-                inv.sender.world = world
-                inv.sender.log("Teleported to $world's spawn")
+            private fun spawn(ex: Execution<Server, Player>, world: String) {
+                ex.sender.world = world
+                ex.sender.log("Teleported to $world's spawn")
             }
         }
         val spawnCommand = SpawnCommand().structure
@@ -155,6 +155,6 @@ class ExecuteTest {
     }
 }
 
-private fun Invocation<Server, Sender>.nick(name: String) {
+private fun Execution<Server, Sender>.nick(name: String) {
     sender.log("Nickname set to $name")
 }
