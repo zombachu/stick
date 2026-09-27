@@ -7,7 +7,6 @@ import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.InvocationImpl
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
@@ -48,7 +47,7 @@ internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T, P : P
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> {
-        val transformedInvocation = (inv as InvocationImpl).forSender(transform)
+        val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.parse(args)
         }
@@ -74,7 +73,7 @@ internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
 
     override val default: ContextualValue<E, S, T> = {
         if (validateSender().isSuccess()) {
-            val transformedInvocation = (this as InvocationImpl).forSender(transform)
+            val transformedInvocation = forSender(transform)
             base.default(transformedInvocation)
         } else {
             invalidSenderDefault.value(this)
@@ -103,7 +102,7 @@ internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> {
-        val transformedInvocation = (inv as InvocationImpl).forSender(transform)
+        val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.parse(args)
         }
@@ -156,7 +155,7 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> {
-        val transformedInvocation = (inv as InvocationImpl).forSender(transform)
+        val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.parse(args)
         }
@@ -218,7 +217,7 @@ internal open class TransformedBranch<E : Environment, S, S2 : Any, T_ : Argumen
 
     context(inv: Invocation<E, S>)
     override fun parse(args: List<String>): CommandResult<T_> {
-        val transformedInvocation = (inv as InvocationImpl).forSender(transform)
+        val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.parse(args)
         }

@@ -14,6 +14,8 @@ sealed class Invocation<out E : Environment, S> : ValidationContext<E, S>() {
 
     abstract fun getSyntax(): String
 
+    abstract override fun <S2 : Any> forSender(transform: (S) -> S2): Invocation<E, S2>
+
     companion object {
         operator fun <E : Environment, S> invoke(
             sender: S,
