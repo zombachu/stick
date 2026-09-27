@@ -12,7 +12,7 @@ import com.zombachu.stick.fail
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.success
 import com.zombachu.stick.withExecution
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -101,7 +101,7 @@ class ListElementParameterTest {
         }
         val parameter = listElementParameter("", "", watched, oneIndexed = false, onEmpty = null)
 
-        val result = withValidationContext { parameter.match(["x"]) }
+        val result = withInvocation { parameter.match(["x"]) }
 
         assertEquals(Reason.TypeNotMatched("index", "x"), result.expectUnmatched().expectReason())
         assertFalse(listReached)

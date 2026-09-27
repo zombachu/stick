@@ -4,11 +4,11 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
 import com.zombachu.stick.GroupResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.failSyntax
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
@@ -23,7 +23,7 @@ internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Posit
     override val name: String = group.name
     override val description: String = group.description
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
         if (args.isEmpty()) return MatchResult.matchedAtLeast(0)
         requirementDefault.validateSender().propagateError {
@@ -32,7 +32,7 @@ internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Posit
         return group.match(args)
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
         requirementDefault.validateSender().propagateError {
             return []
@@ -62,7 +62,7 @@ internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Posit
         return group.parse(args)
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getSyntax(): String {
         // Check if the sender is allowed to specify an alternative
         if (!requirementDefault.validateSender().isSuccess()) return ""

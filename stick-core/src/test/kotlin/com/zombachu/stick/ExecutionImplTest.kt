@@ -84,10 +84,10 @@ class ExecutionImplTest {
         var parsed = false
         val parameter =
             object : Parameter.Size1<TestEnv, Unit, String>("bar", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun match(arg0: String): MatchResult = MatchResult.unmatched()
 
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> {
                     parsed = true
                     return success(arg0)
@@ -128,10 +128,10 @@ class ExecutionImplTest {
         val ex = testExecution("a")
         val parameter =
             object : Parameter.Bounded<TestEnv, Unit, String>(Size.between(0, 2), "", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun match(args: List<String>): MatchResult = MatchResult.partial()
 
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(args: List<String>): ConsumingResult<String> =
                     success("").consuming(1)
             }
@@ -212,7 +212,7 @@ class ExecutionImplTest {
         val ex = testExecution("a", "b")
         val misbehavingParameter =
             object : Parameter.Unbounded<TestEnv, Unit, String>(Size.atLeast(1), "", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(args: List<String>): ConsumingResult<String> =
                     success(args.joinToString(" ")).consuming(0)
             }
@@ -228,10 +228,10 @@ class ExecutionImplTest {
         val ex = testExecution("a")
         val misbehavingParameter =
             object : Parameter.Bounded<TestEnv, Unit, String>(Size(1), "", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun match(args: List<String>): MatchResult = MatchResult.matchedExactly(1)
 
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(args: List<String>): ConsumingResult<String> = success("a").consuming(5)
             }
 
@@ -277,7 +277,7 @@ class ExecutionImplTest {
 
     private fun countingParameter(onResolve: () -> Unit) =
         object : Parameter.Size1<TestEnv, Unit, String>("", "") {
-            context(validationContext: ValidationContext<TestEnv, Unit>)
+            context(inv: Invocation<TestEnv, Unit>)
             override fun resolve(arg0: String): CommandResult<String> {
                 onResolve()
                 return success(arg0)

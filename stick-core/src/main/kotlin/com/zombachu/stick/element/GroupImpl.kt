@@ -20,11 +20,11 @@ import com.zombachu.stick.GroupResult5
 import com.zombachu.stick.GroupResult6
 import com.zombachu.stick.GroupResult7
 import com.zombachu.stick.GroupResult8
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.GroupElement.Companion.to
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.noMatch
@@ -60,10 +60,10 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
             }
     override val type: GroupableType = GroupableType.Default
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult = matchBranches(args).result
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     internal fun matchBranches(args: List<String>): GroupMatch {
         val branchResults = ArrayList<MatchResult>(prioritizedElements.size)
         var incomplete: MatchResult.Partial? = null
@@ -96,10 +96,10 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
         return GroupMatch(incomplete ?: mismatch ?: MatchResult.unmatched(), branchResults)
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = suggest(preceding, partial, null)
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     internal fun suggest(preceding: List<String>, partial: String, matched: GroupMatch?): List<Suggestion> = buildList {
         for ((index, element) in prioritizedElements.withIndex()) {
             val groupable = element.groupable
@@ -133,10 +133,10 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
         return noMatch()
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getSyntax(): String = "<${getGroupedSyntax()}>"
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getGroupedSyntax(): String =
         elements
             .filter { it.groupable.validateSender().isSuccess() }

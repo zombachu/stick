@@ -8,8 +8,8 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult2
 import com.zombachu.stick.GroupResult5
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.TypedIdentifier
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.dsl.booleanParameter
 import com.zombachu.stick.dsl.branch
 import com.zombachu.stick.dsl.branchRequire
@@ -929,14 +929,14 @@ class GroupTest {
 
     private class PointParameter<E : Environment, S> : Parameter.Size2<E, S, String>("point", "") {
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun resolve(arg0: String, arg1: String): CommandResult<String> = success("$arg0,$arg1")
     }
 
     private class CountingParameter<E : Environment, S>(name: String) : Parameter.Size1<E, S, String>(name, "") {
         var invocations = 0
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun resolve(arg0: String): CommandResult<String> {
             invocations++
             return success(arg0)

@@ -7,7 +7,7 @@ import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.withExecution
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -35,9 +35,9 @@ class BooleanParameterTest {
 
     @Test
     fun `matches only boolean input`() {
-        assertEquals(MatchResult.matchedExactly(1), withValidationContext { parameter.match(["true"]) })
+        assertEquals(MatchResult.matchedExactly(1), withInvocation { parameter.match(["true"]) })
 
-        val result = withValidationContext { parameter.match(["maybe"]) }
+        val result = withInvocation { parameter.match(["maybe"]) }
         assertEquals(Reason.TypeNotMatched("boolean", "maybe"), result.expectUnmatched().expectReason())
     }
 }

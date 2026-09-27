@@ -3,8 +3,8 @@ package com.zombachu.stick.element
 import com.zombachu.stick.Arguments
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.Requirement
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.noMatch
 import com.zombachu.stick.success
@@ -27,17 +27,17 @@ private constructor(
     override val label: String = literal.label
     override val aliases: Set<String> = literal.aliases
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun validateSender(): CommandResult<Unit> = requirement.validateSender()
 }
 
 private class LabelParameter<E : Environment, S>(name: String, aliases: Set<String>, description: String) :
     LiteralParameter<E, S>(name, aliases, description) {
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getSyntax(): String = name
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun resolve(arg0: String): CommandResult<String> =
         if (matches(arg0.lowercase())) success(arg0) else noMatch()
 }

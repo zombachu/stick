@@ -41,7 +41,7 @@ sealed interface MatchResult {
 
         fun partial(): Partial = Partial
 
-        context(_: ValidationContext<*, *>)
+        context(_: Invocation<*, *>)
         fun unmatched(): Unmatched = Unmatched(noMatch())
 
         fun unmatched(failure: CommandResult.Failure): Unmatched = Unmatched(failure)

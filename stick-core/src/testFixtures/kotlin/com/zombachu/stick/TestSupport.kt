@@ -38,22 +38,22 @@ internal fun <S> testExecutionSender(
 fun <E : Environment, S> testExecution(env: E, sender: S): Execution<E, S> =
     Execution(sender, env, "", [], emptyStructure())
 
-fun <E : Environment, S> testValidationContext(env: E, sender: S): ValidationContext<E, S> =
-    ValidationContext(env, sender)
+fun <E : Environment, S> testInvocation(env: E, sender: S): Invocation<E, S> =
+    Invocation(env, sender)
 
-internal inline fun <T> withValidationContext(
-    block: context(ValidationContext<TestEnv, Unit>) () -> T
+internal inline fun <T> withInvocation(
+    block: context(Invocation<TestEnv, Unit>) () -> T
 ): T {
-    withValidationContext(Unit) {
+    withInvocation(Unit) {
         return block()
     }
 }
 
-internal inline fun <S, T> withValidationContext(
+internal inline fun <S, T> withInvocation(
     sender: S,
-    block: context(ValidationContext<TestEnv, S>) () -> T
+    block: context(Invocation<TestEnv, S>) () -> T
 ): T {
-    val ctx = ValidationContext(TestEnv, sender)
+    val ctx = Invocation(TestEnv, sender)
     context(ctx) {
         return block()
     }
@@ -93,12 +93,12 @@ data class MessageReason(val text: String) : CustomReason {
 
 fun <E : Environment, S, T> validSenderDefault(
     value: T,
-    validate: context(ValidationContext<E, S>) () -> CommandResult<Unit> = { success() },
+    validate: context(Invocation<E, S>) () -> CommandResult<Unit> = { success() },
 ): ValidSenderDefault<E, S, T> = ValidatedDefaultImpl({ success(value) }, validate)
 
 fun <E : Environment, S, T> invalidSenderDefault(
     value: T,
-    validate: context(ValidationContext<E, S>) () -> CommandResult<Unit> = { success() },
+    validate: context(Invocation<E, S>) () -> CommandResult<Unit> = { success() },
 ): InvalidSenderDefault<E, S, T> = ValidatedDefaultImpl({ success(value) }, validate)
 
 internal fun <E : Environment, S, T> presenceValueFlag(

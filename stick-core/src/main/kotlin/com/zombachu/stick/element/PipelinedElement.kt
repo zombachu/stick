@@ -5,11 +5,11 @@ import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.success
@@ -23,16 +23,16 @@ internal class PipelinedParameter<E : Environment, S, A, T, P : Position>(
 
     override val type: GroupableType = base.type
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult = base.match(args)
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = parsePipeline(args, base, operations)
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getSyntax(): String = base.getSyntax()
 }
 
@@ -46,19 +46,19 @@ internal class PipelinedValueFlag<E : Environment, S, A, T>(
     override val name: String = base.name
     override val description: String = base.description
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult = base.match(args)
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = parsePipeline(args, base, operations)
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getSyntax(): String = base.getSyntax()
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun validateSender(): CommandResult<Unit> = base.validateSender()
 
     @Suppress("UNCHECKED_CAST")
@@ -89,16 +89,16 @@ internal class PipelinedOptionalParameter<E : Environment, S, A, T, P : Position
     override val name: String = base.name
     override val description: String = base.description
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult = base.match(args)
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = parsePipeline(args, base, operations)
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getSyntax(): String = base.getSyntax()
 }
 

@@ -3,11 +3,11 @@ package com.zombachu.stick.element
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.failSyntax
 import com.zombachu.stick.isSuccess
@@ -23,7 +23,7 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
     override val name: String = parameter.name
     override val description: String = parameter.description
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
         if (args.isEmpty()) return MatchResult.matchedAtLeast(0)
         requirementDefault.validateSender().propagateError {
@@ -32,7 +32,7 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
         return parameter.match(args)
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
         requirementDefault.validateSender().propagateError {
             return []
@@ -63,7 +63,7 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
         return parameter.parse(args)
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getSyntax(): String {
         // Check if the sender is allowed to provide a value
         if (!requirementDefault.validateSender().isSuccess()) return ""

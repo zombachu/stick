@@ -1,10 +1,10 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
@@ -16,7 +16,7 @@ import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.success
 import com.zombachu.stick.validSenderDefault
 import com.zombachu.stick.withExecution
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -119,7 +119,7 @@ class OptionalParameterImplTest {
                 presenceDefault = validDefault("x", allowed = true),
                 parameter = parameter,
             )
-        assertEquals(MatchResult.matchedAtLeast(0), withValidationContext { optional.match([]) })
+        assertEquals(MatchResult.matchedAtLeast(0), withInvocation { optional.match([]) })
     }
 
     @Test
@@ -130,7 +130,7 @@ class OptionalParameterImplTest {
                 presenceDefault = validDefault("x", allowed = true),
                 parameter = LiteralParameter("here", [], ""),
             )
-        assertEquals(MatchResult.matchedExactly(1), withValidationContext { optional.match(["here"]) })
+        assertEquals(MatchResult.matchedExactly(1), withInvocation { optional.match(["here"]) })
     }
 
     @Test
@@ -141,7 +141,7 @@ class OptionalParameterImplTest {
                 presenceDefault = validSenderDefault(-1),
                 parameter = IntParameter("int", "", Int.MIN_VALUE, Int.MAX_VALUE),
             )
-        val result = withValidationContext { optional.match(["word"]) }
+        val result = withInvocation { optional.match(["word"]) }
         assertSame(Reason.InvalidSender, assertIs<MatchResult.Unmatched>(result).failure.expectReason())
     }
 
@@ -153,7 +153,7 @@ class OptionalParameterImplTest {
                 presenceDefault = validDefault("x", allowed = true),
                 parameter = parameter,
             )
-        val syntax = withValidationContext { optional.getSyntax() }
+        val syntax = withInvocation { optional.getSyntax() }
         assertEquals("[item]", syntax)
     }
 
@@ -165,7 +165,7 @@ class OptionalParameterImplTest {
                 presenceDefault = validDefault("x", allowed = false),
                 parameter = parameter,
             )
-        val syntax = withValidationContext { optional.getSyntax() }
+        val syntax = withInvocation { optional.getSyntax() }
         assertEquals("<item>", syntax)
     }
 
@@ -177,7 +177,7 @@ class OptionalParameterImplTest {
                 presenceDefault = validDefault("x", allowed = true),
                 parameter = parameter,
             )
-        val syntax = withValidationContext(Unit) { optional.getSyntax() }
+        val syntax = withInvocation(Unit) { optional.getSyntax() }
         assertEquals("", syntax)
     }
 
@@ -187,7 +187,7 @@ class OptionalParameterImplTest {
     private fun validDefault(value: String, allowed: Boolean): ValidSenderDefault<TestEnv, Unit, String> =
         validSenderDefault(value) { validation(allowed) }
 
-    context(_: ValidationContext<*, *>)
+    context(_: Invocation<*, *>)
     private fun validation(allowed: Boolean): CommandResult<Unit> =
         if (allowed) success() else failSender()
 }

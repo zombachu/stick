@@ -1,9 +1,9 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.dsl.id
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
@@ -12,7 +12,7 @@ import com.zombachu.stick.failType
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -36,23 +36,23 @@ class StoredElementTest {
     @Test
     fun `StoredParameter delegates match to base`() {
         val stored = StoredParameter(LiteralParameter<TestEnv, Unit>("give", [], ""), id<String>("literal"))
-        assertEquals(MatchResult.matchedExactly(1), withValidationContext { stored.match(["give"]) })
+        assertEquals(MatchResult.matchedExactly(1), withInvocation { stored.match(["give"]) })
     }
 
     @Test
     fun `StoredParameter delegates suggest to base`() {
         val stored = StoredParameter(LiteralParameter<TestEnv, Unit>("give", [], ""), id<String>("literal"))
-        assertEquals(["give"], withValidationContext { stored.suggest([], "") }.map { it.value })
+        assertEquals(["give"], withInvocation { stored.suggest([], "") }.map { it.value })
     }
 
     @Test
     fun `StoredParameter stores nothing on failure`() {
         val parameter =
             object : Parameter.Size1<TestEnv, Unit, String>("", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> = failType("", arg0)
             }
         val identifier = id<String>("bad")

@@ -2,10 +2,10 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.element.parameters.TextParameter
@@ -21,7 +21,7 @@ import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
 import com.zombachu.stick.withExecution
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -53,7 +53,7 @@ class PipelinedElementTest {
                 [op],
             )
 
-        assertEquals(MatchResult.matchedExactly(1), withValidationContext { pipelined.match(["give"]) })
+        assertEquals(MatchResult.matchedExactly(1), withInvocation { pipelined.match(["give"]) })
     }
 
     @Test
@@ -62,7 +62,7 @@ class PipelinedElementTest {
         val pipelined =
             PipelinedParameter<TestEnv, Unit, String, String, Position.Leading>(LiteralParameter("give", [], ""), [op])
 
-        assertEquals(["give"], withValidationContext { pipelined.suggest([], "") }.map { it.value })
+        assertEquals(["give"], withInvocation { pipelined.suggest([], "") }.map { it.value })
     }
 
     @Test
@@ -90,10 +90,10 @@ class PipelinedElementTest {
         var opCalled = false
         val failingBase =
             object : Parameter.Size1<TestEnv, Unit, String>("bad", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> = failType("bad", arg0)
             }
         val op: PipelineOperation<TestEnv, Unit, String, String> = {
@@ -185,7 +185,7 @@ class PipelinedElementTest {
         val validated = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidDefault)
         val pipelined = PipelinedValueFlag<TestEnv, Int, Boolean, Boolean>(validated, [])
 
-        val result = withValidationContext(1) { pipelined.validateSender() }
+        val result = withInvocation(1) { pipelined.validateSender() }
 
         assertEquals(Reason.InvalidSenderType(String::class), result.expectReason())
     }

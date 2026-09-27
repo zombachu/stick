@@ -9,7 +9,7 @@ import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.withExecution
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -49,12 +49,12 @@ class LiteralParameterTest {
 
     @Test
     fun `match claims one arg`() {
-        assertEquals(MatchResult.matchedExactly(1), withValidationContext { parameter.match("FOO") })
+        assertEquals(MatchResult.matchedExactly(1), withInvocation { parameter.match("FOO") })
     }
 
     @Test
     fun `match unmatched carries LiteralNotMatched`() {
-        val result = withValidationContext { parameter.match("bar") }
+        val result = withInvocation { parameter.match("bar") }
         assertEquals(Reason.LiteralNotMatched(["foo"], "bar"), result.expectUnmatched().expectReason())
     }
 
@@ -63,7 +63,7 @@ class LiteralParameterTest {
         val aliased = LiteralParameter<TestEnv, Unit>("foo", ["bar"], "")
         assertEquals(
             [SimpleSuggestion("bar", isAlias = true), SimpleSuggestion("foo")],
-            withValidationContext { aliased.suggest([], "") },
+            withInvocation { aliased.suggest([], "") },
         )
     }
 

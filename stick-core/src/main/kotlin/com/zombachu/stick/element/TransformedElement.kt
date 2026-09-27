@@ -7,13 +7,13 @@ import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
 import com.zombachu.stick.HybridFlagResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.success
@@ -29,18 +29,18 @@ internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T, P : P
     override val name: String = base.name
     override val description: String = base.description
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
             return base.match(args)
         }
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
             return base.suggest(preceding, partial)
         }
     }
@@ -53,15 +53,15 @@ internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T, P : P
         }
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getSyntax(): String {
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
             return base.getSyntax()
         }
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun validateSender(): CommandResult<Unit> = requirement.validateSender()
 }
 
@@ -84,18 +84,18 @@ internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
     override val name: String = base.name
     override val description: String = base.description
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
             return base.match(args)
         }
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
             return base.suggest(preceding, partial)
         }
     }
@@ -108,15 +108,15 @@ internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
         }
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getSyntax(): String {
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
             return base.getSyntax()
         }
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun validateSender(): CommandResult<Unit> = invalidSenderDefault.validateSender()
 }
 
@@ -137,18 +137,18 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
         }
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
             return base.match(args)
         }
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
             return base.suggest(preceding, partial)
         }
     }
@@ -161,15 +161,15 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
         }
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getSyntax(): String {
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
             return base.getSyntax()
         }
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun validateSender(): CommandResult<Unit> = invalidSenderDefault.validateSender()
 }
 
@@ -195,22 +195,22 @@ internal open class TransformedBranch<E : Environment, S, S2 : Any, T_ : Argumen
     override val size: Size = base.size
     override val type: GroupableType = base.type
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
             return base.match(args)
         }
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggestBranch(
         preceding: List<String>,
         partial: String,
         leadingParameterMatch: MatchResult?,
     ): List<Suggestion> {
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
             return base.suggestBranch(preceding, partial, leadingParameterMatch)
         }
     }
@@ -223,29 +223,29 @@ internal open class TransformedBranch<E : Environment, S, S2 : Any, T_ : Argumen
         }
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getSyntax(): String {
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
             return base.getSyntax()
         }
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getGroupedSyntax(): String {
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
             return base.getGroupedSyntax()
         }
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun validateSender(): CommandResult<Unit> {
         requirement.validateSender().propagateError {
             return it
         }
-        val transformedValidationContext = validationContext.forSender(transform)
-        context(transformedValidationContext) {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
             return base.validateSender()
         }
     }

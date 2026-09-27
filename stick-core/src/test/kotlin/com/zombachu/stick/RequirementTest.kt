@@ -13,14 +13,14 @@ class RequirementTest {
     @Test
     fun `success passes through`() {
         val requirement = Requirement<TestEnv, Unit> { success() }
-        val result = withValidationContext { requirement.validateSender() }
+        val result = withInvocation { requirement.validateSender() }
         assertTrue(result.isSuccess())
     }
 
     @Test
     fun `failure passes through`() {
         val requirement = Requirement<TestEnv, Unit> { failSender() }
-        val result = withValidationContext { requirement.validateSender() }
+        val result = withInvocation { requirement.validateSender() }
         assertSame(Reason.InvalidSender, result.expectReason())
     }
 
@@ -38,7 +38,7 @@ class RequirementTest {
                 success()
             }
 
-        val result = withValidationContext { (a + b).validateSender() }
+        val result = withInvocation { (a + b).validateSender() }
 
         assertTrue(result.isSuccess())
         assertEquals(["a", "b"], callOrder)
@@ -54,7 +54,7 @@ class RequirementTest {
                 success()
             }
 
-        val result = withValidationContext { (a + b).validateSender() }
+        val result = withInvocation { (a + b).validateSender() }
 
         assertSame(Reason.InvalidSender, result.expectReason())
         assertFalse(bCalled)
@@ -73,10 +73,10 @@ class RequirementTest {
         val combined = a + b
 
         assertNotSame(a, combined)
-        assertTrue(withValidationContext { a.validateSender() }.isSuccess())
+        assertTrue(withInvocation { a.validateSender() }.isSuccess())
         assertFalse(bCalled)
 
-        assertTrue(withValidationContext { combined.validateSender() }.isSuccess())
+        assertTrue(withInvocation { combined.validateSender() }.isSuccess())
         assertTrue(bCalled)
     }
 }

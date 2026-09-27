@@ -12,70 +12,70 @@ class CommandResultTest {
 
     @Test
     fun `success wraps value`() {
-        val result = withValidationContext { success("value") }
+        val result = withInvocation { success("value") }
         assertTrue(result.isSuccess())
         assertEquals("value", result.value)
     }
 
     @Test
     fun `success without value wraps Unit`() {
-        val result = withValidationContext { success() }
+        val result = withInvocation { success() }
         assertTrue(result.isSuccess())
         assertSame(Unit, result.value)
     }
 
     @Test
     fun `fail returns Error with reason`() {
-        val result = withValidationContext { fail(Reason.InvalidSender) }
+        val result = withInvocation { fail(Reason.InvalidSender) }
         assertSame(Reason.InvalidSender, result.expectError().reason)
     }
 
     @Test
     fun `noMatch defaults to InvalidSyntax`() {
-        val result = withValidationContext { noMatch() }
+        val result = withInvocation { noMatch() }
         assertSame(Reason.InvalidSyntax, result.expectNoMatch().reason)
     }
 
     @Test
     fun `noMatch returns NoMatch with reason`() {
-        val result = withValidationContext { noMatch(Reason.InvalidSender) }
+        val result = withInvocation { noMatch(Reason.InvalidSender) }
         assertSame(Reason.InvalidSender, result.expectNoMatch().reason)
     }
 
     @Test
     fun `handled returns Handled`() {
-        val result = withValidationContext { handled() }
+        val result = withInvocation { handled() }
         assertFalse(result.isSuccess())
         assertSame(CommandResult.Failure.Handled, result)
     }
 
     @Test
     fun `failType returns NoMatch wrapping type and arg`() {
-        val result = withValidationContext { failType("boolean", "xyz") }
+        val result = withInvocation { failType("boolean", "xyz") }
         assertEquals(Reason.TypeNotMatched("boolean", "xyz"), result.expectNoMatch().reason)
     }
 
     @Test
     fun `failLiteral returns NoMatch wrapping valid values and arg`() {
-        val result = withValidationContext { failLiteral(["a", "b"], "c") }
+        val result = withInvocation { failLiteral(["a", "b"], "c") }
         assertEquals(Reason.LiteralNotMatched(["a", "b"], "c"), result.expectNoMatch().reason)
     }
 
     @Test
     fun `failSyntax returns Error with InvalidSyntax`() {
-        val result = withValidationContext { failSyntax() }
+        val result = withInvocation { failSyntax() }
         assertSame(Reason.InvalidSyntax, result.expectError().reason)
     }
 
     @Test
     fun `failRange returns Error wrapping min, max, and arg`() {
-        val result = withValidationContext { failRange("0", "10", "20") }
+        val result = withInvocation { failRange("0", "10", "20") }
         assertEquals(Reason.OutOfRange("0", "10", "20"), result.expectError().reason)
     }
 
     @Test
     fun `sender failures return Error with expected reason`() {
-        withValidationContext {
+        withInvocation {
             assertSame(Reason.InvalidSender, failSender().expectError().reason)
             assertSame(Reason.InvalidPermission, failPermission().expectError().reason)
             assertEquals(Reason.InvalidSenderType(Int::class), failSenderType(Int::class).expectError().reason)
@@ -84,20 +84,20 @@ class CommandResultTest {
 
     @Test
     fun `commit reports default NoMatch as InvalidSyntax`() {
-        val result = withValidationContext { noMatch() }.commit()
+        val result = withInvocation { noMatch() }.commit()
         assertSame(Reason.InvalidSyntax, result.expectError().reason)
     }
 
     @Test
     fun `commit keeps NoMatch reason`() {
-        val result = withValidationContext { failType("integer", "many") }.commit()
+        val result = withInvocation { failType("integer", "many") }.commit()
         assertEquals(Reason.TypeNotMatched("integer", "many"), result.expectError().reason)
     }
 
     @Test
     fun `propagateError does not invoke callback on success`() {
         var called = false
-        val result = withValidationContext { success("ok") }
+        val result = withInvocation { success("ok") }
         result.propagateError {
             called = true
             error("shouldn't be called")
@@ -114,13 +114,13 @@ class CommandResultTest {
             }
             return "success:${result.value}"
         }
-        assertEquals("propagated", run(withValidationContext { fail(Reason.Unknown()) }))
-        assertEquals("success:ok", run(withValidationContext { success("ok") }))
+        assertEquals("propagated", run(withInvocation { fail(Reason.Unknown()) }))
+        assertEquals("success:ok", run(withInvocation { success("ok") }))
     }
 
     @Test
     fun `valueOrPropagateError returns value on success`() {
-        val result = withValidationContext { success("ok") }
+        val result = withInvocation { success("ok") }
         val value = result.valueOrPropagateError { error("shouldn't be called") }
         assertEquals("ok", value)
     }
@@ -133,12 +133,12 @@ class CommandResultTest {
             }
             return "success:$value"
         }
-        assertEquals("propagated", run(withValidationContext { fail(Reason.Unknown()) }))
+        assertEquals("propagated", run(withInvocation { fail(Reason.Unknown()) }))
     }
 
     @Test
     fun `consuming sets consumed count on success`() {
-        val result = withValidationContext { success("ok") }.consuming(5)
+        val result = withInvocation { success("ok") }.consuming(5)
 
         assertIs<ConsumingResult.Success<String>>(result)
         assertEquals("ok", result.value)
@@ -147,7 +147,7 @@ class CommandResultTest {
 
     @Test
     fun `consuming passes through failures unchanged`() {
-        val failure = withValidationContext { failSyntax() }
+        val failure = withInvocation { failSyntax() }
         val result = failure.consuming(5)
         assertSame(failure, result)
     }

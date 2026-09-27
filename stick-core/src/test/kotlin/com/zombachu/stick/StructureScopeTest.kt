@@ -22,7 +22,7 @@ class StructureScopeTest {
     @Test
     fun `empty scope requirement succeeds`() {
         val scope = StructureScope.empty<TestEnv, Unit>()
-        val result = withValidationContext { scope.requirement.validateSender() }
+        val result = withInvocation { scope.requirement.validateSender() }
         assertTrue(result.isSuccess())
     }
 
@@ -44,7 +44,7 @@ class StructureScopeTest {
         assertEquals(["s"], forSender.aliases)
         assertEquals("desc", forSender.description)
         assertEquals(parent, forSender.parent)
-        assertTrue(withValidationContext("anything") { forSender.requirement.validateSender() }.isSuccess())
+        assertTrue(withInvocation("anything") { forSender.requirement.validateSender() }.isSuccess())
     }
 
     @Test

@@ -7,7 +7,7 @@ import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.failSender
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.success
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -17,7 +17,7 @@ class ElementValidationTest {
     @Test
     fun `validateSender on non-SenderValidator element succeeds`() {
         val parameter = StringParameter<TestEnv, Unit>("", "")
-        val result = withValidationContext { parameter.validateSender() }
+        val result = withInvocation { parameter.validateSender() }
         assertTrue(result.isSuccess())
     }
 
@@ -26,7 +26,7 @@ class ElementValidationTest {
         val requirement = Requirement<TestEnv, Unit> { failSender() }
         val parameter = transformed(requirement)
 
-        val result = withValidationContext { parameter.validateSender() }
+        val result = withInvocation { parameter.validateSender() }
 
         assertFalse(result.isSuccess())
     }
@@ -36,7 +36,7 @@ class ElementValidationTest {
         val requirement = Requirement<TestEnv, Unit> { success() }
         val parameter = transformed(requirement)
 
-        val result = withValidationContext { parameter.validateSender() }
+        val result = withInvocation { parameter.validateSender() }
 
         assertTrue(result.isSuccess())
     }

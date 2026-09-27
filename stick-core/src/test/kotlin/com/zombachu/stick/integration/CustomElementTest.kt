@@ -4,10 +4,10 @@ import com.zombachu.stick.Arguments1
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.StructureScope
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.invoke
@@ -51,7 +51,7 @@ class CustomElementTest {
     @Test
     fun `tppos - fixed size parameter`() {
         class LocationParameter<E : Environment, S>(name: String) : Parameter.Size3<E, S, Location>(name, "") {
-            context(validationContext: ValidationContext<E, S>)
+            context(inv: Invocation<E, S>)
             override fun resolve(arg0: String, arg1: String, arg2: String): CommandResult<Location> {
                 val x = arg0.toIntOrNull() ?: return failType("integer", arg0)
                 val y = arg1.toIntOrNull() ?: return failType("integer", arg1)
@@ -85,16 +85,16 @@ class CustomElementTest {
     fun `setwarp - variable size parameter`() {
         class LocationParameter<E : Environment, S : Player>(name: String) :
             Parameter.Bounded<E, S, Location>(Size.between(1, 3), name, "") {
-            context(validationContext: ValidationContext<E, S>)
+            context(inv: Invocation<E, S>)
             override fun match(args: List<String>): MatchResult {
                 if (args.firstOrNull()?.lowercase() != "here" && args.size < 3) return MatchResult.partial()
                 return super.match(args)
             }
 
-            context(validationContext: ValidationContext<E, S>)
+            context(inv: Invocation<E, S>)
             override fun resolve(args: List<String>): ConsumingResult<Location> {
                 if (args.firstOrNull()?.lowercase() == "here") {
-                    return success(validationContext.sender.position).consuming(1)
+                    return success(inv.sender.position).consuming(1)
                 }
                 val x = args[0].toIntOrNull() ?: return failType("integer", args[0])
                 val y = args[1].toIntOrNull() ?: return failType("integer", args[1])
@@ -141,9 +141,9 @@ class CustomElementTest {
     @Test
     fun `broadcast - parameter with super parse`() {
         class SignedStringParameter<E : Environment, S : Sender>(name: String) : StringParameter<E, S>(name, "") {
-            context(validationContext: ValidationContext<E, S>)
+            context(inv: Invocation<E, S>)
             override fun resolve(arg0: String): CommandResult<String> =
-                super.resolve("<${validationContext.sender.name}> $arg0")
+                super.resolve("<${inv.sender.name}> $arg0")
         }
         val broadcastCommand = structure(Server::class, Sender::class) {
             command("broadcast")(

@@ -4,12 +4,12 @@ import com.zombachu.stick.Arguments1
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.GroupResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
@@ -25,7 +25,7 @@ import com.zombachu.stick.failType
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.success
 import com.zombachu.stick.withExecution
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -80,10 +80,10 @@ class GroupImplTest {
     fun `mismatch falls through to next element`() {
         val mismatching =
             object : Parameter.Size1<TestEnv, Unit, String>("bad", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> = failType("bad", arg0)
             }
         val fallback = StringParameter<TestEnv, Unit>("ok", "")
@@ -98,10 +98,10 @@ class GroupImplTest {
     fun `missing argument falls through to next element`() {
         val twoArgParam =
             object : Parameter.Size2<TestEnv, Unit, String>("two", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun match(arg0: String, arg1: String): MatchResult = MatchResult.matchedExactly(2)
 
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String, arg1: String): CommandResult<String> =
                     success("$arg0$arg1")
             }
@@ -117,10 +117,10 @@ class GroupImplTest {
     fun `Error propagates`() {
         val hardFailure =
             object : Parameter.Size1<TestEnv, Unit, String>("bad", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> = failRange("0", "10", arg0)
             }
         val neverTried = StringParameter<TestEnv, Unit>("ok", "")
@@ -178,7 +178,7 @@ class GroupImplTest {
         val two = LiteralParameter<TestEnv, Unit>("two", [], "")
         val group = group2(one, two)
 
-        val result = withValidationContext { group.match(["two"]) }
+        val result = withInvocation { group.match(["two"]) }
 
         assertEquals(MatchResult.matchedExactly(1), result)
     }
@@ -191,7 +191,7 @@ class GroupImplTest {
             }
         val group = group1(structure)
 
-        val result = withValidationContext { group.match(["cmd", "arg"]) }
+        val result = withInvocation { group.match(["cmd", "arg"]) }
 
         assertEquals(MatchResult.matchedAtLeast(2), result)
     }
@@ -200,14 +200,14 @@ class GroupImplTest {
     fun `match allows higher-priority elements to continue consuming when lower-priority elements are full`() {
         val pair =
             object : Parameter.Size2<TestEnv, Unit, String>("pair", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String, arg1: String): CommandResult<String> =
                     success("$arg0$arg1")
             }
         val single = StringParameter<TestEnv, Unit>("single", "")
         val group = group2(pair, single)
 
-        val result = withValidationContext { group.match(["a"]) }
+        val result = withInvocation { group.match(["a"]) }
 
         assertEquals(MatchResult.matchedAtLeast(1), result)
     }
@@ -218,7 +218,7 @@ class GroupImplTest {
         val take = LiteralParameter<TestEnv, Unit>("take", [], "")
         val group = group2(give, take)
 
-        val result = withValidationContext { group.match(["drop"]) }
+        val result = withInvocation { group.match(["drop"]) }
 
         assertIs<Reason.InvalidSyntax>(result.expectUnmatched().expectNoMatch().reason)
     }
@@ -229,18 +229,18 @@ class GroupImplTest {
         val gated = transformed(StringParameter("gated", ""), requirement)
         val group = group1(gated)
 
-        val result = withValidationContext { group.match(["x"]) }
+        val result = withInvocation { group.match(["x"]) }
 
         assertIs<Reason.InvalidSyntax>(result.expectUnmatched().expectNoMatch().reason)
     }
 
     @Test
     fun `match returns failure of first branch when all unmatched`() {
-        val first = decliningParameter("first", withValidationContext { failRange("1", "2", "9") })
-        val second = decliningParameter("second", withValidationContext { failRange("3", "4", "9") })
+        val first = decliningParameter("first", withInvocation { failRange("1", "2", "9") })
+        val second = decliningParameter("second", withInvocation { failRange("3", "4", "9") })
         val group = group2(first, second)
 
-        val result = withValidationContext { group.match(["9"]) }
+        val result = withInvocation { group.match(["9"]) }
 
         assertEquals(Reason.OutOfRange("1", "2", "9"), result.expectUnmatched().expectError().reason)
     }
@@ -249,16 +249,16 @@ class GroupImplTest {
     fun `match reports partial element when nothing matches`() {
         val twoArgParam =
             object : Parameter.Size2<TestEnv, Unit, String>("two", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun match(arg0: String, arg1: String): MatchResult = MatchResult.matchedExactly(2)
 
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String, arg1: String): CommandResult<String> = success("")
             }
         val give = LiteralParameter<TestEnv, Unit>("give", [], "")
         val group = group2(twoArgParam, give)
 
-        val result = withValidationContext { group.match(["take"]) }
+        val result = withInvocation { group.match(["take"]) }
 
         assertEquals(MatchResult.partial(), result)
     }
@@ -282,7 +282,7 @@ class GroupImplTest {
         val hidden = transformed(StringParameter("hidden", ""), requirement)
         val group = group2(visible, hidden)
 
-        val syntax = withValidationContext { group.getSyntax() }
+        val syntax = withInvocation { group.getSyntax() }
 
         assertEquals("<str>", syntax)
     }
@@ -293,7 +293,7 @@ class GroupImplTest {
         val there = LiteralParameter<TestEnv, Unit>("there", [], "")
         val group = group2(group2(hello, there), StringParameter("general", ""))
 
-        val syntax = withValidationContext { group.getSyntax() }
+        val syntax = withInvocation { group.getSyntax() }
 
         assertEquals("<hello|there|general>", syntax)
     }
@@ -302,10 +302,10 @@ class GroupImplTest {
     fun `size constrains to elements for bounded sizes`() {
         val twoArgParam =
             object : Parameter.Size2<TestEnv, Unit, String>("two", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun match(arg0: String, arg1: String): MatchResult = MatchResult.matchedExactly(2)
 
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String, arg1: String): CommandResult<String> = success("")
             }
         val group = group2(twoArgParam, StringParameter("one", ""))
@@ -324,13 +324,13 @@ class GroupImplTest {
 
     private fun decliningParameter(name: String, failure: CommandResult<String>) =
         object : Parameter.Size1<TestEnv, Unit, String>(name, "") {
-            context(validationContext: ValidationContext<TestEnv, Unit>)
+            context(inv: Invocation<TestEnv, Unit>)
             override fun resolve(arg0: String): CommandResult<String> = failure
         }
 
     private fun variableParameter(name: String, size: Size.Bounded, consumed: Int) =
         object : Parameter.Bounded<TestEnv, Unit, String>(size, name, "") {
-            context(validationContext: ValidationContext<TestEnv, Unit>)
+            context(inv: Invocation<TestEnv, Unit>)
             override fun resolve(args: List<String>): ConsumingResult<String> = success(name).consuming(consumed)
         }
 

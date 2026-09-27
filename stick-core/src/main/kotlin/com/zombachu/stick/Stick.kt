@@ -31,7 +31,7 @@ abstract class Stick<E : Environment, S : Any>(
         env: E2,
         failureHandler: FailureHandler<E2, S2>,
         transform: (S) -> S2,
-        validate: ValidationContext<E2, S>.() -> CommandResult<Unit>,
+        validate: Invocation<E2, S>.() -> CommandResult<Unit>,
         block: context(E2, FailureHandler<E2, S2>) StickScope<E2, S2>.() -> Unit,
     ) {
         val transformedStick: TransformedStick<E, E2, S, S2> = TransformedStick(this, transform, Requirement(validate))
@@ -42,8 +42,8 @@ abstract class Stick<E : Environment, S : Any>(
         env: E2,
         failureHandler: FailureHandler<E2, S2>,
         transform: (S) -> S2,
-        failureResult: ValidationContext<E2, S>.() -> CommandResult.Failure,
-        validate: ValidationContext<E2, S>.() -> Boolean,
+        failureResult: Invocation<E2, S>.() -> CommandResult.Failure,
+        validate: Invocation<E2, S>.() -> Boolean,
         block: context(E2, FailureHandler<E2, S2>) StickScope<E2, S2>.() -> Unit,
     ) {
         withContext(
@@ -140,17 +140,15 @@ internal class TransformedStick<E0 : Environment, E : E0, S0 : Any, S : Any>(
                 commandSenderClass,
                 command,
                 {
-                    val validationContext: ValidationContext<E, S0> = ValidationContext(env, it)
-                    context(validationContext) {
-                        requirement.validateSender().isSuccess() && isSenderRequiredType(transform(it))
-                    }
+                    val inv: Invocation<E, S0> = Invocation(env, it)
+                    context(inv) { requirement.validateSender().isSuccess() && isSenderRequiredType(transform(it)) }
                 },
                 { castSender(transform(it)) },
             )
         }
     }
 
-    context(validationContext: ValidationContext<E, S0>)
+    context(inv: Invocation<E, S0>)
     override fun validateSender(): CommandResult<Unit> {
         return requirement.validateSender()
     }

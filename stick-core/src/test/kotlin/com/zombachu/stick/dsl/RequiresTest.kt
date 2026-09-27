@@ -14,7 +14,7 @@ import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.structureTest
 import com.zombachu.stick.withExecutionSender
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -46,8 +46,8 @@ class RequiresTest {
         val allowed = requireAs({ _: Unit -> }, requirement { true }, parameter)
         val denied = requireAs({ _: Unit -> }, requirement { false }, parameter)
 
-        assertTrue(withValidationContext { allowed.validateSender() }.isSuccess())
-        assertSame(Reason.InvalidSender, withValidationContext { denied.validateSender() }.expectReason())
+        assertTrue(withInvocation { allowed.validateSender() }.isSuccess())
+        assertSame(Reason.InvalidSender, withInvocation { denied.validateSender() }.expectReason())
     }
 
     @Test
@@ -73,10 +73,10 @@ class RequiresTest {
 
         val narrowed = requireIs(Player::class, shared) { stringParameter("") }
 
-        assertTrue(withValidationContext(console) { shared.validateSender() }.isSuccess())
+        assertTrue(withInvocation(console) { shared.validateSender() }.isSuccess())
         assertEquals(
             Reason.InvalidSenderType(Player::class),
-            withValidationContext(console) { narrowed.validateSender() }.expectReason(),
+            withInvocation(console) { narrowed.validateSender() }.expectReason(),
         )
     }
 

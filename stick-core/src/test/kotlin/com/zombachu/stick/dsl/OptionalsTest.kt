@@ -16,7 +16,7 @@ import com.zombachu.stick.testExecution
 import com.zombachu.stick.testExecutionSender
 import com.zombachu.stick.withExecution
 import com.zombachu.stick.withExecutionSender
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -32,13 +32,13 @@ class OptionalsTest {
     fun `default evaluates to given value`() = structureTest {
         val default = default("x")
         assertEquals("x", default.value(testExecution()).expectSuccessValue())
-        assertTrue(withValidationContext { default.validateSender() }.isSuccess())
+        assertTrue(withInvocation { default.validateSender() }.isSuccess())
     }
 
     @Test
     fun `default uses requirement in sender validation`() = structureTest {
         val default = default("x", Requirement { failSender() })
-        val validationResult = withValidationContext { default.validateSender() }
+        val validationResult = withInvocation { default.validateSender() }
         assertSame(Reason.InvalidSender, validationResult.expectReason())
     }
 
@@ -54,11 +54,11 @@ class OptionalsTest {
         val stringSender: Any = "hello"
         val intSender: Any = 42
 
-        val stringSenderResult = withValidationContext(stringSender) { sender.validateSender() }
+        val stringSenderResult = withInvocation(stringSender) { sender.validateSender() }
         assertTrue(stringSenderResult.isSuccess())
         assertEquals("hello", sender.value(testExecutionSender(stringSender)).expectSuccessValue())
 
-        val intSenderResult = withValidationContext(intSender) { sender.validateSender() }
+        val intSenderResult = withInvocation(intSender) { sender.validateSender() }
         assertSame(Reason.InvalidSender, intSenderResult.expectReason())
     }
 
@@ -189,7 +189,7 @@ class OptionalsTest {
             ) { raw, a, (b, silent, d) ->
             }
 
-        val syntax = withValidationContext { structure.getSyntax() }
+        val syntax = withInvocation { structure.getSyntax() }
 
         assertEquals("cmd <a> [b] [-raw] [-silent] [c]", syntax)
     }
@@ -226,7 +226,7 @@ class OptionalsTest {
                 optionallyNullable(group(literalParameter("on"), literalParameter("off"))),
             ) { a, toggle -> }
 
-        val syntax = withValidationContext { structure.getSyntax() }
+        val syntax = withInvocation { structure.getSyntax() }
 
         assertEquals("cmd <a> [on|off]", syntax)
     }

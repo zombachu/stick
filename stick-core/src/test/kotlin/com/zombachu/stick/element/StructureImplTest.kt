@@ -15,7 +15,7 @@ import com.zombachu.stick.isSuccess
 import com.zombachu.stick.success
 import com.zombachu.stick.withExecution
 import com.zombachu.stick.withExecutionSender
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -56,7 +56,7 @@ class StructureImplTest {
     fun `match covers only label`() {
         val structure = structure(name = "cmd", aliases = ["c"])
 
-        val result = withValidationContext { structure.match(["C", "arg"]) }
+        val result = withInvocation { structure.match(["C", "arg"]) }
 
         assertEquals(MatchResult.matchedExactly(1), result)
     }
@@ -65,7 +65,7 @@ class StructureImplTest {
     fun `match unmatched returns fails with InvalidSyntax NoMatch`() {
         val structure = structure(name = "cmd")
 
-        val result = withValidationContext { structure.match(["other"]) }
+        val result = withInvocation { structure.match(["other"]) }
 
         assertIs<Reason.InvalidSyntax>(result.expectUnmatched().expectNoMatch().reason)
     }
@@ -74,7 +74,7 @@ class StructureImplTest {
     fun `match on empty args is partial`() {
         val structure = structure(name = "cmd")
 
-        val result = withValidationContext { structure.match([]) }
+        val result = withInvocation { structure.match([]) }
 
         assertEquals(MatchResult.partial(), result)
     }
@@ -98,7 +98,7 @@ class StructureImplTest {
     @Test
     fun `getSyntax returns name when signature has no syntax`() {
         val structure = structure(name = "cmd")
-        assertEquals("cmd", withValidationContext { structure.getSyntax() })
+        assertEquals("cmd", withInvocation { structure.getSyntax() })
     }
 
     @Test
@@ -109,7 +109,7 @@ class StructureImplTest {
                 Signature1<TestEnv, Unit, String>({}, LeadingParameterRole.Label, [it, parameter])
             }
 
-        assertEquals("cmd <arg>", withValidationContext { structure.getSyntax() })
+        assertEquals("cmd <arg>", withInvocation { structure.getSyntax() })
     }
 
     @Test
@@ -129,7 +129,7 @@ class StructureImplTest {
         val requirement = Requirement<TestEnv, Int> { success() }
         val transformed = TransformedStructure(base, { _: Int -> }, requirement)
 
-        val result = withValidationContext(1) { transformed.validateSender() }
+        val result = withInvocation(1) { transformed.validateSender() }
 
         assertFalse(result.isSuccess())
     }
@@ -140,7 +140,7 @@ class StructureImplTest {
         val requirement = Requirement<TestEnv, Int> { failSenderType(String::class) }
         val transformed = TransformedStructure(base, { _: Int -> error("transform ran") }, requirement)
 
-        val result = withValidationContext(1) { transformed.validateSender() }
+        val result = withInvocation(1) { transformed.validateSender() }
 
         assertFalse(result.isSuccess())
     }

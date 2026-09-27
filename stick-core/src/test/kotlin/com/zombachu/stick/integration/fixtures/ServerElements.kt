@@ -7,13 +7,13 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MessageReason
 import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.Size
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.Suggestion
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.dsl.defaultSender
 import com.zombachu.stick.dsl.helper
@@ -38,7 +38,7 @@ data class UnknownWarp(val name: String) : CustomReason {
     override fun message(origin: FailureOrigin) = "Unknown warp: $name"
 }
 
-context(_: ValidationContext<*, *>)
+context(_: Invocation<*, *>)
 fun customError(message: String): CommandResult.Failure.Error = fail(MessageReason(message))
 
 // --- requirements -------------------------------------------------------------------------------------------------
@@ -56,13 +56,13 @@ fun <E : Environment, S : Sender, T> StructureScope<E, S>.permissionedValue(
 // --- parameters ---------------------------------------------------------------------------------------------------
 
 class PlayerParameter<E : Server, S>(name: String) : Parameter.Size1<E, S, Player>(name, "") {
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
-        validationContext.env.playerNames.toSuggestions()
+        inv.env.playerNames.toSuggestions()
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun resolve(arg0: String): CommandResult<Player> {
-        val player = validationContext.env.getPlayer(arg0) ?: return failType("player", arg0)
+        val player = inv.env.getPlayer(arg0) ?: return failType("player", arg0)
         return success(player)
     }
 }
@@ -78,13 +78,13 @@ fun <E : Server> StructureScope<E, Sender>.targetPlayerParameter(
     )
 
 class WarpParameter<E : WarpableServer, S>(name: String) : Parameter.Size1<E, S, Warp>(name, "") {
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
-        validationContext.env.warps.names.toSuggestions()
+        inv.env.warps.names.toSuggestions()
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun resolve(arg0: String): CommandResult<Warp> {
-        val warp = validationContext.env.warps[arg0] ?: return fail(UnknownWarp(arg0))
+        val warp = inv.env.warps[arg0] ?: return fail(UnknownWarp(arg0))
         return success(warp)
     }
 }
@@ -92,9 +92,9 @@ class WarpParameter<E : WarpableServer, S>(name: String) : Parameter.Size1<E, S,
 fun <E : WarpableServer, S> StructureScope<E, S>.warpParameter(name: String): WarpParameter<E, S> = WarpParameter(name)
 
 class RealNameParameter<E : Environment>(name: String) : Parameter.Size1<E, SocialData, String>(name, "") {
-    context(validationContext: ValidationContext<E, SocialData>)
+    context(inv: Invocation<E, SocialData>)
     override fun resolve(arg0: String): CommandResult<String> {
-        val nicknameEntry = validationContext.sender.nicknames.entries.find { it.value == arg0 }
+        val nicknameEntry = inv.sender.nicknames.entries.find { it.value == arg0 }
             ?: return customError("Unknown nickname: $arg0")
         return success(nicknameEntry.key)
     }
@@ -107,7 +107,7 @@ fun <E : Environment, S> StructureScope<E, S>.realNameParameter(
 class BioParameter<E : Environment>(name: String) :
     Parameter.Unbounded<E, SocialData, String>(Size.atLeast(1), name, "") {
 
-    context(validationContext: ValidationContext<E, SocialData>)
+    context(inv: Invocation<E, SocialData>)
     override fun resolve(args: List<String>): ConsumingResult<String> {
         val bioLine = args.joinToString(" ")
         return success(bioLine).consuming(args.size)

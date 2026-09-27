@@ -2,11 +2,11 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.SenderValidator
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.success
 
-context(validationContext: ValidationContext<E, S>)
+context(inv: Invocation<E, S>)
 internal fun <E : Environment, S, T> Element<E, S, T>.validateSender(): CommandResult<Unit> {
     return if (this !is SenderValidator<*, *>) {
         success()

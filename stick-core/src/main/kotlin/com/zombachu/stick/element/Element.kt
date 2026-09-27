@@ -9,12 +9,12 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.HybridFlagResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
-import com.zombachu.stick.ValidationContext
 
 sealed interface Element<in E : Environment, S, out T>
 
@@ -37,13 +37,13 @@ sealed interface SyntaxElement<in E : Environment, S, out T> : Element<E, S, T> 
     val name: String
     val description: String
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     fun match(args: List<String>): MatchResult
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     fun suggest(preceding: List<String>, partial: String): List<Suggestion> = []
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     fun getSyntax(): String
 }
 
@@ -65,7 +65,7 @@ internal fun <E : Environment, S, T> ConsumingElement<E, S, T>.parse(args: List<
 sealed interface Groupable<in E : Environment, S, T, out P : Position> : SyntaxElement<E, S, T> {
     val type: GroupableType
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     fun getGroupedSyntax(): String = name
 }
 
@@ -89,10 +89,10 @@ sealed interface Branch<in E : Environment, S, T_ : Arguments> : Groupable<E, S,
 
 internal interface InternalBranch<in E : Environment, S, T_ : Arguments> : Branch<E, S, T_>, InternalElement<E, S, T_> {
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     fun suggestBranch(preceding: List<String>, partial: String, leadingParameterMatch: MatchResult?): List<Suggestion>
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
         suggestBranch(preceding, partial, null)
 }

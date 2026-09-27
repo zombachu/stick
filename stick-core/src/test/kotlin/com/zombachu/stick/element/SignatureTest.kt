@@ -1,8 +1,8 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
@@ -16,7 +16,7 @@ import com.zombachu.stick.noMatch
 import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.success
 import com.zombachu.stick.withExecution
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -103,7 +103,7 @@ class SignatureTest {
     @Test
     fun `default mismatch fails with InvalidSyntax`() {
         class SilentParameter : Parameter.Size1<TestEnv, Unit, String>("", "") {
-            context(validationContext: ValidationContext<TestEnv, Unit>)
+            context(inv: Invocation<TestEnv, Unit>)
             override fun resolve(arg0: String): CommandResult<String> = noMatch()
         }
         val signature = Signature1<TestEnv, Unit, String>({}, LeadingParameterRole.Label, [label, SilentParameter()])
@@ -145,7 +145,7 @@ class SignatureTest {
                 [label, loudFlag(), str, text],
             )
 
-        val syntax = withValidationContext { signature.getSyntax() }
+        val syntax = withInvocation { signature.getSyntax() }
 
         assertEquals("<cmd> <str> [-loud] <text>", syntax)
     }

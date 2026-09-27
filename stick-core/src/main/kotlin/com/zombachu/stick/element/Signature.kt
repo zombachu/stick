@@ -5,10 +5,10 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
 import com.zombachu.stick.ExecutionImpl
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.commit
 import com.zombachu.stick.failSyntax
 import com.zombachu.stick.isSuccess
@@ -60,7 +60,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         return success(parsedValuesTuple)
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     fun getSyntax(): String {
         // unboundedElements should be at most 1
         val (boundedElements, unboundedElements) =
@@ -73,12 +73,12 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         return syntax.filter { it.isNotEmpty() }.joinToString(" ")
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     private fun List<SyntaxElement<E, S, *>>.getSyntaxes(): List<String> {
         return filter { it.validateSender().isSuccess() }.map { it.getSyntax() }
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     fun suggest(preceding: List<String>, partial: String, leadingParameterMatch: MatchResult?): List<Suggestion> {
         return SuggestionProcessor(preceding, leadingParameterMatch).process().flatMap { candidate ->
             val element = candidate.element
@@ -142,7 +142,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         return success(values.subList(slotOffset, elementsCount))
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     private inline fun processElements(
         unprocessedFlags: MutableList<IndexedElement<E, S, Flag<E, S, Any?>>>,
         processFlag: (IndexedElement<E, S, Flag<E, S, Any?>>) -> Boolean,
@@ -158,7 +158,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         processFlags(unprocessedFlags, processFlag)
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     private inline fun processFlags(
         unprocessedFlags: MutableList<IndexedElement<E, S, Flag<E, S, Any?>>>,
         processFlag: (IndexedElement<E, S, Flag<E, S, Any?>>) -> Boolean,
@@ -187,7 +187,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         private var index: Int = 0
         private var openCandidate: Candidate? = null
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         private fun matchElement(element: SyntaxElement<E, S, *>): MatchResult {
             val window = preceding.subList(index, preceding.size)
             val groupMatch = if (element is GroupImpl<E, S, *, *>) element.matchBranches(window) else null
@@ -204,7 +204,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
             return match
         }
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         private fun matchElements(): SyntaxElement<E, S, *>? {
             processElements(
                 unprocessedFlags,
@@ -228,7 +228,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
             return null
         }
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         fun process(): List<Candidate> {
             val nextLinear: SyntaxElement<E, S, *>? = matchElements()
             if (index != preceding.size) return []

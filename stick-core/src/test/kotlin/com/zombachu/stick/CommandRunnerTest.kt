@@ -41,7 +41,7 @@ class CommandRunnerTest {
     fun `handled failure is swallowed, not reported`() {
         val parameter =
             object : Parameter.Size1<TestEnv, Unit, String>("", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> = handled()
             }
         val structure =

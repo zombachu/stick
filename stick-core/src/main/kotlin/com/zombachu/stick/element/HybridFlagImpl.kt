@@ -8,10 +8,10 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
 import com.zombachu.stick.ExecutionImpl
 import com.zombachu.stick.HybridFlagResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.commit
 import com.zombachu.stick.consuming
 import com.zombachu.stick.noMatch
@@ -31,7 +31,7 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
     override val label: String = "-${name.lowercase()}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
         if (args.isEmpty()) return MatchResult.partial()
         if (!matches(args.first().lowercase())) return MatchResult.unmatched()
@@ -39,7 +39,7 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
         return parameter.match(args.subList(1, args.size)).includeLabelClaimedBy(this)
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
         if (preceding.isEmpty()) return suggestAliases()
         if (!matches(preceding.first().lowercase())) return []
@@ -68,9 +68,9 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
         return noMatch()
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getSyntax(): String = "[$label [${parameter.getGroupedSyntax()}]]"
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun validateSender(): CommandResult<Unit> = success()
 }

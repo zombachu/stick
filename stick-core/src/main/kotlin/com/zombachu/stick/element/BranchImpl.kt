@@ -5,10 +5,10 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
 import com.zombachu.stick.ExecutionImpl
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.success
 import com.zombachu.stick.valueOrPropagateError
@@ -24,10 +24,10 @@ internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val s
     override val type: GroupableType = leadingParameter.type
 
     // GroupImpl.matchBranches handles the rest of matching once a branch is committed
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult = leadingParameter.match(args)
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggestBranch(
         preceding: List<String>,
         partial: String,
@@ -48,9 +48,9 @@ internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val s
         return success(parsedArgs)
     }
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getSyntax(): String = signature.getSyntax()
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getGroupedSyntax(): String = leadingParameter.getGroupedSyntax()
 }

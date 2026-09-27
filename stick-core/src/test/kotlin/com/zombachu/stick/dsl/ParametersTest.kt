@@ -6,7 +6,7 @@ import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.EnumEntry
 import com.zombachu.stick.structureTest
 import com.zombachu.stick.success
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -63,7 +63,7 @@ class ParametersTest {
             mapOf("darkred" to RelabeledColor.DARK_RED, "darkgreen" to RelabeledColor.DARK_GREEN),
             parameter.primaryValues,
         )
-        assertEquals("<darkred|darkgreen>", withValidationContext { parameter.getSyntax() })
+        assertEquals("<darkred|darkgreen>", withInvocation { parameter.getSyntax() })
     }
 
     @Test

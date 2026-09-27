@@ -40,44 +40,43 @@ private class ConsumingSuccess<out T>(
     override val canConsumeMore: Boolean,
 ) : ConsumingResult.Success<T>
 
-context(_: ValidationContext<*, *>)
+context(_: Invocation<*, *>)
 fun <T> success(value: T): CommandResult.Success<T> = ValueSuccess(value)
 
-context(_: ValidationContext<*, *>)
+context(_: Invocation<*, *>)
 fun success(): CommandResult.Success<Unit> = ValueSuccess(Unit)
 
-context(validationContext: ValidationContext<*, *>)
-fun fail(reason: Reason): CommandResult.Failure.Error =
-    CommandResult.Failure.Error(reason, validationContext.createFailureOrigin())
+context(inv: Invocation<*, *>)
+fun fail(reason: Reason): CommandResult.Failure.Error = CommandResult.Failure.Error(reason, inv.createFailureOrigin())
 
-context(validationContext: ValidationContext<*, *>)
+context(inv: Invocation<*, *>)
 fun noMatch(reason: Reason = Reason.InvalidSyntax): CommandResult.Failure.NoMatch =
-    CommandResult.Failure.NoMatch(reason, validationContext.createFailureOrigin())
+    CommandResult.Failure.NoMatch(reason, inv.createFailureOrigin())
 
-context(_: ValidationContext<*, *>)
+context(_: Invocation<*, *>)
 fun handled(): CommandResult.Failure.Handled = CommandResult.Failure.Handled
 
-context(_: ValidationContext<*, *>)
+context(_: Invocation<*, *>)
 fun failType(type: String, arg: String): CommandResult.Failure.NoMatch = noMatch(Reason.TypeNotMatched(type, arg))
 
-context(_: ValidationContext<*, *>)
+context(_: Invocation<*, *>)
 fun failLiteral(valid: List<String>, arg: String): CommandResult.Failure.NoMatch =
     noMatch(Reason.LiteralNotMatched(valid, arg))
 
-context(_: ValidationContext<*, *>)
+context(_: Invocation<*, *>)
 fun failSyntax(): CommandResult.Failure.Error = fail(Reason.InvalidSyntax)
 
-context(_: ValidationContext<*, *>)
+context(_: Invocation<*, *>)
 fun failRange(min: String, max: String, arg: String): CommandResult.Failure.Error =
     fail(Reason.OutOfRange(min, max, arg))
 
-context(_: ValidationContext<*, *>)
+context(_: Invocation<*, *>)
 fun failSender(): CommandResult.Failure.Error = fail(Reason.InvalidSender)
 
-context(_: ValidationContext<*, *>)
+context(_: Invocation<*, *>)
 fun failPermission(): CommandResult.Failure.Error = fail(Reason.InvalidPermission)
 
-context(_: ValidationContext<*, *>)
+context(_: Invocation<*, *>)
 fun failSenderType(required: KClass<*>): CommandResult.Failure.Error = fail(Reason.InvalidSenderType(required))
 
 @OptIn(ExperimentalContracts::class)

@@ -3,10 +3,10 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.HybridFlagResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.expectNoMatch
@@ -22,7 +22,7 @@ import com.zombachu.stick.testExecution
 import com.zombachu.stick.testExecutionSender
 import com.zombachu.stick.withExecution
 import com.zombachu.stick.withExecutionSender
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -38,7 +38,7 @@ class HybridFlagImplTest {
         var resolves = 0
         val counting =
             object : Parameter.Size1<TestEnv, Unit, String>("name", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> {
                     resolves++
                     return success(arg0)
@@ -58,7 +58,7 @@ class HybridFlagImplTest {
     fun `parse consumes what variable-width parameter took`() {
         val varying =
             object : Parameter.Bounded<TestEnv, Unit, String>(Size.between(1, 2), "v", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(args: List<String>): ConsumingResult<String> = success(args[0]).consuming(1)
             }
         val varyingFlag = HybridFlagImpl("boost", varying, [])
@@ -93,17 +93,17 @@ class HybridFlagImplTest {
 
     @Test
     fun `match with no trailing value claims label`() {
-        assertEquals(MatchResult.matchedAtLeast(1), withValidationContext { flag.match(["-boost"]) })
+        assertEquals(MatchResult.matchedAtLeast(1), withInvocation { flag.match(["-boost"]) })
     }
 
     @Test
     fun `match with trailing value claims label and value`() {
-        assertEquals(MatchResult.matchedExactly(2), withValidationContext { flag.match(["-boost", "5"]) })
+        assertEquals(MatchResult.matchedExactly(2), withInvocation { flag.match(["-boost", "5"]) })
     }
 
     @Test
     fun `match unmatched fails with InvalidSyntax NoMatch`() {
-        val result = withValidationContext { flag.match(["-other"]) }
+        val result = withInvocation { flag.match(["-other"]) }
         assertIs<Reason.InvalidSyntax>(result.expectUnmatched().expectNoMatch().reason)
     }
 
@@ -127,7 +127,7 @@ class HybridFlagImplTest {
 
     @Test
     fun `getSyntax nests flag parameter syntax`() {
-        val syntax = withValidationContext { flag.getSyntax() }
+        val syntax = withInvocation { flag.getSyntax() }
         assertEquals("[-boost [amount]]", syntax)
     }
 
@@ -153,7 +153,7 @@ class HybridFlagImplTest {
             }
         val transformed = TransformedHybridFlag(flag, { }, invalidDefault)
 
-        val result = withValidationContext(1) { transformed.validateSender() }
+        val result = withInvocation(1) { transformed.validateSender() }
 
         assertTrue(result.isSuccess())
         assertTrue(validated)

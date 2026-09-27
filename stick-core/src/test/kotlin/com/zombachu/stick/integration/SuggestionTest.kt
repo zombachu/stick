@@ -3,11 +3,11 @@ package com.zombachu.stick.integration
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.SimpleSuggestion
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.consuming
 import com.zombachu.stick.dsl.booleanParameter
 import com.zombachu.stick.dsl.branch
@@ -274,13 +274,13 @@ class SuggestionTest {
 
     private class ThrowingParameter<E : Environment, S> : Parameter.Size1<E, S, String>("", "") {
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun resolve(arg0: String): CommandResult<String> = error("")
     }
 
     private class MaterialParameter<E : Environment, S> : Parameter.Size1<E, S, String>("", "") {
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
             val colon = partial.indexOf(':')
             if (colon < 0) return ["minecraft:"].toSuggestions()
@@ -291,7 +291,7 @@ class SuggestionTest {
             ]
         }
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun resolve(arg0: String): CommandResult<String> = success(arg0)
     }
 
@@ -300,11 +300,11 @@ class SuggestionTest {
 
         private val axes = ["x", "y", "z"]
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
             [axes[preceding.size] + "="].toSuggestions()
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun resolve(arg0: String, arg1: String, arg2: String): CommandResult<Location> {
             val (x, y, z) = [arg0, arg1, arg2].mapIndexed { i, arg ->
                 if (!arg.startsWith(axes[i] + "=")) return failType("point", arg)
@@ -317,18 +317,18 @@ class SuggestionTest {
     /** near <player> **/
     private class NearParameter<E : Server, S> : Parameter.Bounded<E, S, Player>(Size(2), "", "") {
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
-            if (preceding.isEmpty()) ["near"].toSuggestions() else validationContext.env.playerNames.toSuggestions()
+            if (preceding.isEmpty()) ["near"].toSuggestions() else inv.env.playerNames.toSuggestions()
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun match(args: List<String>): MatchResult =
             if (args.firstOrNull() == "near") super.match(args)
             else MatchResult.unmatched(failType("near", args.firstOrNull() ?: ""))
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<Player> {
-            val player = validationContext.env.getPlayer(args[1]) ?: return failType("player", args[1])
+            val player = inv.env.getPlayer(args[1]) ?: return failType("player", args[1])
             return success(player).consuming(2)
         }
     }
@@ -339,19 +339,19 @@ class SuggestionTest {
 
         private val point = PointParameter<E, S>()
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
             if (preceding.isEmpty()) ["~"].toSuggestions() + point.suggest(preceding, partial)
             else point.suggest(preceding, partial)
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun match(args: List<String>): MatchResult =
             if (args.firstOrNull() != "~" && args.size < 3) MatchResult.partial() else super.match(args)
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<Location> {
             if (args.firstOrNull() == "~") {
-                return success(validationContext.sender.position).consuming(1, canConsumeMore = false)
+                return success(inv.sender.position).consuming(1, canConsumeMore = false)
             }
             return point.resolve(args)
         }
@@ -360,7 +360,7 @@ class SuggestionTest {
     private class RejectingParameter<E : Environment, S> : Parameter.Bounded<E, S, String>(Size.between(1, 2), "", "") {
         var count = 0
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<String> {
             count++
             return failType("", args.first())

@@ -7,7 +7,7 @@ import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.GroupableType
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.withExecution
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -31,12 +31,12 @@ class TextParameterTest {
 
     @Test
     fun `match claims all args`() {
-        assertEquals(MatchResult.matchedAtLeast(3), withValidationContext { parameter.match(["a", "b", "c"]) })
+        assertEquals(MatchResult.matchedAtLeast(3), withInvocation { parameter.match(["a", "b", "c"]) })
     }
 
     @Test
     fun `match on empty args is partial`() {
-        assertEquals(MatchResult.partial(), withValidationContext { parameter.match([]) })
+        assertEquals(MatchResult.partial(), withInvocation { parameter.match([]) })
     }
 
     @Test

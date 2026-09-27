@@ -6,10 +6,10 @@ import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.commit
 import com.zombachu.stick.consuming
 import com.zombachu.stick.element.parameters.EnumParameter
@@ -28,20 +28,20 @@ internal open class ValueFlagImpl<E : Environment, S, T>(
     override val size: Size.Bounded = flagParameter.size
     override val description: String = flagParameter.description
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult = flagParameter.match(args)
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
         flagParameter.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = flagParameter.parse(args)
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun getSyntax(): String = flagParameter.getSyntax()
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun validateSender(): CommandResult<Unit> = success()
 }
 
@@ -55,34 +55,34 @@ internal sealed class FlagParameter<E : Environment, S, T>(
     override val label: String = "-${name.lowercase()}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
         if (preceding.isEmpty()) suggestAliases() else []
 
     internal class PresenceFlagParameter<E : Environment, S, T>(
         name: String,
-        private val presentValue: ValidationContext<E, S>.() -> CommandResult<T>,
+        private val presentValue: Invocation<E, S>.() -> CommandResult<T>,
         aliases: Set<String>,
         description: String,
     ) : FlagParameter<E, S, T>(Size(1), name, aliases, description) {
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun match(args: List<String>): MatchResult {
             if (args.isEmpty()) return MatchResult.partial()
             if (!matches(args.first().lowercase())) return MatchResult.unmatched()
             return MatchResult.matchedExactly(1)
         }
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<T> {
             if (args.isEmpty()) return noMatch()
             if (matches(args.first().lowercase())) {
-                return validationContext.presentValue().consuming(1)
+                return inv.presentValue().consuming(1)
             }
             return noMatch()
         }
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun getSyntax(): String = "[$label]"
     }
 
@@ -92,21 +92,21 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         aliases: Set<String>,
     ) : FlagParameter<E, S, T>(Size(1) + parameter.size, name, aliases, parameter.description) {
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun match(args: List<String>): MatchResult {
             if (args.isEmpty()) return MatchResult.partial()
             if (!matches(args.first().lowercase())) return MatchResult.unmatched()
             return parameter.match(args.subList(1, args.size)).includeLabelClaimedBy(this)
         }
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
             if (preceding.isEmpty()) return suggestAliases()
             if (!matches(preceding.first().lowercase())) return []
             return parameter.suggest(preceding.subList(1, preceding.size), partial)
         }
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<T> {
             if (args.isEmpty()) return noMatch()
             if (matches(args.first().lowercase())) {
@@ -119,7 +119,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
             return noMatch()
         }
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun getSyntax(): String = "[$label ${parameter.getSyntax()}]"
     }
 
@@ -136,7 +136,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         private val primaryValues = enumParameter.primaryValues.keys.toList().map { "-$it" }
         private val aliasedValues = enumParameter.aliasedValues.keys.map { "-$it" }
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun match(args: List<String>): MatchResult {
             val flagArg = args.firstOrNull() ?: return MatchResult.partial()
             if (!flagArg.startsWith("-")) return MatchResult.unmatched()
@@ -147,11 +147,11 @@ internal sealed class FlagParameter<E : Environment, S, T>(
             return match.claimedBy(this, 1)
         }
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
             primaryValues.toSuggestions() + aliasedValues.toSuggestions(isAlias = true)
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<T> {
             val flagArg = args.firstOrNull()
             if (flagArg == null || !flagArg.startsWith("-")) return noMatch()
@@ -164,7 +164,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
             return result.consuming(1)
         }
 
-        context(validationContext: ValidationContext<E, S>)
+        context(inv: Invocation<E, S>)
         override fun getSyntax(): String = "[${primaryValues.joinToString("|")}]"
     }
 }

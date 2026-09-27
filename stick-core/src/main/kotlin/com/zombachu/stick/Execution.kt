@@ -2,7 +2,7 @@ package com.zombachu.stick
 
 import com.zombachu.stick.element.Structure
 
-sealed class Execution<out E : Environment, S> : ValidationContext<E, S>() {
+sealed class Execution<out E : Environment, S> : Invocation<E, S>() {
     abstract val label: String
     abstract val args: List<String>
 

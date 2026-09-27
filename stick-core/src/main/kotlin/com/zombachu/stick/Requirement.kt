@@ -1,15 +1,14 @@
 package com.zombachu.stick
 
 class Requirement<E : Environment, S>
-private constructor(private val validations: List<ValidationContext<E, S>.() -> CommandResult<Unit>>) :
-    SenderValidator<E, S> {
+private constructor(private val validations: List<Invocation<E, S>.() -> CommandResult<Unit>>) : SenderValidator<E, S> {
 
-    @PublishedApi internal constructor(validate: ValidationContext<E, S>.() -> CommandResult<Unit>) : this([validate])
+    @PublishedApi internal constructor(validate: Invocation<E, S>.() -> CommandResult<Unit>) : this([validate])
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun validateSender(): CommandResult<Unit> {
         validations.forEach {
-            it(validationContext).propagateError {
+            it(inv).propagateError {
                 return it
             }
         }

@@ -8,7 +8,7 @@ import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.withExecution
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -40,12 +40,12 @@ class EnumParameterTest {
 
     @Test
     fun `match claims one arg for an aliased value`() {
-        assertEquals(MatchResult.matchedExactly(1), withValidationContext { parameter.match("R") })
+        assertEquals(MatchResult.matchedExactly(1), withInvocation { parameter.match("R") })
     }
 
     @Test
     fun `match unmatched carries LiteralNotMatched`() {
-        val result = withValidationContext { parameter.match("Unknown") }
+        val result = withInvocation { parameter.match("Unknown") }
         val reason = result.expectUnmatched().expectReason()
         assertEquals(Reason.LiteralNotMatched(["red", "green", "blue"], "Unknown"), reason)
     }
@@ -65,7 +65,7 @@ class EnumParameterTest {
                 SimpleSuggestion("blue"),
                 SimpleSuggestion("r", isAlias = true),
             ],
-            withValidationContext { parameter.suggest([], "") },
+            withInvocation { parameter.suggest([], "") },
         )
     }
 

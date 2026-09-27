@@ -9,7 +9,7 @@ import com.zombachu.stick.structureTest
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
 import com.zombachu.stick.withExecution
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -48,7 +48,7 @@ class FlagsTest {
         val valueFlag = valueFlag("n", 0, intParameter("amount"))
 
         assertEquals(5, withExecution { valueFlag.parse(["-n", "5"]) }.expectSuccessValue())
-        assertEquals("[-n <amount>]", withValidationContext { valueFlag.getSyntax() })
+        assertEquals("[-n <amount>]", withInvocation { valueFlag.getSyntax() })
     }
 
     @Test

@@ -4,11 +4,11 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.TypedIdentifier
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.valueOrPropagateError
 
 internal class StoredHelper<E : Environment, S, T>(
@@ -25,10 +25,10 @@ internal class StoredParameter<E : Environment, S, T, P : Position>(
     private val id: TypedIdentifier<T>,
 ) : Parameter<E, S, T, P>(base.size, base.name, base.description) {
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult = base.match(args)
 
-    context(validationContext: ValidationContext<E, S>)
+    context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)

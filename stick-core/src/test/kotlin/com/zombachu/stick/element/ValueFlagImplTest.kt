@@ -2,10 +2,10 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.SimpleSuggestion
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.expectError
@@ -24,7 +24,7 @@ import com.zombachu.stick.testExecution
 import com.zombachu.stick.testExecutionSender
 import com.zombachu.stick.withExecution
 import com.zombachu.stick.withExecutionSender
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -41,7 +41,7 @@ class ValueFlagImplTest {
         var resolves = 0
         val counting =
             object : EnumParameter<TestEnv, Unit, Color>("", "", mapOf("red" to Color.RED), mapOf()) {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<Color> {
                     resolves++
                     return super.resolve(arg0)
@@ -65,7 +65,7 @@ class ValueFlagImplTest {
         var resolves = 0
         val counting =
             object : Parameter.Size1<TestEnv, Unit, String>("name", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> {
                     resolves++
                     return success(arg0)
@@ -90,10 +90,10 @@ class ValueFlagImplTest {
         var resolves = 0
         val cheaplyMatched =
             object : Parameter.Size1<TestEnv, Unit, String>("name", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> {
                     resolves++
                     return success(arg0)
@@ -127,19 +127,19 @@ class ValueFlagImplTest {
     @Test
     fun `PresenceFlagParameter match claims label`() {
         val flagParameter = presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true)
-        assertEquals(MatchResult.matchedExactly(1), withValidationContext { flagParameter.match(["-silent"]) })
+        assertEquals(MatchResult.matchedExactly(1), withInvocation { flagParameter.match(["-silent"]) })
     }
 
     @Test
     fun `PresenceFlagParameter match for invalid label fails with InvalidSyntax NoMatch`() {
         val flagParameter = presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true)
-        val result = withValidationContext { flagParameter.match(["-other"]) }
+        val result = withInvocation { flagParameter.match(["-other"]) }
         assertIs<Reason.InvalidSyntax>(result.expectUnmatched().expectNoMatch().reason)
     }
 
     @Test
     fun `PresenceFlagParameter getSyntax brackets label`() {
-        val syntax = withValidationContext { presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true).getSyntax() }
+        val syntax = withInvocation { presenceFlagParameter<TestEnv, Unit, Boolean>("silent", true).getSyntax() }
         assertEquals("[-silent]", syntax)
     }
 
@@ -157,20 +157,20 @@ class ValueFlagImplTest {
     @Test
     fun `ParameterFlagParameter match claims label and value`() {
         val flagParameter = FlagParameter.ParameterFlagParameter("amount", amountParameter, [])
-        assertEquals(MatchResult.matchedExactly(2), withValidationContext { flagParameter.match(["-amount", "42"]) })
+        assertEquals(MatchResult.matchedExactly(2), withInvocation { flagParameter.match(["-amount", "42"]) })
     }
 
     @Test
     fun `ParameterFlagParameter matches partially without a value`() {
         val flagParameter = FlagParameter.ParameterFlagParameter("amount", amountParameter, [])
-        assertEquals(MatchResult.partial(), withValidationContext { flagParameter.match(["-amount"]) })
+        assertEquals(MatchResult.partial(), withInvocation { flagParameter.match(["-amount"]) })
     }
 
     @Test
     fun `ParameterFlagParameter match for invalid argument fails with TypeNotMatched Error`() {
         val flagParameter = FlagParameter.ParameterFlagParameter("amount", amountParameter, [])
 
-        val result = withValidationContext { flagParameter.match(["-amount", "many"]) }
+        val result = withInvocation { flagParameter.match(["-amount", "many"]) }
 
         assertEquals(Reason.TypeNotMatched("integer", "many"), result.expectUnmatched().expectError().reason)
     }
@@ -179,12 +179,12 @@ class ValueFlagImplTest {
     fun `ParameterFlagParameter match for silent mismatch fails with InvalidSyntax Error`() {
         val silent =
             object : Parameter.Size1<TestEnv, Unit, String>("", "") {
-                context(validationContext: ValidationContext<TestEnv, Unit>)
+                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> = noMatch()
             }
         val flagParameter = FlagParameter.ParameterFlagParameter("name", silent, [])
 
-        val result = withValidationContext { flagParameter.match(["-name", "x"]) }
+        val result = withInvocation { flagParameter.match(["-name", "x"]) }
 
         assertIs<Reason.InvalidSyntax>(result.expectUnmatched().expectError().reason)
     }
@@ -199,13 +199,13 @@ class ValueFlagImplTest {
     @Test
     fun `EnumFlagParameter match claims enum token`() {
         val flagParameter = FlagParameter.EnumFlagParameter(colorParameter)
-        assertEquals(MatchResult.matchedExactly(1), withValidationContext { flagParameter.match(["-red"]) })
+        assertEquals(MatchResult.matchedExactly(1), withInvocation { flagParameter.match(["-red"]) })
     }
 
     @Test
     fun `EnumFlagParameter match for invalid argument fails with InvalidSyntax NoMatch`() {
         val flagParameter = FlagParameter.EnumFlagParameter(colorParameter)
-        val result = withValidationContext { flagParameter.match(["-blue"]) }
+        val result = withInvocation { flagParameter.match(["-blue"]) }
         assertIs<Reason.InvalidSyntax>(result.expectUnmatched().expectNoMatch().reason)
     }
 
@@ -245,7 +245,7 @@ class ValueFlagImplTest {
         val flagParameter = FlagParameter.EnumFlagParameter(parameter)
         assertEquals(
             [SimpleSuggestion("-red"), SimpleSuggestion("-green"), SimpleSuggestion("-r", isAlias = true)],
-            withValidationContext { flagParameter.suggest([], "") },
+            withInvocation { flagParameter.suggest([], "") },
         )
     }
 
@@ -254,7 +254,7 @@ class ValueFlagImplTest {
         val flag = presenceValueFlag<TestEnv, Unit, Boolean>("silent", false, true)
 
         assertEquals(true, withExecution { flag.parse(["-silent"]) }.expectSuccessValue())
-        assertEquals("[-silent]", withValidationContext { flag.getSyntax() })
+        assertEquals("[-silent]", withInvocation { flag.getSyntax() })
         assertEquals(false, flag.default(testExecution()).expectSuccessValue())
     }
 
@@ -279,7 +279,7 @@ class ValueFlagImplTest {
             }
         val transformed = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidDefault)
 
-        val result = withValidationContext(1) { transformed.validateSender() }
+        val result = withInvocation(1) { transformed.validateSender() }
 
         assertTrue(result.isSuccess())
         assertTrue(validated)

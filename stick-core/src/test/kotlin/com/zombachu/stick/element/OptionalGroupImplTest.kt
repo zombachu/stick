@@ -3,11 +3,11 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult2
+import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.ValidationContext
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.expectNoMatch
 import com.zombachu.stick.expectReason
@@ -19,7 +19,7 @@ import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.success
 import com.zombachu.stick.validSenderDefault
 import com.zombachu.stick.withExecution
-import com.zombachu.stick.withValidationContext
+import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -72,19 +72,19 @@ class OptionalGroupImplTest {
     @Test
     fun `match on empty args claims nothing`() {
         val optional = optionalGroup(groupAllowed = true, presenceAllowed = true)
-        assertEquals(MatchResult.matchedAtLeast(0), withValidationContext { optional.match([]) })
+        assertEquals(MatchResult.matchedAtLeast(0), withInvocation { optional.match([]) })
     }
 
     @Test
     fun `match on non-empty args delegates to group`() {
         val optional = optionalGroup(groupAllowed = true, presenceAllowed = true)
-        assertEquals(MatchResult.matchedExactly(1), withValidationContext { optional.match(["apple"]) })
+        assertEquals(MatchResult.matchedExactly(1), withInvocation { optional.match(["apple"]) })
     }
 
     @Test
     fun `match on non-empty args with group not allowed fails with InvalidSender`() {
         val optional = optionalGroup(groupAllowed = false, presenceAllowed = true)
-        val result = withValidationContext { optional.match(["apple"]) }
+        val result = withInvocation { optional.match(["apple"]) }
         assertSame(Reason.InvalidSender, result.expectUnmatched().expectReason())
     }
 
@@ -98,19 +98,19 @@ class OptionalGroupImplTest {
     @Test
     fun `getSyntax shows as optional when optional for sender`() {
         val optional = optionalGroup(groupAllowed = true, presenceAllowed = true)
-        assertEquals("[apple|orange]", withValidationContext { optional.getSyntax() })
+        assertEquals("[apple|orange]", withInvocation { optional.getSyntax() })
     }
 
     @Test
     fun `getSyntax shows as required when required for sender`() {
         val optional = optionalGroup(groupAllowed = true, presenceAllowed = false)
-        assertEquals("<apple|orange>", withValidationContext { optional.getSyntax() })
+        assertEquals("<apple|orange>", withInvocation { optional.getSyntax() })
     }
 
     @Test
     fun `getSyntax returns empty when group not allowed`() {
         val optional = optionalGroup(groupAllowed = false, presenceAllowed = true)
-        assertEquals("", withValidationContext { optional.getSyntax() })
+        assertEquals("", withInvocation { optional.getSyntax() })
     }
 
     private fun optionalGroup(
@@ -129,7 +129,7 @@ class OptionalGroupImplTest {
                 ),
         )
 
-    context(_: ValidationContext<*, *>)
+    context(_: Invocation<*, *>)
     private fun validate(allowed: Boolean): CommandResult<Unit> =
         if (allowed) success() else failSender()
 }
