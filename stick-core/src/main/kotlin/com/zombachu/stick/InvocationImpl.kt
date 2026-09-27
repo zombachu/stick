@@ -18,7 +18,7 @@ internal open class InvocationImpl<E : Environment, S>(
     override val args: List<String>,
     structure: Structure<E, S, *>,
     parent: InvocationImpl<*, *>?,
-) : Invocation<E, S> {
+) : Invocation<E, S>() {
 
     private val root: InvocationImpl<*, *> = parent?.root ?: this
 
@@ -67,7 +67,7 @@ internal open class InvocationImpl<E : Environment, S>(
         return "/${segments.joinToString(" ")}"
     }
 
-    fun <S2 : Any> forSender(transform: (S) -> S2): InvocationImpl<E, S2> {
+    override fun <S2 : Any> forSender(transform: (S) -> S2): InvocationImpl<E, S2> {
         return TransformedInvocationImpl(this, transform)
     }
 
