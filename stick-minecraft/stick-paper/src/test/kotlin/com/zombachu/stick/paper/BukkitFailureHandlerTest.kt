@@ -2,10 +2,9 @@ package com.zombachu.stick.paper
 
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MessageReason
-import com.zombachu.stick.dsl.command
-import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.failureOrigin
+import com.zombachu.stick.testInvocation
 import java.util.logging.Handler
 import java.util.logging.LogRecord
 import kotlin.test.Test
@@ -17,7 +16,6 @@ import org.bukkit.command.CommandSender
 class BukkitFailureHandlerTest {
 
     private val env = FakeBukkitEnvironment()
-    private val structure = bukkitStructure { command("cmd")() }
 
     @Test
     fun `sends component with reason`() {
@@ -66,5 +64,5 @@ class BukkitFailureHandlerTest {
     }
 
     private fun invocation(sender: CommandSender): Invocation<BukkitEnvironment, CommandSender> =
-        Invocation(sender, env, "cmd", ["cmd"], structure)
+        testInvocation(env, sender)
 }

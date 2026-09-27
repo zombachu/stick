@@ -35,6 +35,9 @@ internal fun <S> testInvocationSender(
     return Invocation(sender, TestEnv, "", args.asList(), emptyStructure()) as InvocationImpl<TestEnv, S>
 }
 
+fun <E : Environment, S> testInvocation(env: E, sender: S): Invocation<E, S> =
+    Invocation(sender, env, "", [], emptyStructure())
+
 fun <E : Environment, S> testValidationContext(env: E, sender: S): ValidationContext<E, S> =
     ValidationContext(env, sender)
 

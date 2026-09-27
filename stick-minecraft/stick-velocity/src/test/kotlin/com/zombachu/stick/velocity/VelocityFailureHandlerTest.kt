@@ -3,10 +3,9 @@ package com.zombachu.stick.velocity
 import com.velocitypowered.api.command.CommandSource
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MessageReason
-import com.zombachu.stick.dsl.command
-import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.failureOrigin
+import com.zombachu.stick.testInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
@@ -15,7 +14,6 @@ import kotlin.test.assertTrue
 class VelocityFailureHandlerTest {
 
     private val env = BasicVelocityEnvironment(FakeProxyServer())
-    private val structure = velocityStructure { command("cmd")() {} }
 
     @Test
     fun `sends component with reason`() {
@@ -53,5 +51,5 @@ class VelocityFailureHandlerTest {
     }
 
     private fun invocation(sender: CommandSource): Invocation<VelocityEnvironment, CommandSource> =
-        Invocation(sender, env, "cmd", ["cmd"], structure)
+        testInvocation(env, sender)
 }
