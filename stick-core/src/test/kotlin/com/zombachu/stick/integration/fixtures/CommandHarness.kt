@@ -1,6 +1,6 @@
 package com.zombachu.stick.integration.fixtures
 
-import com.zombachu.stick.CommandWrapper
+import com.zombachu.stick.CommandRunner
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.element.Structure
@@ -35,31 +35,16 @@ private fun <E : Environment, S> Structure<E, S, *>.dispatch(
     sender: S,
     command: String,
 ): RecordingFailureHandler<E, S> {
-    clearMessages(env, sender)
-
     val handler = RecordingFailureHandler<E, S>()
-    val wrapper =
-        object : CommandWrapper<E, S> {
-            override val env: E = env
-            override val failureHandler: FailureHandler<E, S> = handler
-            override val structure: Structure<E, S, *> = this@dispatch
-        }
-
-    val args = command.replaceFirst("/", "").split(" ")
-    wrapper.execute(sender, args)
+    executeWithHandler(handler, env, sender, command)
     return handler
 }
 
 internal fun <E : Environment, S> Structure<E, S, *>.suggest(env: E, sender: S, command: String): List<String> {
-    val wrapper =
-        object : CommandWrapper<E, S> {
-            override val env: E = env
-            override val failureHandler: FailureHandler<E, S> = RecordingFailureHandler()
-            override val structure: Structure<E, S, *> = this@suggest
-        }
+    val runner = CommandRunner(env, RecordingFailureHandler(), this)
 
     val args = command.replaceFirst("/", "").split(" ")
-    return wrapper.suggest(sender, args.first(), args.drop(1))
+    return runner.suggest(sender, args.first(), args.drop(1))
 }
 
 internal fun <E : Environment, S> Structure<E, S, *>.executeWithHandler(
@@ -70,15 +55,10 @@ internal fun <E : Environment, S> Structure<E, S, *>.executeWithHandler(
 ) {
     clearMessages(env, sender)
 
-    val wrapper =
-        object : CommandWrapper<E, S> {
-            override val env: E = env
-            override val failureHandler: FailureHandler<E, S> = handler
-            override val structure: Structure<E, S, *> = this@executeWithHandler
-        }
+    val runner = CommandRunner(env, handler, this)
 
     val args = command.replaceFirst("/", "").split(" ")
-    wrapper.execute(sender, args)
+    runner.execute(sender, args.first(), args.drop(1))
 }
 
 private fun clearMessages(env: Environment, sender: Any?) {

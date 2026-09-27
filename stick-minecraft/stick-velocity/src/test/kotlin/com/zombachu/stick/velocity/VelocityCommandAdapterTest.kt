@@ -11,14 +11,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class VelocityCommandWrapperTest {
+class VelocityCommandAdapterTest {
 
     @Test
     fun `execute collapses consecutive spaces`() {
         var text: String? = null
-        val wrapper = textWrapper { text = it }
+        val adapter = textAdapter { text = it }
 
-        wrapper.execute(FakeInvocation(FakeCommandSource(), "cmd", "hello   world"))
+        adapter.execute(FakeInvocation(FakeCommandSource(), "cmd", "hello   world"))
 
         assertEquals("hello world", text)
     }
@@ -26,9 +26,9 @@ class VelocityCommandWrapperTest {
     @Test
     fun `execute drops leading and trailing spaces`() {
         var text: String? = null
-        val wrapper = textWrapper { text = it }
+        val adapter = textAdapter { text = it }
 
-        wrapper.execute(FakeInvocation(FakeCommandSource(), "cmd", "  hello world  "))
+        adapter.execute(FakeInvocation(FakeCommandSource(), "cmd", "  hello world  "))
 
         assertEquals("hello world", text)
     }
@@ -39,9 +39,9 @@ class VelocityCommandWrapperTest {
         val structure = velocityStructure {
             command("cmd")() { executed = true }
         }
-        val wrapper = VelocityCommandWrapper(environment(), noopFailureHandler(), structure)
+        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure)
 
-        wrapper.execute(FakeInvocation(FakeCommandSource(), "cmd", ""))
+        adapter.execute(FakeInvocation(FakeCommandSource(), "cmd", ""))
 
         assertTrue(executed)
     }
@@ -53,11 +53,11 @@ class VelocityCommandWrapperTest {
                 literalParameter("there")
             ) { }
         }
-        val wrapper = VelocityCommandWrapper(environment(), noopFailureHandler(), structure)
+        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure)
 
-        assertEquals(["there"], wrapper.suggest(FakeInvocation(FakeCommandSource(), "hello", "")))
-        assertEquals(["there"], wrapper.suggest(FakeInvocation(FakeCommandSource(), "hello", "the")))
-        assertEquals([], wrapper.suggest(FakeInvocation(FakeCommandSource(), "hello", "general")))
+        assertEquals(["there"], adapter.suggest(FakeInvocation(FakeCommandSource(), "hello", "")))
+        assertEquals(["there"], adapter.suggest(FakeInvocation(FakeCommandSource(), "hello", "the")))
+        assertEquals([], adapter.suggest(FakeInvocation(FakeCommandSource(), "hello", "general")))
     }
 
     @Test
@@ -67,9 +67,9 @@ class VelocityCommandWrapperTest {
                 literalParameter("there")
             ) { }
         }
-        val wrapper = VelocityCommandWrapper(environment(), noopFailureHandler(), structure)
+        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure)
 
-        assertEquals(["there"], wrapper.suggest(FakeInvocation(FakeCommandSource(), "hello", "  the")))
+        assertEquals(["there"], adapter.suggest(FakeInvocation(FakeCommandSource(), "hello", "  the")))
     }
 
     @Test
@@ -77,19 +77,19 @@ class VelocityCommandWrapperTest {
         val structure = velocityStructure {
             command("cmd", requirement = permission("stick.cmd"))() { }
         }
-        val wrapper = VelocityCommandWrapper(environment(), noopFailureHandler(), structure)
+        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure)
 
-        assertTrue(wrapper.hasPermission(FakeInvocation(FakeCommandSource(["stick.cmd"]), "cmd", "")))
-        assertFalse(wrapper.hasPermission(FakeInvocation(FakeCommandSource(), "cmd", "")))
+        assertTrue(adapter.hasPermission(FakeInvocation(FakeCommandSource(["stick.cmd"]), "cmd", "")))
+        assertFalse(adapter.hasPermission(FakeInvocation(FakeCommandSource(), "cmd", "")))
     }
 
     private fun environment(): VelocityEnvironment = BasicVelocityEnvironment(FakeProxyServer())
 
-    private fun textWrapper(onExecute: (String) -> Unit): VelocityCommandWrapper<VelocityEnvironment> {
+    private fun textAdapter(onExecute: (String) -> Unit): VelocityCommandAdapter<VelocityEnvironment> {
         val structure =
             velocityStructure {
                 command("cmd")(textParameter("")) { rest -> onExecute(rest) }
             }
-        return VelocityCommandWrapper(environment(), noopFailureHandler(), structure)
+        return VelocityCommandAdapter(environment(), noopFailureHandler(), structure)
     }
 }

@@ -7,6 +7,7 @@ import com.zombachu.stick.failSender
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.structureTest
+import com.zombachu.stick.testValidationContext
 import com.zombachu.stick.velocity.BasicVelocityEnvironment
 import com.zombachu.stick.velocity.FakeCommandSource
 import com.zombachu.stick.velocity.FakeProxyServer
@@ -41,5 +42,5 @@ class RequirementsTest {
     }
 
     private fun validationContext(permissions: Set<String>): ValidationContext<VelocityEnvironment, CommandSource> =
-        ValidationContext(env, FakeCommandSource(permissions))
+        testValidationContext(env, FakeCommandSource(permissions))
 }

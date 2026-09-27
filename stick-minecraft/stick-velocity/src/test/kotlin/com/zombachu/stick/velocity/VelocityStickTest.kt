@@ -9,7 +9,7 @@ import kotlin.test.assertIs
 class VelocityStickTest {
 
     @Test
-    fun `registerCommand registers wrapper with command meta`() {
+    fun `registerCommand registers adapter with command meta`() {
         val manager = FakeCommandManager()
         val plugin = Any()
         val stick = VelocityStick(plugin, FakeProxyServer(manager), FakeLogger())
@@ -20,6 +20,6 @@ class VelocityStickTest {
         assertEquals(1, manager.registerCalls)
         assertEquals(["cmd", "c"], manager.registeredMeta?.aliases?.toList())
         assertEquals(plugin, manager.registeredMeta?.plugin)
-        assertIs<VelocityCommandWrapper<*>>(manager.registeredCommand)
+        assertIs<VelocityCommandAdapter<*>>(manager.registeredCommand)
     }
 }

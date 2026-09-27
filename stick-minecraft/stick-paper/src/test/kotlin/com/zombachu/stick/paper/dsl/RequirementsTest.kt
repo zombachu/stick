@@ -9,10 +9,11 @@ import com.zombachu.stick.paper.BukkitEnvironment
 import com.zombachu.stick.paper.FakeBukkitEnvironment
 import com.zombachu.stick.paper.FakeCommandSender
 import com.zombachu.stick.structureTest
-import org.bukkit.command.CommandSender
+import com.zombachu.stick.testValidationContext
 import kotlin.test.Test
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import org.bukkit.command.CommandSender
 
 class RequirementsTest {
 
@@ -40,5 +41,5 @@ class RequirementsTest {
     }
 
     private fun validationContext(permissions: Set<String>): ValidationContext<BukkitEnvironment, CommandSender> =
-        ValidationContext(env, FakeCommandSender(permissions))
+        testValidationContext(env, FakeCommandSender(permissions))
 }

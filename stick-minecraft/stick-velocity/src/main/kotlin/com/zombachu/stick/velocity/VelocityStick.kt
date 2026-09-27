@@ -22,6 +22,6 @@ class VelocityStick(private val plugin: Any, proxy: ProxyServer, logger: Logger)
         @Suppress("SpreadOperator")
         val commandMeta =
             commandManager.metaBuilder(structure.name).aliases(*structure.aliases.toTypedArray()).plugin(plugin).build()
-        commandManager.register(commandMeta, VelocityCommandWrapper(env, failureHandler, structure))
+        commandManager.register(commandMeta, VelocityCommandAdapter(env, failureHandler, structure))
     }
 }

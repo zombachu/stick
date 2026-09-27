@@ -5,14 +5,16 @@ import com.zombachu.stick.element.parse
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.Reason
 
-interface CommandWrapper<E : Environment, S> {
-    val env: E
-    val failureHandler: FailureHandler<E, S>
-    val structure: Structure<E, S, *>
+class CommandRunner<E : Environment, S>(
+    private val env: E,
+    private val failureHandler: FailureHandler<E, S>,
+    private val structure: Structure<E, S, *>,
+) {
 
     @Suppress("TooGenericExceptionCaught")
-    fun execute(sender: S, fullArgs: List<String>) {
-        val inv = Invocation(sender, env, fullArgs.first(), fullArgs, structure)
+    fun execute(sender: S, label: String, args: List<String>) {
+        val fullArgs = [label] + args
+        val inv = Invocation(sender, env, label, fullArgs, structure)
         context(env, inv) {
             val result =
                 try {
@@ -28,6 +30,13 @@ interface CommandWrapper<E : Environment, S> {
                     else -> return
                 }
             failureHandler.onFailure(reason)
+        }
+    }
+
+    fun canUse(sender: S): Boolean {
+        val validationContext = ValidationContext(env, sender)
+        context(validationContext) {
+            return structure.validateSender().isSuccess()
         }
     }
 

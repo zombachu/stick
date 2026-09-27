@@ -13,14 +13,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
-class CommandWrapperTest {
+class CommandRunnerTest {
 
     @Test
     fun `successful parse does not invoke failure handler`() {
         val structure = structure("cmd") { Signature0({}, LeadingParameterRole.Label, [it]) }
         val handler = RecordingFailureHandler()
 
-        wrapper(structure, handler).execute(Unit, ["cmd"])
+        CommandRunner(TestEnv, handler, structure).execute(Unit, "cmd", [])
 
         assertEquals(0, handler.calls)
     }
@@ -30,7 +30,7 @@ class CommandWrapperTest {
         val structure = structure("cmd") { Signature0({}, LeadingParameterRole.Label, [it]) }
         val handler = RecordingFailureHandler()
 
-        wrapper(structure, handler).execute(Unit, ["other"])
+        CommandRunner(TestEnv, handler, structure).execute(Unit, "other", [])
 
         assertEquals(1, handler.calls)
         assertIs<Reason.InvalidSyntax>(handler.lastReason)
@@ -47,7 +47,7 @@ class CommandWrapperTest {
             structure("cmd") { Signature1<TestEnv, Unit, String>({}, LeadingParameterRole.Label, [it, parameter]) }
         val handler = RecordingFailureHandler()
 
-        wrapper(structure, handler).execute(Unit, ["cmd", "x"])
+        CommandRunner(TestEnv, handler, structure).execute(Unit, "cmd", ["x"])
 
         assertEquals(0, handler.calls)
     }
@@ -59,7 +59,7 @@ class CommandWrapperTest {
             structure("cmd") { Signature1<TestEnv, Unit, String>({}, LeadingParameterRole.Label, [it, parameter]) }
         val handler = RecordingFailureHandler()
 
-        wrapper(structure, handler).execute(Unit, ["cmd"])
+        CommandRunner(TestEnv, handler, structure).execute(Unit, "cmd", [])
 
         assertEquals(1, handler.calls)
         assertIs<Reason.InvalidSyntax>(handler.lastReason)
@@ -70,16 +70,6 @@ class CommandWrapperTest {
         signature: (Parameter<TestEnv, Unit, *, *>) -> Signature<TestEnv, Unit, T_>,
     ): StructureImpl<TestEnv, Unit, T_> =
         StructureImpl(label, [], "", Requirement { success() }, signature)
-
-    private fun <T_ : Arguments> wrapper(
-        structureImpl: StructureImpl<TestEnv, Unit, T_>,
-        handler: RecordingFailureHandler,
-    ): CommandWrapper<TestEnv, Unit> =
-        object : CommandWrapper<TestEnv, Unit> {
-            override val env: TestEnv = TestEnv
-            override val failureHandler: FailureHandler<TestEnv, Unit> = handler
-            override val structure = structureImpl
-        }
 
     private class RecordingFailureHandler : FailureHandler<TestEnv, Unit> {
         var calls = 0

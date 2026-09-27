@@ -13,7 +13,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
-class BukkitCommandWrapperTest {
+class BukkitCommandAdapterTest {
 
     @Test
     fun `execute joins label and args and returns true`() {
@@ -22,9 +22,9 @@ class BukkitCommandWrapperTest {
             bukkitStructure {
                 command("cmd")(textParameter("")) { text = it }
             }
-        val wrapper = BukkitCommandWrapper(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(), noopFailureHandler(), structure)
 
-        val result = wrapper.execute(FakeCommandSender(), "cmd", arrayOf("hello", "world"))
+        val result = adapter.execute(FakeCommandSender(), "cmd", arrayOf("hello", "world"))
 
         assertTrue(result)
         assertEquals("hello world", text)
@@ -36,9 +36,9 @@ class BukkitCommandWrapperTest {
         val structure = bukkitStructure {
             command("cmd")() { executed = true }
         }
-        val wrapper = BukkitCommandWrapper(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(), noopFailureHandler(), structure)
 
-        val result = wrapper.execute(FakeCommandSender(), "cmd", arrayOf())
+        val result = adapter.execute(FakeCommandSender(), "cmd", arrayOf())
 
         assertTrue(result)
         assertTrue(executed)
@@ -51,9 +51,9 @@ class BukkitCommandWrapperTest {
             bukkitStructure {
                 command("cmd")(textParameter("")) { text = it }
             }
-        val wrapper = BukkitCommandWrapper(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(), noopFailureHandler(), structure)
 
-        val result = wrapper.execute(FakeCommandSender(), "fake-plugin:cmd", arrayOf("hello", "world"))
+        val result = adapter.execute(FakeCommandSender(), "fake-plugin:cmd", arrayOf("hello", "world"))
 
         assertTrue(result)
         assertEquals("hello world", text)
@@ -66,11 +66,11 @@ class BukkitCommandWrapperTest {
                 literalParameter("there")
             ) { }
         }
-        val wrapper = BukkitCommandWrapper(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(), noopFailureHandler(), structure)
 
-        assertEquals(["there"], wrapper.tabComplete(FakeCommandSender(), "hello", arrayOf("")))
-        assertEquals(["there"], wrapper.tabComplete(FakeCommandSender(), "hello", arrayOf("the")))
-        assertEquals([], wrapper.tabComplete(FakeCommandSender(), "hello", arrayOf("general")))
+        assertEquals(["there"], adapter.tabComplete(FakeCommandSender(), "hello", arrayOf("")))
+        assertEquals(["there"], adapter.tabComplete(FakeCommandSender(), "hello", arrayOf("the")))
+        assertEquals([], adapter.tabComplete(FakeCommandSender(), "hello", arrayOf("general")))
     }
 
     @Test
@@ -80,9 +80,9 @@ class BukkitCommandWrapperTest {
                 literalParameter("there")
             ) { }
         }
-        val wrapper = BukkitCommandWrapper(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(), noopFailureHandler(), structure)
 
-        assertEquals(["there"], wrapper.tabComplete(FakeCommandSender(), "fake-plugin:hello", arrayOf("the")))
+        assertEquals(["there"], adapter.tabComplete(FakeCommandSender(), "fake-plugin:hello", arrayOf("the")))
     }
 
     @Test
@@ -92,9 +92,9 @@ class BukkitCommandWrapperTest {
                 literalParameter("there")
             ) { }
         }
-        val wrapper = BukkitCommandWrapper(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(), noopFailureHandler(), structure)
 
-        assertEquals(["there"], wrapper.tabComplete(FakeCommandSender(), "hello", arrayOf("", "the")))
+        assertEquals(["there"], adapter.tabComplete(FakeCommandSender(), "hello", arrayOf("", "the")))
     }
 
     @Test
@@ -102,10 +102,10 @@ class BukkitCommandWrapperTest {
         val structure = bukkitStructure {
             command("cmd", requirement = permission("stick.cmd"))() { }
         }
-        val wrapper = BukkitCommandWrapper(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(), noopFailureHandler(), structure)
 
-        assertTrue(wrapper.testPermissionSilent(FakeCommandSender(["stick.cmd"])))
-        assertFalse(wrapper.testPermissionSilent(FakeCommandSender()))
+        assertTrue(adapter.testPermissionSilent(FakeCommandSender(["stick.cmd"])))
+        assertFalse(adapter.testPermissionSilent(FakeCommandSender()))
     }
 
     @Test
@@ -115,17 +115,17 @@ class BukkitCommandWrapperTest {
                 command("cmd", requirement = permission("stick.cmd"))() { }
             }
         }
-        val wrapper = BukkitCommandWrapper(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(), noopFailureHandler(), structure)
 
-        assertTrue(wrapper.testPermissionSilent(FakeCommandSender(["stick.cmd"])))
-        assertFalse(wrapper.testPermissionSilent(FakeCommandSender()))
+        assertTrue(adapter.testPermissionSilent(FakeCommandSender(["stick.cmd"])))
+        assertFalse(adapter.testPermissionSilent(FakeCommandSender()))
     }
 
     @Test
     fun `getPlugin returns environment plugin`() {
         val structure = bukkitStructure { command("cmd")() }
-        val wrapper = BukkitCommandWrapper(FakeBukkitEnvironment(FakePlugin), noopFailureHandler(), structure)
+        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(FakePlugin), noopFailureHandler(), structure)
 
-        assertSame(FakePlugin, wrapper.getPlugin())
+        assertSame(FakePlugin, adapter.getPlugin())
     }
 }
