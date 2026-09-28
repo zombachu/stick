@@ -89,6 +89,21 @@ internal class MappedOptionalParameter<E : Environment, S, A, T, P : Position>(
     override fun getSyntax(): String = base.getSyntax()
 }
 
+internal class MappedHelper<E : Environment, S, A, T>(
+    private val base: Helper<E, S, A>,
+    private val transform: Execution<E, S>.(A) -> CommandResult<T>,
+) : Helper<E, S, T>, InternalElement<E, S, T> {
+
+    context(ex: Execution<E, S>)
+    override fun parse(args: List<String>): CommandResult<T> {
+        val value =
+            base.parse(args).valueOrPropagateError {
+                return it
+            }
+        return transform(ex, value)
+    }
+}
+
 context(ex: Execution<E, S>)
 private fun <E : Environment, S, A, T> parseMapped(
     args: List<String>,

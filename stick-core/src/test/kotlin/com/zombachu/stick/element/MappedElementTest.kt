@@ -206,4 +206,30 @@ class MappedElementTest {
 
         assertEquals(["give"], withInvocation { mapped.suggest([], "") }.map { it.value })
     }
+
+    @Test
+    fun `MappedHelper runs transform on contextual value`() {
+        val base = HelperImpl<TestEnv, Unit, Int>({ success(5) })
+        val mapped = MappedHelper<TestEnv, Unit, Int, Int>(base) { success(it * 10) }
+
+        val result = withExecution { mapped.parse([]) }
+
+        assertEquals(50, result.expectSuccessValue())
+    }
+
+    @Test
+    fun `MappedHelper short-circuits before transform if base fails`() {
+        var transformCalled = false
+        val base = HelperImpl<TestEnv, Unit, Int>({ fail(Reason.Unknown()) })
+        val mapped =
+            MappedHelper<TestEnv, Unit, Int, Int>(base) {
+                transformCalled = true
+                success(it)
+            }
+
+        val result = withExecution { mapped.parse([]) }
+
+        assertFalse(result.isSuccess())
+        assertFalse(transformCalled)
+    }
 }

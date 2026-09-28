@@ -4,6 +4,8 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
 import com.zombachu.stick.Position
+import com.zombachu.stick.element.Helper
+import com.zombachu.stick.element.MappedHelper
 import com.zombachu.stick.element.MappedOptionalParameter
 import com.zombachu.stick.element.MappedParameter
 import com.zombachu.stick.element.MappedValueFlag
@@ -22,3 +24,7 @@ fun <E : Environment, S, A, B> ValueFlag<E, S, A>.map(
 fun <E : Environment, S, A, B, P : Position> OptionalParameter<E, S, A, P>.map(
     transform: Execution<E, S>.(A) -> CommandResult<B>
 ): OptionalParameter<E, S, B, P> = MappedOptionalParameter(this, transform)
+
+fun <E : Environment, S, A, B> Helper<E, S, A>.map(
+    transform: Execution<E, S>.(A) -> CommandResult<B>
+): Helper<E, S, B> = MappedHelper(this, transform)

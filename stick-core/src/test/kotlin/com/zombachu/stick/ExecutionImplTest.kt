@@ -1,11 +1,11 @@
 package com.zombachu.stick
 
 import com.zombachu.stick.dsl.id
+import com.zombachu.stick.dsl.store
 import com.zombachu.stick.element.Group1Impl
 import com.zombachu.stick.element.MappedOptionalParameter
 import com.zombachu.stick.element.OptionalParameterImpl
 import com.zombachu.stick.element.Parameter
-import com.zombachu.stick.element.StoredParameter
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.failure.Reason
@@ -178,7 +178,7 @@ class ExecutionImplTest {
     fun `processElement resolves through decorator once`() {
         var resolves = 0
         val identifier = id<String>("stored")
-        val stored = StoredParameter(countingParameter { resolves++ }, identifier)
+        val stored = countingParameter { resolves++ }.store(identifier)
 
         val ex = testExecution("a")
         val result = ex.processElement(stored)

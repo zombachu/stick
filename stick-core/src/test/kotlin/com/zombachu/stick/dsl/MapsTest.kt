@@ -44,4 +44,11 @@ class MapsTest {
         val result = withExecution("5") { mapped.parse(["5"]) }
         assertEquals(50, result.expectSuccessValue())
     }
+
+    @Test
+    fun `map on Helper transforms value`() = structureTest {
+        val mapped = helper { success(5) }.map { n -> success(n * 10) }
+        val result = withExecution { mapped.parse([]) }
+        assertEquals(50, result.expectSuccessValue())
+    }
 }
