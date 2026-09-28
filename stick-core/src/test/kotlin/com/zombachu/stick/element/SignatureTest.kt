@@ -83,7 +83,7 @@ class SignatureTest {
     fun `inaccessible flag parses invalidDefault value`() {
         val base = presenceValueFlag<TestEnv, String, Boolean>("loud", false, true)
         val invalidDefault = invalidSenderDefault<TestEnv, Unit, Boolean>(true) { failSender() }
-        val gatedFlag = TransformedValueFlag(base, { _: Unit -> "x" }, invalidDefault)
+        val gatedFlag = GatedValueFlag(SenderMappedValueFlag(base, { _: Unit -> "x" }), invalidDefault)
         val signature = Signature1<TestEnv, Unit, Boolean>({ loud -> }, LeadingParameterRole.Label, [label, gatedFlag])
 
         val args = withExecution("cmd") { signature.execute() }.expectSuccessValue()

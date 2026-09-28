@@ -20,11 +20,11 @@ import com.zombachu.stick.dsl.helper
 import com.zombachu.stick.dsl.optionally
 import com.zombachu.stick.dsl.requireAs
 import com.zombachu.stick.dsl.requirement
+import com.zombachu.stick.element.GatedParameter
 import com.zombachu.stick.element.Helper
 import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.element.ValidatedParameter
 import com.zombachu.stick.fail
 import com.zombachu.stick.failPermission
 import com.zombachu.stick.failType
@@ -131,7 +131,7 @@ fun <E : Environment, T_ : Arguments> StructureScope<E, Sender>.requireSocialDat
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, T, P : Position> StructureScope<E, Sender>.requireSocialData(
     parameter: StructureScope<E, SocialData>.() -> Parameter<E, SocialData, T, P>
-): ValidatedParameter<E, Sender, T, P> =
+): GatedParameter<E, Sender, T, P> =
     requireAs(
         { (it as Player).socialData },
         requirement { sender is Player },

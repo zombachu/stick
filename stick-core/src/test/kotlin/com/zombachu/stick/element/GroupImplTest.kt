@@ -68,7 +68,7 @@ class GroupImplTest {
     @Test
     fun `no matches fails with InvalidSyntax NoMatch`() {
         val requirement = Requirement<TestEnv, Unit> { failSender() }
-        val gated = transformed(StringParameter("gated", ""), requirement)
+        val gated = gatedParameter(StringParameter("gated", ""), requirement)
         val group = group1(gated)
 
         val result = withExecution("x") { group.parse(["x"]) }
@@ -226,7 +226,7 @@ class GroupImplTest {
     @Test
     fun `match skips elements sender fails validation for`() {
         val requirement = Requirement<TestEnv, Unit> { failSender() }
-        val gated = transformed(StringParameter("gated", ""), requirement)
+        val gated = gatedParameter(StringParameter("gated", ""), requirement)
         val group = group1(gated)
 
         val result = withInvocation { group.match(["x"]) }
@@ -279,7 +279,7 @@ class GroupImplTest {
     fun `getSyntax returns only sender-visible syntax`() {
         val visible = StringParameter<TestEnv, Unit>("str", "")
         val requirement = Requirement<TestEnv, Unit> { failSender() }
-        val hidden = transformed(StringParameter("hidden", ""), requirement)
+        val hidden = gatedParameter(StringParameter("hidden", ""), requirement)
         val group = group2(visible, hidden)
 
         val syntax = withInvocation { group.getSyntax() }
@@ -342,9 +342,8 @@ class GroupImplTest {
         elementB: Groupable<TestEnv, Unit, B, P>,
     ) = Group2Impl<TestEnv, Unit, A, B, P>("", "", elementA, elementB)
 
-    private fun <T> transformed(
+    private fun <T> gatedParameter(
         base: Parameter<TestEnv, Unit, T, Position.Leading>,
         requirement: Requirement<TestEnv, Unit>,
-    ) =
-        TransformedParameter<TestEnv, Unit, Unit, T, Position.Leading>(base, { it }, requirement)
+    ) = GatedParameterImpl<TestEnv, Unit, T, Position.Leading>(base, requirement)
 }

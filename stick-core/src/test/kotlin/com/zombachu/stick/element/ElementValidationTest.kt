@@ -24,7 +24,7 @@ class ElementValidationTest {
     @Test
     fun `SenderValidator fails invalid sender`() {
         val requirement = Requirement<TestEnv, Unit> { failSender() }
-        val parameter = transformed(requirement)
+        val parameter = gatedParameter(requirement)
 
         val result = withInvocation { parameter.validateSender() }
 
@@ -34,17 +34,13 @@ class ElementValidationTest {
     @Test
     fun `SenderValidator passes valid sender`() {
         val requirement = Requirement<TestEnv, Unit> { success() }
-        val parameter = transformed(requirement)
+        val parameter = gatedParameter(requirement)
 
         val result = withInvocation { parameter.validateSender() }
 
         assertTrue(result.isSuccess())
     }
 
-    private fun transformed(requirement: Requirement<TestEnv, Unit>) =
-        TransformedParameter<TestEnv, Unit, Unit, String, Position.Leading>(
-            StringParameter("", ""),
-            { it },
-            requirement,
-        )
+    private fun gatedParameter(requirement: Requirement<TestEnv, Unit>) =
+        GatedParameterImpl<TestEnv, Unit, String, Position.Leading>(StringParameter("", ""), requirement)
 }

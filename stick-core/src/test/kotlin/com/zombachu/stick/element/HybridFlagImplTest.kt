@@ -132,11 +132,11 @@ class HybridFlagImplTest {
     }
 
     @Test
-    fun `TransformedHybridFlag delegates parse to flag parameter`() {
+    fun `GatedHybridFlag delegates parse to flag parameter`() {
         val invalidDefault = invalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>>(HybridFlagResult.Absent())
-        val transformed = TransformedHybridFlag(flag, { }, invalidDefault)
+        val gated = GatedHybridFlag(SenderMappedHybridFlag(flag, { _: Int -> }), invalidDefault)
 
-        val result = withExecutionSender(1) { transformed.parse(["-boost", "5"]) }
+        val result = withExecutionSender(1) { gated.parse(["-boost", "5"]) }
 
         val value = result.expectSuccessValue()
         assertIs<HybridFlagResult.Value<Int>>(value)
@@ -144,38 +144,38 @@ class HybridFlagImplTest {
     }
 
     @Test
-    fun `TransformedHybridFlag validateSender delegates to invalid sender default`() {
+    fun `GatedHybridFlag validateSender delegates to invalid sender default`() {
         var validated = false
         val invalidDefault =
             invalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>>(HybridFlagResult.Absent()) {
                 validated = true
                 success()
             }
-        val transformed = TransformedHybridFlag(flag, { }, invalidDefault)
+        val gated = GatedHybridFlag(SenderMappedHybridFlag(flag, { _: Int -> }), invalidDefault)
 
-        val result = withInvocation(1) { transformed.validateSender() }
+        val result = withInvocation(1) { gated.validateSender() }
 
         assertTrue(result.isSuccess())
         assertTrue(validated)
     }
 
     @Test
-    fun `TransformedHybridFlag default for accessible flag returns Absent`() {
+    fun `GatedHybridFlag default for accessible flag returns Absent`() {
         val invalidDefault = invalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>>(HybridFlagResult.Present())
-        val transformed = TransformedHybridFlag(flag, { }, invalidDefault)
-        val result = transformed.default(testExecutionSender(1))
+        val gated = GatedHybridFlag(SenderMappedHybridFlag(flag, { _: Int -> }), invalidDefault)
+        val result = gated.default(testExecutionSender(1))
         assertIs<HybridFlagResult.Absent<Int>>(result.expectSuccessValue())
     }
 
     @Test
-    fun `TransformedHybridFlag default for inaccessible flag returns invalid sender default`() {
+    fun `GatedHybridFlag default for inaccessible flag returns invalid sender default`() {
         val invalidDefault =
             invalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>>(HybridFlagResult.Present()) {
                 failSenderType(String::class)
             }
-        val transformed = TransformedHybridFlag(flag, { }, invalidDefault)
+        val gated = GatedHybridFlag(SenderMappedHybridFlag(flag, { _: Int -> }), invalidDefault)
 
-        val result = transformed.default(testExecutionSender(1))
+        val result = gated.default(testExecutionSender(1))
 
         assertIs<HybridFlagResult.Present<Int>>(result.expectSuccessValue())
     }

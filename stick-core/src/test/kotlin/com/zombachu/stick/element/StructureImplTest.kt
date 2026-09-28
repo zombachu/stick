@@ -113,34 +113,33 @@ class StructureImplTest {
     }
 
     @Test
-    fun `TransformedStructure delegates parse to base`() {
+    fun `SenderMappedStructure delegates parse to base`() {
         val base = structure(name = "cmd")
-        val requirement = Requirement<TestEnv, Int> { success() }
-        val transformed = TransformedStructure(base, { _: Int -> }, requirement)
+        val mapped = SenderMappedStructure(base, { _: Int -> })
 
-        val result = withExecutionSender(1, "cmd") { transformed.parse(["cmd"]) }
+        val result = withExecutionSender(1, "cmd") { mapped.parse(["cmd"]) }
 
         assertTrue(result.isSuccess())
     }
 
     @Test
-    fun `TransformedStructure validateSender includes base requirement`() {
+    fun `GatedStructure validateSender includes base requirement`() {
         val base = structure(name = "cmd", requirement = Requirement { failSender() })
         val requirement = Requirement<TestEnv, Int> { success() }
-        val transformed = TransformedStructure(base, { _: Int -> }, requirement)
+        val gated = GatedStructure(SenderMappedStructure(base, { _: Int -> }), requirement)
 
-        val result = withInvocation(1) { transformed.validateSender() }
+        val result = withInvocation(1) { gated.validateSender() }
 
         assertFalse(result.isSuccess())
     }
 
     @Test
-    fun `TransformedStructure validateSender skips transform when requirement fails`() {
+    fun `GatedStructure validateSender skips transform when requirement fails`() {
         val base = structure(name = "cmd")
         val requirement = Requirement<TestEnv, Int> { failSenderType(String::class) }
-        val transformed = TransformedStructure(base, { _: Int -> error("transform ran") }, requirement)
+        val gated = GatedStructure(SenderMappedStructure(base, { _: Int -> error("transform ran") }), requirement)
 
-        val result = withInvocation(1) { transformed.validateSender() }
+        val result = withInvocation(1) { gated.validateSender() }
 
         assertFalse(result.isSuccess())
     }

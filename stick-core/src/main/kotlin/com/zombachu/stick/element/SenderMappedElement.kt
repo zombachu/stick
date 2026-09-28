@@ -11,25 +11,16 @@ import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
-import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
-import com.zombachu.stick.consuming
-import com.zombachu.stick.isSuccess
-import com.zombachu.stick.propagateError
-import com.zombachu.stick.success
 
-internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T, P : Position>(
-    val base: Parameter<E, S2, T, P>,
-    val transform: (S) -> S2,
-    val requirement: Requirement<E, S>,
-) : ValidatedParameter<E, S, T, P>, InternalConsumingElement<E, S, T>, SenderValidator<E, S> {
+internal class SenderMappedParameter<E : Environment, S, S2 : Any, T, P : Position>(
+    private val base: Parameter<E, S2, T, P>,
+    private val transform: (S) -> S2,
+) : Parameter<E, S, T, P>(base.size, base.name, base.description) {
 
-    override val size: Size = base.size
     override val type: GroupableType = base.type
-    override val name: String = base.name
-    override val description: String = base.description
 
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
@@ -62,25 +53,14 @@ internal class TransformedParameter<E : Environment, S : Any, S2 : Any, T, P : P
             return base.getSyntax()
         }
     }
-
-    context(inv: Invocation<E, S>)
-    override fun validateSender(): CommandResult<Unit> = requirement.validateSender()
 }
 
-internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
+internal class SenderMappedValueFlag<E : Environment, S, S2 : Any, T>(
     private val base: ValueFlag<E, S2, T>,
     private val transform: (S) -> S2,
-    private val invalidSenderDefault: InvalidSenderDefault<E, S, T>,
 ) : ValueFlag<E, S, T>, InternalConsumingElement<E, S, T> {
 
-    override val default: ContextualValue<E, S, T> = {
-        if (validateSender().isSuccess()) {
-            val transformedExecution = forSender(transform)
-            base.default(transformedExecution)
-        } else {
-            invalidSenderDefault.value(this)
-        }
-    }
+    override val default: ContextualValue<E, S, T> = { base.default(forSender(transform)) }
 
     override val size: Size.Bounded = base.size
     override val name: String = base.name
@@ -119,25 +99,24 @@ internal class TransformedValueFlag<E : Environment, S, S2 : Any, T>(
     }
 
     context(inv: Invocation<E, S>)
-    override fun validateSender(): CommandResult<Unit> = invalidSenderDefault.validateSender()
+    override fun validateSender(): CommandResult<Unit> {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
+            return base.validateSender()
+        }
+    }
 }
 
-internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
+internal class SenderMappedHybridFlag<E : Environment, S, S2 : Any, T>(
     private val base: HybridFlag<E, S2, T>,
     private val transform: (S) -> S2,
-    private val invalidSenderDefault: InvalidSenderDefault<E, S, HybridFlagResult<T>>,
 ) : HybridFlag<E, S, T>, InternalConsumingElement<E, S, HybridFlagResult<T>> {
+
+    override val default: ContextualValue<E, S, HybridFlagResult<T>> = { base.default(forSender(transform)) }
 
     override val size: Size.Bounded = base.size
     override val name: String = base.name
     override val description: String = base.description
-    override val default: ContextualValue<E, S, HybridFlagResult<T>> = {
-        if (validateSender().isSuccess()) {
-            success(HybridFlagResult.Absent())
-        } else {
-            invalidSenderDefault.value(this)
-        }
-    }
 
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
@@ -172,13 +151,17 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
     }
 
     context(inv: Invocation<E, S>)
-    override fun validateSender(): CommandResult<Unit> = invalidSenderDefault.validateSender()
+    override fun validateSender(): CommandResult<Unit> {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
+            return base.validateSender()
+        }
+    }
 }
 
-internal class TransformedOptionalParameter<E : Environment, S, S2 : Any, T, P : Position>(
+internal class SenderMappedOptionalParameter<E : Environment, S, S2 : Any, T, P : Position>(
     private val base: OptionalParameter<E, S2, T, P>,
     private val transform: (S) -> S2,
-    private val invalidSenderDefault: InvalidSenderDefault<E, S, T>,
 ) : OptionalParameter<E, S, T, P>, InternalConsumingElement<E, S, T> {
 
     override val size: Size = base.size
@@ -187,9 +170,6 @@ internal class TransformedOptionalParameter<E : Environment, S, S2 : Any, T, P :
 
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
-        invalidSenderDefault.validateSender().propagateError {
-            return if (args.isEmpty()) MatchResult.matchedAtLeast(0) else MatchResult.unmatched(it)
-        }
         val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.match(args)
@@ -198,9 +178,6 @@ internal class TransformedOptionalParameter<E : Environment, S, S2 : Any, T, P :
 
     context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        invalidSenderDefault.validateSender().propagateError {
-            return []
-        }
         val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.suggest(preceding, partial)
@@ -209,9 +186,6 @@ internal class TransformedOptionalParameter<E : Environment, S, S2 : Any, T, P :
 
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> {
-        invalidSenderDefault.validateSender().propagateError {
-            return if (args.isEmpty()) invalidSenderDefault.value(ex).consuming(0) else it
-        }
         val transformedExecution = ex.forSender(transform)
         context(transformedExecution) {
             return base.parse(args)
@@ -220,7 +194,6 @@ internal class TransformedOptionalParameter<E : Environment, S, S2 : Any, T, P :
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String {
-        if (!invalidSenderDefault.validateSender().isSuccess()) return ""
         val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.getSyntax()
@@ -228,10 +201,9 @@ internal class TransformedOptionalParameter<E : Environment, S, S2 : Any, T, P :
     }
 }
 
-internal class TransformedOptionalGroup<E : Environment, S, S2 : Any, G : GroupResult?, P : Position>(
+internal class SenderMappedOptionalGroup<E : Environment, S, S2 : Any, G : GroupResult?, P : Position>(
     private val base: OptionalGroup<E, S2, G, P>,
     private val transform: (S) -> S2,
-    private val invalidSenderDefault: InvalidSenderDefault<E, S, G>,
 ) : OptionalGroup<E, S, G, P>, InternalElement<E, S, G> {
 
     override val size: Size = base.size
@@ -240,9 +212,6 @@ internal class TransformedOptionalGroup<E : Environment, S, S2 : Any, G : GroupR
 
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
-        invalidSenderDefault.validateSender().propagateError {
-            return if (args.isEmpty()) MatchResult.matchedAtLeast(0) else MatchResult.unmatched(it)
-        }
         val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.match(args)
@@ -251,9 +220,6 @@ internal class TransformedOptionalGroup<E : Environment, S, S2 : Any, G : GroupR
 
     context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        invalidSenderDefault.validateSender().propagateError {
-            return []
-        }
         val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.suggest(preceding, partial)
@@ -262,9 +228,6 @@ internal class TransformedOptionalGroup<E : Environment, S, S2 : Any, G : GroupR
 
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): CommandResult<G> {
-        invalidSenderDefault.validateSender().propagateError {
-            return if (args.isEmpty()) invalidSenderDefault.value(ex) else it
-        }
         val transformedExecution = ex.forSender(transform)
         context(transformedExecution) {
             return base.parse(args)
@@ -273,7 +236,6 @@ internal class TransformedOptionalGroup<E : Environment, S, S2 : Any, G : GroupR
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String {
-        if (!invalidSenderDefault.validateSender().isSuccess()) return ""
         val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.getSyntax()
@@ -281,19 +243,17 @@ internal class TransformedOptionalGroup<E : Environment, S, S2 : Any, G : GroupR
     }
 }
 
-internal class TransformedStructure<E : Environment, S, S2 : Any, T_ : Arguments>(
+internal class SenderMappedStructure<E : Environment, S, S2 : Any, T_ : Arguments>(
     base: Structure<E, S2, T_>,
     transform: (S) -> S2,
-    requirement: Requirement<E, S>,
-) : TransformedBranch<E, S, S2, T_>(base, transform, requirement), Structure<E, S, T_> {
+) : SenderMappedBranch<E, S, S2, T_>(base, transform), Structure<E, S, T_> {
     override val label: String = base.label
     override val aliases: Set<String> = base.aliases
 }
 
-internal open class TransformedBranch<E : Environment, S, S2 : Any, T_ : Arguments>(
+internal open class SenderMappedBranch<E : Environment, S, S2 : Any, T_ : Arguments>(
     base: Branch<E, S2, T_>,
     private val transform: (S) -> S2,
-    private val requirement: Requirement<E, S>,
 ) : InternalBranch<E, S, T_>, SenderValidator<E, S> {
 
     private val base: InternalBranch<E, S2, T_> = base as InternalBranch<E, S2, T_>
@@ -349,9 +309,6 @@ internal open class TransformedBranch<E : Environment, S, S2 : Any, T_ : Argumen
 
     context(inv: Invocation<E, S>)
     override fun validateSender(): CommandResult<Unit> {
-        requirement.validateSender().propagateError {
-            return it
-        }
         val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.validateSender()

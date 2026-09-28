@@ -97,7 +97,7 @@ internal interface InternalBranch<in E : Environment, S, T_ : Arguments> : Branc
         suggestBranch(preceding, partial, null)
 }
 
-sealed interface ValidatedParameter<in E : Environment, S, T, out P : Position> :
+sealed interface GatedParameter<in E : Environment, S, T, out P : Position> :
     Groupable<E, S, T, P>, ConsumingElement<E, S, T>
 
 sealed interface OptionalParameter<in E : Environment, S, out T, out P : Position> :

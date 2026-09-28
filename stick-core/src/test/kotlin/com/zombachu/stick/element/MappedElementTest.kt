@@ -187,7 +187,7 @@ class MappedElementTest {
         val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
         val invalidDefault =
             invalidSenderDefault<TestEnv, Int, Boolean>(false) { failSenderType(String::class) }
-        val validated = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidDefault)
+        val validated = GatedValueFlag(SenderMappedValueFlag(base, { it: Int -> it.toString() }), invalidDefault)
         val mapped = MappedValueFlag<TestEnv, Int, Boolean, Boolean>(validated) { success(it) }
 
         val result = withInvocation(1) { mapped.validateSender() }

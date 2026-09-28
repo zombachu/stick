@@ -259,17 +259,18 @@ class ValueFlagImplTest {
     }
 
     @Test
-    fun `TransformedValueFlag delegates to flag parameter`() {
+    fun `GatedValueFlag delegates to flag parameter`() {
         val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
-        val transformed = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidSenderDefault(false))
+        val gated =
+            GatedValueFlag(SenderMappedValueFlag(base, { it: Int -> it.toString() }), invalidSenderDefault(false))
 
-        val result = withExecutionSender(1) { transformed.parse(["-silent"]) }
+        val result = withExecutionSender(1) { gated.parse(["-silent"]) }
 
         assertEquals(true, result.expectSuccessValue())
     }
 
     @Test
-    fun `TransformedValueFlag validateSender delegates to invalid sender default`() {
+    fun `GatedValueFlag validateSender delegates to invalid sender default`() {
         var validated = false
         val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
         val invalidDefault =
@@ -277,30 +278,31 @@ class ValueFlagImplTest {
                 validated = true
                 success()
             }
-        val transformed = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidDefault)
+        val gated = GatedValueFlag(SenderMappedValueFlag(base, { it: Int -> it.toString() }), invalidDefault)
 
-        val result = withInvocation(1) { transformed.validateSender() }
+        val result = withInvocation(1) { gated.validateSender() }
 
         assertTrue(result.isSuccess())
         assertTrue(validated)
     }
 
     @Test
-    fun `TransformedValueFlag default for accessible flag returns Absent`() {
+    fun `GatedValueFlag default for accessible flag returns Absent`() {
         val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
-        val transformed = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidSenderDefault(true))
-        val result = transformed.default(testExecutionSender(1))
+        val gated =
+            GatedValueFlag(SenderMappedValueFlag(base, { it: Int -> it.toString() }), invalidSenderDefault(true))
+        val result = gated.default(testExecutionSender(1))
         assertEquals(false, result.expectSuccessValue())
     }
 
     @Test
-    fun `TransformedValueFlag default for inaccessible flag returns invalid sender default`() {
+    fun `GatedValueFlag default for inaccessible flag returns invalid sender default`() {
         val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
         val invalidDefault =
             invalidSenderDefault<TestEnv, Int, Boolean>(true) { failSenderType(String::class) }
-        val transformed = TransformedValueFlag(base, { it: Int -> it.toString() }, invalidDefault)
+        val gated = GatedValueFlag(SenderMappedValueFlag(base, { it: Int -> it.toString() }), invalidDefault)
 
-        val result = transformed.default(testExecutionSender(1))
+        val result = gated.default(testExecutionSender(1))
 
         assertEquals(true, result.expectSuccessValue())
     }
