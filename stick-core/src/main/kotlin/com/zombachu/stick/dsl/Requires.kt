@@ -33,7 +33,6 @@ import kotlin.reflect.KClass
 @OverloadResolutionByLambdaReturnType
 inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline parameter: StructureScope<E, S2>.() -> Parameter<E, S2, T, P>,
 ): GatedParameter<E, S, T, P> =
     GatedParameterImpl(
@@ -45,7 +44,6 @@ inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> Structure
 inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
     invalidSenderDefault: InvalidSenderDefault<E, S, T>,
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline flag: StructureScope<E, S2>.() -> ValueFlag<E, S2, T>,
 ): ValueFlag<E, S, T> =
     GatedValueFlag(
@@ -60,7 +58,6 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
 inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
     invalidSenderDefault: InvalidSenderDefault<E, S, HybridFlagResult<T>>,
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline flag: StructureScope<E, S2>.() -> HybridFlag<E, S2, T>,
 ): HybridFlag<E, S, T> =
     GatedHybridFlag(
@@ -75,7 +72,6 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
 inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
     invalidSenderDefault: InvalidSenderDefault<E, S, T>,
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline optional: StructureScope<E, S2>.() -> OptionalParameter<E, S2, T, P>,
 ): OptionalParameter<E, S, T, P> =
     GatedOptionalParameter(
@@ -91,7 +87,6 @@ inline fun <E : Environment, S : Any, reified S2 : S, G : GroupResult?, P : Posi
     .requireSender(
     senderType: KClass<S2>,
     invalidSenderDefault: InvalidSenderDefault<E, S, G>,
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline optional: StructureScope<E, S2>.() -> OptionalGroup<E, S2, G, P>,
 ): OptionalGroup<E, S, G, P> =
     GatedOptionalGroup(
@@ -105,7 +100,6 @@ inline fun <E : Environment, S : Any, reified S2 : S, G : GroupResult?, P : Posi
 @OverloadResolutionByLambdaReturnType
 inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline command: StructureScope<E, S2>.() -> Structure<E, S2, T_>,
 ): Structure<E, S, T_> =
     GatedStructure(
@@ -117,7 +111,6 @@ inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureS
 @OverloadResolutionByLambdaReturnType
 inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureScope<E, S>.branchRequireSender(
     senderType: KClass<S2>,
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline branch: StructureScope<E, S2>.() -> Branch<E, S2, T_>,
 ): Branch<E, S, T_> =
     GatedBranch(
@@ -128,42 +121,36 @@ inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureS
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T, P : Position> StructureScope<E, S>.require(
     requirement: Requirement<E, S>,
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     parameter: StructureScope<E, S>.() -> Parameter<E, S, T, P>,
 ): GatedParameter<E, S, T, P> = GatedParameterImpl(parameter(this.forSender()), requirement)
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
     invalidSenderDefault: InvalidSenderDefault<E, S, T>,
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     flag: StructureScope<E, S>.() -> ValueFlag<E, S, T>,
 ): ValueFlag<E, S, T> = GatedValueFlag(flag(this.forSender()), invalidSenderDefault)
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
     invalidSenderDefault: InvalidSenderDefault<E, S, HybridFlagResult<T>>,
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     flag: StructureScope<E, S>.() -> HybridFlag<E, S, T>,
 ): HybridFlag<E, S, T> = GatedHybridFlag(flag(this.forSender()), invalidSenderDefault)
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T, P : Position> StructureScope<E, S>.require(
     invalidSenderDefault: InvalidSenderDefault<E, S, T>,
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     optional: StructureScope<E, S>.() -> OptionalParameter<E, S, T, P>,
 ): OptionalParameter<E, S, T, P> = GatedOptionalParameter(optional(this.forSender()), invalidSenderDefault)
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, G : GroupResult?, P : Position> StructureScope<E, S>.require(
     invalidSenderDefault: InvalidSenderDefault<E, S, G>,
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     optional: StructureScope<E, S>.() -> OptionalGroup<E, S, G, P>,
 ): OptionalGroup<E, S, G, P> = GatedOptionalGroup(optional(this.forSender()), invalidSenderDefault)
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T : Arguments> StructureScope<E, S>.require(
     requirement: Requirement<E, S> = requirement { success() },
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     command: StructureScope<E, S>.() -> Structure<E, S, T>,
 ): Structure<E, S, T> = GatedStructure(command(this.forSender()), requirement)
 
@@ -171,6 +158,5 @@ fun <E : Environment, S : Any, T : Arguments> StructureScope<E, S>.require(
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T : Arguments> StructureScope<E, S>.branchRequire(
     requirement: Requirement<E, S> = requirement { success() },
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     branch: StructureScope<E, S>.() -> Branch<E, S, T>,
 ): Branch<E, S, T> = GatedBranch(branch(this.forSender()), requirement)
