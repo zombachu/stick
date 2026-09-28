@@ -13,7 +13,7 @@ import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.dsl.booleanParameter
 import com.zombachu.stick.dsl.branch
 import com.zombachu.stick.dsl.branchRequire
-import com.zombachu.stick.dsl.branchRequireIs
+import com.zombachu.stick.dsl.branchRequireSender
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.doubleParameter
 import com.zombachu.stick.dsl.enumParameter
@@ -25,7 +25,7 @@ import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.listElementParameter
 import com.zombachu.stick.dsl.literalParameter
-import com.zombachu.stick.dsl.requireIs
+import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.store
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
@@ -113,8 +113,8 @@ class GroupTest {
             override val structure = structure {
                 command(name = "warp", aliases = ["warps"], requirement = permission("server.warp"))(
                     group(
-                        requireIs(Player::class) { WarpTpCommand().structure },
-                        requireIs(Player::class) { WarpCreateCommand().structure },
+                        requireSender(Player::class) { WarpTpCommand().structure },
+                        requireSender(Player::class) { WarpCreateCommand().structure },
                         WarpInfoCommand().structure,
                     )
                 )
@@ -149,11 +149,11 @@ class GroupTest {
     }
 
     @Test
-    fun `warp - requireIs hides inaccessible commands`() {
+    fun `warp - requireSender hides inaccessible commands`() {
         val warpCommand = structure(WarpableServer::class, Sender::class) {
             command("warp", requirement = permission("server.warp"))(
                 group(
-                    requireIs(Player::class) {
+                    requireSender(Player::class) {
                         command("tp", requirement = permission("server.warp.tp"))(
                             warpParameter("warp"),
                         ) { warp ->
@@ -188,7 +188,7 @@ class GroupTest {
         val warpCommand = structure(WarpableServer::class, Sender::class) {
             command("warp")(
                 group(
-                    requireIs(Player::class) {
+                    requireSender(Player::class) {
                         command("tp", requirement = permission("server.warp.tp"))(
                             warpParameter("warp"),
                         ) { warp ->
@@ -211,7 +211,7 @@ class GroupTest {
                             }
                         }
                     },
-                    requireIs(Player::class) {
+                    requireSender(Player::class) {
                         command("create", requirement = permission("server.warp.create"))(
                             worldHelper(),
                             stringParameter("name"),
@@ -498,7 +498,7 @@ class GroupTest {
                         command("list")() {
                             sender.log("Warps: ${env.warps.names.joinToString(", ")}")
                         },
-                        requireIs(Player::class) {
+                        requireSender(Player::class) {
                             command("delete")(warpParameter("warp")) { warp ->
                                 sender.log("Deleted ${warp.name}")
                             }
@@ -726,7 +726,7 @@ class GroupTest {
     }
 
     @Test
-    fun `warp - requireIs narrows branch sender`() {
+    fun `warp - requireSender narrows branch sender`() {
         val targetWarp: TypedIdentifier<Warp> = id("warp")
         val warpCommand = structure(WarpableServer::class, Sender::class) {
             command("warp")(
@@ -734,7 +734,7 @@ class GroupTest {
                     command("list")() {
                         sender.log("Warps: ${env.warps.names.joinToString(", ")}")
                     },
-                    branchRequireIs(Player::class) {
+                    branchRequireSender(Player::class) {
                         branch(warpParameter("warp").store(targetWarp))(
                             subcommands(
                                 command("tp")(

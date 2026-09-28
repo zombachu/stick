@@ -25,7 +25,7 @@ import com.zombachu.stick.dsl.optionally
 import com.zombachu.stick.dsl.optionallyNullable
 import com.zombachu.stick.dsl.optionals
 import com.zombachu.stick.dsl.require
-import com.zombachu.stick.dsl.requireIs
+import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.subcommands
 import com.zombachu.stick.dsl.valueFlag
@@ -66,7 +66,7 @@ class SuggestionTest {
         val warpCommand = structure(WarpableServer::class, Sender::class) {
             command("warp")(
                 group(
-                    requireIs(Player::class) {
+                    requireSender(Player::class) {
                         command(name = "tp", aliases = ["goto"])(
                             warpParameter("warp")
                         ) { }
@@ -239,7 +239,7 @@ class SuggestionTest {
     @Test
     fun `setwarp - variable size parameter can complete early`() {
         val setWarpCommand = structure(Server::class, Sender::class) {
-            requireIs(Player::class) {
+            requireSender(Player::class) {
                 command("setwarp")(
                     flag("announce"),
                     LocationParameter(),

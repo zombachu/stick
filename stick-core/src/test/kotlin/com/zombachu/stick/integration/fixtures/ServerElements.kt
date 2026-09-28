@@ -17,8 +17,9 @@ import com.zombachu.stick.Suggestion
 import com.zombachu.stick.consuming
 import com.zombachu.stick.dsl.defaultSender
 import com.zombachu.stick.dsl.helper
+import com.zombachu.stick.dsl.mapSender
 import com.zombachu.stick.dsl.optionally
-import com.zombachu.stick.dsl.requireAs
+import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.requirement
 import com.zombachu.stick.element.GatedParameter
 import com.zombachu.stick.element.Helper
@@ -122,21 +123,17 @@ fun <E : Environment, S> StructureScope<E, S>.bioParameter(name: String): BioPar
 fun <E : Environment, T_ : Arguments> StructureScope<E, Sender>.requireSocialData(
     command: StructureScope<E, SocialData>.() -> Structure<E, SocialData, T_>
 ): Structure<E, Sender, T_> =
-    requireAs(
-        { (it as Player).socialData },
-        requirement { sender is Player },
-        command,
-    )
+    requireSender(Player::class) {
+        mapSender({ it.socialData }, command)
+    }
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, T, P : Position> StructureScope<E, Sender>.requireSocialData(
     parameter: StructureScope<E, SocialData>.() -> Parameter<E, SocialData, T, P>
 ): GatedParameter<E, Sender, T, P> =
-    requireAs(
-        { (it as Player).socialData },
-        requirement { sender is Player },
-        parameter
-    )
+    requireSender(Player::class) {
+        mapSender({ it.socialData }, parameter)
+    }
 
 // --- helpers ------------------------------------------------------------------------------------------------------
 

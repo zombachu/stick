@@ -23,13 +23,6 @@ import com.zombachu.stick.element.InvalidSenderDefault
 import com.zombachu.stick.element.OptionalGroup
 import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.Parameter
-import com.zombachu.stick.element.SenderMappedBranch
-import com.zombachu.stick.element.SenderMappedHybridFlag
-import com.zombachu.stick.element.SenderMappedOptionalGroup
-import com.zombachu.stick.element.SenderMappedOptionalParameter
-import com.zombachu.stick.element.SenderMappedParameter
-import com.zombachu.stick.element.SenderMappedStructure
-import com.zombachu.stick.element.SenderMappedValueFlag
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.ValueFlag
 import com.zombachu.stick.failSenderType
@@ -38,171 +31,98 @@ import kotlin.experimental.ExperimentalTypeInference
 import kotlin.reflect.KClass
 
 @OverloadResolutionByLambdaReturnType
-fun <S : Any, S2 : Any, E : Environment, T, P : Position> StructureScope<E, S>.requireAs(
-    transform: (S) -> S2,
-    requirement: Requirement<E, S> = requirement { success() },
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    parameter: StructureScope<E, S2>.() -> Parameter<E, S2, T, P>,
-): GatedParameter<E, S, T, P> =
-    GatedParameterImpl(SenderMappedParameter(parameter(this.forSender()), transform), requirement)
-
-@OverloadResolutionByLambdaReturnType
-fun <E : Environment, S : Any, S2 : Any, T> StructureScope<E, S>.requireAs(
-    transform: (S) -> S2,
-    invalidSenderDefault: InvalidSenderDefault<E, S, T>,
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    flag: StructureScope<E, S2>.() -> ValueFlag<E, S2, T>,
-): ValueFlag<E, S, T> = GatedValueFlag(SenderMappedValueFlag(flag(this.forSender()), transform), invalidSenderDefault)
-
-@OverloadResolutionByLambdaReturnType
-fun <E : Environment, S : Any, S2 : Any, T> StructureScope<E, S>.requireAs(
-    transform: (S) -> S2,
-    invalidSenderDefault: InvalidSenderDefault<E, S, HybridFlagResult<T>>,
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    flag: StructureScope<E, S2>.() -> HybridFlag<E, S2, T>,
-): HybridFlag<E, S, T> =
-    GatedHybridFlag(SenderMappedHybridFlag(flag(this.forSender()), transform), invalidSenderDefault)
-
-@OverloadResolutionByLambdaReturnType
-fun <E : Environment, S : Any, S2 : Any, T, P : Position> StructureScope<E, S>.requireAs(
-    transform: (S) -> S2,
-    invalidSenderDefault: InvalidSenderDefault<E, S, T>,
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    optional: StructureScope<E, S2>.() -> OptionalParameter<E, S2, T, P>,
-): OptionalParameter<E, S, T, P> =
-    GatedOptionalParameter(
-        SenderMappedOptionalParameter(optional(this.forSender()), transform),
-        invalidSenderDefault,
-    )
-
-@OverloadResolutionByLambdaReturnType
-fun <E : Environment, S : Any, S2 : Any, G : GroupResult?, P : Position> StructureScope<E, S>.requireAs(
-    transform: (S) -> S2,
-    invalidSenderDefault: InvalidSenderDefault<E, S, G>,
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    optional: StructureScope<E, S2>.() -> OptionalGroup<E, S2, G, P>,
-): OptionalGroup<E, S, G, P> =
-    GatedOptionalGroup(SenderMappedOptionalGroup(optional(this.forSender()), transform), invalidSenderDefault)
-
-@OverloadResolutionByLambdaReturnType
-fun <E : Environment, S : Any, S2 : Any, T_ : Arguments> StructureScope<E, S>.requireAs(
-    transform: (S) -> S2,
-    requirement: Requirement<E, S> = requirement { success() },
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    command: StructureScope<E, S2>.() -> Structure<E, S2, T_>,
-): Structure<E, S, T_> = GatedStructure(SenderMappedStructure(command(this.forSender()), transform), requirement)
-
-// TODO: unify with requireAs once T_ can be inferred
-@OverloadResolutionByLambdaReturnType
-fun <E : Environment, S : Any, S2 : Any, T_ : Arguments> StructureScope<E, S>.branchRequireAs(
-    transform: (S) -> S2,
-    requirement: Requirement<E, S> = requirement { success() },
-    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
-    branch: StructureScope<E, S2>.() -> Branch<E, S2, T_>,
-): Branch<E, S, T_> = GatedBranch(SenderMappedBranch(branch(this.forSender()), transform), requirement)
-
-@OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> StructureScope<E, S>.requireIs(
+inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
-    requirement: Requirement<E, S> = requirement { success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline parameter: StructureScope<E, S2>.() -> Parameter<E, S2, T, P>,
 ): GatedParameter<E, S, T, P> =
-    requireAs(
-        { it as S2 },
-        requirement + requirement({ failSenderType(senderType) }) { sender is S2 },
-        parameter,
+    GatedParameterImpl(
+        mapSender({ it as S2 }, parameter),
+        requirement({ failSenderType(senderType) }) { sender is S2 },
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireIs(
+inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
     invalidSenderDefault: InvalidSenderDefault<E, S, T>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline flag: StructureScope<E, S2>.() -> ValueFlag<E, S2, T>,
 ): ValueFlag<E, S, T> =
-    requireAs(
-        { it as S2 },
+    GatedValueFlag(
+        mapSender({ it as S2 }, flag),
         invalidDefault(
             invalidSenderDefault.value,
             requirement(invalidSenderDefault) + requirement({ failSenderType(senderType) }) { sender is S2 },
         ),
-        flag,
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireIs(
+inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
     invalidSenderDefault: InvalidSenderDefault<E, S, HybridFlagResult<T>>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline flag: StructureScope<E, S2>.() -> HybridFlag<E, S2, T>,
 ): HybridFlag<E, S, T> =
-    requireAs(
-        { it as S2 },
+    GatedHybridFlag(
+        mapSender({ it as S2 }, flag),
         invalidDefault(
             invalidSenderDefault.value,
             requirement(invalidSenderDefault) + requirement({ failSenderType(senderType) }) { sender is S2 },
         ),
-        flag,
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> StructureScope<E, S>.requireIs(
+inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
     invalidSenderDefault: InvalidSenderDefault<E, S, T>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline optional: StructureScope<E, S2>.() -> OptionalParameter<E, S2, T, P>,
 ): OptionalParameter<E, S, T, P> =
-    requireAs(
-        { it as S2 },
+    GatedOptionalParameter(
+        mapSender({ it as S2 }, optional),
         invalidDefault(
             invalidSenderDefault.value,
             requirement(invalidSenderDefault) + requirement({ failSenderType(senderType) }) { sender is S2 },
         ),
-        optional,
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, G : GroupResult?, P : Position> StructureScope<E, S>.requireIs(
+inline fun <E : Environment, S : Any, reified S2 : S, G : GroupResult?, P : Position> StructureScope<E, S>
+    .requireSender(
     senderType: KClass<S2>,
     invalidSenderDefault: InvalidSenderDefault<E, S, G>,
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline optional: StructureScope<E, S2>.() -> OptionalGroup<E, S2, G, P>,
 ): OptionalGroup<E, S, G, P> =
-    requireAs(
-        { it as S2 },
+    GatedOptionalGroup(
+        mapSender({ it as S2 }, optional),
         invalidDefault(
             invalidSenderDefault.value,
             requirement(invalidSenderDefault) + requirement({ failSenderType(senderType) }) { sender is S2 },
         ),
-        optional,
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureScope<E, S>.requireIs(
+inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
-    requirement: Requirement<E, S> = requirement { success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline command: StructureScope<E, S2>.() -> Structure<E, S2, T_>,
 ): Structure<E, S, T_> =
-    requireAs(
-        { it as S2 },
-        requirement + requirement({ failSenderType(senderType) }) { sender is S2 },
-        command,
+    GatedStructure(
+        mapSender({ it as S2 }, command),
+        requirement({ failSenderType(senderType) }) { sender is S2 },
     )
 
-// TODO: unify with requireIs once T_ can be inferred
+// TODO: unify with requireSender once T_ can be inferred
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureScope<E, S>.branchRequireIs(
+inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureScope<E, S>.branchRequireSender(
     senderType: KClass<S2>,
-    requirement: Requirement<E, S> = requirement { success() },
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     noinline branch: StructureScope<E, S2>.() -> Branch<E, S2, T_>,
 ): Branch<E, S, T_> =
-    branchRequireAs(
-        { it as S2 },
-        requirement + requirement({ failSenderType(senderType) }) { sender is S2 },
-        branch,
+    GatedBranch(
+        branchMapSender({ it as S2 }, branch),
+        requirement({ failSenderType(senderType) }) { sender is S2 },
     )
 
 @OverloadResolutionByLambdaReturnType

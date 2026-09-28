@@ -3,7 +3,7 @@ package com.zombachu.stick.paper
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
-import com.zombachu.stick.dsl.requireIs
+import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.textParameter
 import com.zombachu.stick.noopFailureHandler
 import com.zombachu.stick.paper.dsl.permission
@@ -111,7 +111,7 @@ class BukkitCommandAdapterTest {
     @Test
     fun `testPermissionSilent sees base permission of a sender-narrowed command`() {
         val structure = bukkitStructure {
-            requireIs(FakeCommandSender::class) {
+            requireSender(FakeCommandSender::class) {
                 command("cmd", requirement = permission("stick.cmd"))() { }
             }
         }

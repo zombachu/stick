@@ -1,22 +1,21 @@
 package com.zombachu.stick.integration
 
-import com.zombachu.stick.Arguments1
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.dsl.branch
-import com.zombachu.stick.dsl.branchRequireAs
+import com.zombachu.stick.dsl.branchMapSender
+import com.zombachu.stick.dsl.branchRequireSender
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.group
 import com.zombachu.stick.dsl.hybridFlag
 import com.zombachu.stick.dsl.invalidDefault
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
+import com.zombachu.stick.dsl.mapSender
 import com.zombachu.stick.dsl.nullableValueFlag
 import com.zombachu.stick.dsl.optionallyNullable
 import com.zombachu.stick.dsl.require
-import com.zombachu.stick.dsl.requireAs
-import com.zombachu.stick.dsl.requireIs
-import com.zombachu.stick.dsl.requirement
+import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.subcommands
@@ -45,6 +44,11 @@ class SenderRequirementTest {
     private val console = Console()
     private val server = SynergyServer([zombachu, steve])
 
+    // KNOWN LIMITATION: mapSender's overloads differ only in the block's return type, so a lambda-literal or
+    // callable-reference transform is ambiguous even with explicit type arguments; it needs a function-typed value
+    // TODO: fix
+    private val toSocialData: (Player) -> SocialData = { it.socialData }
+
     @Test
     fun `broadcast - permission validates sender permission`() {
         val broadcastCommand = structure(Server::class, Sender::class) {
@@ -65,9 +69,9 @@ class SenderRequirementTest {
     }
 
     @Test
-    fun `spawn - requireIs validates and transforms sender`() {
+    fun `spawn - requireSender validates and transforms sender`() {
         val spawnCommand = structure(Server::class, Sender::class) {
-            requireIs(Player::class) {
+            requireSender(Player::class) {
                 command("spawn")() {
                     sender.world = "overworld"
                     sender.log("Teleported to spawn")
@@ -84,7 +88,7 @@ class SenderRequirementTest {
         val whoisCommand = structure(Server::class, Sender::class) {
             command("whois")(
                 group(
-                    requireIs(Player::class) {
+                    requireSender(Player::class) {
                         literalParameter("me")
                     },
                     command("ip", requirement = permission("server.whois.ip"), aliases = ["address"])(
@@ -121,7 +125,7 @@ class SenderRequirementTest {
     }
 
     @Test
-    fun `bio - requireAs validates and transforms sender for parameter`() {
+    fun `bio - mapSender transforms narrowed sender for parameter`() {
         val bioCommand = structure(Server::class, Sender::class) {
             command("bio")(
                 group(
@@ -146,19 +150,18 @@ class SenderRequirementTest {
     }
 
     @Test
-    fun `realname - requireAs validates and transforms sender for command`() {
+    fun `realname - mapSender transforms narrowed sender for command`() {
         val realNameCommand = structure(Server::class, Sender::class) {
             command("realname")(
                 group(
                     literalParameter("me"),
-                    requireAs<Server, Sender, SocialData, Arguments1<String>>(
-                        { (it as Player).socialData },
-                        requirement { sender is Player },
-                    ) {
-                        command("player")(
-                            realNameParameter("nickname")
-                        ) { realName ->
-                            sender.player.log("That player's real name is: $realName")
+                    requireSender(Player::class) {
+                        mapSender(toSocialData) {
+                            command("player")(
+                                realNameParameter("nickname")
+                            ) { realName ->
+                                sender.player.log("That player's real name is: $realName")
+                            }
                         }
                     },
                 )
@@ -176,17 +179,16 @@ class SenderRequirementTest {
     }
 
     @Test
-    fun `realname - requireAs validates and transforms sender for branch`() {
+    fun `realname - mapSender transforms narrowed sender for branch`() {
         val realNameCommand = structure(Server::class, Sender::class) {
             command("realname")(
                 group(
                     literalParameter("me"),
-                    branchRequireAs(
-                        { (it as Player).socialData },
-                        requirement { sender is Player },
-                    ) {
-                        branch(realNameParameter("nickname"))() { realName ->
-                            sender.player.log("That player's real name is: $realName")
+                    branchRequireSender(Player::class) {
+                        branchMapSender({ it.socialData }) {
+                            branch(realNameParameter("nickname"))() { realName ->
+                                sender.player.log("That player's real name is: $realName")
+                            }
                         }
                     },
                 )
@@ -204,17 +206,13 @@ class SenderRequirementTest {
     }
 
     @Test
-    fun `realname - requireAs validates and transforms sender for flag`() {
+    fun `realname - mapSender transforms narrowed sender for flag`() {
         val realNameCommand = structure(Server::class, Sender::class) {
             command("realname")(
-                // KNOWN LIMITATION: a lambda-literal transform can't choose between requireAs's ValueFlag and optional
-                // overloads, so it needs explicit type arguments or a function-typed transform
-                // TODO: fix
-                requireAs<Server, Sender, SocialData, String?>(
-                    { (it as Player).socialData },
-                    invalidDefault("   ", requirement { sender is Player }),
-                ) {
-                    nullableValueFlag(name = "nickname", parameter = realNameParameter("name"))
+                requireSender(Player::class, invalidDefault("   ")) {
+                    mapSender(toSocialData) {
+                        nullableValueFlag(name = "nickname", parameter = realNameParameter("name"))
+                    }
                 }
             ) { realName ->
                 if (realName == null) {
@@ -239,14 +237,13 @@ class SenderRequirementTest {
     }
 
     @Test
-    fun `realname - requireAs validates and transforms sender for hybrid flag`() {
+    fun `realname - mapSender transforms narrowed sender for hybrid flag`() {
         val realNameCommand = structure(Server::class, Sender::class) {
             command("realname")(
-                requireAs<Server, Sender, SocialData, String>(
-                    { (it as Player).socialData },
-                    invalidDefault(HybridFlagResult.Absent(), requirement { sender is Player }),
-                ) {
-                    hybridFlag("nickname", realNameParameter("name"))
+                requireSender(Player::class, invalidDefault(HybridFlagResult.Absent())) {
+                    mapSender(toSocialData) {
+                        hybridFlag("nickname", realNameParameter("name"))
+                    }
                 }
             ) { realName ->
                 when (realName) {
@@ -277,12 +274,13 @@ class SenderRequirementTest {
     }
 
     @Test
-    fun `realname - requireAs validates and transforms sender for optional`() {
-        val toSocialData: (Sender) -> SocialData = { (it as Player).socialData }
+    fun `realname - mapSender transforms narrowed sender for optional`() {
         val realNameCommand = structure(Server::class, Sender::class) {
             command("realname")(
-                requireAs(toSocialData, invalidDefault(null, requirement { sender is Player })) {
-                    optionallyNullable(realNameParameter("name"))
+                requireSender(Player::class, invalidDefault(null)) {
+                    mapSender(toSocialData) {
+                        optionallyNullable(realNameParameter("name"))
+                    }
                 }
             ) { realName ->
                 if (realName == null) {
@@ -304,13 +302,13 @@ class SenderRequirementTest {
         assertEquals(["Your name is Console"], console.logs)
 
         assertEquals(
-            Reason.InvalidSender,
+            Reason.InvalidSenderType(Player::class),
             realNameCommand.executeExpectingError(server, console, "/realname Alexandra"),
         )
     }
 
     @Test
-    fun `home - requireAs swaps the sender for the whole command scope`() {
+    fun `home - mapSender swaps the sender for the whole command scope`() {
         val bioLineCommand = structure(Server::class, Sender::class) {
             requireSocialData {
                 command("bio")(
@@ -345,9 +343,9 @@ class SenderRequirementTest {
     }
 
     @Test
-    fun `echo - requireIs gates command`() {
+    fun `echo - requireSender gates command`() {
         val echoCommand = structure(Server::class, Sender::class) {
-            requireIs(Player::class) {
+            requireSender(Player::class) {
                 command("echo")(
                     stringParameter("text")
                 ) { text ->
@@ -366,11 +364,11 @@ class SenderRequirementTest {
     }
 
     @Test
-    fun `echo - requireIs gates subcommand`() {
+    fun `echo - requireSender gates subcommand`() {
         val echoCommand = structure(Server::class, Sender::class) {
             command("echo")(
                 subcommands(
-                    requireIs(Player::class) {
+                    requireSender(Player::class) {
                         command("raw")(
                             stringParameter("text")
                         ) { text ->

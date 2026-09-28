@@ -1,7 +1,8 @@
 package com.zombachu.stick
 
-import com.zombachu.stick.dsl.requireAs
 import com.zombachu.stick.dsl.requirement
+import com.zombachu.stick.element.GatedStructure
+import com.zombachu.stick.element.SenderMappedStructure
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.TransformedFailureHandler
@@ -68,12 +69,10 @@ abstract class Stick<E : Environment, S : Any>(
                 @Suppress("UNCHECKED_CAST") (command as Command<E, S>).structure
             } else {
                 with(emptyContext) {
-                    requireAs(
-                        castSender,
+                    GatedStructure(
+                        SenderMappedStructure(command.structure, castSender),
                         requirement({ failSenderType(commandSenderClass) }) { isSenderRequiredType(sender) },
-                    ) {
-                        command.structure
-                    }
+                    )
                 }
             }
         registerCommand(structure)

@@ -1,10 +1,8 @@
 package com.zombachu.stick.dsl
 
 import com.zombachu.stick.GroupResult
-import com.zombachu.stick.StructureScope
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.LeadingParameterRole
-import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Signature1
 import com.zombachu.stick.element.parse
 import com.zombachu.stick.element.validateSender
@@ -26,8 +24,8 @@ import kotlin.test.assertTrue
 class RequiresTest {
 
     @Test
-    fun `requireIs in group skips alternative for wrong sender`() = structureTest<BaseSender> {
-        val gated = requireIs(Player::class) { stringParameter("") }
+    fun `requireSender in group skips alternative for wrong sender`() = structureTest<BaseSender> {
+        val gated = requireSender(Player::class) { stringParameter("") }
         val grouped = group(gated, stringParameter("fallback"))
 
         val player: BaseSender = Player("steve")
@@ -41,20 +39,17 @@ class RequiresTest {
     }
 
     @Test
-    fun `requireAs enforces given requirement`() = structureTest {
-        val parameter: StructureScope<TestEnv, Unit>.() -> Parameter.Bounded<TestEnv, Unit, String> = {
-            stringParameter("")
-        }
-        val allowed = requireAs({ _: Unit -> }, requirement { true }, parameter)
-        val denied = requireAs({ _: Unit -> }, requirement { false }, parameter)
+    fun `require enforces given requirement`() = structureTest {
+        val allowed = require(requirement { true }) { stringParameter("") }
+        val denied = require(requirement { false }) { stringParameter("") }
 
         assertTrue(withInvocation { allowed.validateSender() }.isSuccess())
         assertSame(Reason.InvalidSender, withInvocation { denied.validateSender() }.expectReason())
     }
 
     @Test
-    fun `requireIs on ValueFlag falls back to invalidDefault`() = structureTest<BaseSender> {
-        val gatedFlag = requireIs(Player::class, invalidDefault(999)) { valueFlag("n", 0, intParameter("n")) }
+    fun `requireSender on ValueFlag falls back to invalidDefault`() = structureTest<BaseSender> {
+        val gatedFlag = requireSender(Player::class, invalidDefault(999)) { valueFlag("n", 0, intParameter("n")) }
         val signature =
             Signature1<TestEnv, BaseSender, Int>({}, LeadingParameterRole.Label, [literalParameter("cmd"), gatedFlag])
 
@@ -126,19 +121,8 @@ class RequiresTest {
     }
 
     @Test
-    fun `requireAs on OptionalParameter parses with transformed sender`() = structureTest<String> {
-        val transform: (String) -> Int = String::length
-        val optional = requireAs(transform, invalidDefault(-1, requirement { sender != "" })) {
-            optionally(default({ success(sender) }), intParameter(""))
-        }
-
-        assertEquals(8, withExecutionSender("zombachu") { optional.parse([]) }.expectSuccessValue())
-        assertEquals(-1, withExecutionSender("") { optional.parse([]) }.expectSuccessValue())
-    }
-
-    @Test
-    fun `requireIs on OptionalParameter falls back to invalidDefault`() = structureTest<BaseSender> {
-        val optional = requireIs(Player::class, invalidDefault("console")) {
+    fun `requireSender on OptionalParameter falls back to invalidDefault`() = structureTest<BaseSender> {
+        val optional = requireSender(Player::class, invalidDefault("console")) {
             optionally(default({ success(sender.name) }), stringParameter(""))
         }
         val player: BaseSender = Player("steve")
@@ -155,8 +139,8 @@ class RequiresTest {
     }
 
     @Test
-    fun `requireIs on OptionalGroup falls back to invalidDefault`() = structureTest<BaseSender> {
-        val optional = requireIs(Player::class, invalidDefault(GroupResult.ResultA("console"))) {
+    fun `requireSender on OptionalGroup falls back to invalidDefault`() = structureTest<BaseSender> {
+        val optional = requireSender(Player::class, invalidDefault(GroupResult.ResultA("console"))) {
             optionally(default({ success(GroupResult.ResultA(sender.name)) }), group(literalParameter("on")))
         }
         val player: BaseSender = Player("steve")
@@ -178,20 +162,6 @@ class RequiresTest {
         assertEquals(
             Reason.InvalidSenderType(Player::class),
             withExecutionSender(console, "on") { optional.parse(["on"]) }.expectReason(),
-        )
-    }
-
-    @Test
-    fun `composing a requirement does not mutate it`() = structureTest<BaseSender> {
-        val shared = requirement { true }
-        val console = BaseSender("console")
-
-        val narrowed = requireIs(Player::class, shared) { stringParameter("") }
-
-        assertTrue(withInvocation(console) { shared.validateSender() }.isSuccess())
-        assertEquals(
-            Reason.InvalidSenderType(Player::class),
-            withInvocation(console) { narrowed.validateSender() }.expectReason(),
         )
     }
 

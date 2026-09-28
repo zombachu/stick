@@ -5,7 +5,7 @@ import com.zombachu.stick.Execution
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invoke
-import com.zombachu.stick.dsl.requireIs
+import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.textParameter
@@ -117,10 +117,10 @@ class ExecuteTest {
     }
 
     @Test
-    fun `tp - a method reference typed at the sender a requireIs narrowed the scope to`() {
+    fun `tp - a method reference typed at the sender a requireSender narrowed the scope to`() {
         class SpawnCommand : Command<Server, Sender> {
             override val structure = structure {
-                requireIs(Player::class) {
+                requireSender(Player::class) {
                     command("spawn")(
                         stringParameter("world"),
                         ::spawn,

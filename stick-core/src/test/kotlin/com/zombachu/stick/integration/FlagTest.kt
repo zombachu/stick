@@ -14,7 +14,7 @@ import com.zombachu.stick.dsl.map
 import com.zombachu.stick.dsl.nullableEnumFlag
 import com.zombachu.stick.dsl.nullableValueFlag
 import com.zombachu.stick.dsl.require
-import com.zombachu.stick.dsl.requireIs
+import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.textParameter
@@ -334,7 +334,7 @@ class FlagTest {
     fun `profile -  flag can be gated by sender type`() {
         val profileCommand = structure(Server::class, Sender::class) {
             command("profile")(
-                requireIs(Player::class, invalidDefault("*")) {
+                requireSender(Player::class, invalidDefault("*")) {
                     valueFlag(name = "world", default = "overworld", parameter = stringParameter("world"))
                 }
             ) { world ->

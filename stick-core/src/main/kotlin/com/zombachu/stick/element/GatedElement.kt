@@ -20,6 +20,7 @@ import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.success
 
+@PublishedApi
 internal class GatedParameterImpl<E : Environment, S, T, P : Position>(
     private val base: Parameter<E, S, T, P>,
     private val requirement: Requirement<E, S>,
@@ -46,6 +47,7 @@ internal class GatedParameterImpl<E : Environment, S, T, P : Position>(
     override fun validateSender(): CommandResult<Unit> = requirement.validateSender()
 }
 
+@PublishedApi
 internal class GatedValueFlag<E : Environment, S, T>(
     private val base: ValueFlag<E, S, T>,
     private val invalidSenderDefault: InvalidSenderDefault<E, S, T>,
@@ -66,6 +68,7 @@ internal class GatedValueFlag<E : Environment, S, T>(
     override fun validateSender(): CommandResult<Unit> = invalidSenderDefault.validateSender()
 }
 
+@PublishedApi
 internal class GatedHybridFlag<E : Environment, S, T>(
     private val base: HybridFlag<E, S, T>,
     private val invalidSenderDefault: InvalidSenderDefault<E, S, HybridFlagResult<T>>,
@@ -86,6 +89,7 @@ internal class GatedHybridFlag<E : Environment, S, T>(
     override fun validateSender(): CommandResult<Unit> = invalidSenderDefault.validateSender()
 }
 
+@PublishedApi
 internal class GatedOptionalParameter<E : Environment, S, T, P : Position>(
     private val base: OptionalParameter<E, S, T, P>,
     private val invalidSenderDefault: InvalidSenderDefault<E, S, T>,
@@ -122,6 +126,7 @@ internal class GatedOptionalParameter<E : Environment, S, T, P : Position>(
     }
 }
 
+@PublishedApi
 internal class GatedOptionalGroup<E : Environment, S, G : GroupResult?, P : Position>(
     private val base: OptionalGroup<E, S, G, P>,
     private val invalidSenderDefault: InvalidSenderDefault<E, S, G>,
@@ -158,6 +163,7 @@ internal class GatedOptionalGroup<E : Environment, S, G : GroupResult?, P : Posi
     }
 }
 
+@PublishedApi
 internal class GatedStructure<E : Environment, S, T_ : Arguments>(
     base: Structure<E, S, T_>,
     requirement: Requirement<E, S>,
@@ -166,6 +172,7 @@ internal class GatedStructure<E : Environment, S, T_ : Arguments>(
     override val aliases: Set<String> = base.aliases
 }
 
+@PublishedApi
 internal open class GatedBranch<E : Environment, S, T_ : Arguments>(
     base: Branch<E, S, T_>,
     private val requirement: Requirement<E, S>,

@@ -11,7 +11,7 @@ import com.zombachu.stick.StructureScope
 import com.zombachu.stick.consuming
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.invoke
-import com.zombachu.stick.dsl.requireAs
+import com.zombachu.stick.dsl.mapSender
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.valueFlag
@@ -219,8 +219,9 @@ class CustomElementTest {
             val parameter: Parameter.Bounded<Server, Sender, String> = stringParameter<Server, Sender>("a")
             val flag: ValueFlag<Server, Sender, String> =
                 valueFlag<Server, Sender, String>("b", default = "", parameter = parameter)
+            val toName: (Sender) -> String = { it.name }
             val command: Structure<Server, Sender, Arguments1<String>> =
-                requireAs<Server, Sender, Player, Arguments1<String>>({ it as Player }) {
+                mapSender<Server, Sender, String, Arguments1<String>>(toName) {
                     command("c")(
                         stringParameter("d")
                     )
