@@ -10,6 +10,7 @@ import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.optionally
 import com.zombachu.stick.dsl.optionallyNullable
 import com.zombachu.stick.dsl.optionals
+import com.zombachu.stick.dsl.require
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.failure.Reason
@@ -96,11 +97,9 @@ class OptionalTest {
         val giftCommand = structure(Server::class, Sender::class) {
             command("gift")(
                 playerParameter("player"),
-                optionally(
-                    ifInvalid = invalidDefault(1, permission("server.gift.amount")),
-                    ifAbsent = default(1),
-                    parameter = intParameter("amount", min = 1, max = 64),
-                ),
+                require(invalidDefault(1, permission("server.gift.amount"))) {
+                    optionally(ifAbsent = default(1), parameter = intParameter("amount", min = 1, max = 64))
+                },
             ) { target, amount ->
                 target.log("Received $amount items from ${sender.name}")
             }
@@ -140,11 +139,9 @@ class OptionalTest {
     fun `speed - optionals can have different defaults`() {
         val speedCommand = structure(Server::class, Sender::class) {
             command("speed")(
-                optionally(
-                    ifInvalid = invalidDefault(1, permission("server.speed.change")),
-                    ifAbsent = default(5),
-                    parameter = intParameter("speed", min = 1, max = 10),
-                ),
+                require(invalidDefault(1, permission("server.speed.change"))) {
+                    optionally(ifAbsent = default(5), parameter = intParameter("speed", min = 1, max = 10))
+                },
             ) { speed ->
                 sender.log("Speed changed to $speed")
             }
@@ -218,10 +215,9 @@ class OptionalTest {
     fun `weather - optional group can be gated by permission`() {
         val weatherCommand = structure(Server::class, Sender::class) {
             command("weather")(
-                optionallyNullable(
-                    group(literalParameter("rain"), literalParameter("sun")),
-                    requirement = permission("server.weather.set"),
-                )
+                require(invalidDefault(null, permission("server.weather.set"))) {
+                    optionallyNullable(group(literalParameter("rain"), literalParameter("sun")))
+                }
             ) { weather ->
                 sender.log("Weather set to ${weather?.value ?: "clear"}")
             }

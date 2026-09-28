@@ -14,7 +14,6 @@ import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 
 internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Position>(
-    val requirementDefault: InvalidSenderDefault<E, S, G>,
     val presenceDefault: ValidSenderDefault<E, S, G>,
     val group: Group<E, S, out G, *>,
 ) : OptionalGroup<E, S, G, P>, InternalElement<E, S, G> {
@@ -26,27 +25,15 @@ internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Posit
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
         if (args.isEmpty()) return MatchResult.matchedAtLeast(0)
-        requirementDefault.validateSender().propagateError {
-            return MatchResult.unmatched(it)
-        }
         return group.match(args)
     }
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        requirementDefault.validateSender().propagateError {
-            return []
-        }
-        return group.suggest(preceding, partial)
-    }
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = group.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): CommandResult<G> {
         if (args.isEmpty()) {
-            // If the sender isn't allowed to specify an alternative use the default
-            requirementDefault.validateSender().propagateError {
-                return requirementDefault.value(ex)
-            }
             // Check if an alternative is required to be specified by the sender
             presenceDefault.validateSender().propagateError {
                 return failSyntax()
@@ -54,18 +41,11 @@ internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Posit
             return presenceDefault.value(ex)
         }
 
-        // Check if the sender specified an alternative when they're not allowed to
-        requirementDefault.validateSender().propagateError {
-            return it
-        }
-
         return group.parse(args)
     }
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String {
-        // Check if the sender is allowed to specify an alternative
-        if (!requirementDefault.validateSender().isSuccess()) return ""
         if (!presenceDefault.validateSender().isSuccess()) return group.getSyntax()
         return "[${group.getGroupedSyntax()}]"
     }

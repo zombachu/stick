@@ -12,6 +12,7 @@ import com.zombachu.stick.dsl.invalidDefault
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.nullableValueFlag
+import com.zombachu.stick.dsl.optionallyNullable
 import com.zombachu.stick.dsl.require
 import com.zombachu.stick.dsl.requireAs
 import com.zombachu.stick.dsl.requireIs
@@ -206,7 +207,10 @@ class SenderRequirementTest {
     fun `realname - requireAs validates and transforms sender for flag`() {
         val realNameCommand = structure(Server::class, Sender::class) {
             command("realname")(
-                requireAs(
+                // KNOWN LIMITATION: a lambda-literal transform can't choose between requireAs's ValueFlag and optional
+                // overloads, so it needs explicit type arguments or a function-typed transform
+                // TODO: fix
+                requireAs<Server, Sender, SocialData, String?>(
                     { (it as Player).socialData },
                     invalidDefault("   ", requirement { sender is Player }),
                 ) {
@@ -269,6 +273,39 @@ class SenderRequirementTest {
         assertEquals(
             "/realname",
             realNameCommand.executeExpectingInvalidSyntax(server, console, "/realname -nickname"),
+        )
+    }
+
+    @Test
+    fun `realname - requireAs validates and transforms sender for optional`() {
+        val toSocialData: (Sender) -> SocialData = { (it as Player).socialData }
+        val realNameCommand = structure(Server::class, Sender::class) {
+            command("realname")(
+                requireAs(toSocialData, invalidDefault(null, requirement { sender is Player })) {
+                    optionallyNullable(realNameParameter("name"))
+                }
+            ) { realName ->
+                if (realName == null) {
+                    sender.log("Your name is ${sender.name}")
+                } else {
+                    sender.log("That player's real name is $realName")
+                }
+            }
+        }
+        zombachu.socialData.nicknames["Alex"] = "Alexandra"
+
+        realNameCommand.execute(server, zombachu, "/realname Alexandra")
+        assertEquals(["That player's real name is Alex"], zombachu.logs)
+
+        realNameCommand.execute(server, zombachu, "/realname")
+        assertEquals(["Your name is zombachu"], zombachu.logs)
+
+        realNameCommand.execute(server, console, "/realname")
+        assertEquals(["Your name is Console"], console.logs)
+
+        assertEquals(
+            Reason.InvalidSender,
+            realNameCommand.executeExpectingError(server, console, "/realname Alexandra"),
         )
     }
 

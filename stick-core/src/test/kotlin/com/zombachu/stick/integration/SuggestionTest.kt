@@ -24,6 +24,7 @@ import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.optionally
 import com.zombachu.stick.dsl.optionallyNullable
 import com.zombachu.stick.dsl.optionals
+import com.zombachu.stick.dsl.require
 import com.zombachu.stick.dsl.requireIs
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.subcommands
@@ -242,11 +243,12 @@ class SuggestionTest {
                 command("setwarp")(
                     flag("announce"),
                     LocationParameter(),
-                    optionally(
-                        ifInvalid = invalidDefault(Privacy.Private, permission("server.warp.privacy")),
-                        ifAbsent = default(Privacy.Private),
-                        parameter = enumParameter("privacy", Privacy::class),
-                    ),
+                    require(invalidDefault(Privacy.Private, permission("server.warp.privacy"))) {
+                        optionally(
+                            ifAbsent = default(Privacy.Private),
+                            parameter = enumParameter("privacy", Privacy::class),
+                        )
+                    },
                 ) { _, _, _ -> }
             }
         }

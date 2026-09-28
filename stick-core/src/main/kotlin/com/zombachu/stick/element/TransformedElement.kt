@@ -6,6 +6,7 @@ import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
+import com.zombachu.stick.GroupResult
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
@@ -14,6 +15,7 @@ import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
+import com.zombachu.stick.consuming
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 import com.zombachu.stick.success
@@ -171,6 +173,112 @@ internal class TransformedHybridFlag<E : Environment, S, S2 : Any, T>(
 
     context(inv: Invocation<E, S>)
     override fun validateSender(): CommandResult<Unit> = invalidSenderDefault.validateSender()
+}
+
+internal class TransformedOptionalParameter<E : Environment, S, S2 : Any, T, P : Position>(
+    private val base: OptionalParameter<E, S2, T, P>,
+    private val transform: (S) -> S2,
+    private val invalidSenderDefault: InvalidSenderDefault<E, S, T>,
+) : OptionalParameter<E, S, T, P>, InternalConsumingElement<E, S, T> {
+
+    override val size: Size = base.size
+    override val name: String = base.name
+    override val description: String = base.description
+
+    context(inv: Invocation<E, S>)
+    override fun match(args: List<String>): MatchResult {
+        invalidSenderDefault.validateSender().propagateError {
+            return if (args.isEmpty()) MatchResult.matchedAtLeast(0) else MatchResult.unmatched(it)
+        }
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
+            return base.match(args)
+        }
+    }
+
+    context(inv: Invocation<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+        invalidSenderDefault.validateSender().propagateError {
+            return []
+        }
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
+            return base.suggest(preceding, partial)
+        }
+    }
+
+    context(ex: Execution<E, S>)
+    override fun parse(args: List<String>): ConsumingResult<T> {
+        invalidSenderDefault.validateSender().propagateError {
+            return if (args.isEmpty()) invalidSenderDefault.value(ex).consuming(0) else it
+        }
+        val transformedExecution = ex.forSender(transform)
+        context(transformedExecution) {
+            return base.parse(args)
+        }
+    }
+
+    context(inv: Invocation<E, S>)
+    override fun getSyntax(): String {
+        if (!invalidSenderDefault.validateSender().isSuccess()) return ""
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
+            return base.getSyntax()
+        }
+    }
+}
+
+internal class TransformedOptionalGroup<E : Environment, S, S2 : Any, G : GroupResult?, P : Position>(
+    private val base: OptionalGroup<E, S2, G, P>,
+    private val transform: (S) -> S2,
+    private val invalidSenderDefault: InvalidSenderDefault<E, S, G>,
+) : OptionalGroup<E, S, G, P>, InternalElement<E, S, G> {
+
+    override val size: Size = base.size
+    override val name: String = base.name
+    override val description: String = base.description
+
+    context(inv: Invocation<E, S>)
+    override fun match(args: List<String>): MatchResult {
+        invalidSenderDefault.validateSender().propagateError {
+            return if (args.isEmpty()) MatchResult.matchedAtLeast(0) else MatchResult.unmatched(it)
+        }
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
+            return base.match(args)
+        }
+    }
+
+    context(inv: Invocation<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+        invalidSenderDefault.validateSender().propagateError {
+            return []
+        }
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
+            return base.suggest(preceding, partial)
+        }
+    }
+
+    context(ex: Execution<E, S>)
+    override fun parse(args: List<String>): CommandResult<G> {
+        invalidSenderDefault.validateSender().propagateError {
+            return if (args.isEmpty()) invalidSenderDefault.value(ex) else it
+        }
+        val transformedExecution = ex.forSender(transform)
+        context(transformedExecution) {
+            return base.parse(args)
+        }
+    }
+
+    context(inv: Invocation<E, S>)
+    override fun getSyntax(): String {
+        if (!invalidSenderDefault.validateSender().isSuccess()) return ""
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
+            return base.getSyntax()
+        }
+    }
 }
 
 internal class TransformedStructure<E : Environment, S, S2 : Any, T_ : Arguments>(

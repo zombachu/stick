@@ -194,7 +194,6 @@ class ExecutionImplTest {
         var resolves = 0
         val optional =
             OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
-                invalidSenderDefault("invalid"),
                 validSenderDefault("absent"),
                 countingParameter { resolves++ },
             )

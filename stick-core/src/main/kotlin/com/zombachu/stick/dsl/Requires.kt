@@ -4,6 +4,7 @@ package com.zombachu.stick.dsl
 
 import com.zombachu.stick.Arguments
 import com.zombachu.stick.Environment
+import com.zombachu.stick.GroupResult
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
@@ -11,10 +12,14 @@ import com.zombachu.stick.StructureScope
 import com.zombachu.stick.element.Branch
 import com.zombachu.stick.element.HybridFlag
 import com.zombachu.stick.element.InvalidSenderDefault
+import com.zombachu.stick.element.OptionalGroup
+import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.TransformedBranch
 import com.zombachu.stick.element.TransformedHybridFlag
+import com.zombachu.stick.element.TransformedOptionalGroup
+import com.zombachu.stick.element.TransformedOptionalParameter
 import com.zombachu.stick.element.TransformedParameter
 import com.zombachu.stick.element.TransformedStructure
 import com.zombachu.stick.element.TransformedValueFlag
@@ -48,6 +53,23 @@ fun <E : Environment, S : Any, S2 : Any, T> StructureScope<E, S>.requireAs(
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     flag: StructureScope<E, S2>.() -> HybridFlag<E, S2, T>,
 ): HybridFlag<E, S, T> = TransformedHybridFlag(flag(this.forSender()), transform, invalidSenderDefault)
+
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, S2 : Any, T, P : Position> StructureScope<E, S>.requireAs(
+    transform: (S) -> S2,
+    invalidSenderDefault: InvalidSenderDefault<E, S, T>,
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    optional: StructureScope<E, S2>.() -> OptionalParameter<E, S2, T, P>,
+): OptionalParameter<E, S, T, P> =
+    TransformedOptionalParameter(optional(this.forSender()), transform, invalidSenderDefault)
+
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, S2 : Any, G : GroupResult?, P : Position> StructureScope<E, S>.requireAs(
+    transform: (S) -> S2,
+    invalidSenderDefault: InvalidSenderDefault<E, S, G>,
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    optional: StructureScope<E, S2>.() -> OptionalGroup<E, S2, G, P>,
+): OptionalGroup<E, S, G, P> = TransformedOptionalGroup(optional(this.forSender()), transform, invalidSenderDefault)
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, S2 : Any, T_ : Arguments> StructureScope<E, S>.requireAs(
@@ -112,6 +134,38 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
     )
 
 @OverloadResolutionByLambdaReturnType
+inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> StructureScope<E, S>.requireIs(
+    senderType: KClass<S2>,
+    invalidSenderDefault: InvalidSenderDefault<E, S, T>,
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    noinline optional: StructureScope<E, S2>.() -> OptionalParameter<E, S2, T, P>,
+): OptionalParameter<E, S, T, P> =
+    requireAs(
+        { it as S2 },
+        invalidDefault(
+            invalidSenderDefault.value,
+            requirement(invalidSenderDefault) + requirement({ failSenderType(senderType) }) { sender is S2 },
+        ),
+        optional,
+    )
+
+@OverloadResolutionByLambdaReturnType
+inline fun <E : Environment, S : Any, reified S2 : S, G : GroupResult?, P : Position> StructureScope<E, S>.requireIs(
+    senderType: KClass<S2>,
+    invalidSenderDefault: InvalidSenderDefault<E, S, G>,
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    noinline optional: StructureScope<E, S2>.() -> OptionalGroup<E, S2, G, P>,
+): OptionalGroup<E, S, G, P> =
+    requireAs(
+        { it as S2 },
+        invalidDefault(
+            invalidSenderDefault.value,
+            requirement(invalidSenderDefault) + requirement({ failSenderType(senderType) }) { sender is S2 },
+        ),
+        optional,
+    )
+
+@OverloadResolutionByLambdaReturnType
 inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureScope<E, S>.requireIs(
     senderType: KClass<S2>,
     requirement: Requirement<E, S> = requirement { success() },
@@ -158,6 +212,20 @@ fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
     // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
     flag: StructureScope<E, S>.() -> HybridFlag<E, S, T>,
 ): HybridFlag<E, S, T> = requireAs({ it }, invalidSenderDefault, flag)
+
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, T, P : Position> StructureScope<E, S>.require(
+    invalidSenderDefault: InvalidSenderDefault<E, S, T>,
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    optional: StructureScope<E, S>.() -> OptionalParameter<E, S, T, P>,
+): OptionalParameter<E, S, T, P> = requireAs({ it }, invalidSenderDefault, optional)
+
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, G : GroupResult?, P : Position> StructureScope<E, S>.require(
+    invalidSenderDefault: InvalidSenderDefault<E, S, G>,
+    // Outer StructureElement is to provide syntax compatibility with other extension functions w/ trailing lambda
+    optional: StructureScope<E, S>.() -> OptionalGroup<E, S, G, P>,
+): OptionalGroup<E, S, G, P> = requireAs({ it }, invalidSenderDefault, optional)
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T : Arguments> StructureScope<E, S>.require(

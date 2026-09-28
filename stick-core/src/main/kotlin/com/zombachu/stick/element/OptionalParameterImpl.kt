@@ -14,7 +14,6 @@ import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 
 internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
-    val requirementDefault: InvalidSenderDefault<E, S, T>,
     val presenceDefault: ValidSenderDefault<E, S, T>,
     val parameter: Parameter<E, S, out T, *>,
 ) : OptionalParameter<E, S, T, P>, InternalConsumingElement<E, S, T> {
@@ -26,37 +25,21 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
         if (args.isEmpty()) return MatchResult.matchedAtLeast(0)
-        requirementDefault.validateSender().propagateError {
-            return MatchResult.unmatched(it)
-        }
         return parameter.match(args)
     }
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        requirementDefault.validateSender().propagateError {
-            return []
-        }
-        return parameter.suggest(preceding, partial)
-    }
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        parameter.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> {
         if (args.isEmpty()) {
-            // If the sender isn't allowed to provide a value use the default
-            requirementDefault.validateSender().propagateError {
-                return requirementDefault.value(ex).consuming(0)
-            }
             // Check if the value is required to be specified by the sender
             presenceDefault.validateSender().propagateError {
                 return failSyntax()
             }
             return presenceDefault.value(ex).consuming(0)
-        }
-
-        // Check if the sender provided a value when they're not allowed to
-        requirementDefault.validateSender().propagateError {
-            return it
         }
 
         if (!parameter.size.matches(args.size)) return failSyntax()
@@ -65,8 +48,6 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String {
-        // Check if the sender is allowed to provide a value
-        if (!requirementDefault.validateSender().isSuccess()) return ""
         if (!presenceDefault.validateSender().isSuccess()) return parameter.getSyntax()
         return "[${name}]"
     }

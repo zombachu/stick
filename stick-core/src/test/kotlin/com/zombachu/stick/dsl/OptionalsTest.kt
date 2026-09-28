@@ -63,37 +63,9 @@ class OptionalsTest {
     }
 
     @Test
-    fun `optionally resolves defaults by sender validity`() = structureTest<String> {
-        val invalidDefault = invalidDefault(-1, requirement { sender == "correct" })
-        val optional = optionally(invalidDefault, default(0), intParameter)
-
-        assertEquals(0, withExecutionSender("correct") { optional.parse([]) }.expectSuccessValue())
-        assertEquals(99, withExecutionSender("correct", "99") { optional.parse(["99"]) }.expectSuccessValue())
-
-        assertEquals(-1, withExecutionSender("incorrect") { optional.parse([]) }.expectSuccessValue())
-        assertSame(
-            Reason.InvalidSender,
-            withExecutionSender("incorrect", "5") { optional.parse(["5"]) }.expectReason())
-    }
-
-    @Test
-    fun `optionally defaults without ifInvalid`() = structureTest<String> {
+    fun `optionally defaults to value`() = structureTest<String> {
         val optional = optionally(default(7), intParameter)
         assertEquals(7, withExecutionSender("sender") { optional.parse([]) }.expectSuccessValue())
-    }
-
-    @Test
-    fun `optionallyNullable gates the parameter from its requirement`() = structureTest<String> {
-        val optional = optionallyNullable(intParameter, requirement { sender == "correct" })
-
-        assertNull(withExecutionSender("correct") { optional.parse([]) }.expectSuccessValue())
-        assertEquals(1, withExecutionSender("correct") { optional.parse(["1"]) }.expectSuccessValue())
-
-        assertNull(withExecutionSender("incorrect") { optional.parse([]) }.expectSuccessValue())
-        assertSame(
-            Reason.InvalidSender,
-            withExecutionSender("incorrect", "5") { optional.parse(["5"]) }.expectReason(),
-        )
     }
 
     @Test
