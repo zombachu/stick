@@ -2,10 +2,9 @@ package com.zombachu.stick
 
 import com.zombachu.stick.dsl.id
 import com.zombachu.stick.element.Group1Impl
+import com.zombachu.stick.element.MappedOptionalParameter
 import com.zombachu.stick.element.OptionalParameterImpl
 import com.zombachu.stick.element.Parameter
-import com.zombachu.stick.element.PipelineOperation
-import com.zombachu.stick.element.PipelinedOptionalParameter
 import com.zombachu.stick.element.StoredParameter
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
@@ -197,10 +196,10 @@ class ExecutionImplTest {
                 validSenderDefault("absent"),
                 countingParameter { resolves++ },
             )
-        val exclaim: PipelineOperation<TestEnv, Unit, String, String> = { success("$it!") }
-        val piped = PipelinedOptionalParameter<TestEnv, Unit, String, String, Position.Optional>(optional, [exclaim])
+        val mapped =
+            MappedOptionalParameter<TestEnv, Unit, String, String, Position.Optional>(optional) { success("$it!") }
 
-        val result = testExecution("a").processElement(piped)
+        val result = testExecution("a").processElement(mapped)
 
         assertEquals("a!", result.expectSuccessValue())
         assertEquals(1, resolves)

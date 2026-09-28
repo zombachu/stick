@@ -12,13 +12,11 @@ import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.consuming
 import com.zombachu.stick.propagateError
-import com.zombachu.stick.success
 import com.zombachu.stick.valueOrPropagateError
 
-@PublishedApi
-internal class PipelinedParameter<E : Environment, S, A, T, P : Position>(
+internal class MappedParameter<E : Environment, S, A, T, P : Position>(
     private val base: Parameter<E, S, A, P>,
-    private val operations: List<PipelineOperation<E, S, *, *>>,
+    private val transform: Execution<E, S>.(A) -> CommandResult<T>,
 ) : Parameter<E, S, T, P>(base.size, base.name, base.description) {
 
     override val type: GroupableType = base.type
@@ -30,16 +28,15 @@ internal class PipelinedParameter<E : Environment, S, A, T, P : Position>(
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> = parsePipeline(args, base, operations)
+    override fun parse(args: List<String>): ConsumingResult<T> = parseMapped(args, base, transform)
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = base.getSyntax()
 }
 
-@PublishedApi
-internal class PipelinedValueFlag<E : Environment, S, A, T>(
+internal class MappedValueFlag<E : Environment, S, A, T>(
     private val base: ValueFlag<E, S, A>,
-    private val operations: List<PipelineOperation<E, S, *, *>>,
+    private val transform: Execution<E, S>.(A) -> CommandResult<T>,
 ) : ValueFlag<E, S, T>, InternalConsumingElement<E, S, T> {
 
     override val size: Size.Bounded = base.size
@@ -53,7 +50,7 @@ internal class PipelinedValueFlag<E : Environment, S, A, T>(
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> = parsePipeline(args, base, operations)
+    override fun parse(args: List<String>): ConsumingResult<T> = parseMapped(args, base, transform)
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = base.getSyntax()
@@ -61,28 +58,18 @@ internal class PipelinedValueFlag<E : Environment, S, A, T>(
     context(inv: Invocation<E, S>)
     override fun validateSender(): CommandResult<Unit> = base.validateSender()
 
-    @Suppress("UNCHECKED_CAST")
-    override val default: ContextualValue<E, S, T>
-        get() = get@{
-            val baseResult = base.default(this)
-            var value: Any? = baseResult.valueOrPropagateError {
-                return@get it
+    override val default: ContextualValue<E, S, T> = default@{
+        val value =
+            base.default(this).valueOrPropagateError {
+                return@default it
             }
-            operations.forEach {
-                val operation = it as PipelineOperation<E, S, Any?, Any?>
-                value =
-                    operation(this, value).valueOrPropagateError {
-                        return@get it
-                    }
-            }
-            success(value as T)
-        }
+        transform(this, value)
+    }
 }
 
-@PublishedApi
-internal class PipelinedOptionalParameter<E : Environment, S, A, T, P : Position>(
+internal class MappedOptionalParameter<E : Environment, S, A, T, P : Position>(
     private val base: OptionalParameter<E, S, A, P>,
-    private val operations: List<PipelineOperation<E, S, *, *>>,
+    private val transform: Execution<E, S>.(A) -> CommandResult<T>,
 ) : OptionalParameter<E, S, T, P>, InternalConsumingElement<E, S, T> {
 
     override val size: Size = base.size
@@ -96,31 +83,21 @@ internal class PipelinedOptionalParameter<E : Environment, S, A, T, P : Position
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> = parsePipeline(args, base, operations)
+    override fun parse(args: List<String>): ConsumingResult<T> = parseMapped(args, base, transform)
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = base.getSyntax()
 }
 
-@Suppress("UNCHECKED_CAST")
 context(ex: Execution<E, S>)
-private fun <E : Environment, S, A, T> parsePipeline(
+private fun <E : Environment, S, A, T> parseMapped(
     args: List<String>,
     base: ConsumingElement<E, S, A>,
-    operations: List<PipelineOperation<E, S, *, *>>,
+    transform: Execution<E, S>.(A) -> CommandResult<T>,
 ): ConsumingResult<T> {
     val baseResult = base.parse(args)
     baseResult.propagateError {
         return it
     }
-    val consumed = baseResult.consumed
-    var value: Any? = baseResult.value
-    operations.forEach {
-        val operation = it as PipelineOperation<E, S, Any?, Any?>
-        value =
-            operation(ex, value).valueOrPropagateError {
-                return it
-            }
-    }
-    return success(value as T).consuming(consumed)
+    return transform(ex, baseResult.value).consuming(baseResult.consumed)
 }

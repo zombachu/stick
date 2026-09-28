@@ -4,9 +4,8 @@ import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
 import com.zombachu.stick.Position
+import com.zombachu.stick.element.MappedParameter
 import com.zombachu.stick.element.Parameter
-import com.zombachu.stick.element.PipelineOperation
-import com.zombachu.stick.element.PipelinedParameter
 import com.zombachu.stick.failRange
 import com.zombachu.stick.handled
 import com.zombachu.stick.success
@@ -19,31 +18,29 @@ internal fun <E : Environment, S, T> listElementParameter(
     oneIndexed: Boolean,
     onEmpty: (Execution<E, S>.() -> Unit)?,
 ): Parameter<E, S, ListElementResult<T>, Position.Leading> {
-    val index = NumberParameter<E, S, Int>(name, description, { toIntOrNull() }, Int.MIN_VALUE, Int.MAX_VALUE, "index")
-
-    val toResult: PipelineOperation<E, S, Int, ListElementResult<T>> = lookUp@{ userIndex ->
+    val indexParameter =
+        NumberParameter<E, S, Int>(name, description, { toIntOrNull() }, Int.MIN_VALUE, Int.MAX_VALUE, "index")
+    return MappedParameter(indexParameter) { userIndex ->
         val elements =
             list(this).valueOrPropagateError {
-                return@lookUp it
+                return@MappedParameter it
             }
 
         if (onEmpty != null && elements.isEmpty()) {
             onEmpty(this)
-            return@lookUp handled()
+            return@MappedParameter handled()
         }
 
         val oneIndexedAdjustment = if (oneIndexed) 1 else 0
         val min = 0 + oneIndexedAdjustment
         val max = elements.size - 1 + oneIndexedAdjustment
         if (userIndex !in min..max) {
-            return@lookUp failRange(min.toString(), max.toString(), userIndex.toString())
+            return@MappedParameter failRange(min.toString(), max.toString(), userIndex.toString())
         }
 
         val elementIndex = userIndex - oneIndexedAdjustment
         success(ListElementResult(elements[elementIndex], elements, elementIndex))
     }
-
-    return PipelinedParameter(index, [toResult])
 }
 
 data class ListElementResult<T>(val result: T, val list: List<T>, val index: Int)

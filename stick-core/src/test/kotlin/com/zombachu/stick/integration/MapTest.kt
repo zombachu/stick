@@ -8,7 +8,6 @@ import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.map
 import com.zombachu.stick.dsl.optionally
-import com.zombachu.stick.dsl.pipeline
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.textParameter
@@ -27,19 +26,19 @@ import com.zombachu.stick.success
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class PipelineTest {
+class MapTest {
 
     private val zombachu = Player("zombachu", ["server.tp"])
     private val steve = Player("Steve")
     private val server = SynergyServer([zombachu, steve])
 
     @Test
-    fun `page - pipeline applies to optional default`() {
+    fun `page - map applies to optional default`() {
         val pageCommand = structure(Server::class, Sender::class) {
             command("page")(
-                optionally(ifAbsent = default(1), parameter = intParameter("page", min = 1)).pipeline(
-                    map { it - 1 }
-                )
+                optionally(
+                    ifAbsent = default(1),
+                    parameter = intParameter("page", min = 1)).map { success(it - 1) }
             ) { index ->
                 sender.log("Page: $index")
             }
@@ -53,12 +52,10 @@ class PipelineTest {
     }
 
     @Test
-    fun `tp - pipeline is contextual`() {
+    fun `tp - map is contextual`() {
         val tpCommand = structure(Server::class, Sender::class) {
             command("tp")(
-                playerParameter("player").pipeline(
-                    map { TargetPlayer(it, it === sender) }
-                )
+                playerParameter("player").map { success(TargetPlayer(it, it === sender)) }
             ) { target ->
                 sender.log(if (target.isSelf) "Teleported to yourself" else "Teleported to ${target.player.name}")
             }
@@ -72,10 +69,10 @@ class PipelineTest {
     }
 
     @Test
-    fun `tphere - pipeline can fail`() {
+    fun `tphere - map can fail`() {
         val tpHereCommand = structure(Server::class, Player::class) {
             command("tphere")(
-                playerParameter("player").pipeline {
+                playerParameter("player").map {
                     if (it.world == sender.world) {
                         success(it)
                     } else {
@@ -99,18 +96,17 @@ class PipelineTest {
     }
 
     @Test
-    fun `give - pipeline supports multiple stages`() {
+    fun `give - chained maps run in order`() {
         val giveCommand = structure(Server::class, Sender::class) {
             command("give")(
-                stringParameter("item").pipeline(
-                    map { it.lowercase() },
-                    { name ->
+                stringParameter("item")
+                    .map { success(it.lowercase()) }
+                    .map { name ->
                         Material.entries.find { it.name.lowercase() == name }
                             ?.let { success(it) }
                             ?: customError("No item called $name")
-                    },
-                    map { "Gave a $it block" },
-                )
+                    }
+                    .map { success("Gave a $it block") }
             ) { description ->
                 sender.log(description)
             }
@@ -126,17 +122,16 @@ class PipelineTest {
     }
 
     @Test
-    fun `spawn - pipeline applies to flag default`() {
+    fun `spawn - map applies to flag default`() {
         val spawnCommand = structure(Server::class, Sender::class) {
             command("spawn")(
-                valueFlag(name = "world", default = "overworld", parameter = stringParameter("world")).pipeline(
-                    map { it.lowercase() },
-                    { name ->
+                valueFlag(name = "world", default = "overworld", parameter = stringParameter("world"))
+                    .map { success(it.lowercase()) }
+                    .map { name ->
                         if (name in WORLDS) success(name)
                         else customError("Unknown world: $name")
-                    },
-                    map { "the $it" },
-                ),
+                    }
+                    .map { success("the $it") },
                 playerParameter("player"),
             ) { world, target -> sender.log("Sending ${target.name} to $world") }
         }
@@ -149,14 +144,12 @@ class PipelineTest {
     }
 
     @Test
-    fun `stop - pipeline inside optional does not apply to default`() {
+    fun `stop - map inside optional does not apply to default`() {
         val stopCommand = structure(Server::class, Sender::class) {
             command("stop")(
                 optionally(
                     ifAbsent = default("server shutting down"),
-                    parameter = stringParameter("reason").pipeline(
-                        map { it.replaceFirstChar(Char::uppercase) }
-                    ),
+                    parameter = stringParameter("reason").map { success(it.replaceFirstChar(Char::uppercase)) },
                 )
             ) { reason ->
                 sender.log("Stopping: $reason")
@@ -171,13 +164,13 @@ class PipelineTest {
     }
 
     @Test
-    fun `stop - pipeline outside optional applies to default`() {
+    fun `stop - map outside optional applies to default`() {
         val restartCommand = structure(Server::class, Sender::class) {
             command("stop")(
                 optionally(
                     ifAbsent = default("server shutting down"),
                     parameter = stringParameter("reason"),
-                ).pipeline(map { it.replaceFirstChar(Char::uppercase) })
+                ).map { success(it.replaceFirstChar(Char::uppercase)) }
             ) { reason ->
                 sender.log("Stopping: $reason")
             }
@@ -191,12 +184,10 @@ class PipelineTest {
     }
 
     @Test
-    fun `cookie - pipeline applies to flag`() {
+    fun `cookie - map applies to flag`() {
         val cookieCommand = structure(Server::class, Sender::class) {
             command("cookie")(
-                flag("max").pipeline(
-                    map { if (it) Int.MAX_VALUE else 1 }
-                )
+                flag("max").map { success(if (it) Int.MAX_VALUE else 1) }
             ) { limit ->
                 sender.log("Giving $limit cookies")
             }
@@ -210,13 +201,12 @@ class PipelineTest {
     }
 
     @Test
-    fun `caps - pipeline applies to unbounded parameter`() {
+    fun `caps - map applies to unbounded parameter`() {
         val capsCommand = structure(Server::class, Sender::class) {
             command("caps")(
-                textParameter("message").pipeline(
-                    map { it.uppercase() },
-                    { success("$it!") },
-                )
+                textParameter("message")
+                    .map { success(it.uppercase()) }
+                    .map { success("$it!") }
             ) { message ->
                 sender.log(message)
             }
@@ -227,12 +217,12 @@ class PipelineTest {
     }
 
     @Test
-    fun `KNOWN LIMITATION - speed - ifAbsent type can differ from pipeline output`() {
+    fun `KNOWN LIMITATION - speed - ifAbsent type can differ from map output`() {
         val speedCommand = structure(Server::class, Sender::class) {
             command("speed")(
                 optionally(
                     ifAbsent = default("one"),
-                    parameter = stringParameter("level").pipeline(map { it.length / 2f }),
+                    parameter = stringParameter("level").map { success(it.length / 2f) },
                 )
             ) { level ->
                 sender.log(level::class.simpleName ?: "?")

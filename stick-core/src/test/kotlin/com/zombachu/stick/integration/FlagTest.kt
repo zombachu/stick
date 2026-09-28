@@ -13,7 +13,6 @@ import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.map
 import com.zombachu.stick.dsl.nullableEnumFlag
 import com.zombachu.stick.dsl.nullableValueFlag
-import com.zombachu.stick.dsl.pipeline
 import com.zombachu.stick.dsl.require
 import com.zombachu.stick.dsl.requireIs
 import com.zombachu.stick.dsl.stringParameter
@@ -35,6 +34,7 @@ import com.zombachu.stick.integration.fixtures.executeExpectingInvalidSyntax
 import com.zombachu.stick.integration.fixtures.permission
 import com.zombachu.stick.integration.fixtures.permissionedValue
 import com.zombachu.stick.integration.fixtures.playerParameter
+import com.zombachu.stick.success
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -303,12 +303,12 @@ class FlagTest {
     }
 
     @Test
-    fun `broadcast - pipelined flag keeps requirement`() {
+    fun `broadcast - mapped flag keeps requirement`() {
         val broadcastCommand = structure(Server::class, Sender::class) {
             command("broadcast")(
                 require(invalidDefault("Player", permission("server.broadcast.raw"))) {
                     valueFlag(name = "prefix", default = "#", parameter = stringParameter("prefix"))
-                }.pipeline(map { it.uppercase() }),
+                }.map { success(it.uppercase()) },
                 textParameter("message"),
             ) { prefix, message ->
                 sender.log("[$prefix] $message")
