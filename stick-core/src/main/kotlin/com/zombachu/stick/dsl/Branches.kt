@@ -16,9 +16,9 @@ import com.zombachu.stick.BranchScope
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
 import com.zombachu.stick.Position
+import com.zombachu.stick.Requirement
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.element.Branch
-import com.zombachu.stick.element.BranchImpl
 import com.zombachu.stick.element.LeadingParameterRole
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Signature1
@@ -36,25 +36,26 @@ import com.zombachu.stick.element.Signature9
 import com.zombachu.stick.element.SignatureElement
 
 fun <E_ : Environment, S, A> StructureScope<E_, S>.branch(
-    leadingParameter: Parameter<E_, S, A, Position.Leading>
-): BranchScope<E_, S, A> = BranchScope(leadingParameter)
+    leadingParameter: Parameter<E_, S, A, Position.Leading>,
+    requirement: Requirement<E_, S>? = null,
+): BranchScope<E_, S, A> = BranchScope(leadingParameter, requirement)
 
 operator fun <E_ : Environment, S, A> BranchScope<E_, S, A>.invoke(
     execute: Execution<E_, S>.(A) -> Unit = { a -> }
-): Branch<E_, S, Arguments1<A>> = BranchImpl(Signature1(execute, LeadingParameterRole.Argument, [leadingParameter]))
+): Branch<E_, S, Arguments1<A>> = build(Signature1(execute, LeadingParameterRole.Argument, [leadingParameter]))
 
 operator fun <E_ : Environment, S, A, B> BranchScope<E_, S, A>.invoke(
     elementB: SignatureElement<E_, S, B, Position.Last>,
     execute: Execution<E_, S>.(A, B) -> Unit = { a, b -> },
 ): Branch<E_, S, Arguments2<A, B>> =
-    BranchImpl(Signature2(execute, LeadingParameterRole.Argument, [leadingParameter, elementB]))
+    build(Signature2(execute, LeadingParameterRole.Argument, [leadingParameter, elementB]))
 
 operator fun <E_ : Environment, S, A, B, C> BranchScope<E_, S, A>.invoke(
     elementB: SignatureElement<E_, S, B, Position.Leading>,
     elementC: SignatureElement<E_, S, C, Position.Last>,
     execute: Execution<E_, S>.(A, B, C) -> Unit = { a, b, c -> },
 ): Branch<E_, S, Arguments3<A, B, C>> =
-    BranchImpl(Signature3(execute, LeadingParameterRole.Argument, [leadingParameter, elementB, elementC]))
+    build(Signature3(execute, LeadingParameterRole.Argument, [leadingParameter, elementB, elementC]))
 
 operator fun <E_ : Environment, S, A, B, C, D> BranchScope<E_, S, A>.invoke(
     elementB: SignatureElement<E_, S, B, Position.Leading>,
@@ -62,7 +63,7 @@ operator fun <E_ : Environment, S, A, B, C, D> BranchScope<E_, S, A>.invoke(
     elementD: SignatureElement<E_, S, D, Position.Last>,
     execute: Execution<E_, S>.(A, B, C, D) -> Unit = { a, b, c, d -> },
 ): Branch<E_, S, Arguments4<A, B, C, D>> =
-    BranchImpl(Signature4(execute, LeadingParameterRole.Argument, [leadingParameter, elementB, elementC, elementD]))
+    build(Signature4(execute, LeadingParameterRole.Argument, [leadingParameter, elementB, elementC, elementD]))
 
 operator fun <E_ : Environment, S, A, B, C, D, E> BranchScope<E_, S, A>.invoke(
     elementB: SignatureElement<E_, S, B, Position.Leading>,
@@ -71,7 +72,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E> BranchScope<E_, S, A>.invoke(
     elementE: SignatureElement<E_, S, E, Position.Last>,
     execute: Execution<E_, S>.(A, B, C, D, E) -> Unit = { a, b, c, d, e -> },
 ): Branch<E_, S, Arguments5<A, B, C, D, E>> =
-    BranchImpl(
+    build(
         Signature5(execute, LeadingParameterRole.Argument, [leadingParameter, elementB, elementC, elementD, elementE])
     )
 
@@ -83,7 +84,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F> BranchScope<E_, S, A>.invok
     elementF: SignatureElement<E_, S, F, Position.Last>,
     execute: Execution<E_, S>.(A, B, C, D, E, F) -> Unit = { a, b, c, d, e, f -> },
 ): Branch<E_, S, Arguments6<A, B, C, D, E, F>> =
-    BranchImpl(
+    build(
         Signature6(
             execute,
             LeadingParameterRole.Argument,
@@ -100,7 +101,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G> BranchScope<E_, S, A>.in
     elementG: SignatureElement<E_, S, G, Position.Last>,
     execute: Execution<E_, S>.(A, B, C, D, E, F, G) -> Unit = { a, b, c, d, e, f, g -> },
 ): Branch<E_, S, Arguments7<A, B, C, D, E, F, G>> =
-    BranchImpl(
+    build(
         Signature7(
             execute,
             LeadingParameterRole.Argument,
@@ -118,7 +119,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H> BranchScope<E_, S, A>
     elementH: SignatureElement<E_, S, H, Position.Last>,
     execute: Execution<E_, S>.(A, B, C, D, E, F, G, H) -> Unit = { a, b, c, d, e, f, g, h -> },
 ): Branch<E_, S, Arguments8<A, B, C, D, E, F, G, H>> =
-    BranchImpl(
+    build(
         Signature8(
             execute,
             LeadingParameterRole.Argument,
@@ -137,7 +138,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I> BranchScope<E_, S,
     elementI: SignatureElement<E_, S, I, Position.Last>,
     execute: Execution<E_, S>.(A, B, C, D, E, F, G, H, I) -> Unit = { a, b, c, d, e, f, g, h, i -> },
 ): Branch<E_, S, Arguments9<A, B, C, D, E, F, G, H, I>> =
-    BranchImpl(
+    build(
         Signature9(
             execute,
             LeadingParameterRole.Argument,
@@ -157,7 +158,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J> BranchScope<E_,
     elementJ: SignatureElement<E_, S, J, Position.Last>,
     execute: Execution<E_, S>.(A, B, C, D, E, F, G, H, I, J) -> Unit = { a, b, c, d, e, f, g, h, i, j -> },
 ): Branch<E_, S, Arguments10<A, B, C, D, E, F, G, H, I, J>> =
-    BranchImpl(
+    build(
         Signature10(
             execute,
             LeadingParameterRole.Argument,
@@ -189,7 +190,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K> BranchScope<
     elementK: SignatureElement<E_, S, K, Position.Last>,
     execute: Execution<E_, S>.(A, B, C, D, E, F, G, H, I, J, K) -> Unit = { a, b, c, d, e, f, g, h, i, j, k -> },
 ): Branch<E_, S, Arguments11<A, B, C, D, E, F, G, H, I, J, K>> =
-    BranchImpl(
+    build(
         Signature11(
             execute,
             LeadingParameterRole.Argument,
@@ -223,7 +224,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K, L> BranchSco
     elementL: SignatureElement<E_, S, L, Position.Last>,
     execute: Execution<E_, S>.(A, B, C, D, E, F, G, H, I, J, K, L) -> Unit = { a, b, c, d, e, f, g, h, i, j, k, l -> },
 ): Branch<E_, S, Arguments12<A, B, C, D, E, F, G, H, I, J, K, L>> =
-    BranchImpl(
+    build(
         Signature12(
             execute,
             LeadingParameterRole.Argument,
