@@ -26,7 +26,6 @@ import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.ValueFlag
 import com.zombachu.stick.failSenderType
-import com.zombachu.stick.success
 import kotlin.experimental.ExperimentalTypeInference
 import kotlin.reflect.KClass
 
@@ -147,10 +146,3 @@ fun <E : Environment, S : Any, G : GroupResult?, P : Position> StructureScope<E,
     invalidSenderDefault: InvalidSenderDefault<E, S, G>,
     optional: StructureScope<E, S>.() -> OptionalGroup<E, S, G, P>,
 ): OptionalGroup<E, S, G, P> = GatedOptionalGroup(optional(this.forSender()), invalidSenderDefault)
-
-// TODO: unify with require once T_ can be inferred
-@OverloadResolutionByLambdaReturnType
-fun <E : Environment, S : Any, T : Arguments> StructureScope<E, S>.branchRequire(
-    requirement: Requirement<E, S> = requirement { success() },
-    branch: StructureScope<E, S>.() -> Branch<E, S, T>,
-): Branch<E, S, T> = GatedBranch(branch(this.forSender()), requirement)

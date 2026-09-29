@@ -12,7 +12,6 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.dsl.booleanParameter
 import com.zombachu.stick.dsl.branch
-import com.zombachu.stick.dsl.branchRequire
 import com.zombachu.stick.dsl.branchRequireSender
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.doubleParameter
@@ -590,19 +589,17 @@ class GroupTest {
             command("warp")(
                 subcommands(
                     command("list")() { },
-                    branchRequire(permission("server.warp.tp")) {
-                        branch(warpParameter("warp").store(targetWarp))(
-                            subcommands(
-                                command("tp")(
-                                    helper(targetWarp)
-                                ) { warp -> },
-                                command("rename")(
-                                    helper(targetWarp),
-                                    stringParameter("name")
-                                ) { warp, name -> },
-                            ),
-                        )
-                    },
+                    branch(warpParameter("warp").store(targetWarp), requirement = permission("server.warp.tp"))(
+                        subcommands(
+                            command("tp")(
+                                helper(targetWarp)
+                            ) { warp -> },
+                            command("rename")(
+                                helper(targetWarp),
+                                stringParameter("name")
+                            ) { warp, name -> },
+                        ),
+                    ),
                 )
             )
         }
