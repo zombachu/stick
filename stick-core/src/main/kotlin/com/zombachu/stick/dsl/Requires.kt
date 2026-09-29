@@ -148,12 +148,6 @@ fun <E : Environment, S : Any, G : GroupResult?, P : Position> StructureScope<E,
     optional: StructureScope<E, S>.() -> OptionalGroup<E, S, G, P>,
 ): OptionalGroup<E, S, G, P> = GatedOptionalGroup(optional(this.forSender()), invalidSenderDefault)
 
-@OverloadResolutionByLambdaReturnType
-fun <E : Environment, S : Any, T : Arguments> StructureScope<E, S>.require(
-    requirement: Requirement<E, S> = requirement { success() },
-    command: StructureScope<E, S>.() -> Structure<E, S, T>,
-): Structure<E, S, T> = GatedStructure(command(this.forSender()), requirement)
-
 // TODO: unify with require once T_ can be inferred
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T : Arguments> StructureScope<E, S>.branchRequire(

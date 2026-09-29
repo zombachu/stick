@@ -14,7 +14,6 @@ import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.mapSender
 import com.zombachu.stick.dsl.nullableValueFlag
 import com.zombachu.stick.dsl.optionallyNullable
-import com.zombachu.stick.dsl.require
 import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
@@ -322,24 +321,6 @@ class SenderRequirementTest {
 
         bioLineCommand.execute(server, zombachu, "/bio My name is zombachu")
         assertEquals(["My name is zombachu"], zombachu.socialData.bio)
-    }
-
-    @Test
-    fun `echo - require gates command`() {
-        val echoCommand = structure(Server::class, Sender::class) {
-            require(permission("server.echo")) {
-                command("echo")(
-                    stringParameter("text")
-                ) { text ->
-                    sender.log(text)
-                }
-            }
-        }
-
-        echoCommand.execute(server, zombachu, "/echo hello")
-        assertEquals(["hello"], zombachu.logs)
-
-        assertEquals(Reason.InvalidPermission, echoCommand.executeExpectingError(server, steve, "/echo hello"))
     }
 
     @Test
