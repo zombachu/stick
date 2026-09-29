@@ -2,7 +2,6 @@ package com.zombachu.stick.integration
 
 import com.zombachu.stick.MessageReason
 import com.zombachu.stick.dsl.command
-import com.zombachu.stick.dsl.default
 import com.zombachu.stick.dsl.flag
 import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invoke
@@ -38,7 +37,7 @@ class MapTest {
             command("page")(
                 optionally(
                     parameter = intParameter("page", min = 1),
-                    ifAbsent = default(1)).map { success(it - 1) }
+                    default = 1).map { success(it - 1) }
             ) { index ->
                 sender.log("Page: $index")
             }
@@ -149,7 +148,7 @@ class MapTest {
             command("stop")(
                 optionally(
                     parameter = stringParameter("reason").map { success(it.replaceFirstChar(Char::uppercase)) },
-                    ifAbsent = default("server shutting down"),
+                    default = "server shutting down",
                 )
             ) { reason ->
                 sender.log("Stopping: $reason")
@@ -169,7 +168,7 @@ class MapTest {
             command("stop")(
                 optionally(
                     parameter = stringParameter("reason"),
-                    ifAbsent = default("server shutting down"),
+                    default = "server shutting down",
                 ).map { success(it.replaceFirstChar(Char::uppercase)) }
             ) { reason ->
                 sender.log("Stopping: $reason")
@@ -217,12 +216,12 @@ class MapTest {
     }
 
     @Test
-    fun `KNOWN LIMITATION - speed - ifAbsent type can differ from map output`() {
+    fun `KNOWN LIMITATION - speed - default type can differ from map output`() {
         val speedCommand = structure(Server::class, Sender::class) {
             command("speed")(
                 optionally(
                     parameter = stringParameter("level").map { success(it.length / 2f) },
-                    ifAbsent = default("one"),
+                    default = "one",
                 )
             ) { level ->
                 sender.log(level::class.simpleName ?: "?")

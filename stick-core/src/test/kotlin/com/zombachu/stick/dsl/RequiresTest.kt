@@ -66,7 +66,7 @@ class RequiresTest {
     @Test
     fun `require on OptionalParameter resolves defaults by sender validity`() = structureTest<String> {
         val optional = require(invalidDefault(-1, requirement { sender == "correct" })) {
-            optionally(intParameter(""), default(0))
+            optionally(intParameter(""), 0)
         }
 
         assertEquals(0, withExecutionSender("correct") { optional.parse([]) }.expectSuccessValue())
@@ -82,7 +82,7 @@ class RequiresTest {
     @Test
     fun `require on nullable OptionalParameter resolves defaults by sender validity`() = structureTest<String> {
         val optional = require(invalidDefault(null, requirement { sender == "correct" })) {
-            optionallyNullable(intParameter(""))
+            optionally(intParameter(""), null)
         }
 
         assertNull(withExecutionSender("correct") { optional.parse([]) }.expectSuccessValue())
@@ -98,7 +98,7 @@ class RequiresTest {
     @Test
     fun `require on OptionalGroup resolves defaults by sender validity`() = structureTest<String> {
         val optional = require(invalidDefault(GroupResult.ResultA("invalid"), requirement { sender == "correct" })) {
-            optionally(group(literalParameter("on")), default(GroupResult.ResultA("absent")))
+            optionally(group(literalParameter("on")), GroupResult.ResultA("absent"))
         }
 
         assertEquals(
@@ -123,7 +123,7 @@ class RequiresTest {
     @Test
     fun `requireSender on OptionalParameter falls back to invalidDefault`() = structureTest<BaseSender> {
         val optional = requireSender(Player::class, invalidDefault("console")) {
-            optionally(stringParameter(""), default({ success(sender.name) }))
+            optionally(stringParameter(""), { success(sender.name) })
         }
         val player: BaseSender = Player("steve")
         val console = BaseSender("console")
@@ -141,7 +141,7 @@ class RequiresTest {
     @Test
     fun `requireSender on OptionalGroup falls back to invalidDefault`() = structureTest<BaseSender> {
         val optional = requireSender(Player::class, invalidDefault(GroupResult.ResultA("console"))) {
-            optionally(group(literalParameter("on")), default({ success(GroupResult.ResultA(sender.name)) }))
+            optionally(group(literalParameter("on")), { success(GroupResult.ResultA(sender.name)) })
         }
         val player: BaseSender = Player("steve")
         val console = BaseSender("console")

@@ -3,6 +3,7 @@ package com.zombachu.stick.integration
 import com.zombachu.stick.Arguments1
 import com.zombachu.stick.Command
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
 import com.zombachu.stick.GroupResult
@@ -12,7 +13,6 @@ import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.dsl.command
-import com.zombachu.stick.dsl.default
 import com.zombachu.stick.dsl.group
 import com.zombachu.stick.dsl.invalidDefault
 import com.zombachu.stick.dsl.invoke
@@ -25,7 +25,6 @@ import com.zombachu.stick.element.Groupable
 import com.zombachu.stick.element.InvalidSenderDefault
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.element.ValidSenderDefault
 import com.zombachu.stick.element.ValueFlag
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.FailureOrigin
@@ -128,14 +127,13 @@ class EnvironmentTest {
     @Test
     fun `spawn - base environment parameter and defaults compose into narrower optional`() {
         val baseScope = StructureScope.empty<Server, Sender>()
-        val absentDefault: ValidSenderDefault<WarpableServer, Sender, String> =
-            with(baseScope) { default("overworld") }
+        val absentDefault: ContextualValue<Server, Sender, String> = { success("overworld") }
         val deniedDefault: InvalidSenderDefault<WarpableServer, Sender, String> =
             with(baseScope) { invalidDefault("lobby", permission("server.spawn")) }
         val worldCommand = structure(WarpableServer::class, Sender::class) {
             command("spawn")(
                 require(deniedDefault) {
-                    optionally(parameter = WorldParameter<Server, Sender>("world"), ifAbsent = absentDefault)
+                    optionally(parameter = WorldParameter<Server, Sender>("world"), default = absentDefault)
                 }
             ) { world -> sender.log("Teleporting to $world spawn") }
         }

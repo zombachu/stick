@@ -32,16 +32,6 @@ import com.zombachu.stick.element.ValidSenderDefault
 import com.zombachu.stick.element.ValidatedDefaultImpl
 import com.zombachu.stick.success
 
-fun <E : Environment, S, T> StructureScope<E, S>.default(
-    value: ContextualValue<E, S, T>,
-    requirement: Requirement<E, S> = requirement { success() },
-): ValidSenderDefault<E, S, T> = ValidatedDefaultImpl(value) { requirement.validateSender() }
-
-fun <E : Environment, S, T> StructureScope<E, S>.default(
-    value: T,
-    requirement: Requirement<E, S> = requirement { success() },
-): ValidSenderDefault<E, S, T> = ValidatedDefaultImpl({ success(value) }) { requirement.validateSender() }
-
 fun <E : Environment, S, T> StructureScope<E, S>.invalidDefault(
     value: ContextualValue<E, S, T>,
     requirement: Requirement<E, S> = requirement { success() },
@@ -53,47 +43,102 @@ fun <E : Environment, S, T> StructureScope<E, S>.invalidDefault(
 ): InvalidSenderDefault<E, S, T> = ValidatedDefaultImpl({ success(value) }) { requirement.validateSender() }
 
 inline fun <E : Environment, S : Any, reified S2 : S> StructureScope<E, S>.defaultSender():
-    ValidSenderDefault<E, S, S2> = default({ success(sender as S2) }, requirement { sender is S2 })
+    ValidSenderDefault<E, S, S2> {
+    val requirement = requirement { sender is S2 }
+    return ValidatedDefaultImpl({ success(sender as S2) }) { requirement.validateSender() }
+}
 
 fun <E : Environment, S, T> StructureScope<E, S>.optionally(
     parameter: Parameter<E, S, T, Position.Leading>,
-    ifAbsent: ValidSenderDefault<E, S, T>,
-): OptionalParameter<E, S, T, Position.Optional> = OptionalParameterImpl(parameter, ifAbsent)
+    default: T,
+): OptionalParameter<E, S, T, Position.Optional> =
+    OptionalParameterImpl(parameter, ValidatedDefaultImpl({ success(default) }))
+
+fun <E : Environment, S, T> StructureScope<E, S>.optionally(
+    parameter: Parameter<E, S, T, Position.Leading>,
+    default: ContextualValue<E, S, T>,
+): OptionalParameter<E, S, T, Position.Optional> = OptionalParameterImpl(parameter, ValidatedDefaultImpl(default))
+
+fun <E : Environment, S, T> StructureScope<E, S>.optionally(
+    parameter: Parameter<E, S, T, Position.Leading>,
+    default: Nothing?,
+): OptionalParameter<E, S, T?, Position.Optional> =
+    OptionalParameterImpl(parameter, ValidatedDefaultImpl({ success(default) }))
+
+fun <E : Environment, S, T> StructureScope<E, S>.optionally(
+    parameter: Parameter<E, S, T, Position.Leading>,
+    default: ValidSenderDefault<E, S, T>,
+): OptionalParameter<E, S, T, Position.Optional> = OptionalParameterImpl(parameter, default)
 
 @JvmName("optionallyLast")
 fun <E : Environment, S, T> StructureScope<E, S>.optionally(
     parameter: Parameter<E, S, T, Position.Last>,
-    ifAbsent: ValidSenderDefault<E, S, T>,
-): OptionalParameter<E, S, T, Position.LastOptional> = OptionalParameterImpl(parameter, ifAbsent)
+    default: T,
+): OptionalParameter<E, S, T, Position.LastOptional> =
+    OptionalParameterImpl(parameter, ValidatedDefaultImpl({ success(default) }))
 
-fun <E : Environment, S, T> StructureScope<E, S>.optionallyNullable(
-    parameter: Parameter<E, S, T, Position.Leading>
-): OptionalParameter<E, S, T?, Position.Optional> = OptionalParameterImpl(parameter, default(null))
+@JvmName("optionallyLast")
+fun <E : Environment, S, T> StructureScope<E, S>.optionally(
+    parameter: Parameter<E, S, T, Position.Last>,
+    default: ContextualValue<E, S, T>,
+): OptionalParameter<E, S, T, Position.LastOptional> = OptionalParameterImpl(parameter, ValidatedDefaultImpl(default))
 
-@JvmName("optionallyNullableLast")
-fun <E : Environment, S, T> StructureScope<E, S>.optionallyNullable(
-    parameter: Parameter<E, S, T, Position.Last>
-): OptionalParameter<E, S, T?, Position.LastOptional> = OptionalParameterImpl(parameter, default(null))
+@JvmName("optionallyLast")
+fun <E : Environment, S, T> StructureScope<E, S>.optionally(
+    parameter: Parameter<E, S, T, Position.Last>,
+    default: Nothing?,
+): OptionalParameter<E, S, T?, Position.LastOptional> =
+    OptionalParameterImpl(parameter, ValidatedDefaultImpl({ success(default) }))
+
+@JvmName("optionallyLast")
+fun <E : Environment, S, T> StructureScope<E, S>.optionally(
+    parameter: Parameter<E, S, T, Position.Last>,
+    default: ValidSenderDefault<E, S, T>,
+): OptionalParameter<E, S, T, Position.LastOptional> = OptionalParameterImpl(parameter, default)
 
 fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
     group: Group<E, S, G, Position.Leading>,
-    ifAbsent: ValidSenderDefault<E, S, G>,
-): OptionalGroup<E, S, G, Position.Optional> = OptionalGroupImpl(group, ifAbsent)
+    default: G,
+): OptionalGroup<E, S, G, Position.Optional> = OptionalGroupImpl(group, ValidatedDefaultImpl({ success(default) }))
+
+fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
+    group: Group<E, S, G, Position.Leading>,
+    default: ContextualValue<E, S, G>,
+): OptionalGroup<E, S, G, Position.Optional> = OptionalGroupImpl(group, ValidatedDefaultImpl(default))
+
+fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
+    group: Group<E, S, G, Position.Leading>,
+    default: Nothing?,
+): OptionalGroup<E, S, G?, Position.Optional> = OptionalGroupImpl(group, ValidatedDefaultImpl({ success(default) }))
+
+fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
+    group: Group<E, S, G, Position.Leading>,
+    default: ValidSenderDefault<E, S, G>,
+): OptionalGroup<E, S, G, Position.Optional> = OptionalGroupImpl(group, default)
 
 @JvmName("optionallyLastGroup")
 fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
     group: Group<E, S, G, Position.Last>,
-    ifAbsent: ValidSenderDefault<E, S, G>,
-): OptionalGroup<E, S, G, Position.LastOptional> = OptionalGroupImpl(group, ifAbsent)
+    default: G,
+): OptionalGroup<E, S, G, Position.LastOptional> = OptionalGroupImpl(group, ValidatedDefaultImpl({ success(default) }))
 
-fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionallyNullable(
-    group: Group<E, S, G, Position.Leading>
-): OptionalGroup<E, S, G?, Position.Optional> = OptionalGroupImpl(group, default(null))
+@JvmName("optionallyLastGroup")
+fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
+    group: Group<E, S, G, Position.Last>,
+    default: ContextualValue<E, S, G>,
+): OptionalGroup<E, S, G, Position.LastOptional> = OptionalGroupImpl(group, ValidatedDefaultImpl(default))
 
-@JvmName("optionallyNullableLastGroup")
-fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionallyNullable(
-    group: Group<E, S, G, Position.Last>
-): OptionalGroup<E, S, G?, Position.LastOptional> = OptionalGroupImpl(group, default(null))
+@JvmName("optionallyLastGroup")
+fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
+    group: Group<E, S, G, Position.Last>,
+    default: Nothing?,
+): OptionalGroup<E, S, G?, Position.LastOptional> = OptionalGroupImpl(group, ValidatedDefaultImpl({ success(default) }))
+
+@JvmName("optionallyLastGroup")
+fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
+    group: Group<E, S, G, Position.Last>,
+    default: ValidSenderDefault<E, S, G>,
+): OptionalGroup<E, S, G, Position.LastOptional> = OptionalGroupImpl(group, default)
 
 fun <E_ : Environment, S, A, B> StructureScope<E_, S>.optionals(
     elementA: SignatureElement<E_, S, A, Position.Optional>,

@@ -5,7 +5,6 @@ import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
 import com.zombachu.stick.Stick
 import com.zombachu.stick.dsl.command
-import com.zombachu.stick.dsl.default
 import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
@@ -182,7 +181,7 @@ class RegistrationTest {
                 command("warps")(
                     optionally(
                         parameter = literalParameter("overworld"),
-                        ifAbsent = default("overworld")
+                        default = "overworld",
                     ),
                 ) { world ->
                     sender.log("Warps in $world: ${env.warps.names.size}")

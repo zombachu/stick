@@ -13,7 +13,6 @@ import com.zombachu.stick.consuming
 import com.zombachu.stick.dsl.booleanParameter
 import com.zombachu.stick.dsl.branch
 import com.zombachu.stick.dsl.command
-import com.zombachu.stick.dsl.default
 import com.zombachu.stick.dsl.enumParameter
 import com.zombachu.stick.dsl.flag
 import com.zombachu.stick.dsl.group
@@ -24,7 +23,6 @@ import com.zombachu.stick.dsl.listParameter
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.map
 import com.zombachu.stick.dsl.optionally
-import com.zombachu.stick.dsl.optionallyNullable
 import com.zombachu.stick.dsl.optionals
 import com.zombachu.stick.dsl.require
 import com.zombachu.stick.dsl.requireSender
@@ -141,8 +139,8 @@ class SuggestionTest {
         val countCommand = structure(Server::class, Sender::class) {
             command("count")(
                 optionals(
-                    optionallyNullable(literalParameter("one")),
-                    optionallyNullable(literalParameter("two")),
+                    optionally(literalParameter("one"), default = null),
+                    optionally(literalParameter("two"), default = null),
                 )
             ) { }
         }
@@ -249,7 +247,7 @@ class SuggestionTest {
                     require(invalidDefault(Privacy.Private, permission("server.warp.privacy"))) {
                         optionally(
                             parameter = enumParameter("privacy", Privacy::class),
-                            ifAbsent = default(Privacy.Private),
+                            default = Privacy.Private,
                         )
                     },
                 ) { _, _, _ -> }

@@ -3,14 +3,12 @@ package com.zombachu.stick.integration
 import com.zombachu.stick.Command
 import com.zombachu.stick.TypedIdentifier
 import com.zombachu.stick.dsl.command
-import com.zombachu.stick.dsl.default
 import com.zombachu.stick.dsl.group
 import com.zombachu.stick.dsl.helper
 import com.zombachu.stick.dsl.id
 import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.optionally
-import com.zombachu.stick.dsl.optionallyNullable
 import com.zombachu.stick.dsl.store
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
@@ -84,7 +82,7 @@ class StoredElementTest {
             command("poke")(
                 socialDataHelper().store(poker),
                 playerParameter("player"),
-                optionally(parameter = intParameter("times", min = 1, max = 5), ifAbsent = default(3)).store(times),
+                optionally(parameter = intParameter("times", min = 1, max = 5), default = 3).store(times),
             ) { _, target, _ ->
                 target.log("Poked ${target.name} ${get(times)} times")
                 sender.log("Poked by ${get(poker).player.name}")
@@ -118,7 +116,7 @@ class StoredElementTest {
         val nick: TypedIdentifier<String?> = id("nick")
         val nicknameCommand = structure(Server::class, Sender::class) {
             command("nickname")(
-                optionallyNullable(stringParameter("nick")).store(nick),
+                optionally(stringParameter("nick"), default = null).store(nick),
             ) { unused: String? ->
                 sender.log("Nickname: ${get(nick) ?: "reset"}")
             }

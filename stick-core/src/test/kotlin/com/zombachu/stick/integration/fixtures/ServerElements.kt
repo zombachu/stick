@@ -75,7 +75,7 @@ fun <E : Server> StructureScope<E, Sender>.targetPlayerParameter(
 ): OptionalParameter<E, Sender, Player, Position.Optional> =
     optionally(
         parameter = playerParameter(name),
-        ifAbsent = defaultSender<E, Sender, Player>()
+        default = defaultSender<E, Sender, Player>(),
     )
 
 class WarpParameter<E : WarpableServer, S>(name: String) : Parameter.Size1<E, S, Warp>(name, "") {

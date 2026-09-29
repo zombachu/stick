@@ -2,16 +2,15 @@ package com.zombachu.stick.dsl
 
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult2
-import com.zombachu.stick.Requirement
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parse
 import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
-import com.zombachu.stick.failSender
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.structureTest
+import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
 import com.zombachu.stick.testExecutionSender
 import com.zombachu.stick.withExecution
@@ -27,20 +26,6 @@ import kotlin.test.assertTrue
 class OptionalsTest {
 
     private val intParameter = IntParameter<TestEnv, String>("", "", Int.MIN_VALUE, Int.MAX_VALUE)
-
-    @Test
-    fun `default evaluates to given value`() = structureTest {
-        val default = default("x")
-        assertEquals("x", default.value(testExecution()).expectSuccessValue())
-        assertTrue(withInvocation { default.validateSender() }.isSuccess())
-    }
-
-    @Test
-    fun `default uses requirement in sender validation`() = structureTest {
-        val default = default("x", Requirement { failSender() })
-        val validationResult = withInvocation { default.validateSender() }
-        assertSame(Reason.InvalidSender, validationResult.expectReason())
-    }
 
     @Test
     fun `invalidDefault evaluates to given value`() = structureTest {
@@ -64,13 +49,19 @@ class OptionalsTest {
 
     @Test
     fun `optionally defaults to value`() = structureTest<String> {
-        val optional = optionally(intParameter, default(7))
+        val optional = optionally(intParameter, 7)
         assertEquals(7, withExecutionSender("sender") { optional.parse([]) }.expectSuccessValue())
     }
 
     @Test
-    fun `optionallyNullable defaults to null`() = structureTest<String> {
-        val optional = optionallyNullable(intParameter)
+    fun `optionally defaults to contextual value`() = structureTest<String> {
+        val optional = optionally(intParameter, { success(sender.length) })
+        assertEquals(6, withExecutionSender("sender") { optional.parse([]) }.expectSuccessValue())
+    }
+
+    @Test
+    fun `optionally defaults to null`() = structureTest<String> {
+        val optional = optionally(intParameter, null)
         assertNull(withExecutionSender("sender") { optional.parse([]) }.expectSuccessValue())
     }
 
@@ -79,8 +70,8 @@ class OptionalsTest {
         val structure =
             command("cmd")(
                 optionals(
-                    optionallyNullable(intParameter("a")),
-                    optionallyNullable(stringParameter("b"))
+                    optionally(intParameter("a"), null),
+                    optionally(stringParameter("b"), null)
                 )
             ) { (a: Int?, b: String?) -> }
 
@@ -98,8 +89,8 @@ class OptionalsTest {
         val structure =
             command("cmd")(
                 optionals(
-                    optionallyNullable(intParameter("a")),
-                    optionally(textParameter("b"), default(""))
+                    optionally(intParameter("a"), null),
+                    optionally(textParameter("b"), "")
                 )
             )
 
@@ -114,7 +105,7 @@ class OptionalsTest {
             command("cmd")(
                 stringParameter("a"),
                 optionals(
-                    optionallyNullable(intParameter("b")),
+                    optionally(intParameter("b"), null),
                     flag("silent")
                 ),
             ) { a, (b, silent) -> }
@@ -138,7 +129,7 @@ class OptionalsTest {
             command("cmd")(
                 optionals(
                     flag("silent"),
-                    optionallyNullable(intParameter("a"))
+                    optionally(intParameter("a"), null)
                 ),
             ) { (silent, a) -> }
 
@@ -154,9 +145,9 @@ class OptionalsTest {
                 flag("raw"),
                 stringParameter("a"),
                 optionals(
-                    optionallyNullable(intParameter("b")),
+                    optionally(intParameter("b"), null),
                     flag("silent"),
-                    optionally(textParameter("c"), default("")),
+                    optionally(textParameter("c"), ""),
                 ),
             ) { raw, a, (b, silent, d) ->
             }
@@ -168,17 +159,17 @@ class OptionalsTest {
 
     @Test
     fun `optionally group defaults`() = structureTest {
-        val optional = optionally(group(literalParameter("on")), default(GroupResult.ResultA("off")))
+        val optional = optionally(group(literalParameter("on")), GroupResult.ResultA("off"))
         assertEquals(GroupResult.ResultA("off"), withExecution { optional.parse([]) }.expectSuccessValue())
     }
 
     @Test
-    fun `optionallyNullable group defaults to null`() = structureTest {
+    fun `optionally group defaults to null`() = structureTest {
         val structure =
             command("cmd")(
                 optionals(
-                    optionallyNullable(group(literalParameter("on"), literalParameter("off"))),
-                    optionallyNullable(stringParameter("reason"))
+                    optionally(group(literalParameter("on"), literalParameter("off")), null),
+                    optionally(stringParameter("reason"), null)
                 )
             ) { (toggle: GroupResult2<String, String>?, reason: String?) -> }
 
@@ -195,7 +186,7 @@ class OptionalsTest {
         val structure =
             command("cmd")(
                 stringParameter("a"),
-                optionallyNullable(group(literalParameter("on"), literalParameter("off"))),
+                optionally(group(literalParameter("on"), literalParameter("off")), null),
             ) { a, toggle -> }
 
         val syntax = withInvocation { structure.getSyntax() }

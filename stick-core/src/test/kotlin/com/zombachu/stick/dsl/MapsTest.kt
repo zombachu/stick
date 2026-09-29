@@ -40,7 +40,7 @@ class MapsTest {
 
     @Test
     fun `map on OptionalParameter transforms value`() = structureTest {
-        val mapped = optionally(parameter = intParameter(""), ifAbsent = default(0)).map { n -> success(n * 10) }
+        val mapped = optionally(intParameter(""), 0).map { n -> success(n * 10) }
         val result = withExecution("5") { mapped.parse(["5"]) }
         assertEquals(50, result.expectSuccessValue())
     }

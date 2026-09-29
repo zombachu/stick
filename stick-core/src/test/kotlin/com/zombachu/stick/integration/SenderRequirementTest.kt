@@ -12,8 +12,8 @@ import com.zombachu.stick.dsl.invalidDefault
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.mapSender
+import com.zombachu.stick.dsl.optionally
 import com.zombachu.stick.dsl.nullableValueFlag
-import com.zombachu.stick.dsl.optionallyNullable
 import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
@@ -278,7 +278,7 @@ class SenderRequirementTest {
             command("realname")(
                 requireSender(Player::class, invalidDefault(null)) {
                     mapSender(toSocialData) {
-                        optionallyNullable(realNameParameter("name"))
+                        optionally(realNameParameter("name"), default = null)
                     }
                 }
             ) { realName ->

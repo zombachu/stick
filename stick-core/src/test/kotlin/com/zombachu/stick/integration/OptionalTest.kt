@@ -1,14 +1,12 @@
 package com.zombachu.stick.integration
 
 import com.zombachu.stick.dsl.command
-import com.zombachu.stick.dsl.default
 import com.zombachu.stick.dsl.group
 import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invalidDefault
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.optionally
-import com.zombachu.stick.dsl.optionallyNullable
 import com.zombachu.stick.dsl.optionals
 import com.zombachu.stick.dsl.require
 import com.zombachu.stick.dsl.stringParameter
@@ -40,7 +38,7 @@ class OptionalTest {
     fun `list - optionals have default values`() {
         val listCommand = structure(Server::class, Sender::class) {
             command("list")(
-                optionally(parameter = intParameter("page", min = 1), ifAbsent = default(1))
+                optionally(parameter = intParameter("page", min = 1), default = 1)
             ) { page ->
                 sender.log("Showing page $page")
             }
@@ -79,7 +77,7 @@ class OptionalTest {
     fun `nick - optionals can be nullable`() {
         val nickCommand = structure(Server::class, Sender::class) {
             command("nick")(
-                optionallyNullable(stringParameter("name"))
+                optionally(stringParameter("name"), default = null)
             ) { name ->
                 sender.log(name?.let { "Nickname set to $it" } ?: "Nickname cleared")
             }
@@ -98,7 +96,7 @@ class OptionalTest {
             command("gift")(
                 playerParameter("player"),
                 require(invalidDefault(1, permission("server.gift.amount"))) {
-                    optionally(parameter = intParameter("amount", min = 1, max = 64), ifAbsent = default(1))
+                    optionally(parameter = intParameter("amount", min = 1, max = 64), default = 1)
                 },
             ) { target, amount ->
                 target.log("Received $amount items from ${sender.name}")
@@ -140,7 +138,7 @@ class OptionalTest {
         val speedCommand = structure(Server::class, Sender::class) {
             command("speed")(
                 require(invalidDefault(1, permission("server.speed.change"))) {
-                    optionally(parameter = intParameter("speed", min = 1, max = 10), ifAbsent = default(5))
+                    optionally(parameter = intParameter("speed", min = 1, max = 10), default = 5)
                 },
             ) { speed ->
                 sender.log("Speed changed to $speed")
@@ -165,8 +163,8 @@ class OptionalTest {
         val tpCommand = structure(Server::class, Sender::class) {
             command("tp")(
                 optionals(
-                    optionallyNullable(literalParameter("here")),
-                    optionallyNullable(literalParameter("there")),
+                    optionally(literalParameter("here"), default = null),
+                    optionally(literalParameter("there"), default = null),
                 )
             ) { (here: String?, there: String?) ->
                 sender.log("$here $there")
@@ -186,11 +184,12 @@ class OptionalTest {
     fun `home - subcommand group can be optional`() {
         val homeCommand = structure(Server::class, Sender::class) {
             command("home")(
-                optionallyNullable(
+                optionally(
                     group(
                         command("set")(stringParameter("name")) { name -> sender.log("Home $name set") },
                         command("delete")(stringParameter("name")) { name -> sender.log("Home $name deleted") },
-                    )
+                    ),
+                    default = null,
                 )
             ) { subcommand ->
                 if (subcommand == null) sender.log("Teleported to bed")
@@ -216,7 +215,7 @@ class OptionalTest {
         val weatherCommand = structure(Server::class, Sender::class) {
             command("weather")(
                 require(invalidDefault(null, permission("server.weather.set"))) {
-                    optionallyNullable(group(literalParameter("rain"), literalParameter("sun")))
+                    optionally(group(literalParameter("rain"), literalParameter("sun")), default = null)
                 }
             ) { weather ->
                 sender.log("Weather set to ${weather?.value ?: "clear"}")
