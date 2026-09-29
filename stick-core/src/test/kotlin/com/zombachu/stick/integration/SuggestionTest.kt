@@ -55,7 +55,7 @@ import kotlin.test.assertEquals
 
 class SuggestionTest {
 
-    private val zombachu = Player("zombachu", ["server.warp.privacy"])
+    private val zombachu = Player("zombachu", ["server.warp.privacy", "server.profile.type"])
     private val steve = Player("Steve")
     private val console = Console()
     private val server =
@@ -395,6 +395,24 @@ class SuggestionTest {
         )
         assertEquals(["-world", "zombachu", "Steve"], profileCommand.suggest(server, steve, "/profile "))
         assertEquals(["-privacy", "-nick", "zombachu", "Steve"], profileCommand.suggest(server, console, "/profile "))
+    }
+
+    @Test
+    fun `profile - nested gated flag is not suggested to denied senders`() {
+        val profileCommand = structure(Server::class, Sender::class) {
+            command("profile")(
+                requireSender(Player::class, invalidDefault("Server")) {
+                    require(invalidDefault("Server", permission("server.profile.type"))) {
+                        valueFlag(name = "type", default = "World", parameter = stringParameter("type"))
+                    }
+                },
+                playerParameter("player"),
+            ) { _, _ -> }
+        }
+
+        assertEquals(["-type"], profileCommand.suggest(server, zombachu, "/profile -t"))
+        assertEquals([], profileCommand.suggest(server, steve, "/profile -t"))
+        assertEquals([], profileCommand.suggest(server, console, "/profile -t"))
     }
 
     private enum class Privacy {

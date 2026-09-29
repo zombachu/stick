@@ -353,4 +353,34 @@ class FlagTest {
             profileCommand.executeExpectingInvalidSyntax(server, console, "/profile -world lobby"),
         )
     }
+
+    @Test
+    fun `broadcast - nested requirements both gate flag`() {
+        val broadcastCommand = structure(Server::class, Sender::class) {
+            command("broadcast")(
+                requireSender(Player::class, invalidDefault("Server")) {
+                    require(invalidDefault("Player", permission("server.broadcast.raw"))) {
+                        valueFlag(name = "prefix", default = "#", parameter = stringParameter("prefix"))
+                    }
+                },
+                textParameter("message"),
+            ) { prefix, message ->
+                sender.log("[$prefix] $message")
+            }
+        }
+
+        broadcastCommand.execute(server, zombachu, "/broadcast -prefix abc123 Server restarting")
+        assertEquals(["[abc123] Server restarting"], zombachu.logs)
+
+        broadcastCommand.execute(server, console, "/broadcast -prefix abc123 Server restarting")
+        assertEquals(["[Server] -prefix abc123 Server restarting"], console.logs)
+
+        broadcastCommand.execute(server, steve, "/broadcast -prefix abc123 Server restarting")
+        assertEquals(["[Player] -prefix abc123 Server restarting"], steve.logs)
+
+        assertEquals(
+            "/broadcast <message>",
+            broadcastCommand.executeExpectingInvalidSyntax(server, steve, "/broadcast"),
+        )
+    }
 }
