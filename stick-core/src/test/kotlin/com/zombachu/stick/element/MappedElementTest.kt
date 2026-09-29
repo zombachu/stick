@@ -9,13 +9,10 @@ import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.element.parameters.TextParameter
-import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.fail
-import com.zombachu.stick.failSenderType
 import com.zombachu.stick.failType
 import com.zombachu.stick.failure.Reason
-import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.success
@@ -183,16 +180,13 @@ class MappedElementTest {
     }
 
     @Test
-    fun `MappedValueFlag delegates validateSender to base`() {
-        val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
-        val invalidDefault =
-            invalidSenderDefault<TestEnv, Int, Boolean>(false) { failSenderType(String::class) }
-        val validated = GatedValueFlag(SenderMappedValueFlag(base, { it: Int -> it.toString() }), invalidDefault)
-        val mapped = MappedValueFlag<TestEnv, Int, Boolean, Boolean>(validated) { success(it) }
+    fun `MappedValueFlag delegates match to base`() {
+        val base = presenceValueFlag<TestEnv, Unit, Boolean>("silent", false, true)
+        val mapped = MappedValueFlag<TestEnv, Unit, Boolean, Boolean>(base) { success(it) }
 
-        val result = withInvocation(1) { mapped.validateSender() }
+        val result = withInvocation { mapped.match(["-silent"]) }
 
-        assertEquals(Reason.InvalidSenderType(String::class), result.expectReason())
+        assertEquals(MatchResult.matchedExactly(1), result)
     }
 
     @Test

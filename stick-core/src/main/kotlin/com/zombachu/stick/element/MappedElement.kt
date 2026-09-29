@@ -55,9 +55,6 @@ internal class MappedValueFlag<E : Environment, S, A, T>(
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = base.getSyntax()
 
-    context(inv: Invocation<E, S>)
-    override fun validateSender(): CommandResult<Unit> = base.validateSender()
-
     override val default: ContextualValue<E, S, T> = default@{
         val value =
             base.default(this).valueOrPropagateError {

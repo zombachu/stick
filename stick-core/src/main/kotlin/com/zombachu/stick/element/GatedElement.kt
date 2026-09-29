@@ -54,18 +54,37 @@ internal class GatedValueFlag<E : Environment, S, T>(
 ) : ValueFlag<E, S, T> by base, InternalConsumingElement<E, S, T> {
 
     override val default: ContextualValue<E, S, T> = {
-        if (validateSender().isSuccess()) {
+        if (invalidSenderDefault.validateSender().isSuccess()) {
             base.default(this)
         } else {
             invalidSenderDefault.value(this)
         }
     }
 
+    context(inv: Invocation<E, S>)
+    override fun match(args: List<String>): MatchResult {
+        invalidSenderDefault.validateSender().propagateError {
+            return MatchResult.unmatched()
+        }
+        return base.match(args)
+    }
+
+    context(inv: Invocation<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+        invalidSenderDefault.validateSender().propagateError {
+            return []
+        }
+        return base.suggest(preceding, partial)
+    }
+
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> = base.parse(args)
 
     context(inv: Invocation<E, S>)
-    override fun validateSender(): CommandResult<Unit> = invalidSenderDefault.validateSender()
+    override fun getSyntax(): String {
+        if (!invalidSenderDefault.validateSender().isSuccess()) return ""
+        return base.getSyntax()
+    }
 }
 
 @PublishedApi
@@ -75,18 +94,37 @@ internal class GatedHybridFlag<E : Environment, S, T>(
 ) : HybridFlag<E, S, T> by base, InternalConsumingElement<E, S, HybridFlagResult<T>> {
 
     override val default: ContextualValue<E, S, HybridFlagResult<T>> = {
-        if (validateSender().isSuccess()) {
+        if (invalidSenderDefault.validateSender().isSuccess()) {
             success(HybridFlagResult.Absent())
         } else {
             invalidSenderDefault.value(this)
         }
     }
 
+    context(inv: Invocation<E, S>)
+    override fun match(args: List<String>): MatchResult {
+        invalidSenderDefault.validateSender().propagateError {
+            return MatchResult.unmatched()
+        }
+        return base.match(args)
+    }
+
+    context(inv: Invocation<E, S>)
+    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+        invalidSenderDefault.validateSender().propagateError {
+            return []
+        }
+        return base.suggest(preceding, partial)
+    }
+
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> = base.parse(args)
 
     context(inv: Invocation<E, S>)
-    override fun validateSender(): CommandResult<Unit> = invalidSenderDefault.validateSender()
+    override fun getSyntax(): String {
+        if (!invalidSenderDefault.validateSender().isSuccess()) return ""
+        return base.getSyntax()
+    }
 }
 
 @PublishedApi

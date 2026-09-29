@@ -12,7 +12,6 @@ import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
-import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 
@@ -72,7 +71,7 @@ sealed interface Groupable<in E : Environment, S, T, out P : Position> : SyntaxE
 sealed interface Helper<in E : Environment, S, out T> : SignatureElement<E, S, T, Position.Leading>
 
 sealed interface Flag<in E : Environment, S, out T> :
-    SignatureElement<E, S, T, Position.Anywhere>, ConsumingElement<E, S, T>, SenderValidator<E, S> {
+    SignatureElement<E, S, T, Position.Anywhere>, ConsumingElement<E, S, T> {
     override val size: Size.Bounded
     val default: ContextualValue<E, S, T>
 }

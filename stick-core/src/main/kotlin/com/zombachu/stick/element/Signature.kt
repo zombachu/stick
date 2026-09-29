@@ -75,7 +75,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
 
     context(inv: Invocation<E, S>)
     private fun List<SyntaxElement<E, S, *>>.getSyntaxes(): List<String> {
-        return filter { it.validateSender().isSuccess() }.map { it.getSyntax() }
+        return map { it.getSyntax() }
     }
 
     context(inv: Invocation<E, S>)
@@ -168,7 +168,6 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
             val flagsIt = unprocessedFlags.iterator()
             while (flagsIt.hasNext()) {
                 val indexedFlag = flagsIt.next()
-                indexedFlag.element.validateSender().propagateError { continue }
                 if (processFlag(indexedFlag)) {
                     flagsIt.remove()
                     progressed = true
@@ -237,7 +236,6 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
                 // Avoid suggesting branch flags before the branch's leading parameter
                 if (index > 0) {
                     for ((_, flag) in unprocessedFlags) {
-                        flag.validateSender().propagateError { continue }
                         add(Candidate(flag, index))
                     }
                 }

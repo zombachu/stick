@@ -97,14 +97,6 @@ internal class SenderMappedValueFlag<E : Environment, S, S2 : Any, T>(
             return base.getSyntax()
         }
     }
-
-    context(inv: Invocation<E, S>)
-    override fun validateSender(): CommandResult<Unit> {
-        val transformedInvocation = inv.forSender(transform)
-        context(transformedInvocation) {
-            return base.validateSender()
-        }
-    }
 }
 
 internal class SenderMappedHybridFlag<E : Environment, S, S2 : Any, T>(
@@ -147,14 +139,6 @@ internal class SenderMappedHybridFlag<E : Environment, S, S2 : Any, T>(
         val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.getSyntax()
-        }
-    }
-
-    context(inv: Invocation<E, S>)
-    override fun validateSender(): CommandResult<Unit> {
-        val transformedInvocation = inv.forSender(transform)
-        context(transformedInvocation) {
-            return base.validateSender()
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.Aliasable
-import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
@@ -70,7 +69,4 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = "[$label [${parameter.getGroupedSyntax()}]]"
-
-    context(inv: Invocation<E, S>)
-    override fun validateSender(): CommandResult<Unit> = success()
 }

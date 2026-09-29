@@ -15,7 +15,6 @@ import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.failSenderType
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.invalidSenderDefault
-import com.zombachu.stick.isSuccess
 import com.zombachu.stick.noMatch
 import com.zombachu.stick.presenceFlagParameter
 import com.zombachu.stick.presenceValueFlag
@@ -28,7 +27,6 @@ import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
 
 class ValueFlagImplTest {
 
@@ -267,23 +265,6 @@ class ValueFlagImplTest {
         val result = withExecutionSender(1) { gated.parse(["-silent"]) }
 
         assertEquals(true, result.expectSuccessValue())
-    }
-
-    @Test
-    fun `GatedValueFlag validateSender delegates to invalid sender default`() {
-        var validated = false
-        val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
-        val invalidDefault =
-            invalidSenderDefault<TestEnv, Int, Boolean>(false) {
-                validated = true
-                success()
-            }
-        val gated = GatedValueFlag(SenderMappedValueFlag(base, { it: Int -> it.toString() }), invalidDefault)
-
-        val result = withInvocation(1) { gated.validateSender() }
-
-        assertTrue(result.isSuccess())
-        assertTrue(validated)
     }
 
     @Test

@@ -7,18 +7,19 @@ import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult2
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.SimpleSuggestion
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.LiteralParameter
-import com.zombachu.stick.expectReason
+import com.zombachu.stick.expectNoMatch
 import com.zombachu.stick.expectSuccessValue
+import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.failSender
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.invalidSenderDefault
-import com.zombachu.stick.isSuccess
 import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecutionSender
@@ -27,8 +28,6 @@ import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertSame
-import kotlin.test.assertTrue
 
 class SenderMappedElementTest {
 
@@ -83,14 +82,15 @@ class SenderMappedElementTest {
     }
 
     @Test
-    fun `SenderMappedValueFlag validateSender forwards to base with the transformed sender`() {
+    fun `SenderMappedValueFlag matches with the transformed sender`() {
         val base = presenceValueFlag<TestEnv, Int, Boolean>("f", false, true)
         val gated =
             GatedValueFlag(base, invalidSenderDefault<TestEnv, Int, Boolean>(false) { lengthIs8.validateSender() })
         val mapped = SenderMappedValueFlag(gated, String::length)
 
-        assertTrue(withInvocation("zombachu") { mapped.validateSender() }.isSuccess())
-        assertSame(Reason.InvalidSender, withInvocation("steve") { mapped.validateSender() }.expectReason())
+        assertIs<MatchResult.Matched>(withInvocation("zombachu") { mapped.match(["-f"]) })
+        val result = withInvocation("steve") { mapped.match(["-f"]) }
+        assertIs<Reason.InvalidSyntax>(result.expectUnmatched().expectNoMatch().reason)
     }
 
     @Test
@@ -121,7 +121,7 @@ class SenderMappedElementTest {
     }
 
     @Test
-    fun `SenderMappedHybridFlag validateSender forwards to base with the transformed sender`() {
+    fun `SenderMappedHybridFlag matches with the transformed sender`() {
         val base = HybridFlagImpl<TestEnv, Int, String>("f", SenderParameter(), [])
         val gated =
             GatedHybridFlag(
@@ -132,8 +132,9 @@ class SenderMappedElementTest {
             )
         val mapped = SenderMappedHybridFlag(gated, String::length)
 
-        assertTrue(withInvocation("zombachu") { mapped.validateSender() }.isSuccess())
-        assertSame(Reason.InvalidSender, withInvocation("steve") { mapped.validateSender() }.expectReason())
+        assertIs<MatchResult.Matched>(withInvocation("zombachu") { mapped.match(["-f"]) })
+        val result = withInvocation("steve") { mapped.match(["-f"]) }
+        assertIs<Reason.InvalidSyntax>(result.expectUnmatched().expectNoMatch().reason)
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.zombachu.stick.integration
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
+import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.SimpleSuggestion
@@ -21,11 +22,13 @@ import com.zombachu.stick.dsl.invalidDefault
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.listParameter
 import com.zombachu.stick.dsl.literalParameter
+import com.zombachu.stick.dsl.map
 import com.zombachu.stick.dsl.optionally
 import com.zombachu.stick.dsl.optionallyNullable
 import com.zombachu.stick.dsl.optionals
 import com.zombachu.stick.dsl.require
 import com.zombachu.stick.dsl.requireSender
+import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.subcommands
 import com.zombachu.stick.dsl.valueFlag
@@ -367,6 +370,31 @@ class SuggestionTest {
             count++
             return failType("", args.first())
         }
+    }
+
+    @Test
+    fun `profile - gated flags are not suggested to denied senders`() {
+        val profileCommand = structure(Server::class, Sender::class) {
+            command("profile")(
+                requireSender(Player::class, invalidDefault("*")) {
+                    valueFlag(name = "world", default = "overworld", parameter = stringParameter("world"))
+                },
+                require(invalidDefault("Public", permission("server.warp.privacy"))) {
+                    valueFlag(name = "privacy", default = "Private", parameter = stringParameter("privacy"))
+                }.map { success(it.uppercase()) },
+                require(invalidDefault(HybridFlagResult.Absent(), permission("server.warp.privacy"))) {
+                    hybridFlag("nick", stringParameter("name"))
+                },
+                playerParameter("player"),
+            ) { _, _, _, _ -> }
+        }
+
+        assertEquals(
+            ["-world", "-privacy", "-nick", "zombachu", "Steve"],
+            profileCommand.suggest(server, zombachu, "/profile "),
+        )
+        assertEquals(["-world", "zombachu", "Steve"], profileCommand.suggest(server, steve, "/profile "))
+        assertEquals(["-privacy", "-nick", "zombachu", "Steve"], profileCommand.suggest(server, console, "/profile "))
     }
 
     private enum class Privacy {

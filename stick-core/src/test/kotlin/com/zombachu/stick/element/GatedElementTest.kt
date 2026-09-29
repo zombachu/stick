@@ -14,6 +14,7 @@ import com.zombachu.stick.SimpleSuggestion
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.LiteralParameter
+import com.zombachu.stick.expectNoMatch
 import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
@@ -25,6 +26,7 @@ import com.zombachu.stick.withExecutionSender
 import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertSame
 import kotlin.test.fail
 
@@ -39,6 +41,8 @@ class GatedElementTest {
         invalidSenderDefault<TestEnv, String, GroupResult2<String, String>>(GroupResult.ResultA("denied")) {
             failSender()
         }
+    private val deniedHybridDefault =
+        invalidSenderDefault<TestEnv, String, HybridFlagResult<String>>(HybridFlagResult.Absent()) { failSender() }
     private val rejectedTransform: (String) -> Int = { fail("transformed a rejected sender") }
 
     @Test
@@ -72,6 +76,44 @@ class GatedElementTest {
         val suggestions = withInvocation("zombachu") { gated.suggest(["-f"], "") }
 
         assertEquals(["zombachu"], suggestions.map { it.value })
+    }
+
+    @Test
+    fun `GatedValueFlag match with sender not allowed fails with InvalidSyntax NoMatch`() {
+        val gated = GatedValueFlag(rejectedValueFlag(), deniedDefault)
+        val result = withInvocation("zombachu") { gated.match(["-f", "value"]) }
+        assertIs<Reason.InvalidSyntax>(result.expectUnmatched().expectNoMatch().reason)
+    }
+
+    @Test
+    fun `GatedValueFlag suggest with sender not allowed returns nothing`() {
+        val gated = GatedValueFlag(rejectedValueFlag(), deniedDefault)
+        assertEquals([], withInvocation("zombachu") { gated.suggest(["-f"], "") })
+    }
+
+    @Test
+    fun `GatedValueFlag getSyntax returns empty when sender not allowed`() {
+        val gated = GatedValueFlag(rejectedValueFlag(), deniedDefault)
+        assertEquals("", withInvocation("zombachu") { gated.getSyntax() })
+    }
+
+    @Test
+    fun `GatedHybridFlag match with sender not allowed fails with InvalidSyntax NoMatch`() {
+        val gated = GatedHybridFlag(rejectedHybridFlag(), deniedHybridDefault)
+        val result = withInvocation("zombachu") { gated.match(["-f", "value"]) }
+        assertIs<Reason.InvalidSyntax>(result.expectUnmatched().expectNoMatch().reason)
+    }
+
+    @Test
+    fun `GatedHybridFlag suggest with sender not allowed returns nothing`() {
+        val gated = GatedHybridFlag(rejectedHybridFlag(), deniedHybridDefault)
+        assertEquals([], withInvocation("zombachu") { gated.suggest(["-f"], "") })
+    }
+
+    @Test
+    fun `GatedHybridFlag getSyntax returns empty when sender not allowed`() {
+        val gated = GatedHybridFlag(rejectedHybridFlag(), deniedHybridDefault)
+        assertEquals("", withInvocation("zombachu") { gated.getSyntax() })
     }
 
     @Test
@@ -187,6 +229,19 @@ class GatedElementTest {
         val gated = GatedOptionalGroup(rejectedOptionalGroup(), deniedGroupDefault)
         assertEquals("", withInvocation("zombachu") { gated.getSyntax() })
     }
+
+    private fun rejectedValueFlag(): ValueFlag<TestEnv, String, String> =
+        SenderMappedValueFlag(
+            ValueFlagImpl(
+                "f",
+                { success("") },
+                FlagParameter.ParameterFlagParameter("f", SenderParameter<TestEnv, Int>(), []),
+            ),
+            rejectedTransform,
+        )
+
+    private fun rejectedHybridFlag(): HybridFlag<TestEnv, String, String> =
+        SenderMappedHybridFlag(HybridFlagImpl<TestEnv, Int, String>("f", SenderParameter(), []), rejectedTransform)
 
     private fun rejectedOptionalParameter(): OptionalParameter<TestEnv, String, String, Position.Optional> =
         SenderMappedOptionalParameter(optionalParameter<Int>(), rejectedTransform)

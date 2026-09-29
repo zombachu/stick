@@ -16,7 +16,6 @@ import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.failSenderType
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.invalidSenderDefault
-import com.zombachu.stick.isSuccess
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
 import com.zombachu.stick.testExecutionSender
@@ -26,7 +25,6 @@ import com.zombachu.stick.withInvocation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
 
 class HybridFlagImplTest {
 
@@ -141,22 +139,6 @@ class HybridFlagImplTest {
         val value = result.expectSuccessValue()
         assertIs<HybridFlagResult.Value<Int>>(value)
         assertEquals(5, value.value)
-    }
-
-    @Test
-    fun `GatedHybridFlag validateSender delegates to invalid sender default`() {
-        var validated = false
-        val invalidDefault =
-            invalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>>(HybridFlagResult.Absent()) {
-                validated = true
-                success()
-            }
-        val gated = GatedHybridFlag(SenderMappedHybridFlag(flag, { _: Int -> }), invalidDefault)
-
-        val result = withInvocation(1) { gated.validateSender() }
-
-        assertTrue(result.isSuccess())
-        assertTrue(validated)
     }
 
     @Test

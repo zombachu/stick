@@ -15,7 +15,6 @@ import com.zombachu.stick.consuming
 import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.noMatch
 import com.zombachu.stick.propagateError
-import com.zombachu.stick.success
 import com.zombachu.stick.suggestAliases
 import com.zombachu.stick.toSuggestions
 
@@ -40,9 +39,6 @@ internal open class ValueFlagImpl<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = flagParameter.getSyntax()
-
-    context(inv: Invocation<E, S>)
-    override fun validateSender(): CommandResult<Unit> = success()
 }
 
 internal sealed class FlagParameter<E : Environment, S, T>(
