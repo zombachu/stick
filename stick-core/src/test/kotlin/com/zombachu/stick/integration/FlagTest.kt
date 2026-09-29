@@ -106,7 +106,7 @@ class FlagTest {
     fun `echo - value flag parses with parameter`() {
         val echoCommand = structure(Server::class, Sender::class) {
             command("echo")(
-                valueFlag(name = "times", default = 1, parameter = intParameter("times", min = 1, max = 5)),
+                valueFlag(name = "times", parameter = intParameter("times", min = 1, max = 5), default = 1),
                 textParameter("message"),
             ) { times, message ->
                 repeat(times) { sender.log(message) }
@@ -131,8 +131,8 @@ class FlagTest {
             command("me")(
                 valueFlag(
                     name = "prefix",
-                    default = permissionedValue("server.me.staff", value = "Staff", fallback = "Player"),
                     parameter = stringParameter("prefix"),
+                    default = permissionedValue("server.me.staff", value = "Staff", fallback = "Player"),
                 ),
                 textParameter("message"),
             ) { prefix, message ->
@@ -178,8 +178,8 @@ class FlagTest {
         val weatherCommand = structure(Server::class, Sender::class) {
             command("weather")(
                 enumFlag(
-                    default = Weather.Clear,
-                    from = enumParameter("weather", Weather::class)
+                    from = enumParameter("weather", Weather::class),
+                    default = Weather.Clear
                 )
             ) { weather ->
                 sender.log("Weather set to $weather")
@@ -245,12 +245,12 @@ class FlagTest {
                 intParameter("y"),
                 intParameter("z"),
                 enumParameter("material", Material::class),
-                valueFlag(name = "count", default = 1, parameter = intParameter("count", min = 1, max = 64)),
+                valueFlag(name = "count", parameter = intParameter("count", min = 1, max = 64), default = 1),
                 nullableValueFlag(name = "owner", parameter = playerParameter("owner")),
                 flag("replace"),
                 flag("notify"),
-                valueFlag(name = "world", default = "overworld", parameter = stringParameter("world")),
-                enumFlag(Weather.Clear, enumParameter("weather", Weather::class)),
+                valueFlag(name = "world", parameter = stringParameter("world"), default = "overworld"),
+                enumFlag(enumParameter("weather", Weather::class), Weather.Clear),
                 flag("force"),
                 textParameter("comment"),
             ) { x, y, z, material, count, owner, replace, notify, world, weather, force, comment ->
@@ -281,7 +281,7 @@ class FlagTest {
         val broadcastCommand = structure(Server::class, Sender::class) {
             command("broadcast")(
                 require(invalidDefault("Player", permission("server.broadcast.raw"))) {
-                    valueFlag(name = "prefix", default = "#", parameter = stringParameter("prefix"))
+                    valueFlag(name = "prefix", parameter = stringParameter("prefix"), default = "#")
                 },
                 textParameter("message"),
             ) { prefix, message ->
@@ -307,7 +307,7 @@ class FlagTest {
         val broadcastCommand = structure(Server::class, Sender::class) {
             command("broadcast")(
                 require(invalidDefault("Player", permission("server.broadcast.raw"))) {
-                    valueFlag(name = "prefix", default = "#", parameter = stringParameter("prefix"))
+                    valueFlag(name = "prefix", parameter = stringParameter("prefix"), default = "#")
                 }.map { success(it.uppercase()) },
                 textParameter("message"),
             ) { prefix, message ->
@@ -335,7 +335,7 @@ class FlagTest {
         val profileCommand = structure(Server::class, Sender::class) {
             command("profile")(
                 requireSender(Player::class, invalidDefault("*")) {
-                    valueFlag(name = "world", default = "overworld", parameter = stringParameter("world"))
+                    valueFlag(name = "world", parameter = stringParameter("world"), default = "overworld")
                 }
             ) { world ->
                 sender.log("Profile at $world:")
@@ -360,7 +360,7 @@ class FlagTest {
             command("broadcast")(
                 requireSender(Player::class, invalidDefault("Server")) {
                     require(invalidDefault("Player", permission("server.broadcast.raw"))) {
-                        valueFlag(name = "prefix", default = "#", parameter = stringParameter("prefix"))
+                        valueFlag(name = "prefix", parameter = stringParameter("prefix"), default = "#")
                     }
                 },
                 textParameter("message"),

@@ -49,7 +49,7 @@ class RequiresTest {
 
     @Test
     fun `requireSender on ValueFlag falls back to invalidDefault`() = structureTest<BaseSender> {
-        val gatedFlag = requireSender(Player::class, invalidDefault(999)) { valueFlag("n", 0, intParameter("n")) }
+        val gatedFlag = requireSender(Player::class, invalidDefault(999)) { valueFlag("n", intParameter("n"), 0) }
         val signature =
             Signature1<TestEnv, BaseSender, Int>({}, LeadingParameterRole.Label, [literalParameter("cmd"), gatedFlag])
 

@@ -85,7 +85,7 @@ class EnvironmentTest {
     fun `nonsense - elements compose into narrower environments`() {
         val baseScope = StructureScope.empty<Server, Sender>()
         val worldFlag: ValueFlag<WarpableServer, Sender, String> =
-            with(baseScope) { valueFlag("world", default = "overworld", parameter = stringParameter("world")) }
+            with(baseScope) { valueFlag("world", parameter = stringParameter("world"), default = "overworld") }
         val worldParameter: Groupable<WarpableServer, Sender, String, Position.Leading> =
             WorldParameter<Server, Sender>("world")
         val someSubCommand: Structure<WarpableServer, Sender, Arguments1<String>> =

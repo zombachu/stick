@@ -28,8 +28,8 @@ fun <E : Environment, S> StructureScope<E, S>.flag(
 
 fun <E : Environment, S, T> StructureScope<E, S>.flag(
     name: String,
-    default: ContextualValue<E, S, T>,
     presentValue: Invocation<E, S>.() -> CommandResult<T>,
+    default: ContextualValue<E, S, T>,
     aliases: Set<String> = [],
     description: String = "",
 ): ValueFlag<E, S, T> =
@@ -41,18 +41,18 @@ fun <E : Environment, S, T> StructureScope<E, S>.flag(
 
 fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     name: String,
-    default: ContextualValue<E, S, T>,
     parameter: Parameter.Bounded<E, S, T>,
+    default: ContextualValue<E, S, T>,
     aliases: Set<String> = [],
 ): ValueFlag<E, S, T> =
     ValueFlagImpl(name, default, FlagParameter.ParameterFlagParameter(name, parameter, aliases.lowercase()))
 
 fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     name: String,
-    default: T,
     parameter: Parameter.Bounded<E, S, T>,
+    default: T,
     aliases: Set<String> = [],
-): ValueFlag<E, S, T> = valueFlag(name, { success(default) }, parameter, aliases.lowercase())
+): ValueFlag<E, S, T> = valueFlag(name, parameter, { success(default) }, aliases.lowercase())
 
 fun <E : Environment, S, T> StructureScope<E, S>.nullableValueFlag(
     name: String,
@@ -68,14 +68,14 @@ fun <E : Environment, S, T> StructureScope<E, S>.nullableValueFlag(
     )
 
 fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.enumFlag(
-    default: ContextualValue<E, S, T>,
     from: EnumParameter<E, S, T>,
+    default: ContextualValue<E, S, T>,
 ): ValueFlag<E, S, T> = ValueFlagImpl(from.name, default, FlagParameter.EnumFlagParameter(from))
 
 fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.enumFlag(
-    default: T,
     from: EnumParameter<E, S, T>,
-): ValueFlag<E, S, T> = enumFlag({ success(default) }, from)
+    default: T,
+): ValueFlag<E, S, T> = enumFlag(from, { success(default) })
 
 fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.nullableEnumFlag(
     from: EnumParameter<E, S, T>

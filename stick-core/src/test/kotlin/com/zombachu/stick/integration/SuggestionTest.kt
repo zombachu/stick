@@ -94,7 +94,7 @@ class SuggestionTest {
         val giveCommand = structure(Server::class, Sender::class) {
             command("give")(
                 flag("silent"),
-                valueFlag("unbreakable", default = false, parameter = booleanParameter("unbreakable")),
+                valueFlag("unbreakable", parameter = booleanParameter("unbreakable"), default = false),
                 hybridFlag("glowing", booleanParameter("glowing")),
                 playerParameter("player"),
                 listParameter("items", MaterialParameter()),
@@ -377,10 +377,10 @@ class SuggestionTest {
         val profileCommand = structure(Server::class, Sender::class) {
             command("profile")(
                 requireSender(Player::class, invalidDefault("*")) {
-                    valueFlag(name = "world", default = "overworld", parameter = stringParameter("world"))
+                    valueFlag(name = "world", parameter = stringParameter("world"), default = "overworld")
                 },
                 require(invalidDefault("Public", permission("server.warp.privacy"))) {
-                    valueFlag(name = "privacy", default = "Private", parameter = stringParameter("privacy"))
+                    valueFlag(name = "privacy", parameter = stringParameter("privacy"), default = "Private")
                 }.map { success(it.uppercase()) },
                 require(invalidDefault(HybridFlagResult.Absent(), permission("server.warp.privacy"))) {
                     hybridFlag("nick", stringParameter("name"))
@@ -403,7 +403,7 @@ class SuggestionTest {
             command("profile")(
                 requireSender(Player::class, invalidDefault("Server")) {
                     require(invalidDefault("Server", permission("server.profile.type"))) {
-                        valueFlag(name = "type", default = "World", parameter = stringParameter("type"))
+                        valueFlag(name = "type", parameter = stringParameter("type"), default = "World")
                     }
                 },
                 playerParameter("player"),

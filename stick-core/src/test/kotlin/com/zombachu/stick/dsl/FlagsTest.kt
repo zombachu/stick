@@ -33,19 +33,19 @@ class FlagsTest {
 
     @Test
     fun `typed flag defaults to absent value`() = structureTest {
-        val typedFlag = flag("boost", { success(0) }, { success(10) })
+        val typedFlag = flag("boost", { success(10) }, { success(0) })
         assertEquals(0, typedFlag.default(testExecution()).expectSuccessValue())
     }
 
     @Test
     fun `typed flag parses to given value`() = structureTest {
-        val typedFlag = flag("boost", { success(0) }, { success(10) })
+        val typedFlag = flag("boost", { success(10) }, { success(0) })
         assertEquals(10, withExecution { typedFlag.parse(["-boost"]) }.expectSuccessValue())
     }
 
     @Test
     fun `valueFlag matches name`() = structureTest {
-        val valueFlag = valueFlag("n", 0, intParameter("amount"))
+        val valueFlag = valueFlag("n", intParameter("amount"), 0)
 
         assertEquals(5, withExecution { valueFlag.parse(["-n", "5"]) }.expectSuccessValue())
         assertEquals("[-n <amount>]", withInvocation { valueFlag.getSyntax() })
@@ -59,7 +59,7 @@ class FlagsTest {
 
     @Test
     fun `valueFlag defaults to given value`() = structureTest {
-        val valueFlag = valueFlag("n", 0, intParameter)
+        val valueFlag = valueFlag("n", intParameter, 0)
         assertEquals(0, valueFlag.default(testExecution()).expectSuccessValue())
     }
 
@@ -71,7 +71,7 @@ class FlagsTest {
 
     @Test
     fun `valueFlag parses with parameter`() = structureTest {
-        val valueFlag = valueFlag("n", { success(0) }, intParameter)
+        val valueFlag = valueFlag("n", intParameter, { success(0) })
         assertEquals(5, withExecution { valueFlag.parse(["-n", "5"]) }.expectSuccessValue())
     }
 
@@ -83,7 +83,7 @@ class FlagsTest {
 
     @Test
     fun `enumFlag defaults to given value`() = structureTest {
-        val enumFlag = enumFlag(Color.RED, enumParameter("", Color::class))
+        val enumFlag = enumFlag(enumParameter("", Color::class), Color.RED)
         assertEquals(Color.RED, enumFlag.default(testExecution()).expectSuccessValue())
     }
 
@@ -95,7 +95,7 @@ class FlagsTest {
 
     @Test
     fun `enumFlag parses with parameter`() = structureTest {
-        val enumFlag = enumFlag(Color.RED, enumParameter("", Color::class))
+        val enumFlag = enumFlag(enumParameter("", Color::class), Color.RED)
         assertEquals(Color.GREEN, withExecution { enumFlag.parse(["-green"]) }.expectSuccessValue())
     }
 

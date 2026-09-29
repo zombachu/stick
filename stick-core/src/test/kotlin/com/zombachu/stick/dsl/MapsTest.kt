@@ -33,7 +33,7 @@ class MapsTest {
 
     @Test
     fun `map on ValueFlag transforms value`() = structureTest {
-        val mapped = valueFlag("n", 0, intParameter("n")).map { n -> success(n * 10) }
+        val mapped = valueFlag("n", intParameter("n"), 0).map { n -> success(n * 10) }
         val result = withExecution { mapped.parse(["-n", "5"]) }
         assertEquals(50, result.expectSuccessValue())
     }

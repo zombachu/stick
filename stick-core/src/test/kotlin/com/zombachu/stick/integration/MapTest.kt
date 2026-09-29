@@ -125,7 +125,7 @@ class MapTest {
     fun `spawn - map applies to flag default`() {
         val spawnCommand = structure(Server::class, Sender::class) {
             command("spawn")(
-                valueFlag(name = "world", default = "overworld", parameter = stringParameter("world"))
+                valueFlag(name = "world", parameter = stringParameter("world"), default = "overworld")
                     .map { success(it.lowercase()) }
                     .map { name ->
                         if (name in WORLDS) success(name)

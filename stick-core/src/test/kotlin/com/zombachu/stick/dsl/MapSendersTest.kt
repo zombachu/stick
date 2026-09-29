@@ -29,7 +29,7 @@ class MapSendersTest {
 
     @Test
     fun `mapSender on ValueFlag parses default with transformed sender`() = structureTest<String> {
-        val flag = mapSender(length) { valueFlag("n", { success(sender) }, intParameter("n")) }
+        val flag = mapSender(length) { valueFlag("n", intParameter("n"), { success(sender) }) }
         val signature =
             Signature1<TestEnv, String, Int>({}, LeadingParameterRole.Label, [literalParameter("cmd"), flag])
 
