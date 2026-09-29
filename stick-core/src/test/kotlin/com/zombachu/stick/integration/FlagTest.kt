@@ -11,8 +11,6 @@ import com.zombachu.stick.dsl.invalidDefault
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.map
-import com.zombachu.stick.dsl.nullableEnumFlag
-import com.zombachu.stick.dsl.nullableValueFlag
 import com.zombachu.stick.dsl.require
 import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.stringParameter
@@ -157,9 +155,10 @@ class FlagTest {
     fun `mail - value flag can have nullable default`() {
         val mailCommand = structure(Server::class, Sender::class) {
             command("mail")(
-                nullableValueFlag(
+                valueFlag(
                     name = "player",
-                    parameter = playerParameter("player")
+                    parameter = playerParameter("player"),
+                    default = null,
                 )
             ) { from ->
                 sender.log(from?.let { "Showing mail from ${it.name}" } ?: "Showing all mail")
@@ -200,7 +199,7 @@ class FlagTest {
     fun `list - enum flag can have nullable default`() {
         val listCommand = structure(Server::class, Sender::class) {
             command("list")(
-                nullableEnumFlag(enumParameter("mode", GameMode::class))
+                enumFlag(enumParameter("mode", GameMode::class), null)
             ) { gamemode ->
                 sender.log(gamemode?.let { "Showing all players in $it:" } ?: "Showing all players:")
             }
@@ -246,7 +245,7 @@ class FlagTest {
                 intParameter("z"),
                 enumParameter("material", Material::class),
                 valueFlag(name = "count", parameter = intParameter("count", min = 1, max = 64), default = 1),
-                nullableValueFlag(name = "owner", parameter = playerParameter("owner")),
+                valueFlag(name = "owner", parameter = playerParameter("owner"), default = null),
                 flag("replace"),
                 flag("notify"),
                 valueFlag(name = "world", parameter = stringParameter("world"), default = "overworld"),

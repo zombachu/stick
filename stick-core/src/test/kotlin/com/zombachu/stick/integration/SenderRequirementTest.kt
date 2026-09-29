@@ -13,11 +13,11 @@ import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.mapSender
 import com.zombachu.stick.dsl.optionally
-import com.zombachu.stick.dsl.nullableValueFlag
 import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.subcommands
+import com.zombachu.stick.dsl.valueFlag
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.integration.fixtures.Console
 import com.zombachu.stick.integration.fixtures.Player
@@ -210,7 +210,7 @@ class SenderRequirementTest {
             command("realname")(
                 requireSender(Player::class, invalidDefault("   ")) {
                     mapSender(toSocialData) {
-                        nullableValueFlag(name = "nickname", parameter = realNameParameter("name"))
+                        valueFlag(name = "nickname", parameter = realNameParameter("name"), default = null)
                     }
                 }
             ) { realName ->

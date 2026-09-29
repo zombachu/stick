@@ -64,9 +64,9 @@ class FlagsTest {
     }
 
     @Test
-    fun `nullableValueFlag defaults to null`() = structureTest {
-        val nullableValueFlag = nullableValueFlag("n", intParameter)
-        assertNull(nullableValueFlag.default(testExecution()).expectSuccessValue())
+    fun `valueFlag defaults to null`() = structureTest {
+        val valueFlag = valueFlag("n", intParameter, null)
+        assertNull(valueFlag.default(testExecution()).expectSuccessValue())
     }
 
     @Test
@@ -76,9 +76,9 @@ class FlagsTest {
     }
 
     @Test
-    fun `nullableValueFlag parses with parameter`() = structureTest {
-        val nullableValueFlag = nullableValueFlag("n", intParameter)
-        assertEquals(5, withExecution { nullableValueFlag.parse(["-n", "5"]) }.expectSuccessValue())
+    fun `valueFlag with null default parses with parameter`() = structureTest {
+        val valueFlag = valueFlag("n", intParameter, null)
+        assertEquals(5, withExecution { valueFlag.parse(["-n", "5"]) }.expectSuccessValue())
     }
 
     @Test
@@ -88,9 +88,9 @@ class FlagsTest {
     }
 
     @Test
-    fun `nullableEnumFlag defaults to null`() = structureTest {
-        val nullableEnumFlag = nullableEnumFlag(enumParameter("", Color::class))
-        assertNull(nullableEnumFlag.default(testExecution()).expectSuccessValue())
+    fun `enumFlag defaults to null`() = structureTest {
+        val enumFlag = enumFlag(enumParameter("", Color::class), null)
+        assertNull(enumFlag.default(testExecution()).expectSuccessValue())
     }
 
     @Test
@@ -100,9 +100,9 @@ class FlagsTest {
     }
 
     @Test
-    fun `nullableEnumFlag parses with parameter`() = structureTest {
-        val nullableEnumFlag = nullableEnumFlag(enumParameter("", Color::class))
-        assertEquals(Color.GREEN, withExecution { nullableEnumFlag.parse(["-green"]) }.expectSuccessValue())
+    fun `enumFlag with null default parses with parameter`() = structureTest {
+        val enumFlag = enumFlag(enumParameter("", Color::class), null)
+        assertEquals(Color.GREEN, withExecution { enumFlag.parse(["-green"]) }.expectSuccessValue())
     }
 
     @Test

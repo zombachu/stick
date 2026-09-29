@@ -28,7 +28,7 @@ fun <E : Environment, S> StructureScope<E, S>.flag(
 
 fun <E : Environment, S, T> StructureScope<E, S>.flag(
     name: String,
-    presentValue: Invocation<E, S>.() -> CommandResult<T>,
+    present: Invocation<E, S>.() -> CommandResult<T>,
     default: ContextualValue<E, S, T>,
     aliases: Set<String> = [],
     description: String = "",
@@ -36,7 +36,7 @@ fun <E : Environment, S, T> StructureScope<E, S>.flag(
     ValueFlagImpl(
         name,
         default,
-        FlagParameter.PresenceFlagParameter(name, presentValue, aliases.lowercase(), description),
+        FlagParameter.PresenceFlagParameter(name, present, aliases.lowercase(), description),
     )
 
 fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
@@ -54,17 +54,16 @@ fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     aliases: Set<String> = [],
 ): ValueFlag<E, S, T> = valueFlag(name, parameter, { success(default) }, aliases.lowercase())
 
-fun <E : Environment, S, T> StructureScope<E, S>.nullableValueFlag(
+fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     name: String,
     parameter: Parameter.Bounded<E, S, T>,
+    default: Nothing?,
     aliases: Set<String> = [],
 ): ValueFlag<E, S, T?> =
-    @Suppress("UNCHECKED_CAST")
     ValueFlagImpl(
         name,
-        { success(null) },
-        FlagParameter.ParameterFlagParameter(name, parameter, aliases.lowercase())
-            as FlagParameter.ParameterFlagParameter<E, S, T?>,
+        { success(default) },
+        FlagParameter.ParameterFlagParameter(name, parameter, aliases.lowercase()),
     )
 
 fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.enumFlag(
@@ -77,15 +76,10 @@ fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.enumFlag(
     default: T,
 ): ValueFlag<E, S, T> = enumFlag(from, { success(default) })
 
-fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.nullableEnumFlag(
-    from: EnumParameter<E, S, T>
-): ValueFlag<E, S, T?> =
-    @Suppress("UNCHECKED_CAST")
-    ValueFlagImpl(
-        from.name,
-        { success(null) },
-        FlagParameter.EnumFlagParameter(from) as FlagParameter<E, S, T?>,
-    )
+fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.enumFlag(
+    from: EnumParameter<E, S, T>,
+    default: Nothing?,
+): ValueFlag<E, S, T?> = ValueFlagImpl(from.name, { success(default) }, FlagParameter.EnumFlagParameter(from))
 
 fun <E : Environment, S, T> StructureScope<E, S>.hybridFlag(
     name: String,
