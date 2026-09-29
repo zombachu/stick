@@ -37,8 +37,8 @@ class MapTest {
         val pageCommand = structure(Server::class, Sender::class) {
             command("page")(
                 optionally(
-                    ifAbsent = default(1),
-                    parameter = intParameter("page", min = 1)).map { success(it - 1) }
+                    parameter = intParameter("page", min = 1),
+                    ifAbsent = default(1)).map { success(it - 1) }
             ) { index ->
                 sender.log("Page: $index")
             }
@@ -148,8 +148,8 @@ class MapTest {
         val stopCommand = structure(Server::class, Sender::class) {
             command("stop")(
                 optionally(
-                    ifAbsent = default("server shutting down"),
                     parameter = stringParameter("reason").map { success(it.replaceFirstChar(Char::uppercase)) },
+                    ifAbsent = default("server shutting down"),
                 )
             ) { reason ->
                 sender.log("Stopping: $reason")
@@ -168,8 +168,8 @@ class MapTest {
         val restartCommand = structure(Server::class, Sender::class) {
             command("stop")(
                 optionally(
-                    ifAbsent = default("server shutting down"),
                     parameter = stringParameter("reason"),
+                    ifAbsent = default("server shutting down"),
                 ).map { success(it.replaceFirstChar(Char::uppercase)) }
             ) { reason ->
                 sender.log("Stopping: $reason")
@@ -221,8 +221,8 @@ class MapTest {
         val speedCommand = structure(Server::class, Sender::class) {
             command("speed")(
                 optionally(
-                    ifAbsent = default("one"),
                     parameter = stringParameter("level").map { success(it.length / 2f) },
+                    ifAbsent = default("one"),
                 )
             ) { level ->
                 sender.log(level::class.simpleName ?: "?")

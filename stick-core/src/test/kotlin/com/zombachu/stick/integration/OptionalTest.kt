@@ -40,7 +40,7 @@ class OptionalTest {
     fun `list - optionals have default values`() {
         val listCommand = structure(Server::class, Sender::class) {
             command("list")(
-                optionally(ifAbsent = default(1), parameter = intParameter("page", min = 1))
+                optionally(parameter = intParameter("page", min = 1), ifAbsent = default(1))
             ) { page ->
                 sender.log("Showing page $page")
             }
@@ -98,7 +98,7 @@ class OptionalTest {
             command("gift")(
                 playerParameter("player"),
                 require(invalidDefault(1, permission("server.gift.amount"))) {
-                    optionally(ifAbsent = default(1), parameter = intParameter("amount", min = 1, max = 64))
+                    optionally(parameter = intParameter("amount", min = 1, max = 64), ifAbsent = default(1))
                 },
             ) { target, amount ->
                 target.log("Received $amount items from ${sender.name}")
@@ -140,7 +140,7 @@ class OptionalTest {
         val speedCommand = structure(Server::class, Sender::class) {
             command("speed")(
                 require(invalidDefault(1, permission("server.speed.change"))) {
-                    optionally(ifAbsent = default(5), parameter = intParameter("speed", min = 1, max = 10))
+                    optionally(parameter = intParameter("speed", min = 1, max = 10), ifAbsent = default(5))
                 },
             ) { speed ->
                 sender.log("Speed changed to $speed")

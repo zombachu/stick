@@ -248,8 +248,8 @@ class SuggestionTest {
                     LocationParameter(),
                     require(invalidDefault(Privacy.Private, permission("server.warp.privacy"))) {
                         optionally(
-                            ifAbsent = default(Privacy.Private),
                             parameter = enumParameter("privacy", Privacy::class),
+                            ifAbsent = default(Privacy.Private),
                         )
                     },
                 ) { _, _, _ -> }

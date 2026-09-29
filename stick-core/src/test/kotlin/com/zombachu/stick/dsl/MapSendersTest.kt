@@ -40,14 +40,14 @@ class MapSendersTest {
 
     @Test
     fun `mapSender on OptionalParameter parses with transformed sender`() = structureTest<String> {
-        val optional = mapSender(length) { optionally(default({ success(sender) }), intParameter("")) }
+        val optional = mapSender(length) { optionally(intParameter(""), default({ success(sender) })) }
         assertEquals(8, withExecutionSender("zombachu") { optional.parse([]) }.expectSuccessValue())
     }
 
     @Test
     fun `mapSender on OptionalGroup parses with transformed sender`() = structureTest<String> {
         val optional = mapSender(length) {
-            optionally(default({ success(GroupResult.ResultA("$sender")) }), group(literalParameter("on")))
+            optionally(group(literalParameter("on")), default({ success(GroupResult.ResultA("$sender")) }))
         }
         assertEquals(
             GroupResult.ResultA("8"),

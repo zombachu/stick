@@ -257,17 +257,17 @@ class GatedElementTest {
         SenderMappedOptionalGroup(optionalGroup<Int>(), rejectedTransform)
 
     private fun <S> optionalParameter(): OptionalParameterImpl<TestEnv, S, String, Position.Optional> =
-        OptionalParameterImpl(ValidatedDefaultImpl({ success("$sender") }) { success() }, SenderParameter())
+        OptionalParameterImpl(SenderParameter(), ValidatedDefaultImpl({ success("$sender") }) { success() })
 
     private fun <S> optionalGroup(): OptionalGroupImpl<TestEnv, S, GroupResult2<String, String>, Position.Optional> =
         OptionalGroupImpl(
-            ValidatedDefaultImpl({ success(GroupResult.ResultA("$sender")) }) { success() },
             Group2Impl<TestEnv, S, String, String, Position.Leading>(
                 "",
                 "",
                 LiteralParameter("apple", [], ""),
                 LiteralParameter("orange", [], ""),
             ),
+            ValidatedDefaultImpl({ success(GroupResult.ResultA("$sender")) }) { success() },
         )
 
     private class SenderParameter<E : Environment, S> : Parameter.Size1<E, S, String>("", "") {

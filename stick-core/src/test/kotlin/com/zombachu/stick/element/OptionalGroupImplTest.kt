@@ -87,7 +87,6 @@ class OptionalGroupImplTest {
         presenceAllowed: Boolean,
     ): OptionalGroupImpl<TestEnv, Unit, GroupResult2<String, String>, Position.Optional> =
         OptionalGroupImpl(
-            presenceDefault = validSenderDefault(GroupResult.ResultA("presence")) { validate(presenceAllowed) },
             group =
                 Group2Impl<TestEnv, Unit, String, String, Position.Leading>(
                     "",
@@ -95,6 +94,7 @@ class OptionalGroupImplTest {
                     LiteralParameter("apple", [], ""),
                     LiteralParameter("orange", [], ""),
                 ),
+            presenceDefault = validSenderDefault(GroupResult.ResultA("presence")) { validate(presenceAllowed) },
         )
 
     context(_: Invocation<*, *>)

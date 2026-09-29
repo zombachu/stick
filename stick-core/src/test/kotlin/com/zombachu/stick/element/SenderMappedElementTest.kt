@@ -189,17 +189,17 @@ class SenderMappedElementTest {
     }
 
     private fun optionalParameter(): OptionalParameterImpl<TestEnv, Int, String, Position.Optional> =
-        OptionalParameterImpl(ValidatedDefaultImpl({ success("$sender") }) { success() }, SenderParameter())
+        OptionalParameterImpl(SenderParameter(), ValidatedDefaultImpl({ success("$sender") }) { success() })
 
     private fun optionalGroup(): OptionalGroupImpl<TestEnv, Int, GroupResult2<String, String>, Position.Optional> =
         OptionalGroupImpl(
-            ValidatedDefaultImpl({ success(GroupResult.ResultA("$sender")) }) { success() },
             Group2Impl<TestEnv, Int, String, String, Position.Leading>(
                 "",
                 "",
                 LiteralParameter("apple", [], ""),
                 LiteralParameter("orange", [], ""),
             ),
+            ValidatedDefaultImpl({ success(GroupResult.ResultA("$sender")) }) { success() },
         )
 
     private class SenderParameter<E : Environment, S> : Parameter.Size1<E, S, String>("", "") {

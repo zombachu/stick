@@ -135,7 +135,7 @@ class EnvironmentTest {
         val worldCommand = structure(WarpableServer::class, Sender::class) {
             command("spawn")(
                 require(deniedDefault) {
-                    optionally(ifAbsent = absentDefault, parameter = WorldParameter<Server, Sender>("world"))
+                    optionally(parameter = WorldParameter<Server, Sender>("world"), ifAbsent = absentDefault)
                 }
             ) { world -> sender.log("Teleporting to $world spawn") }
         }

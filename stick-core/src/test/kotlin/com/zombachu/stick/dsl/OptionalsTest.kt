@@ -64,7 +64,7 @@ class OptionalsTest {
 
     @Test
     fun `optionally defaults to value`() = structureTest<String> {
-        val optional = optionally(default(7), intParameter)
+        val optional = optionally(intParameter, default(7))
         assertEquals(7, withExecutionSender("sender") { optional.parse([]) }.expectSuccessValue())
     }
 
@@ -99,7 +99,7 @@ class OptionalsTest {
             command("cmd")(
                 optionals(
                     optionallyNullable(intParameter("a")),
-                    optionally(default(""), textParameter("b"))
+                    optionally(textParameter("b"), default(""))
                 )
             )
 
@@ -156,7 +156,7 @@ class OptionalsTest {
                 optionals(
                     optionallyNullable(intParameter("b")),
                     flag("silent"),
-                    optionally(default(""), textParameter("c")),
+                    optionally(textParameter("c"), default("")),
                 ),
             ) { raw, a, (b, silent, d) ->
             }
@@ -168,7 +168,7 @@ class OptionalsTest {
 
     @Test
     fun `optionally group defaults`() = structureTest {
-        val optional = optionally(default(GroupResult.ResultA("off")), group(literalParameter("on")))
+        val optional = optionally(group(literalParameter("on")), default(GroupResult.ResultA("off")))
         assertEquals(GroupResult.ResultA("off"), withExecution { optional.parse([]) }.expectSuccessValue())
     }
 

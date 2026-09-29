@@ -84,7 +84,7 @@ class StoredElementTest {
             command("poke")(
                 socialDataHelper().store(poker),
                 playerParameter("player"),
-                optionally(ifAbsent = default(3), parameter = intParameter("times", min = 1, max = 5)).store(times),
+                optionally(parameter = intParameter("times", min = 1, max = 5), ifAbsent = default(3)).store(times),
             ) { _, target, _ ->
                 target.log("Poked ${target.name} ${get(times)} times")
                 sender.log("Poked by ${get(poker).player.name}")

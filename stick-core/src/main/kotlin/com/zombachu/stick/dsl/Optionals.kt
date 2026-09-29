@@ -56,44 +56,44 @@ inline fun <E : Environment, S : Any, reified S2 : S> StructureScope<E, S>.defau
     ValidSenderDefault<E, S, S2> = default({ success(sender as S2) }, requirement { sender is S2 })
 
 fun <E : Environment, S, T> StructureScope<E, S>.optionally(
-    ifAbsent: ValidSenderDefault<E, S, T>,
     parameter: Parameter<E, S, T, Position.Leading>,
-): OptionalParameter<E, S, T, Position.Optional> = OptionalParameterImpl(ifAbsent, parameter)
+    ifAbsent: ValidSenderDefault<E, S, T>,
+): OptionalParameter<E, S, T, Position.Optional> = OptionalParameterImpl(parameter, ifAbsent)
 
 @JvmName("optionallyLast")
 fun <E : Environment, S, T> StructureScope<E, S>.optionally(
-    ifAbsent: ValidSenderDefault<E, S, T>,
     parameter: Parameter<E, S, T, Position.Last>,
-): OptionalParameter<E, S, T, Position.LastOptional> = OptionalParameterImpl(ifAbsent, parameter)
+    ifAbsent: ValidSenderDefault<E, S, T>,
+): OptionalParameter<E, S, T, Position.LastOptional> = OptionalParameterImpl(parameter, ifAbsent)
 
 fun <E : Environment, S, T> StructureScope<E, S>.optionallyNullable(
     parameter: Parameter<E, S, T, Position.Leading>
-): OptionalParameter<E, S, T?, Position.Optional> = OptionalParameterImpl(default(null), parameter)
+): OptionalParameter<E, S, T?, Position.Optional> = OptionalParameterImpl(parameter, default(null))
 
 @JvmName("optionallyNullableLast")
 fun <E : Environment, S, T> StructureScope<E, S>.optionallyNullable(
     parameter: Parameter<E, S, T, Position.Last>
-): OptionalParameter<E, S, T?, Position.LastOptional> = OptionalParameterImpl(default(null), parameter)
+): OptionalParameter<E, S, T?, Position.LastOptional> = OptionalParameterImpl(parameter, default(null))
 
 fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
-    ifAbsent: ValidSenderDefault<E, S, G>,
     group: Group<E, S, G, Position.Leading>,
-): OptionalGroup<E, S, G, Position.Optional> = OptionalGroupImpl(ifAbsent, group)
+    ifAbsent: ValidSenderDefault<E, S, G>,
+): OptionalGroup<E, S, G, Position.Optional> = OptionalGroupImpl(group, ifAbsent)
 
 @JvmName("optionallyLastGroup")
 fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
-    ifAbsent: ValidSenderDefault<E, S, G>,
     group: Group<E, S, G, Position.Last>,
-): OptionalGroup<E, S, G, Position.LastOptional> = OptionalGroupImpl(ifAbsent, group)
+    ifAbsent: ValidSenderDefault<E, S, G>,
+): OptionalGroup<E, S, G, Position.LastOptional> = OptionalGroupImpl(group, ifAbsent)
 
 fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionallyNullable(
     group: Group<E, S, G, Position.Leading>
-): OptionalGroup<E, S, G?, Position.Optional> = OptionalGroupImpl(default(null), group)
+): OptionalGroup<E, S, G?, Position.Optional> = OptionalGroupImpl(group, default(null))
 
 @JvmName("optionallyNullableLastGroup")
 fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionallyNullable(
     group: Group<E, S, G, Position.Last>
-): OptionalGroup<E, S, G?, Position.LastOptional> = OptionalGroupImpl(default(null), group)
+): OptionalGroup<E, S, G?, Position.LastOptional> = OptionalGroupImpl(group, default(null))
 
 fun <E_ : Environment, S, A, B> StructureScope<E_, S>.optionals(
     elementA: SignatureElement<E_, S, A, Position.Optional>,

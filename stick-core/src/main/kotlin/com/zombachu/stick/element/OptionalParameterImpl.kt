@@ -14,8 +14,8 @@ import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
 
 internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
-    val presenceDefault: ValidSenderDefault<E, S, T>,
     val parameter: Parameter<E, S, out T, *>,
+    val presenceDefault: ValidSenderDefault<E, S, T>,
 ) : OptionalParameter<E, S, T, P>, InternalConsumingElement<E, S, T> {
 
     override val size: Size = parameter.size.orNothing()

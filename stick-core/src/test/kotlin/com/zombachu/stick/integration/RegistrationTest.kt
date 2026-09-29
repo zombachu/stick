@@ -181,8 +181,8 @@ class RegistrationTest {
             override val structure = structure {
                 command("warps")(
                     optionally(
-                        ifAbsent = default("overworld"),
-                        parameter = literalParameter("overworld")
+                        parameter = literalParameter("overworld"),
+                        ifAbsent = default("overworld")
                     ),
                 ) { world ->
                     sender.log("Warps in $world: ${env.warps.names.size}")

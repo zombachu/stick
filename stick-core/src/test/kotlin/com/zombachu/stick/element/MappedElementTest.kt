@@ -208,8 +208,8 @@ class MappedElementTest {
     fun `MappedOptionalParameter delegates suggest to base`() {
         val optional =
             OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
-                validSenderDefault(""),
                 LiteralParameter("give", [], ""),
+                validSenderDefault(""),
             )
         val mapped = MappedOptionalParameter<TestEnv, Unit, String, String, Position.Optional>(optional) { success(it) }
 
