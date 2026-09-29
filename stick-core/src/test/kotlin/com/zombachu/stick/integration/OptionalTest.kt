@@ -3,7 +3,6 @@ package com.zombachu.stick.integration
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.group
 import com.zombachu.stick.dsl.intParameter
-import com.zombachu.stick.dsl.invalidDefault
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.optionally
@@ -29,7 +28,8 @@ import kotlin.test.assertEquals
 
 class OptionalTest {
 
-    private val zombachu = Player("zombachu", ["server.gift.amount", "server.speed.change", "server.weather.set"])
+    private val zombachu =
+        Player("zombachu", ["server.gift.amount", "server.speed.change", "server.weather.set", "server.heal.others"])
     private val steve = Player("Steve")
     private val console = Console()
     private val server = SynergyServer([zombachu, steve])
@@ -74,6 +74,39 @@ class OptionalTest {
     }
 
     @Test
+    fun `heal - permission-gated optional falls back to sender default`() {
+        val restrictedConsole = Console(revoked = ["server.heal.others"])
+        val healCommand = structure(Server::class, Sender::class) {
+            command("heal")(
+                require(permission("server.heal.others")) {
+                    targetPlayerParameter("player")
+                }
+            ) { target ->
+                target.log("You have been healed")
+            }
+        }
+
+        healCommand.execute(server, zombachu, "/heal")
+        assertEquals(["You have been healed"], zombachu.logs)
+        healCommand.execute(server, zombachu, "/heal Steve")
+        assertEquals(["You have been healed"], steve.logs)
+
+        healCommand.execute(server, steve, "/heal")
+        assertEquals(["You have been healed"], steve.logs)
+        assertEquals(Reason.InvalidPermission, healCommand.executeExpectingError(server, steve, "/heal zombachu"))
+
+        assertEquals("/heal <player>", healCommand.executeExpectingInvalidSyntax(server, console, "/heal"))
+        healCommand.execute(server, console, "/heal Steve")
+        assertEquals(["You have been healed"], steve.logs)
+
+        assertEquals(Reason.InvalidSender, healCommand.executeExpectingError(server, restrictedConsole, "/heal"))
+        assertEquals(
+            Reason.InvalidPermission,
+            healCommand.executeExpectingError(server, restrictedConsole, "/heal Steve"),
+        )
+    }
+
+    @Test
     fun `nick - optionals can be nullable`() {
         val nickCommand = structure(Server::class, Sender::class) {
             command("nick")(
@@ -95,7 +128,7 @@ class OptionalTest {
         val giftCommand = structure(Server::class, Sender::class) {
             command("gift")(
                 playerParameter("player"),
-                require(invalidDefault(1, permission("server.gift.amount"))) {
+                require(permission("server.gift.amount")) {
                     optionally(parameter = intParameter("amount", min = 1, max = 64), default = 1)
                 },
             ) { target, amount ->
@@ -137,7 +170,7 @@ class OptionalTest {
     fun `speed - optionals can have different defaults`() {
         val speedCommand = structure(Server::class, Sender::class) {
             command("speed")(
-                require(invalidDefault(1, permission("server.speed.change"))) {
+                require(permission("server.speed.change"), default = 1) {
                     optionally(parameter = intParameter("speed", min = 1, max = 10), default = 5)
                 },
             ) { speed ->
@@ -214,7 +247,7 @@ class OptionalTest {
     fun `weather - optional group can be gated by permission`() {
         val weatherCommand = structure(Server::class, Sender::class) {
             command("weather")(
-                require(invalidDefault(null, permission("server.weather.set"))) {
+                require(permission("server.weather.set")) {
                     optionally(group(literalParameter("rain"), literalParameter("sun")), default = null)
                 }
             ) { weather ->

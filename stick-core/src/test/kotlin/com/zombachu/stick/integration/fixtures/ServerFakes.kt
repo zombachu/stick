@@ -16,11 +16,11 @@ interface Sender {
     }
 }
 
-class Console : Sender {
+class Console(private val revoked: Set<String> = []) : Sender {
     override val name: String = "Console"
     override val logs: MutableList<String> = mutableListOf()
 
-    override fun hasPermission(node: String): Boolean = true
+    override fun hasPermission(node: String): Boolean = node !in revoked
 }
 
 open class Player(

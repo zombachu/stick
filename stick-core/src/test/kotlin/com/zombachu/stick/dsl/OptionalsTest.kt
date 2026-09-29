@@ -11,7 +11,6 @@ import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.structureTest
 import com.zombachu.stick.success
-import com.zombachu.stick.testExecution
 import com.zombachu.stick.testExecutionSender
 import com.zombachu.stick.withExecution
 import com.zombachu.stick.withExecutionSender
@@ -26,12 +25,6 @@ import kotlin.test.assertTrue
 class OptionalsTest {
 
     private val intParameter = IntParameter<TestEnv, String>("", "", Int.MIN_VALUE, Int.MAX_VALUE)
-
-    @Test
-    fun `invalidDefault evaluates to given value`() = structureTest {
-        val invalidDefault = invalidDefault("x")
-        assertEquals("x", invalidDefault.value(testExecution()).expectSuccessValue())
-    }
 
     @Test
     fun `defaultSender requires and casts sender type`() = structureTest<Any> {

@@ -4,6 +4,7 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
+import com.zombachu.stick.Requirement
 import com.zombachu.stick.SimpleSuggestion
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.EnumParameter
@@ -14,7 +15,6 @@ import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.failSenderType
 import com.zombachu.stick.failure.Reason
-import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.noMatch
 import com.zombachu.stick.presenceFlagParameter
 import com.zombachu.stick.presenceValueFlag
@@ -260,7 +260,7 @@ class ValueFlagImplTest {
     fun `GatedValueFlag delegates to flag parameter`() {
         val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
         val gated =
-            GatedValueFlag(SenderMappedValueFlag(base, { it: Int -> it.toString() }), invalidSenderDefault(false))
+            GatedValueFlag(SenderMappedValueFlag(base, { it: Int -> it.toString() }), Requirement { success() }, null)
 
         val result = withExecutionSender(1) { gated.parse(["-silent"]) }
 
@@ -271,21 +271,39 @@ class ValueFlagImplTest {
     fun `GatedValueFlag default for accessible flag returns Absent`() {
         val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
         val gated =
-            GatedValueFlag(SenderMappedValueFlag(base, { it: Int -> it.toString() }), invalidSenderDefault(true))
+            GatedValueFlag(
+                SenderMappedValueFlag(base, { it: Int -> it.toString() }),
+                Requirement { success() },
+                { success(true) },
+            )
         val result = gated.default(testExecutionSender(1))
         assertEquals(false, result.expectSuccessValue())
     }
 
     @Test
-    fun `GatedValueFlag default for inaccessible flag returns invalid sender default`() {
+    fun `GatedValueFlag default for inaccessible flag returns denied default`() {
         val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
-        val invalidDefault =
-            invalidSenderDefault<TestEnv, Int, Boolean>(true) { failSenderType(String::class) }
-        val gated = GatedValueFlag(SenderMappedValueFlag(base, { it: Int -> it.toString() }), invalidDefault)
-
+        val gated =
+            GatedValueFlag(
+                SenderMappedValueFlag(base, { it: Int -> it.toString() }),
+                Requirement { failSenderType(String::class) },
+                { success(true) },
+            )
         val result = gated.default(testExecutionSender(1))
-
         assertEquals(true, result.expectSuccessValue())
+    }
+
+    @Test
+    fun `GatedValueFlag default for inaccessible flag without denied default returns base default`() {
+        val base = presenceValueFlag<TestEnv, String, Boolean>("silent", false, true)
+        val gated =
+            GatedValueFlag(
+                SenderMappedValueFlag(base, { it: Int -> it.toString() }),
+                Requirement { failSenderType(String::class) },
+                null,
+            )
+        val result = gated.default(testExecutionSender(1))
+        assertEquals(false, result.expectSuccessValue())
     }
 
     private enum class Color {

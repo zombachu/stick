@@ -1,22 +1,26 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
+import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.failSyntax
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.propagateError
+import com.zombachu.stick.success
 
 internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Position>(
     val group: Group<E, S, out G, *>,
-    val presenceDefault: ValidSenderDefault<E, S, G>,
-) : OptionalGroup<E, S, G, P>, InternalElement<E, S, G> {
+    val default: ContextualValue<E, S, G>,
+    val defaultRequirement: SenderValidator<E, S>?,
+) : OptionalGroup<E, S, G, P>, InternalElement<E, S, G>, InternalOptional<E, S> {
 
     override val size: Size = group.size.orNothing()
     override val name: String = group.name
@@ -34,11 +38,10 @@ internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Posit
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): CommandResult<G> {
         if (args.isEmpty()) {
-            // Check if an alternative is required to be specified by the sender
-            presenceDefault.validateSender().propagateError {
+            validateDefault().propagateError {
                 return failSyntax()
             }
-            return presenceDefault.value(ex)
+            return default(ex)
         }
 
         return group.parse(args)
@@ -46,7 +49,10 @@ internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Posit
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String {
-        if (!presenceDefault.validateSender().isSuccess()) return group.getSyntax()
+        if (!validateDefault().isSuccess()) return group.getSyntax()
         return "[${group.getGroupedSyntax()}]"
     }
+
+    context(inv: Invocation<E, S>)
+    override fun validateDefault(): CommandResult<Unit> = defaultRequirement?.validateSender() ?: success()
 }

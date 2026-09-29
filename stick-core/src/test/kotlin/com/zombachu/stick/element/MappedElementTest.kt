@@ -17,7 +17,6 @@ import com.zombachu.stick.isSuccess
 import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
-import com.zombachu.stick.validSenderDefault
 import com.zombachu.stick.withExecution
 import com.zombachu.stick.withInvocation
 import kotlin.test.Test
@@ -209,7 +208,8 @@ class MappedElementTest {
         val optional =
             OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
                 LiteralParameter("give", [], ""),
-                validSenderDefault(""),
+                { success("") },
+                null,
             )
         val mapped = MappedOptionalParameter<TestEnv, Unit, String, String, Position.Optional>(optional) { success(it) }
 

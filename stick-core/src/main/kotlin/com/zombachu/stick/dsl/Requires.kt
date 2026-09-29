@@ -3,6 +3,7 @@
 package com.zombachu.stick.dsl
 
 import com.zombachu.stick.Arguments
+import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.HybridFlagResult
@@ -19,13 +20,13 @@ import com.zombachu.stick.element.GatedParameterImpl
 import com.zombachu.stick.element.GatedStructure
 import com.zombachu.stick.element.GatedValueFlag
 import com.zombachu.stick.element.HybridFlag
-import com.zombachu.stick.element.InvalidSenderDefault
 import com.zombachu.stick.element.OptionalGroup
 import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.ValueFlag
 import com.zombachu.stick.failSenderType
+import com.zombachu.stick.success
 import kotlin.experimental.ExperimentalTypeInference
 import kotlin.reflect.KClass
 
@@ -42,58 +43,102 @@ inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> Structure
 @OverloadResolutionByLambdaReturnType
 inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
-    invalidSenderDefault: InvalidSenderDefault<E, S, T>,
+    default: T,
     noinline flag: StructureScope<E, S2>.() -> ValueFlag<E, S2, T>,
 ): ValueFlag<E, S, T> =
     GatedValueFlag(
         mapSender({ it as S2 }, flag),
-        invalidDefault(
-            invalidSenderDefault.value,
-            requirement(invalidSenderDefault) + requirement({ sender is S2 }) { failSenderType(senderType) },
-        ),
+        requirement({ sender is S2 }) { failSenderType(senderType) },
+        { success(default) },
     )
 
 @OverloadResolutionByLambdaReturnType
 inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
-    invalidSenderDefault: InvalidSenderDefault<E, S, HybridFlagResult<T>>,
+    noinline default: ContextualValue<E, S, T>,
+    noinline flag: StructureScope<E, S2>.() -> ValueFlag<E, S2, T>,
+): ValueFlag<E, S, T> =
+    GatedValueFlag(mapSender({ it as S2 }, flag), requirement({ sender is S2 }) { failSenderType(senderType) }, default)
+
+@OverloadResolutionByLambdaReturnType
+inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireSender(
+    senderType: KClass<S2>,
+    noinline flag: StructureScope<E, S2>.() -> HybridFlag<E, S2, T>,
+): HybridFlag<E, S, T> =
+    GatedHybridFlag(mapSender({ it as S2 }, flag), requirement({ sender is S2 }) { failSenderType(senderType) }, null)
+
+@OverloadResolutionByLambdaReturnType
+inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireSender(
+    senderType: KClass<S2>,
+    default: HybridFlagResult<T>,
     noinline flag: StructureScope<E, S2>.() -> HybridFlag<E, S2, T>,
 ): HybridFlag<E, S, T> =
     GatedHybridFlag(
         mapSender({ it as S2 }, flag),
-        invalidDefault(
-            invalidSenderDefault.value,
-            requirement(invalidSenderDefault) + requirement({ sender is S2 }) { failSenderType(senderType) },
-        ),
+        requirement({ sender is S2 }) { failSenderType(senderType) },
+        { success(default) },
+    )
+
+@OverloadResolutionByLambdaReturnType
+inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireSender(
+    senderType: KClass<S2>,
+    noinline default: ContextualValue<E, S, HybridFlagResult<T>>,
+    noinline flag: StructureScope<E, S2>.() -> HybridFlag<E, S2, T>,
+): HybridFlag<E, S, T> =
+    GatedHybridFlag(
+        mapSender({ it as S2 }, flag),
+        requirement({ sender is S2 }) { failSenderType(senderType) },
+        default,
     )
 
 @OverloadResolutionByLambdaReturnType
 inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
-    invalidSenderDefault: InvalidSenderDefault<E, S, T>,
+    default: T,
     noinline optional: StructureScope<E, S2>.() -> OptionalParameter<E, S2, T, P>,
 ): OptionalParameter<E, S, T, P> =
     GatedOptionalParameter(
         mapSender({ it as S2 }, optional),
-        invalidDefault(
-            invalidSenderDefault.value,
-            requirement(invalidSenderDefault) + requirement({ sender is S2 }) { failSenderType(senderType) },
-        ),
+        requirement({ sender is S2 }) { failSenderType(senderType) },
+        { success(default) },
+    )
+
+@OverloadResolutionByLambdaReturnType
+inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> StructureScope<E, S>.requireSender(
+    senderType: KClass<S2>,
+    noinline default: ContextualValue<E, S, T>,
+    noinline optional: StructureScope<E, S2>.() -> OptionalParameter<E, S2, T, P>,
+): OptionalParameter<E, S, T, P> =
+    GatedOptionalParameter(
+        mapSender({ it as S2 }, optional),
+        requirement({ sender is S2 }) { failSenderType(senderType) },
+        default,
     )
 
 @OverloadResolutionByLambdaReturnType
 inline fun <E : Environment, S : Any, reified S2 : S, G : GroupResult?, P : Position> StructureScope<E, S>
     .requireSender(
     senderType: KClass<S2>,
-    invalidSenderDefault: InvalidSenderDefault<E, S, G>,
+    default: G,
     noinline optional: StructureScope<E, S2>.() -> OptionalGroup<E, S2, G, P>,
 ): OptionalGroup<E, S, G, P> =
     GatedOptionalGroup(
         mapSender({ it as S2 }, optional),
-        invalidDefault(
-            invalidSenderDefault.value,
-            requirement(invalidSenderDefault) + requirement({ sender is S2 }) { failSenderType(senderType) },
-        ),
+        requirement({ sender is S2 }) { failSenderType(senderType) },
+        { success(default) },
+    )
+
+@OverloadResolutionByLambdaReturnType
+inline fun <E : Environment, S : Any, reified S2 : S, G : GroupResult?, P : Position> StructureScope<E, S>
+    .requireSender(
+    senderType: KClass<S2>,
+    noinline default: ContextualValue<E, S, G>,
+    noinline optional: StructureScope<E, S2>.() -> OptionalGroup<E, S2, G, P>,
+): OptionalGroup<E, S, G, P> =
+    GatedOptionalGroup(
+        mapSender({ it as S2 }, optional),
+        requirement({ sender is S2 }) { failSenderType(senderType) },
+        default,
     )
 
 @OverloadResolutionByLambdaReturnType
@@ -125,24 +170,80 @@ fun <E : Environment, S : Any, T, P : Position> StructureScope<E, S>.require(
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
-    invalidSenderDefault: InvalidSenderDefault<E, S, T>,
+    requirement: Requirement<E, S>,
     flag: StructureScope<E, S>.() -> ValueFlag<E, S, T>,
-): ValueFlag<E, S, T> = GatedValueFlag(flag(this.forSender()), invalidSenderDefault)
+): ValueFlag<E, S, T> = GatedValueFlag(flag(this.forSender()), requirement, null)
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
-    invalidSenderDefault: InvalidSenderDefault<E, S, HybridFlagResult<T>>,
+    requirement: Requirement<E, S>,
+    default: T,
+    flag: StructureScope<E, S>.() -> ValueFlag<E, S, T>,
+): ValueFlag<E, S, T> = GatedValueFlag(flag(this.forSender()), requirement, { success(default) })
+
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
+    requirement: Requirement<E, S>,
+    default: ContextualValue<E, S, T>,
+    flag: StructureScope<E, S>.() -> ValueFlag<E, S, T>,
+): ValueFlag<E, S, T> = GatedValueFlag(flag(this.forSender()), requirement, default)
+
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
+    requirement: Requirement<E, S>,
     flag: StructureScope<E, S>.() -> HybridFlag<E, S, T>,
-): HybridFlag<E, S, T> = GatedHybridFlag(flag(this.forSender()), invalidSenderDefault)
+): HybridFlag<E, S, T> = GatedHybridFlag(flag(this.forSender()), requirement, null)
+
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
+    requirement: Requirement<E, S>,
+    default: HybridFlagResult<T>,
+    flag: StructureScope<E, S>.() -> HybridFlag<E, S, T>,
+): HybridFlag<E, S, T> = GatedHybridFlag(flag(this.forSender()), requirement, { success(default) })
+
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
+    requirement: Requirement<E, S>,
+    default: ContextualValue<E, S, HybridFlagResult<T>>,
+    flag: StructureScope<E, S>.() -> HybridFlag<E, S, T>,
+): HybridFlag<E, S, T> = GatedHybridFlag(flag(this.forSender()), requirement, default)
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T, P : Position> StructureScope<E, S>.require(
-    invalidSenderDefault: InvalidSenderDefault<E, S, T>,
+    requirement: Requirement<E, S>,
     optional: StructureScope<E, S>.() -> OptionalParameter<E, S, T, P>,
-): OptionalParameter<E, S, T, P> = GatedOptionalParameter(optional(this.forSender()), invalidSenderDefault)
+): OptionalParameter<E, S, T, P> = GatedOptionalParameter(optional(this.forSender()), requirement, null)
+
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, T, P : Position> StructureScope<E, S>.require(
+    requirement: Requirement<E, S>,
+    default: T,
+    optional: StructureScope<E, S>.() -> OptionalParameter<E, S, T, P>,
+): OptionalParameter<E, S, T, P> = GatedOptionalParameter(optional(this.forSender()), requirement, { success(default) })
+
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, T, P : Position> StructureScope<E, S>.require(
+    requirement: Requirement<E, S>,
+    default: ContextualValue<E, S, T>,
+    optional: StructureScope<E, S>.() -> OptionalParameter<E, S, T, P>,
+): OptionalParameter<E, S, T, P> = GatedOptionalParameter(optional(this.forSender()), requirement, default)
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, G : GroupResult?, P : Position> StructureScope<E, S>.require(
-    invalidSenderDefault: InvalidSenderDefault<E, S, G>,
+    requirement: Requirement<E, S>,
     optional: StructureScope<E, S>.() -> OptionalGroup<E, S, G, P>,
-): OptionalGroup<E, S, G, P> = GatedOptionalGroup(optional(this.forSender()), invalidSenderDefault)
+): OptionalGroup<E, S, G, P> = GatedOptionalGroup(optional(this.forSender()), requirement, null)
+
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, G : GroupResult?, P : Position> StructureScope<E, S>.require(
+    requirement: Requirement<E, S>,
+    default: G,
+    optional: StructureScope<E, S>.() -> OptionalGroup<E, S, G, P>,
+): OptionalGroup<E, S, G, P> = GatedOptionalGroup(optional(this.forSender()), requirement, { success(default) })
+
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, G : GroupResult?, P : Position> StructureScope<E, S>.require(
+    requirement: Requirement<E, S>,
+    default: ContextualValue<E, S, G>,
+    optional: StructureScope<E, S>.() -> OptionalGroup<E, S, G, P>,
+): OptionalGroup<E, S, G, P> = GatedOptionalGroup(optional(this.forSender()), requirement, default)

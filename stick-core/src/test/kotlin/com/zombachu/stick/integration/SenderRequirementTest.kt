@@ -8,7 +8,6 @@ import com.zombachu.stick.dsl.branchRequireSender
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.group
 import com.zombachu.stick.dsl.hybridFlag
-import com.zombachu.stick.dsl.invalidDefault
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.mapSender
@@ -208,7 +207,7 @@ class SenderRequirementTest {
     fun `realname - mapSender transforms narrowed sender for flag`() {
         val realNameCommand = structure(Server::class, Sender::class) {
             command("realname")(
-                requireSender(Player::class, invalidDefault("   ")) {
+                requireSender(Player::class, default = "   ") {
                     mapSender(toSocialData) {
                         valueFlag(name = "nickname", parameter = realNameParameter("name"), default = null)
                     }
@@ -239,7 +238,7 @@ class SenderRequirementTest {
     fun `realname - mapSender transforms narrowed sender for hybrid flag`() {
         val realNameCommand = structure(Server::class, Sender::class) {
             command("realname")(
-                requireSender(Player::class, invalidDefault(HybridFlagResult.Absent())) {
+                requireSender(Player::class) {
                     mapSender(toSocialData) {
                         hybridFlag("nickname", realNameParameter("name"))
                     }
@@ -276,7 +275,7 @@ class SenderRequirementTest {
     fun `realname - mapSender transforms narrowed sender for optional`() {
         val realNameCommand = structure(Server::class, Sender::class) {
             command("realname")(
-                requireSender(Player::class, invalidDefault(null)) {
+                requireSender(Player::class, default = null) {
                     mapSender(toSocialData) {
                         optionally(realNameParameter("name"), default = null)
                     }

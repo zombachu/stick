@@ -6,6 +6,7 @@ import com.zombachu.stick.GroupResult2
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
+import com.zombachu.stick.Requirement
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.LiteralParameter
@@ -15,7 +16,6 @@ import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.failSender
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.success
-import com.zombachu.stick.validSenderDefault
 import com.zombachu.stick.withExecution
 import com.zombachu.stick.withInvocation
 import kotlin.test.Test
@@ -94,7 +94,8 @@ class OptionalGroupImplTest {
                     LiteralParameter("apple", [], ""),
                     LiteralParameter("orange", [], ""),
                 ),
-            presenceDefault = validSenderDefault(GroupResult.ResultA("presence")) { validate(presenceAllowed) },
+            default = { success(GroupResult.ResultA("presence")) },
+            defaultRequirement = Requirement { validate(presenceAllowed) },
         )
 
     context(_: Invocation<*, *>)

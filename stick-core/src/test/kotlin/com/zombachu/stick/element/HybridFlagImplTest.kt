@@ -3,6 +3,7 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.HybridFlagResult
+import com.zombachu.stick.Requirement
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Size
@@ -15,7 +16,6 @@ import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.failSenderType
 import com.zombachu.stick.failure.Reason
-import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
 import com.zombachu.stick.testExecutionSender
@@ -131,8 +131,7 @@ class HybridFlagImplTest {
 
     @Test
     fun `GatedHybridFlag delegates parse to flag parameter`() {
-        val invalidDefault = invalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>>(HybridFlagResult.Absent())
-        val gated = GatedHybridFlag(SenderMappedHybridFlag(flag, { _: Int -> }), invalidDefault)
+        val gated = GatedHybridFlag(SenderMappedHybridFlag(flag, { _: Int -> }), Requirement { success() }, null)
 
         val result = withExecutionSender(1) { gated.parse(["-boost", "5"]) }
 
@@ -143,22 +142,37 @@ class HybridFlagImplTest {
 
     @Test
     fun `GatedHybridFlag default for accessible flag returns Absent`() {
-        val invalidDefault = invalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>>(HybridFlagResult.Present())
-        val gated = GatedHybridFlag(SenderMappedHybridFlag(flag, { _: Int -> }), invalidDefault)
+        val gated =
+            GatedHybridFlag(
+                SenderMappedHybridFlag(flag, { _: Int -> }),
+                Requirement { success() },
+                { success(HybridFlagResult.Present()) },
+            )
         val result = gated.default(testExecutionSender(1))
         assertIs<HybridFlagResult.Absent<Int>>(result.expectSuccessValue())
     }
 
     @Test
-    fun `GatedHybridFlag default for inaccessible flag returns invalid sender default`() {
-        val invalidDefault =
-            invalidSenderDefault<TestEnv, Int, HybridFlagResult<Int>>(HybridFlagResult.Present()) {
-                failSenderType(String::class)
-            }
-        val gated = GatedHybridFlag(SenderMappedHybridFlag(flag, { _: Int -> }), invalidDefault)
-
+    fun `GatedHybridFlag default for inaccessible flag returns denied default`() {
+        val gated =
+            GatedHybridFlag(
+                SenderMappedHybridFlag(flag, { _: Int -> }),
+                Requirement { failSenderType(String::class) },
+                { success(HybridFlagResult.Present()) },
+            )
         val result = gated.default(testExecutionSender(1))
-
         assertIs<HybridFlagResult.Present<Int>>(result.expectSuccessValue())
+    }
+
+    @Test
+    fun `GatedHybridFlag default for inaccessible flag without denied default returns Absent`() {
+        val gated =
+            GatedHybridFlag(
+                SenderMappedHybridFlag(flag, { _: Int -> }),
+                Requirement { failSenderType(String::class) },
+                null,
+            )
+        val result = gated.default(testExecutionSender(1))
+        assertIs<HybridFlagResult.Absent<Int>>(result.expectSuccessValue())
     }
 }

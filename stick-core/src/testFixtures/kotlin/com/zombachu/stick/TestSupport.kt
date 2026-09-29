@@ -1,13 +1,10 @@
 package com.zombachu.stick
 
 import com.zombachu.stick.element.FlagParameter
-import com.zombachu.stick.element.InvalidSenderDefault
 import com.zombachu.stick.element.LeadingParameterRole
 import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
-import com.zombachu.stick.element.ValidSenderDefault
-import com.zombachu.stick.element.ValidatedDefaultImpl
 import com.zombachu.stick.element.ValueFlagImpl
 import com.zombachu.stick.failure.CustomReason
 import com.zombachu.stick.failure.FailureHandler
@@ -90,16 +87,6 @@ fun failureOrigin(usage: String = "", elementName: String? = null): FailureOrigi
 data class MessageReason(val text: String) : CustomReason {
     override fun message(origin: FailureOrigin) = text
 }
-
-fun <E : Environment, S, T> validSenderDefault(
-    value: T,
-    validate: context(Invocation<E, S>) () -> CommandResult<Unit> = { success() },
-): ValidSenderDefault<E, S, T> = ValidatedDefaultImpl({ success(value) }, validate)
-
-fun <E : Environment, S, T> invalidSenderDefault(
-    value: T,
-    validate: context(Invocation<E, S>) () -> CommandResult<Unit> = { success() },
-): InvalidSenderDefault<E, S, T> = ValidatedDefaultImpl({ success(value) }, validate)
 
 internal fun <E : Environment, S, T> presenceValueFlag(
     name: String,

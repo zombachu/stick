@@ -70,7 +70,7 @@ internal class MappedValueFlag<E : Environment, S, A, T>(
 internal class MappedOptionalParameter<E : Environment, S, A, T, P : Position>(
     private val base: OptionalParameter<E, S, A, P>,
     private val transform: Execution<E, S>.(A) -> CommandResult<T>,
-) : OptionalParameter<E, S, T, P>, InternalConsumingElement<E, S, T> {
+) : OptionalParameter<E, S, T, P>, InternalConsumingElement<E, S, T>, InternalOptional<E, S> {
 
     override val size: Size = base.size
     override val name: String = base.name
@@ -87,6 +87,9 @@ internal class MappedOptionalParameter<E : Environment, S, A, T, P : Position>(
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = base.getSyntax()
+
+    context(inv: Invocation<E, S>)
+    override fun validateDefault(): CommandResult<Unit> = base.validateDefault()
 }
 
 internal class MappedHelper<E : Environment, S, A, T>(

@@ -104,3 +104,20 @@ sealed interface OptionalParameter<in E : Environment, S, out T, out P : Positio
 
 sealed interface OptionalGroup<in E : Environment, S, out G : GroupResult?, out P : Position> :
     SignatureElement<E, S, G, P>, SyntaxElement<E, S, G>
+
+internal sealed interface InternalOptional<in E : Environment, S> {
+    context(inv: Invocation<E, S>)
+    fun validateDefault(): CommandResult<Unit>
+}
+
+context(inv: Invocation<E, S>)
+internal fun <E : Environment, S> OptionalParameter<E, S, *, *>.validateDefault(): CommandResult<Unit> =
+    when (this) {
+        is InternalOptional<*, *> -> @Suppress("UNCHECKED_CAST") (this as InternalOptional<E, S>).validateDefault()
+    }
+
+context(inv: Invocation<E, S>)
+internal fun <E : Environment, S> OptionalGroup<E, S, *, *>.validateDefault(): CommandResult<Unit> =
+    when (this) {
+        is InternalOptional<*, *> -> @Suppress("UNCHECKED_CAST") (this as InternalOptional<E, S>).validateDefault()
+    }

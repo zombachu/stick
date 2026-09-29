@@ -2,6 +2,7 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.Requirement
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parameters.LiteralParameter
@@ -11,7 +12,6 @@ import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.failSender
 import com.zombachu.stick.failure.Reason
-import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.noMatch
 import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.success
@@ -80,10 +80,14 @@ class SignatureTest {
     }
 
     @Test
-    fun `inaccessible flag parses invalidDefault value`() {
+    fun `inaccessible flag parses denied default`() {
         val base = presenceValueFlag<TestEnv, String, Boolean>("loud", false, true)
-        val invalidDefault = invalidSenderDefault<TestEnv, Unit, Boolean>(true) { failSender() }
-        val gatedFlag = GatedValueFlag(SenderMappedValueFlag(base, { _: Unit -> "x" }), invalidDefault)
+        val gatedFlag =
+            GatedValueFlag(
+                SenderMappedValueFlag(base, { _: Unit -> "x" }),
+                Requirement { failSender() },
+                { success(true) },
+            )
         val signature = Signature1<TestEnv, Unit, Boolean>({ loud -> }, LeadingParameterRole.Label, [label, gatedFlag])
 
         val args = withExecution("cmd") { signature.execute() }.expectSuccessValue()

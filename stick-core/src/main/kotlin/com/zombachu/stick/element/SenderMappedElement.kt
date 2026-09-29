@@ -154,7 +154,7 @@ internal class SenderMappedHybridFlag<E : Environment, S, S2 : Any, T>(
 internal class SenderMappedOptionalParameter<E : Environment, S, S2 : Any, T, P : Position>(
     private val base: OptionalParameter<E, S2, T, P>,
     private val transform: (S) -> S2,
-) : OptionalParameter<E, S, T, P>, InternalConsumingElement<E, S, T> {
+) : OptionalParameter<E, S, T, P>, InternalConsumingElement<E, S, T>, InternalOptional<E, S> {
 
     override val size: Size = base.size
     override val name: String = base.name
@@ -191,12 +191,20 @@ internal class SenderMappedOptionalParameter<E : Environment, S, S2 : Any, T, P 
             return base.getSyntax()
         }
     }
+
+    context(inv: Invocation<E, S>)
+    override fun validateDefault(): CommandResult<Unit> {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
+            return base.validateDefault()
+        }
+    }
 }
 
 internal class SenderMappedOptionalGroup<E : Environment, S, S2 : Any, G : GroupResult?, P : Position>(
     private val base: OptionalGroup<E, S2, G, P>,
     private val transform: (S) -> S2,
-) : OptionalGroup<E, S, G, P>, InternalElement<E, S, G> {
+) : OptionalGroup<E, S, G, P>, InternalElement<E, S, G>, InternalOptional<E, S> {
 
     override val size: Size = base.size
     override val name: String = base.name
@@ -231,6 +239,14 @@ internal class SenderMappedOptionalGroup<E : Environment, S, S2 : Any, G : Group
         val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.getSyntax()
+        }
+    }
+
+    context(inv: Invocation<E, S>)
+    override fun validateDefault(): CommandResult<Unit> {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
+            return base.validateDefault()
         }
     }
 }

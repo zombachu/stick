@@ -3,7 +3,6 @@ package com.zombachu.stick.integration
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
-import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.SimpleSuggestion
@@ -17,7 +16,6 @@ import com.zombachu.stick.dsl.enumParameter
 import com.zombachu.stick.dsl.flag
 import com.zombachu.stick.dsl.group
 import com.zombachu.stick.dsl.hybridFlag
-import com.zombachu.stick.dsl.invalidDefault
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.listParameter
 import com.zombachu.stick.dsl.literalParameter
@@ -244,7 +242,7 @@ class SuggestionTest {
                 command("setwarp")(
                     flag("announce"),
                     LocationParameter(),
-                    require(invalidDefault(Privacy.Private, permission("server.warp.privacy"))) {
+                    require(permission("server.warp.privacy")) {
                         optionally(
                             parameter = enumParameter("privacy", Privacy::class),
                             default = Privacy.Private,
@@ -374,13 +372,13 @@ class SuggestionTest {
     fun `profile - gated flags are not suggested to denied senders`() {
         val profileCommand = structure(Server::class, Sender::class) {
             command("profile")(
-                requireSender(Player::class, invalidDefault("*")) {
+                requireSender(Player::class, default = "*") {
                     valueFlag(name = "world", parameter = stringParameter("world"), default = "overworld")
                 },
-                require(invalidDefault("Public", permission("server.warp.privacy"))) {
+                require(permission("server.warp.privacy"), default = "Public") {
                     valueFlag(name = "privacy", parameter = stringParameter("privacy"), default = "Private")
                 }.map { success(it.uppercase()) },
-                require(invalidDefault(HybridFlagResult.Absent(), permission("server.warp.privacy"))) {
+                require(permission("server.warp.privacy")) {
                     hybridFlag("nick", stringParameter("name"))
                 },
                 playerParameter("player"),
@@ -399,8 +397,8 @@ class SuggestionTest {
     fun `profile - nested gated flag is not suggested to denied senders`() {
         val profileCommand = structure(Server::class, Sender::class) {
             command("profile")(
-                requireSender(Player::class, invalidDefault("Server")) {
-                    require(invalidDefault("Server", permission("server.profile.type"))) {
+                requireSender(Player::class, default = "Server") {
+                    require(permission("server.profile.type"), default = "Server") {
                         valueFlag(name = "type", parameter = stringParameter("type"), default = "World")
                     }
                 },

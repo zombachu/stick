@@ -14,7 +14,6 @@ import com.zombachu.stick.Position
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.group
-import com.zombachu.stick.dsl.invalidDefault
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.optionally
 import com.zombachu.stick.dsl.require
@@ -22,7 +21,6 @@ import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.valueFlag
 import com.zombachu.stick.element.Groupable
-import com.zombachu.stick.element.InvalidSenderDefault
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.ValueFlag
@@ -126,13 +124,11 @@ class EnvironmentTest {
 
     @Test
     fun `spawn - base environment parameter and defaults compose into narrower optional`() {
-        val baseScope = StructureScope.empty<Server, Sender>()
         val absentDefault: ContextualValue<Server, Sender, String> = { success("overworld") }
-        val deniedDefault: InvalidSenderDefault<WarpableServer, Sender, String> =
-            with(baseScope) { invalidDefault("lobby", permission("server.spawn")) }
+        val deniedDefault: ContextualValue<Server, Sender, String> = { success("lobby") }
         val worldCommand = structure(WarpableServer::class, Sender::class) {
             command("spawn")(
-                require(deniedDefault) {
+                require(permission("server.spawn"), default = deniedDefault) {
                     optionally(parameter = WorldParameter<Server, Sender>("world"), default = absentDefault)
                 }
             ) { world -> sender.log("Teleporting to $world spawn") }

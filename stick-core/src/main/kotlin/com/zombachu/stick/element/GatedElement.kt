@@ -53,20 +53,21 @@ internal class GatedParameterImpl<E : Environment, S, T, P : Position>(
 @PublishedApi
 internal class GatedValueFlag<E : Environment, S, T>(
     private val base: ValueFlag<E, S, T>,
-    private val invalidSenderDefault: InvalidSenderDefault<E, S, T>,
+    private val requirement: Requirement<E, S>,
+    private val deniedDefault: ContextualValue<E, S, T>?,
 ) : ValueFlag<E, S, T> by base, InternalConsumingElement<E, S, T> {
 
     override val default: ContextualValue<E, S, T> = {
-        if (invalidSenderDefault.validateSender().isSuccess()) {
+        if (deniedDefault == null || requirement.validateSender().isSuccess()) {
             base.default(this)
         } else {
-            invalidSenderDefault.value(this)
+            deniedDefault(this)
         }
     }
 
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
-        invalidSenderDefault.validateSender().propagateError {
+        requirement.validateSender().propagateError {
             return MatchResult.unmatched()
         }
         return base.match(args)
@@ -74,7 +75,7 @@ internal class GatedValueFlag<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        invalidSenderDefault.validateSender().propagateError {
+        requirement.validateSender().propagateError {
             return []
         }
         return base.suggest(preceding, partial)
@@ -85,7 +86,7 @@ internal class GatedValueFlag<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String {
-        if (!invalidSenderDefault.validateSender().isSuccess()) return ""
+        if (!requirement.validateSender().isSuccess()) return ""
         return base.getSyntax()
     }
 }
@@ -93,20 +94,21 @@ internal class GatedValueFlag<E : Environment, S, T>(
 @PublishedApi
 internal class GatedHybridFlag<E : Environment, S, T>(
     private val base: HybridFlag<E, S, T>,
-    private val invalidSenderDefault: InvalidSenderDefault<E, S, HybridFlagResult<T>>,
+    private val requirement: Requirement<E, S>,
+    private val deniedDefault: ContextualValue<E, S, HybridFlagResult<T>>?,
 ) : HybridFlag<E, S, T> by base, InternalConsumingElement<E, S, HybridFlagResult<T>> {
 
     override val default: ContextualValue<E, S, HybridFlagResult<T>> = {
-        if (invalidSenderDefault.validateSender().isSuccess()) {
+        if (deniedDefault == null || requirement.validateSender().isSuccess()) {
             success(HybridFlagResult.Absent())
         } else {
-            invalidSenderDefault.value(this)
+            deniedDefault(this)
         }
     }
 
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
-        invalidSenderDefault.validateSender().propagateError {
+        requirement.validateSender().propagateError {
             return MatchResult.unmatched()
         }
         return base.match(args)
@@ -114,7 +116,7 @@ internal class GatedHybridFlag<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        invalidSenderDefault.validateSender().propagateError {
+        requirement.validateSender().propagateError {
             return []
         }
         return base.suggest(preceding, partial)
@@ -125,7 +127,7 @@ internal class GatedHybridFlag<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String {
-        if (!invalidSenderDefault.validateSender().isSuccess()) return ""
+        if (!requirement.validateSender().isSuccess()) return ""
         return base.getSyntax()
     }
 }
@@ -133,12 +135,13 @@ internal class GatedHybridFlag<E : Environment, S, T>(
 @PublishedApi
 internal class GatedOptionalParameter<E : Environment, S, T, P : Position>(
     private val base: OptionalParameter<E, S, T, P>,
-    private val invalidSenderDefault: InvalidSenderDefault<E, S, T>,
-) : OptionalParameter<E, S, T, P> by base, InternalConsumingElement<E, S, T> {
+    private val requirement: Requirement<E, S>,
+    private val deniedDefault: ContextualValue<E, S, T>?,
+) : OptionalParameter<E, S, T, P> by base, InternalConsumingElement<E, S, T>, InternalOptional<E, S> {
 
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
-        invalidSenderDefault.validateSender().propagateError {
+        requirement.validateSender().propagateError {
             return if (args.isEmpty()) MatchResult.matchedAtLeast(0) else MatchResult.unmatched(it)
         }
         return base.match(args)
@@ -146,7 +149,7 @@ internal class GatedOptionalParameter<E : Environment, S, T, P : Position>(
 
     context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        invalidSenderDefault.validateSender().propagateError {
+        requirement.validateSender().propagateError {
             return []
         }
         return base.suggest(preceding, partial)
@@ -154,28 +157,40 @@ internal class GatedOptionalParameter<E : Environment, S, T, P : Position>(
 
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> {
-        invalidSenderDefault.validateSender().propagateError {
-            return if (args.isEmpty()) invalidSenderDefault.value(ex).consuming(0) else it
+        requirement.validateSender().propagateError { failure ->
+            if (args.isNotEmpty()) return failure
+            if (deniedDefault != null) return deniedDefault(ex).consuming(0)
+            base.validateDefault().propagateError {
+                return it
+            }
+            return base.parse(args)
         }
         return base.parse(args)
     }
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String {
-        if (!invalidSenderDefault.validateSender().isSuccess()) return ""
+        if (!requirement.validateSender().isSuccess()) return ""
         return base.getSyntax()
+    }
+
+    context(inv: Invocation<E, S>)
+    override fun validateDefault(): CommandResult<Unit> {
+        if (deniedDefault != null && !requirement.validateSender().isSuccess()) return success()
+        return base.validateDefault()
     }
 }
 
 @PublishedApi
 internal class GatedOptionalGroup<E : Environment, S, G : GroupResult?, P : Position>(
     private val base: OptionalGroup<E, S, G, P>,
-    private val invalidSenderDefault: InvalidSenderDefault<E, S, G>,
-) : OptionalGroup<E, S, G, P> by base, InternalElement<E, S, G> {
+    private val requirement: Requirement<E, S>,
+    private val deniedDefault: ContextualValue<E, S, G>?,
+) : OptionalGroup<E, S, G, P> by base, InternalElement<E, S, G>, InternalOptional<E, S> {
 
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
-        invalidSenderDefault.validateSender().propagateError {
+        requirement.validateSender().propagateError {
             return if (args.isEmpty()) MatchResult.matchedAtLeast(0) else MatchResult.unmatched(it)
         }
         return base.match(args)
@@ -183,7 +198,7 @@ internal class GatedOptionalGroup<E : Environment, S, G : GroupResult?, P : Posi
 
     context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        invalidSenderDefault.validateSender().propagateError {
+        requirement.validateSender().propagateError {
             return []
         }
         return base.suggest(preceding, partial)
@@ -191,16 +206,27 @@ internal class GatedOptionalGroup<E : Environment, S, G : GroupResult?, P : Posi
 
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): CommandResult<G> {
-        invalidSenderDefault.validateSender().propagateError {
-            return if (args.isEmpty()) invalidSenderDefault.value(ex) else it
+        requirement.validateSender().propagateError { failure ->
+            if (args.isNotEmpty()) return failure
+            if (deniedDefault != null) return deniedDefault(ex)
+            base.validateDefault().propagateError {
+                return it
+            }
+            return base.parse(args)
         }
         return base.parse(args)
     }
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String {
-        if (!invalidSenderDefault.validateSender().isSuccess()) return ""
+        if (!requirement.validateSender().isSuccess()) return ""
         return base.getSyntax()
+    }
+
+    context(inv: Invocation<E, S>)
+    override fun validateDefault(): CommandResult<Unit> {
+        if (deniedDefault != null && !requirement.validateSender().isSuccess()) return success()
+        return base.validateDefault()
     }
 }
 

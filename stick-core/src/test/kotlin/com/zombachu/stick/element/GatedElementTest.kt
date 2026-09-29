@@ -2,10 +2,10 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.Arguments0
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult2
-import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
@@ -18,9 +18,10 @@ import com.zombachu.stick.expectNoMatch
 import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
+import com.zombachu.stick.failPermission
 import com.zombachu.stick.failSender
 import com.zombachu.stick.failure.Reason
-import com.zombachu.stick.invalidSenderDefault
+import com.zombachu.stick.isSuccess
 import com.zombachu.stick.success
 import com.zombachu.stick.withExecutionSender
 import com.zombachu.stick.withInvocation
@@ -28,21 +29,16 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertSame
+import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class GatedElementTest {
 
     private val allowed = Requirement<TestEnv, String> { success() }
-    private val allowedDefault = invalidSenderDefault<TestEnv, String, String>("unused")
-    private val deniedDefault = invalidSenderDefault<TestEnv, String, String>("denied") { failSender() }
-    private val allowedGroupDefault =
-        invalidSenderDefault<TestEnv, String, GroupResult2<String, String>>(GroupResult.ResultA("unused"))
-    private val deniedGroupDefault =
-        invalidSenderDefault<TestEnv, String, GroupResult2<String, String>>(GroupResult.ResultA("denied")) {
-            failSender()
-        }
-    private val deniedHybridDefault =
-        invalidSenderDefault<TestEnv, String, HybridFlagResult<String>>(HybridFlagResult.Absent()) { failSender() }
+    private val denied = Requirement<TestEnv, String> { failSender() }
+    private val deniedDefault: ContextualValue<TestEnv, String, String> = { success("denied") }
+    private val deniedGroupDefault: ContextualValue<TestEnv, String, GroupResult2<String, String>> =
+        { success(GroupResult.ResultA("denied")) }
     private val rejectedTransform: (String) -> Int = { fail("transformed a rejected sender") }
 
     @Test
@@ -63,7 +59,7 @@ class GatedElementTest {
     @Test
     fun `GatedValueFlag forwards suggest to base`() {
         val flagParameter = FlagParameter.ParameterFlagParameter("f", SenderParameter<TestEnv, String>(), [])
-        val gated = GatedValueFlag(ValueFlagImpl("f", { success("") }, flagParameter), allowedDefault)
+        val gated = GatedValueFlag(ValueFlagImpl("f", { success("") }, flagParameter), allowed, null)
 
         val suggestions = withInvocation("zombachu") { gated.suggest(["-f"], "") }
 
@@ -73,11 +69,7 @@ class GatedElementTest {
     @Test
     fun `GatedHybridFlag forwards suggest to base`() {
         val base = HybridFlagImpl<TestEnv, String, String>("f", SenderParameter(), [])
-        val gated =
-            GatedHybridFlag(
-                base,
-                invalidSenderDefault<TestEnv, String, HybridFlagResult<String>>(HybridFlagResult.Absent()),
-            )
+        val gated = GatedHybridFlag(base, allowed, null)
 
         val suggestions = withInvocation("zombachu") { gated.suggest(["-f"], "") }
 
@@ -86,39 +78,39 @@ class GatedElementTest {
 
     @Test
     fun `GatedValueFlag match with sender not allowed fails with InvalidSyntax NoMatch`() {
-        val gated = GatedValueFlag(rejectedValueFlag(), deniedDefault)
+        val gated = GatedValueFlag(rejectedValueFlag(), denied, deniedDefault)
         val result = withInvocation("zombachu") { gated.match(["-f", "value"]) }
         assertIs<Reason.InvalidSyntax>(result.expectUnmatched().expectNoMatch().reason)
     }
 
     @Test
     fun `GatedValueFlag suggest with sender not allowed returns nothing`() {
-        val gated = GatedValueFlag(rejectedValueFlag(), deniedDefault)
+        val gated = GatedValueFlag(rejectedValueFlag(), denied, deniedDefault)
         assertEquals([], withInvocation("zombachu") { gated.suggest(["-f"], "") })
     }
 
     @Test
     fun `GatedValueFlag getSyntax returns empty when sender not allowed`() {
-        val gated = GatedValueFlag(rejectedValueFlag(), deniedDefault)
+        val gated = GatedValueFlag(rejectedValueFlag(), denied, deniedDefault)
         assertEquals("", withInvocation("zombachu") { gated.getSyntax() })
     }
 
     @Test
     fun `GatedHybridFlag match with sender not allowed fails with InvalidSyntax NoMatch`() {
-        val gated = GatedHybridFlag(rejectedHybridFlag(), deniedHybridDefault)
+        val gated = GatedHybridFlag(rejectedHybridFlag(), denied, null)
         val result = withInvocation("zombachu") { gated.match(["-f", "value"]) }
         assertIs<Reason.InvalidSyntax>(result.expectUnmatched().expectNoMatch().reason)
     }
 
     @Test
     fun `GatedHybridFlag suggest with sender not allowed returns nothing`() {
-        val gated = GatedHybridFlag(rejectedHybridFlag(), deniedHybridDefault)
+        val gated = GatedHybridFlag(rejectedHybridFlag(), denied, null)
         assertEquals([], withInvocation("zombachu") { gated.suggest(["-f"], "") })
     }
 
     @Test
     fun `GatedHybridFlag getSyntax returns empty when sender not allowed`() {
-        val gated = GatedHybridFlag(rejectedHybridFlag(), deniedHybridDefault)
+        val gated = GatedHybridFlag(rejectedHybridFlag(), denied, null)
         assertEquals("", withInvocation("zombachu") { gated.getSyntax() })
     }
 
@@ -137,7 +129,7 @@ class GatedElementTest {
 
     @Test
     fun `GatedOptionalParameter forwards suggest to base`() {
-        val gated = GatedOptionalParameter(optionalParameter<String>(), allowedDefault)
+        val gated = GatedOptionalParameter(optionalParameter<String>(), allowed, null)
 
         val suggestions = withInvocation("zombachu") { gated.suggest([], "") }
 
@@ -146,93 +138,190 @@ class GatedElementTest {
 
     @Test
     fun `GatedOptionalParameter parses absent default from base`() {
-        val gated = GatedOptionalParameter(optionalParameter<String>(), allowedDefault)
+        val gated = GatedOptionalParameter(optionalParameter<String>(), allowed, null)
         val result = withExecutionSender("zombachu") { gated.parse([]) }
         assertEquals("zombachu", result.expectSuccessValue())
     }
 
     @Test
-    fun `GatedOptionalParameter empty args with sender not allowed returns invalidSenderDefault`() {
-        val gated = GatedOptionalParameter(rejectedOptionalParameter(), deniedDefault)
+    fun `GatedOptionalParameter empty args with sender not allowed returns denied default`() {
+        val gated = GatedOptionalParameter(rejectedOptionalParameter(), denied, deniedDefault)
         val result = withExecutionSender("zombachu") { gated.parse([]) }
         assertEquals("denied", result.expectSuccessValue())
     }
 
     @Test
     fun `GatedOptionalParameter non-empty args with sender not allowed fails with InvalidSender`() {
-        val gated = GatedOptionalParameter(rejectedOptionalParameter(), deniedDefault)
+        val gated = GatedOptionalParameter(rejectedOptionalParameter(), denied, deniedDefault)
         val result = withExecutionSender("zombachu", "value") { gated.parse(["value"]) }
         assertSame(Reason.InvalidSender, result.expectReason())
     }
 
     @Test
     fun `GatedOptionalParameter match on empty args with sender not allowed claims nothing`() {
-        val gated = GatedOptionalParameter(rejectedOptionalParameter(), deniedDefault)
+        val gated = GatedOptionalParameter(rejectedOptionalParameter(), denied, deniedDefault)
         assertEquals(MatchResult.matchedAtLeast(0), withInvocation("zombachu") { gated.match([]) })
     }
 
     @Test
     fun `GatedOptionalParameter match on non-empty args with sender not allowed fails with InvalidSender`() {
-        val gated = GatedOptionalParameter(rejectedOptionalParameter(), deniedDefault)
+        val gated = GatedOptionalParameter(rejectedOptionalParameter(), denied, deniedDefault)
         val result = withInvocation("zombachu") { gated.match(["value"]) }
         assertSame(Reason.InvalidSender, result.expectUnmatched().expectReason())
     }
 
     @Test
     fun `GatedOptionalParameter suggest with sender not allowed returns nothing`() {
-        val gated = GatedOptionalParameter(rejectedOptionalParameter(), deniedDefault)
+        val gated = GatedOptionalParameter(rejectedOptionalParameter(), denied, deniedDefault)
         assertEquals([], withInvocation("zombachu") { gated.suggest([], "") })
     }
 
     @Test
     fun `GatedOptionalParameter getSyntax returns empty when sender not allowed`() {
-        val gated = GatedOptionalParameter(rejectedOptionalParameter(), deniedDefault)
+        val gated = GatedOptionalParameter(rejectedOptionalParameter(), denied, deniedDefault)
         assertEquals("", withInvocation("zombachu") { gated.getSyntax() })
     }
 
     @Test
+    fun `GatedOptionalParameter empty args with sender not allowed and no denied default parses base default`() {
+        val gated = GatedOptionalParameter(optionalParameter<String>(), denied, null)
+        val result = withExecutionSender("zombachu") { gated.parse([]) }
+        assertEquals("zombachu", result.expectSuccessValue())
+    }
+
+    @Test
+    fun `GatedOptionalParameter empty args with sender not allowed fails with base default requirement`() {
+        val gated = GatedOptionalParameter(requiredOptionalParameter<String>(), denied, null)
+        val result = withExecutionSender("zombachu") { gated.parse([]) }
+        assertSame(Reason.InvalidPermission, result.expectReason())
+    }
+
+    @Test
+    fun `GatedOptionalParameter empty args with sender allowed fails with InvalidSyntax when base default denied`() {
+        val gated = GatedOptionalParameter(requiredOptionalParameter<String>(), allowed, null)
+        val result = withExecutionSender("zombachu") { gated.parse([]) }
+        assertIs<Reason.InvalidSyntax>(result.expectReason())
+    }
+
+    @Test
+    fun `GatedOptionalParameter sees base default requirement through map`() {
+        val mapped = MappedOptionalParameter(requiredOptionalParameter<String>()) { success(it) }
+        val gated = GatedOptionalParameter(mapped, denied, null)
+
+        val result = withExecutionSender("zombachu") { gated.parse([]) }
+
+        assertSame(Reason.InvalidPermission, result.expectReason())
+    }
+
+    @Test
+    fun `GatedOptionalParameter sees base default requirement through mapSender`() {
+        val mapped = SenderMappedOptionalParameter(requiredOptionalParameter<Int>(), String::length)
+        val gated = GatedOptionalParameter(mapped, denied, null)
+
+        val result = withExecutionSender("zombachu") { gated.parse([]) }
+
+        assertSame(Reason.InvalidPermission, result.expectReason())
+    }
+
+    @Test
+    fun `nested GatedOptionalParameter with both requirements denied fails with base default requirement`() {
+        val inner = GatedOptionalParameter(requiredOptionalParameter<String>(), denied, null)
+        val gated = GatedOptionalParameter(inner, denied, null)
+
+        val result = withExecutionSender("zombachu") { gated.parse([]) }
+
+        assertSame(Reason.InvalidPermission, result.expectReason())
+    }
+
+    @Test
+    fun `nested GatedOptionalParameter with outer requirement denied parses inner denied default`() {
+        val inner = GatedOptionalParameter(requiredOptionalParameter<String>(), denied, deniedDefault)
+        val gated = GatedOptionalParameter(inner, denied, null)
+
+        val result = withExecutionSender("zombachu") { gated.parse([]) }
+
+        assertEquals("denied", result.expectSuccessValue())
+    }
+
+    @Test
+    fun `GatedOptionalParameter validateDefault with sender not allowed and denied default succeeds`() {
+        val gated = GatedOptionalParameter(rejectedOptionalParameter(), denied, deniedDefault)
+        assertTrue(withInvocation("zombachu") { gated.validateDefault() }.isSuccess())
+    }
+
+    @Test
+    fun `GatedOptionalParameter validateDefault with sender not allowed and no denied default forwards to base`() {
+        val gated = GatedOptionalParameter(requiredOptionalParameter<String>(), denied, null)
+        assertSame(Reason.InvalidPermission, withInvocation("zombachu") { gated.validateDefault() }.expectReason())
+    }
+
+    @Test
     fun `GatedOptionalGroup parses absent default from base`() {
-        val gated = GatedOptionalGroup(optionalGroup<String>(), allowedGroupDefault)
+        val gated = GatedOptionalGroup(optionalGroup<String>(), allowed, null)
         val result = withExecutionSender("zombachu") { gated.parse([]) }
         assertEquals(GroupResult.ResultA("zombachu"), result.expectSuccessValue())
     }
 
     @Test
-    fun `GatedOptionalGroup empty args with sender not allowed returns invalidSenderDefault`() {
-        val gated = GatedOptionalGroup(rejectedOptionalGroup(), deniedGroupDefault)
+    fun `GatedOptionalGroup empty args with sender not allowed returns denied default`() {
+        val gated = GatedOptionalGroup(rejectedOptionalGroup(), denied, deniedGroupDefault)
         val result = withExecutionSender("zombachu") { gated.parse([]) }
         assertEquals(GroupResult.ResultA("denied"), result.expectSuccessValue())
     }
 
     @Test
+    fun `GatedOptionalGroup empty args with sender not allowed and no denied default parses base default`() {
+        val gated = GatedOptionalGroup(optionalGroup<String>(), denied, null)
+        val result = withExecutionSender("zombachu") { gated.parse([]) }
+        assertEquals(GroupResult.ResultA("zombachu"), result.expectSuccessValue())
+    }
+
+    @Test
+    fun `GatedOptionalGroup empty args with sender not allowed fails with base default requirement`() {
+        val gated = GatedOptionalGroup(requiredOptionalGroup<String>(), denied, null)
+        val result = withExecutionSender("zombachu") { gated.parse([]) }
+        assertSame(Reason.InvalidPermission, result.expectReason())
+    }
+
+    @Test
+    fun `GatedOptionalGroup sees base default requirement through mapSender`() {
+        val mapped = SenderMappedOptionalGroup(requiredOptionalGroup<Int>(), String::length)
+        val gated = GatedOptionalGroup(mapped, denied, null)
+
+        val result = withExecutionSender("zombachu") { gated.parse([]) }
+
+        assertSame(Reason.InvalidPermission, result.expectReason())
+    }
+
+    @Test
     fun `GatedOptionalGroup non-empty args with sender not allowed fails with InvalidSender`() {
-        val gated = GatedOptionalGroup(rejectedOptionalGroup(), deniedGroupDefault)
+        val gated = GatedOptionalGroup(rejectedOptionalGroup(), denied, deniedGroupDefault)
         val result = withExecutionSender("zombachu", "orange") { gated.parse(["orange"]) }
         assertSame(Reason.InvalidSender, result.expectReason())
     }
 
     @Test
     fun `GatedOptionalGroup match on empty args with sender not allowed claims nothing`() {
-        val gated = GatedOptionalGroup(rejectedOptionalGroup(), deniedGroupDefault)
+        val gated = GatedOptionalGroup(rejectedOptionalGroup(), denied, deniedGroupDefault)
         assertEquals(MatchResult.matchedAtLeast(0), withInvocation("zombachu") { gated.match([]) })
     }
 
     @Test
     fun `GatedOptionalGroup match on non-empty args with sender not allowed fails with InvalidSender`() {
-        val gated = GatedOptionalGroup(rejectedOptionalGroup(), deniedGroupDefault)
+        val gated = GatedOptionalGroup(rejectedOptionalGroup(), denied, deniedGroupDefault)
         val result = withInvocation("zombachu") { gated.match(["apple"]) }
         assertSame(Reason.InvalidSender, result.expectUnmatched().expectReason())
     }
 
     @Test
     fun `GatedOptionalGroup suggest with sender not allowed returns nothing`() {
-        val gated = GatedOptionalGroup(rejectedOptionalGroup(), deniedGroupDefault)
+        val gated = GatedOptionalGroup(rejectedOptionalGroup(), denied, deniedGroupDefault)
         assertEquals([], withInvocation("zombachu") { gated.suggest([], "") })
     }
 
     @Test
     fun `GatedOptionalGroup getSyntax returns empty when sender not allowed`() {
-        val gated = GatedOptionalGroup(rejectedOptionalGroup(), deniedGroupDefault)
+        val gated = GatedOptionalGroup(rejectedOptionalGroup(), denied, deniedGroupDefault)
         assertEquals("", withInvocation("zombachu") { gated.getSyntax() })
     }
 
@@ -257,7 +346,7 @@ class GatedElementTest {
         SenderMappedOptionalGroup(optionalGroup<Int>(), rejectedTransform)
 
     private fun <S> optionalParameter(): OptionalParameterImpl<TestEnv, S, String, Position.Optional> =
-        OptionalParameterImpl(SenderParameter(), ValidatedDefaultImpl({ success("$sender") }) { success() })
+        OptionalParameterImpl(SenderParameter(), { success("$sender") }, null)
 
     private fun <S> optionalGroup(): OptionalGroupImpl<TestEnv, S, GroupResult2<String, String>, Position.Optional> =
         OptionalGroupImpl(
@@ -267,7 +356,24 @@ class GatedElementTest {
                 LiteralParameter("apple", [], ""),
                 LiteralParameter("orange", [], ""),
             ),
-            ValidatedDefaultImpl({ success(GroupResult.ResultA("$sender")) }) { success() },
+            { success(GroupResult.ResultA("$sender")) },
+            null,
+        )
+
+    private fun <S> requiredOptionalParameter(): OptionalParameterImpl<TestEnv, S, String, Position.Optional> =
+        OptionalParameterImpl(SenderParameter(), { success("$sender") }, Requirement { failPermission() })
+
+    private fun <S> requiredOptionalGroup():
+        OptionalGroupImpl<TestEnv, S, GroupResult2<String, String>, Position.Optional> =
+        OptionalGroupImpl(
+            Group2Impl<TestEnv, S, String, String, Position.Leading>(
+                "",
+                "",
+                LiteralParameter("apple", [], ""),
+                LiteralParameter("orange", [], ""),
+            ),
+            { success(GroupResult.ResultA("$sender")) },
+            Requirement { failPermission() },
         )
 
     private class SenderParameter<E : Environment, S> : Parameter.Size1<E, S, String>("", "") {

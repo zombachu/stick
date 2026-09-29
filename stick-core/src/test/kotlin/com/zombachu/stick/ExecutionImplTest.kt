@@ -194,7 +194,8 @@ class ExecutionImplTest {
         val optional =
             OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
                 countingParameter { resolves++ },
-                validSenderDefault("absent"),
+                { success("absent") },
+                null,
             )
         val mapped =
             MappedOptionalParameter<TestEnv, Unit, String, String, Position.Optional>(optional) { success("$it!") }

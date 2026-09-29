@@ -19,7 +19,6 @@ import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.failSender
 import com.zombachu.stick.failure.Reason
-import com.zombachu.stick.invalidSenderDefault
 import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecutionSender
@@ -90,8 +89,7 @@ class SenderMappedElementTest {
     @Test
     fun `SenderMappedValueFlag matches with the transformed sender`() {
         val base = presenceValueFlag<TestEnv, Int, Boolean>("f", false, true)
-        val gated =
-            GatedValueFlag(base, invalidSenderDefault<TestEnv, Int, Boolean>(false) { lengthIs8.validateSender() })
+        val gated = GatedValueFlag(base, lengthIs8, { success(false) })
         val mapped = SenderMappedValueFlag(gated, String::length)
 
         assertIs<MatchResult.Matched>(withInvocation("zombachu") { mapped.match(["-f"]) })
@@ -112,13 +110,7 @@ class SenderMappedElementTest {
     @Test
     fun `SenderMappedHybridFlag default forwards to base`() {
         val base = HybridFlagImpl<TestEnv, Int, String>("f", SenderParameter(), [])
-        val gated =
-            GatedHybridFlag(
-                base,
-                invalidSenderDefault<TestEnv, Int, HybridFlagResult<String>>(HybridFlagResult.Present()) {
-                    lengthIs8.validateSender()
-                },
-            )
+        val gated = GatedHybridFlag(base, lengthIs8, { success(HybridFlagResult.Present()) })
         val mapped = SenderMappedHybridFlag(gated, String::length)
 
         val result = mapped.default(testExecutionSender("steve"))
@@ -129,13 +121,7 @@ class SenderMappedElementTest {
     @Test
     fun `SenderMappedHybridFlag matches with the transformed sender`() {
         val base = HybridFlagImpl<TestEnv, Int, String>("f", SenderParameter(), [])
-        val gated =
-            GatedHybridFlag(
-                base,
-                invalidSenderDefault<TestEnv, Int, HybridFlagResult<String>>(HybridFlagResult.Absent()) {
-                    lengthIs8.validateSender()
-                },
-            )
+        val gated = GatedHybridFlag(base, lengthIs8, null)
         val mapped = SenderMappedHybridFlag(gated, String::length)
 
         assertIs<MatchResult.Matched>(withInvocation("zombachu") { mapped.match(["-f"]) })
@@ -189,7 +175,7 @@ class SenderMappedElementTest {
     }
 
     private fun optionalParameter(): OptionalParameterImpl<TestEnv, Int, String, Position.Optional> =
-        OptionalParameterImpl(SenderParameter(), ValidatedDefaultImpl({ success("$sender") }) { success() })
+        OptionalParameterImpl(SenderParameter(), { success("$sender") }, null)
 
     private fun optionalGroup(): OptionalGroupImpl<TestEnv, Int, GroupResult2<String, String>, Position.Optional> =
         OptionalGroupImpl(
@@ -199,7 +185,8 @@ class SenderMappedElementTest {
                 LiteralParameter("apple", [], ""),
                 LiteralParameter("orange", [], ""),
             ),
-            ValidatedDefaultImpl({ success(GroupResult.ResultA("$sender")) }) { success() },
+            { success(GroupResult.ResultA("$sender")) },
+            null,
         )
 
     private class SenderParameter<E : Environment, S> : Parameter.Size1<E, S, String>("", "") {

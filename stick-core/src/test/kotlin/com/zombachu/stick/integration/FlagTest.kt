@@ -7,7 +7,6 @@ import com.zombachu.stick.dsl.enumParameter
 import com.zombachu.stick.dsl.flag
 import com.zombachu.stick.dsl.hybridFlag
 import com.zombachu.stick.dsl.intParameter
-import com.zombachu.stick.dsl.invalidDefault
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.map
@@ -279,7 +278,7 @@ class FlagTest {
     fun `broadcast - flag can be gated by requirement`() {
         val broadcastCommand = structure(Server::class, Sender::class) {
             command("broadcast")(
-                require(invalidDefault("Player", permission("server.broadcast.raw"))) {
+                require(permission("server.broadcast.raw"), default = "Player") {
                     valueFlag(name = "prefix", parameter = stringParameter("prefix"), default = "#")
                 },
                 textParameter("message"),
@@ -302,10 +301,30 @@ class FlagTest {
     }
 
     @Test
+    fun `broadcast - gated flag falls back to its own default`() {
+        val broadcastCommand = structure(Server::class, Sender::class) {
+            command("broadcast")(
+                require(permission("server.broadcast.raw")) {
+                    valueFlag(name = "prefix", parameter = stringParameter("prefix"), default = "#")
+                },
+                textParameter("message"),
+            ) { prefix, message ->
+                sender.log("[$prefix] $message")
+            }
+        }
+
+        broadcastCommand.execute(server, zombachu, "/broadcast -prefix abc123 Server restarting")
+        assertEquals(["[abc123] Server restarting"], zombachu.logs)
+
+        broadcastCommand.execute(server, steve, "/broadcast Server restarting")
+        assertEquals(["[#] Server restarting"], steve.logs)
+    }
+
+    @Test
     fun `broadcast - mapped flag keeps requirement`() {
         val broadcastCommand = structure(Server::class, Sender::class) {
             command("broadcast")(
-                require(invalidDefault("Player", permission("server.broadcast.raw"))) {
+                require(permission("server.broadcast.raw"), default = "Player") {
                     valueFlag(name = "prefix", parameter = stringParameter("prefix"), default = "#")
                 }.map { success(it.uppercase()) },
                 textParameter("message"),
@@ -333,7 +352,7 @@ class FlagTest {
     fun `profile -  flag can be gated by sender type`() {
         val profileCommand = structure(Server::class, Sender::class) {
             command("profile")(
-                requireSender(Player::class, invalidDefault("*")) {
+                requireSender(Player::class, default = "*") {
                     valueFlag(name = "world", parameter = stringParameter("world"), default = "overworld")
                 }
             ) { world ->
@@ -357,8 +376,8 @@ class FlagTest {
     fun `broadcast - nested requirements both gate flag`() {
         val broadcastCommand = structure(Server::class, Sender::class) {
             command("broadcast")(
-                requireSender(Player::class, invalidDefault("Server")) {
-                    require(invalidDefault("Player", permission("server.broadcast.raw"))) {
+                requireSender(Player::class, default = "Server") {
+                    require(permission("server.broadcast.raw"), default = "Player") {
                         valueFlag(name = "prefix", parameter = stringParameter("prefix"), default = "#")
                     }
                 },
