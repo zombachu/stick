@@ -71,7 +71,7 @@ abstract class Stick<E : Environment, S : Any>(
                 with(emptyContext) {
                     GatedStructure(
                         SenderMappedStructure(command.structure, castSender),
-                        requirement({ failSenderType(commandSenderClass) }) { isSenderRequiredType(sender) },
+                        requirement({ isSenderRequiredType(sender) }) { failSenderType(commandSenderClass) },
                     )
                 }
             }

@@ -36,7 +36,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> Structure
 ): GatedParameter<E, S, T, P> =
     GatedParameterImpl(
         mapSender({ it as S2 }, parameter),
-        requirement({ failSenderType(senderType) }) { sender is S2 },
+        requirement({ sender is S2 }) { failSenderType(senderType) },
     )
 
 @OverloadResolutionByLambdaReturnType
@@ -49,7 +49,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
         mapSender({ it as S2 }, flag),
         invalidDefault(
             invalidSenderDefault.value,
-            requirement(invalidSenderDefault) + requirement({ failSenderType(senderType) }) { sender is S2 },
+            requirement(invalidSenderDefault) + requirement({ sender is S2 }) { failSenderType(senderType) },
         ),
     )
 
@@ -63,7 +63,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
         mapSender({ it as S2 }, flag),
         invalidDefault(
             invalidSenderDefault.value,
-            requirement(invalidSenderDefault) + requirement({ failSenderType(senderType) }) { sender is S2 },
+            requirement(invalidSenderDefault) + requirement({ sender is S2 }) { failSenderType(senderType) },
         ),
     )
 
@@ -77,7 +77,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> Structure
         mapSender({ it as S2 }, optional),
         invalidDefault(
             invalidSenderDefault.value,
-            requirement(invalidSenderDefault) + requirement({ failSenderType(senderType) }) { sender is S2 },
+            requirement(invalidSenderDefault) + requirement({ sender is S2 }) { failSenderType(senderType) },
         ),
     )
 
@@ -92,7 +92,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, G : GroupResult?, P : Posi
         mapSender({ it as S2 }, optional),
         invalidDefault(
             invalidSenderDefault.value,
-            requirement(invalidSenderDefault) + requirement({ failSenderType(senderType) }) { sender is S2 },
+            requirement(invalidSenderDefault) + requirement({ sender is S2 }) { failSenderType(senderType) },
         ),
     )
 
@@ -103,7 +103,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureS
 ): Structure<E, S, T_> =
     GatedStructure(
         mapSender({ it as S2 }, command),
-        requirement({ failSenderType(senderType) }) { sender is S2 },
+        requirement({ sender is S2 }) { failSenderType(senderType) },
     )
 
 // TODO: unify with requireSender once T_ can be inferred
@@ -114,7 +114,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureS
 ): Branch<E, S, T_> =
     GatedBranch(
         branchMapSender({ it as S2 }, branch),
-        requirement({ failSenderType(senderType) }) { sender is S2 },
+        requirement({ sender is S2 }) { failSenderType(senderType) },
     )
 
 @OverloadResolutionByLambdaReturnType

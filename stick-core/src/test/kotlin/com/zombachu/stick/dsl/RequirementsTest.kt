@@ -31,7 +31,7 @@ class RequirementsTest {
 
     @Test
     fun `requirement from Boolean lambda uses failureResult`() = structureTest {
-        val requirement = requirement(failureResult = { failPermission() }) { false }
+        val requirement = requirement({ false }) { failPermission() }
         val result = withInvocation { requirement.validateSender() }
         assertSame(Reason.InvalidPermission, result.expectReason())
     }

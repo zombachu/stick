@@ -12,4 +12,4 @@ import com.zombachu.stick.velocity.VelocityEnvironment
 fun <E : VelocityEnvironment, S : CommandSource> StructureScope<E, S>.permission(
     permission: String,
     failureResult: Invocation<E, S>.() -> CommandResult.Failure = { failPermission() },
-): Requirement<E, S> = requirement(failureResult) { sender.hasPermission(permission) }
+): Requirement<E, S> = requirement({ sender.hasPermission(permission) }, failureResult)

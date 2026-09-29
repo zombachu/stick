@@ -20,9 +20,12 @@ fun <E : Environment, S> StructureScope<E, S>.requirement(
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("requirementBoolean")
+fun <E : Environment, S> StructureScope<E, S>.requirement(validate: Invocation<E, S>.() -> Boolean): Requirement<E, S> =
+    requirement(validate) { failSender() }
+
 fun <E : Environment, S> StructureScope<E, S>.requirement(
-    failureResult: Invocation<E, S>.() -> CommandResult.Failure = { failSender() },
     validate: Invocation<E, S>.() -> Boolean,
+    failureResult: Invocation<E, S>.() -> CommandResult.Failure,
 ): Requirement<E, S> = Requirement {
     if (validate()) {
         success()

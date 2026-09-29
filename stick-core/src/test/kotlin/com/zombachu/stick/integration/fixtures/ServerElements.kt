@@ -46,7 +46,7 @@ fun customError(message: String): CommandResult.Failure.Error = fail(MessageReas
 
 fun <E : Environment, S : Sender> StructureScope<E, S>.permission(
     node: String,
-): Requirement<E, S> = requirement({ failPermission() }) { sender.hasPermission(node) }
+): Requirement<E, S> = requirement({ sender.hasPermission(node) }) { failPermission() }
 
 fun <E : Environment, S : Sender, T> StructureScope<E, S>.permissionedValue(
     node: String,
