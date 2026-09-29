@@ -44,6 +44,9 @@ internal class GatedParameterImpl<E : Environment, S, T, P : Position>(
     override fun getSyntax(): String = base.getSyntax()
 
     context(inv: Invocation<E, S>)
+    override fun getGroupedSyntax(): String = base.getGroupedSyntax()
+
+    context(inv: Invocation<E, S>)
     override fun validateSender(): CommandResult<Unit> = requirement.validateSender()
 }
 

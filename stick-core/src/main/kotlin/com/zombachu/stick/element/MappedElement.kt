@@ -32,6 +32,9 @@ internal class MappedParameter<E : Environment, S, A, T, P : Position>(
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = base.getSyntax()
+
+    context(inv: Invocation<E, S>)
+    override fun getGroupedSyntax(): String = base.getGroupedSyntax()
 }
 
 internal class MappedValueFlag<E : Environment, S, A, T>(

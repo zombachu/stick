@@ -61,6 +61,21 @@ class MappedElementTest {
     }
 
     @Test
+    fun `MappedParameter delegates getGroupedSyntax to base`() {
+        val base =
+            object : Parameter.Size1<TestEnv, Unit, String>("", "") {
+                context(inv: Invocation<TestEnv, Unit>)
+                override fun resolve(arg0: String): CommandResult<String> = success(arg0)
+
+                context(inv: Invocation<TestEnv, Unit>)
+                override fun getGroupedSyntax(): String = "grouped"
+            }
+        val mapped = MappedParameter<TestEnv, Unit, String, String, Position.Leading>(base) { success(it) }
+
+        assertEquals("grouped", withInvocation { mapped.getGroupedSyntax() })
+    }
+
+    @Test
     fun `MappedParameter short-circuits on failing transform`() {
         var laterCalled = false
         val failing =

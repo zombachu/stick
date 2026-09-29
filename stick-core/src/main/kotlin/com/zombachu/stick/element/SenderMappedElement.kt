@@ -53,6 +53,14 @@ internal class SenderMappedParameter<E : Environment, S, S2 : Any, T, P : Positi
             return base.getSyntax()
         }
     }
+
+    context(inv: Invocation<E, S>)
+    override fun getGroupedSyntax(): String {
+        val transformedInvocation = inv.forSender(transform)
+        context(transformedInvocation) {
+            return base.getGroupedSyntax()
+        }
+    }
 }
 
 internal class SenderMappedValueFlag<E : Environment, S, S2 : Any, T>(

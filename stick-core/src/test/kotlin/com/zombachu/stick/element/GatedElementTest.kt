@@ -55,6 +55,12 @@ class GatedElementTest {
     }
 
     @Test
+    fun `GatedParameterImpl forwards getGroupedSyntax to base`() {
+        val gated = GatedParameterImpl(SenderParameter<TestEnv, String>(), allowed)
+        assertEquals("zombachu", withInvocation("zombachu") { gated.getGroupedSyntax() })
+    }
+
+    @Test
     fun `GatedValueFlag forwards suggest to base`() {
         val flagParameter = FlagParameter.ParameterFlagParameter("f", SenderParameter<TestEnv, String>(), [])
         val gated = GatedValueFlag(ValueFlagImpl("f", { success("") }, flagParameter), allowedDefault)
@@ -272,5 +278,8 @@ class GatedElementTest {
 
         context(inv: Invocation<E, S>)
         override fun resolve(arg0: String): CommandResult<String> = success(arg0)
+
+        context(inv: Invocation<E, S>)
+        override fun getGroupedSyntax(): String = "${inv.sender}"
     }
 }

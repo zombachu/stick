@@ -56,6 +56,12 @@ class SenderMappedElementTest {
     }
 
     @Test
+    fun `SenderMappedParameter getGroupedSyntax uses the transformed sender`() {
+        val mapped = SenderMappedParameter(SenderParameter<TestEnv, Int>(), String::length)
+        assertEquals("8", withInvocation("zombachu") { mapped.getGroupedSyntax() })
+    }
+
+    @Test
     fun `SenderMappedParameter reports base element type`() {
         val mapped = SenderMappedParameter(LiteralParameter<TestEnv, Int>("give", [], ""), String::length)
         assertEquals(GroupableType.Literal, mapped.type)
@@ -207,5 +213,8 @@ class SenderMappedElementTest {
 
         context(inv: Invocation<E, S>)
         override fun getSyntax(): String = "<${inv.sender}>"
+
+        context(inv: Invocation<E, S>)
+        override fun getGroupedSyntax(): String = "${inv.sender}"
     }
 }
