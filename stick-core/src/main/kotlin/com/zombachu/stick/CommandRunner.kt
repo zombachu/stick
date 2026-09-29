@@ -2,6 +2,7 @@ package com.zombachu.stick
 
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.parse
+import com.zombachu.stick.element.validateSender
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.Reason
 

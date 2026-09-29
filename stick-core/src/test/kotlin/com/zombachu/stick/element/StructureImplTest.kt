@@ -1,12 +1,12 @@
 package com.zombachu.stick.element
 
 import com.zombachu.stick.Arguments0
+import com.zombachu.stick.Arguments1
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Requirement
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectNoMatch
-import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.failSender
 import com.zombachu.stick.failSenderType
@@ -20,7 +20,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
-import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class StructureImplTest {
@@ -80,22 +79,6 @@ class StructureImplTest {
     }
 
     @Test
-    fun `failing requirement short-circuits executing signature`() {
-        var executed = false
-        val structure =
-            structure(
-                name = "cmd",
-                requirement = Requirement { failSender() },
-                onExecute = { executed = true },
-            )
-
-        val result = withExecution("cmd") { structure.parse(["cmd"]) }
-
-        assertSame(Reason.InvalidSender, result.expectReason())
-        assertFalse(executed)
-    }
-
-    @Test
     fun `getSyntax returns name when signature has no syntax`() {
         val structure = structure(name = "cmd")
         assertEquals("cmd", withInvocation { structure.getSyntax() })
@@ -105,7 +88,7 @@ class StructureImplTest {
     fun `getSyntax returns signature syntax`() {
         val parameter = StringParameter<TestEnv, Unit>("arg", "")
         val structure =
-            StructureImpl("cmd", [], "", Requirement<TestEnv, Unit> { success() }) {
+            StructureImpl<TestEnv, Unit, Arguments1<String>>("cmd", [], "") {
                 Signature1<TestEnv, Unit, String>({}, LeadingParameterRole.Label, [it, parameter])
             }
 
@@ -124,7 +107,7 @@ class StructureImplTest {
 
     @Test
     fun `GatedStructure validateSender includes base requirement`() {
-        val base = structure(name = "cmd", requirement = Requirement { failSender() })
+        val base = GatedStructure(structure(name = "cmd"), Requirement { failSender() })
         val requirement = Requirement<TestEnv, Int> { success() }
         val gated = GatedStructure(SenderMappedStructure(base, { _: Int -> }), requirement)
 
@@ -147,8 +130,6 @@ class StructureImplTest {
     private fun structure(
         name: String,
         aliases: Set<String> = [],
-        requirement: Requirement<TestEnv, Unit> = Requirement { success() },
-        onExecute: () -> Unit = {},
     ): StructureImpl<TestEnv, Unit, Arguments0> =
-        StructureImpl(name, aliases, "", requirement) { Signature0({ onExecute() }, LeadingParameterRole.Label, [it]) }
+        StructureImpl(name, aliases, "") { Signature0({}, LeadingParameterRole.Label, [it]) }
 }

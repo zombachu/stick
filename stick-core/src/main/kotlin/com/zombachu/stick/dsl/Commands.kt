@@ -7,7 +7,6 @@ import com.zombachu.stick.Requirement
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.lowercase
-import com.zombachu.stick.success
 import kotlin.reflect.KClass
 
 fun <E : Environment, S : Any, T_ : Arguments> structure(
@@ -23,7 +22,7 @@ fun <E : Environment, S : Any, T_ : Arguments> CommandScope<E, S>.structure(
 fun <E : Environment, S> StructureScope<E, S>.command(
     name: String,
     aliases: Set<String> = [],
-    requirement: Requirement<E, S> = requirement { success() },
+    requirement: Requirement<E, S>? = null,
     description: String = "",
 ): StructureScope<E, S> {
     return StructureScope(

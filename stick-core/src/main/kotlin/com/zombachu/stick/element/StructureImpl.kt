@@ -4,7 +4,6 @@ import com.zombachu.stick.Arguments
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.Requirement
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.noMatch
 import com.zombachu.stick.success
@@ -12,7 +11,6 @@ import com.zombachu.stick.success
 internal class StructureImpl<E : Environment, S, T_ : Arguments>
 private constructor(
     literal: LabelParameter<E, S>,
-    private val requirement: Requirement<E, S>,
     signature: (LabelParameter<E, S>) -> Signature<E, S, T_>,
 ) : BranchImpl<E, S, T_>(signature(literal)), Structure<E, S, T_> {
 
@@ -20,15 +18,11 @@ private constructor(
         name: String,
         aliases: Set<String>,
         description: String,
-        requirement: Requirement<E, S>,
         signature: (Parameter<E, S, *, *>) -> Signature<E, S, T_>,
-    ) : this(LabelParameter(name, aliases, description), requirement, signature)
+    ) : this(LabelParameter(name, aliases, description), signature)
 
     override val label: String = literal.label
     override val aliases: Set<String> = literal.aliases
-
-    context(inv: Invocation<E, S>)
-    override fun validateSender(): CommandResult<Unit> = requirement.validateSender()
 }
 
 private class LabelParameter<E : Environment, S>(name: String, aliases: Set<String>, description: String) :

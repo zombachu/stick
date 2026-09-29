@@ -1,5 +1,6 @@
 package com.zombachu.stick.element
 
+import com.zombachu.stick.Arguments0
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
@@ -170,7 +171,7 @@ class SenderMappedElementTest {
     @Test
     fun `SenderMappedStructure suggests its label`() {
         val base =
-            StructureImpl("teleport", ["tp"], "", Requirement<TestEnv, Int> { success() }) {
+            StructureImpl<TestEnv, Int, Arguments0>("teleport", ["tp"], "") {
                 Signature0({}, LeadingParameterRole.Label, [it])
             }
         val mapped = SenderMappedStructure(base, String::length)

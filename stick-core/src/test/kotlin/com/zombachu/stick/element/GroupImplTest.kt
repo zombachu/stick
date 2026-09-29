@@ -1,5 +1,6 @@
 package com.zombachu.stick.element
 
+import com.zombachu.stick.Arguments0
 import com.zombachu.stick.Arguments1
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
@@ -145,12 +146,7 @@ class GroupImplTest {
     @Test
     fun `error from matched groupable propagates`() {
         val committing =
-            StructureImpl<TestEnv, Unit, Arguments1<String>>(
-                "info",
-                [],
-                "",
-                Requirement { success() },
-            ) {
+            StructureImpl<TestEnv, Unit, Arguments1<String>>("info", [], "") {
                 Signature1({ _ -> }, LeadingParameterRole.Label, [it, LiteralParameter("sun", [], "")])
             }
         val neverTried = StringParameter<TestEnv, Unit>("ok", "")
@@ -186,7 +182,7 @@ class GroupImplTest {
     @Test
     fun `matched branch claims remaining args`() {
         val structure =
-            StructureImpl("cmd", [], "", Requirement<TestEnv, Unit> { success() }) {
+            StructureImpl<TestEnv, Unit, Arguments0>("cmd", [], "") {
                 Signature0({}, LeadingParameterRole.Label, [it])
             }
         val group = group1(structure)

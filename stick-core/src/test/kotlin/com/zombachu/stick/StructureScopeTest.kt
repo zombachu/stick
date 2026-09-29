@@ -5,7 +5,6 @@ import com.zombachu.stick.element.Signature0
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 class StructureScopeTest {
 
@@ -20,14 +19,13 @@ class StructureScopeTest {
     }
 
     @Test
-    fun `empty scope requirement succeeds`() {
+    fun `empty scope has no requirement`() {
         val scope = StructureScope.empty<TestEnv, Unit>()
-        val result = withInvocation { scope.requirement.validateSender() }
-        assertTrue(result.isSuccess())
+        assertNull(scope.requirement)
     }
 
     @Test
-    fun `forSender preserves fields and resets requirement`() {
+    fun `forSender preserves fields and drops requirement`() {
         val parent = StructureScope.empty<TestEnv, Unit>()
         val scope =
             StructureScope<TestEnv, Unit>(
@@ -44,7 +42,7 @@ class StructureScopeTest {
         assertEquals(["s"], forSender.aliases)
         assertEquals("desc", forSender.description)
         assertEquals(parent, forSender.parent)
-        assertTrue(withInvocation("anything") { forSender.requirement.validateSender() }.isSuccess())
+        assertNull(forSender.requirement)
     }
 
     @Test
@@ -55,7 +53,7 @@ class StructureScopeTest {
                 ["s"],
                 "desc",
                 null,
-                Requirement { success() },
+                null,
             )
 
         val structure = scope.build { Signature0({}, LeadingParameterRole.Label, [it]) }

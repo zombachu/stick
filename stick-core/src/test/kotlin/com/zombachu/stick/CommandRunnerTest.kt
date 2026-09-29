@@ -70,7 +70,7 @@ class CommandRunnerTest {
         label: String,
         signature: (Parameter<TestEnv, Unit, *, *>) -> Signature<TestEnv, Unit, T_>,
     ): StructureImpl<TestEnv, Unit, T_> =
-        StructureImpl(label, [], "", Requirement { success() }, signature)
+        StructureImpl(label, [], "", signature)
 
     private class RecordingFailureHandler : FailureHandler<TestEnv, Unit> {
         var calls = 0

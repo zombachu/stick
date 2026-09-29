@@ -18,7 +18,7 @@ import kotlin.test.fail
 object TestEnv : Environment
 
 private fun <E : Environment, S> emptyStructure(): Structure<E, S, *> =
-    StructureImpl("", [], "", Requirement { success() }) {
+    StructureImpl<E, S, Arguments0>("", [], "") {
         Signature0({}, LeadingParameterRole.Label, [it])
     }
 

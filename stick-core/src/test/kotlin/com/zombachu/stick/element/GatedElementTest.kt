@@ -1,5 +1,6 @@
 package com.zombachu.stick.element
 
+import com.zombachu.stick.Arguments0
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.GroupResult
@@ -76,7 +77,7 @@ class GatedElementTest {
     @Test
     fun `GatedStructure suggests its label`() {
         val base =
-            StructureImpl("teleport", ["tp"], "", allowed) {
+            StructureImpl<TestEnv, String, Arguments0>("teleport", ["tp"], "") {
                 Signature0({}, LeadingParameterRole.Label, [it])
             }
         val gated = GatedStructure(base, allowed)

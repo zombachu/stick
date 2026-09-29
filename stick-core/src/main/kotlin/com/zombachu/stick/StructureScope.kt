@@ -1,7 +1,9 @@
 package com.zombachu.stick
 
+import com.zombachu.stick.element.GatedStructure
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Signature
+import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
 
 class StructureScope<E : Environment, S>(
@@ -9,7 +11,7 @@ class StructureScope<E : Environment, S>(
     val aliases: Set<String>,
     val description: String,
     val parent: StructureScope<*, *>?,
-    internal val requirement: Requirement<E, S>,
+    internal val requirement: Requirement<E, S>?,
 ) : BuilderScope<E, S> {
 
     private val root: StructureScope<*, *> = parent?.root ?: this
@@ -20,15 +22,16 @@ class StructureScope<E : Environment, S>(
             this.aliases,
             this.description,
             this.parent,
-            // They must have already passed the previous requirement so should be safe to set to true
-            requirement = Requirement { success() },
+            // They must have already passed the previous requirement so should be safe to drop
+            requirement = null,
         )
     }
 
     internal fun <T_ : Arguments> build(
         signature: (Parameter<E, S, *, *>) -> Signature<E, S, T_>
-    ): StructureImpl<E, S, T_> {
-        return StructureImpl(this.name, this.aliases, this.description, this.requirement, signature)
+    ): Structure<E, S, T_> {
+        val structure = StructureImpl(this.name, this.aliases, this.description, signature)
+        return if (requirement == null) structure else GatedStructure(structure, requirement)
     }
 
     companion object {
@@ -38,7 +41,7 @@ class StructureScope<E : Environment, S>(
                 aliases = [],
                 description = "",
                 parent = null,
-                requirement = Requirement { success() },
+                requirement = null,
             )
     }
 }

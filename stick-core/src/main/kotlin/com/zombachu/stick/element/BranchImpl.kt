@@ -9,7 +9,6 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
-import com.zombachu.stick.propagateError
 import com.zombachu.stick.success
 import com.zombachu.stick.valueOrPropagateError
 
@@ -36,10 +35,6 @@ internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val s
 
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): CommandResult<T_> {
-        // Run validation in case this branch is a Structure
-        validateSender().propagateError {
-            return it
-        }
         val parsedArgs =
             context(ex as ExecutionImpl) { signature.execute() }
                 .valueOrPropagateError {
