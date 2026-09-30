@@ -70,6 +70,15 @@ class RequiresTest {
     }
 
     @Test
+    fun `defaultRequire enforces given requirement`() = structureTest<String> {
+        val default = defaultRequire(requirement { sender == "correct" }) { success(sender.length) }
+
+        assertTrue(withInvocation("correct") { default.validateSender() }.isSuccess())
+        assertEquals(7, default.value(testExecutionSender("correct")).expectSuccessValue())
+        assertSame(Reason.InvalidSender, withInvocation("incorrect") { default.validateSender() }.expectReason())
+    }
+
+    @Test
     fun `require enforces given requirement`() = structureTest {
         val allowed = require(requirement { true }) { stringParameter("") }
         val denied = require(requirement { false }) { stringParameter("") }

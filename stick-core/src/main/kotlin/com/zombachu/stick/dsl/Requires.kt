@@ -175,6 +175,12 @@ inline fun <E : Environment, S : Any, reified S2 : Any, T> StructureScope<E, S>.
         requirement({ sender is S2 }) { failSenderType(senderType) },
     )
 
+// TODO: unify with require once overloads whose lambdas take different receivers resolve by return type
+fun <E : Environment, S : Any, T> StructureScope<E, S>.defaultRequire(
+    requirement: Requirement<E, S>,
+    default: ContextualValue<E, S, T>,
+): GatedDefault<E, S, T> = GatedDefaultImpl(default, requirement)
+
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T, P : Position> StructureScope<E, S>.require(
     requirement: Requirement<E, S>,
