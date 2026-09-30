@@ -99,7 +99,10 @@ class OptionalTest {
         healCommand.execute(server, console, "/heal Steve")
         assertEquals(["You have been healed"], steve.logs)
 
-        assertEquals(Reason.InvalidSender, healCommand.executeExpectingError(server, restrictedConsole, "/heal"))
+        assertEquals(
+            Reason.InvalidSenderType(Player::class),
+            healCommand.executeExpectingError(server, restrictedConsole, "/heal"),
+        )
         assertEquals(
             Reason.InvalidPermission,
             healCommand.executeExpectingError(server, restrictedConsole, "/heal Steve"),

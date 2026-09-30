@@ -13,7 +13,6 @@ import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.element.GatedDefault
-import com.zombachu.stick.element.GatedDefaultImpl
 import com.zombachu.stick.element.Group
 import com.zombachu.stick.element.OptionalGroup
 import com.zombachu.stick.element.OptionalGroupImpl
@@ -29,9 +28,6 @@ import com.zombachu.stick.element.Optionals8Impl
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.SignatureElement
 import com.zombachu.stick.success
-
-inline fun <E : Environment, S : Any, reified S2 : S> StructureScope<E, S>.defaultSender(): GatedDefault<E, S, S2> =
-    GatedDefaultImpl({ success(sender as S2) }, requirement { sender is S2 })
 
 fun <E : Environment, S, T> StructureScope<E, S>.optionally(
     parameter: Parameter<E, S, T, Position.Leading>,

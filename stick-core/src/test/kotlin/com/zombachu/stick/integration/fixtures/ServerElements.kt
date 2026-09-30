@@ -15,7 +15,7 @@ import com.zombachu.stick.Size
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.consuming
-import com.zombachu.stick.dsl.defaultSender
+import com.zombachu.stick.dsl.defaultRequireSender
 import com.zombachu.stick.dsl.helper
 import com.zombachu.stick.dsl.mapSender
 import com.zombachu.stick.dsl.optionally
@@ -70,12 +70,12 @@ class PlayerParameter<E : Server, S>(name: String) : Parameter.Size1<E, S, Playe
 
 fun <E : Server, S> StructureScope<E, S>.playerParameter(name: String): PlayerParameter<E, S> = PlayerParameter(name)
 
-fun <E : Server> StructureScope<E, Sender>.targetPlayerParameter(
+fun <E : Server, S : Sender> StructureScope<E, S>.targetPlayerParameter(
     name: String,
-): OptionalParameter<E, Sender, Player, Position.Optional> =
+): OptionalParameter<E, S, Player, Position.Optional> =
     optionally(
         parameter = playerParameter(name),
-        default = defaultSender<E, Sender, Player>(),
+        default = defaultRequireSender(Player::class) { success(sender) },
     )
 
 class WarpParameter<E : WarpableServer, S>(name: String) : Parameter.Size1<E, S, Warp>(name, "") {

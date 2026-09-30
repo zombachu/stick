@@ -3,6 +3,7 @@ package com.zombachu.stick.dsl
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.HybridFlagResult
+import com.zombachu.stick.StructureScope
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.LeadingParameterRole
 import com.zombachu.stick.element.Signature1
@@ -39,6 +40,33 @@ class RequiresTest {
 
         assertIs<GroupResult.ResultA<String>>(playerResult.expectSuccessValue())
         assertIs<GroupResult.ResultB<String>>(consoleResult.expectSuccessValue())
+    }
+
+    @Test
+    fun `requireSender narrows sender type`() = structureTest<BaseSender> {
+        val gated = playerOnlyParameter()
+        val player: BaseSender = Player("steve")
+        val console = BaseSender("console")
+
+        assertTrue(withInvocation(player) { gated.validateSender() }.isSuccess())
+        assertEquals(
+            Reason.InvalidSenderType(Player::class),
+            withInvocation(console) { gated.validateSender() }.expectReason(),
+        )
+    }
+
+    @Test
+    fun `defaultRequireSender narrows sender and requires its type`() = structureTest<Any> {
+        val default = defaultRequireSender(String::class) { success(sender.length) }
+        val stringSender: Any = "hello"
+        val intSender: Any = 42
+
+        assertTrue(withInvocation(stringSender) { default.validateSender() }.isSuccess())
+        assertEquals(5, default.value(testExecutionSender(stringSender)).expectSuccessValue())
+        assertEquals(
+            Reason.InvalidSenderType(String::class),
+            withInvocation(intSender) { default.validateSender() }.expectReason(),
+        )
     }
 
     @Test
@@ -218,6 +246,9 @@ class RequiresTest {
             withExecutionSender(console, "on") { optional.parse(["on"]) }.expectReason(),
         )
     }
+
+    private fun <S : BaseSender> StructureScope<TestEnv, S>.playerOnlyParameter() =
+        requireSender(Player::class) { stringParameter("") }
 
     private open class BaseSender(val name: String)
 

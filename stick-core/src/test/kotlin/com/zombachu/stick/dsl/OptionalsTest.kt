@@ -8,10 +8,8 @@ import com.zombachu.stick.element.parse
 import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.failure.Reason
-import com.zombachu.stick.isSuccess
 import com.zombachu.stick.structureTest
 import com.zombachu.stick.success
-import com.zombachu.stick.testExecutionSender
 import com.zombachu.stick.withExecution
 import com.zombachu.stick.withExecutionSender
 import com.zombachu.stick.withInvocation
@@ -19,26 +17,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
-import kotlin.test.assertSame
-import kotlin.test.assertTrue
 
 class OptionalsTest {
 
     private val intParameter = IntParameter<TestEnv, String>("", "", Int.MIN_VALUE, Int.MAX_VALUE)
-
-    @Test
-    fun `defaultSender requires and casts sender type`() = structureTest<Any> {
-        val sender = defaultSender<TestEnv, Any, String>()
-        val stringSender: Any = "hello"
-        val intSender: Any = 42
-
-        val stringSenderResult = withInvocation(stringSender) { sender.validateSender() }
-        assertTrue(stringSenderResult.isSuccess())
-        assertEquals("hello", sender.value(testExecutionSender(stringSender)).expectSuccessValue())
-
-        val intSenderResult = withInvocation(intSender) { sender.validateSender() }
-        assertSame(Reason.InvalidSender, intSenderResult.expectReason())
-    }
 
     @Test
     fun `optionally defaults to value`() = structureTest<String> {

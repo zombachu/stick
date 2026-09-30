@@ -12,6 +12,8 @@ import com.zombachu.stick.Requirement
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.element.Branch
 import com.zombachu.stick.element.GatedBranch
+import com.zombachu.stick.element.GatedDefault
+import com.zombachu.stick.element.GatedDefaultImpl
 import com.zombachu.stick.element.GatedHybridFlag
 import com.zombachu.stick.element.GatedOptionalGroup
 import com.zombachu.stick.element.GatedOptionalParameter
@@ -25,13 +27,14 @@ import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.ValueFlag
+import com.zombachu.stick.element.senderMappedValue
 import com.zombachu.stick.failSenderType
 import com.zombachu.stick.success
 import kotlin.experimental.ExperimentalTypeInference
 import kotlin.reflect.KClass
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> StructureScope<E, S>.requireSender(
+inline fun <E : Environment, S : Any, reified S2 : Any, T, P : Position> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
     noinline parameter: StructureScope<E, S2>.() -> Parameter<E, S2, T, P>,
 ): GatedParameter<E, S, T, P> =
@@ -41,7 +44,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> Structure
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireSender(
+inline fun <E : Environment, S : Any, reified S2 : Any, T> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
     default: T,
     noinline flag: StructureScope<E, S2>.() -> ValueFlag<E, S2, T>,
@@ -53,7 +56,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireSender(
+inline fun <E : Environment, S : Any, reified S2 : Any, T> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
     noinline default: ContextualValue<E, S, T>,
     noinline flag: StructureScope<E, S2>.() -> ValueFlag<E, S2, T>,
@@ -61,14 +64,14 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
     GatedValueFlag(mapSender({ it as S2 }, flag), requirement({ sender is S2 }) { failSenderType(senderType) }, default)
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireSender(
+inline fun <E : Environment, S : Any, reified S2 : Any, T> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
     noinline flag: StructureScope<E, S2>.() -> HybridFlag<E, S2, T>,
 ): HybridFlag<E, S, T> =
     GatedHybridFlag(mapSender({ it as S2 }, flag), requirement({ sender is S2 }) { failSenderType(senderType) }, null)
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireSender(
+inline fun <E : Environment, S : Any, reified S2 : Any, T> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
     default: HybridFlagResult<T>,
     noinline flag: StructureScope<E, S2>.() -> HybridFlag<E, S2, T>,
@@ -80,7 +83,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.requireSender(
+inline fun <E : Environment, S : Any, reified S2 : Any, T> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
     noinline default: ContextualValue<E, S, HybridFlagResult<T>>,
     noinline flag: StructureScope<E, S2>.() -> HybridFlag<E, S2, T>,
@@ -92,7 +95,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T> StructureScope<E, S>.re
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> StructureScope<E, S>.requireSender(
+inline fun <E : Environment, S : Any, reified S2 : Any, T, P : Position> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
     default: T,
     noinline optional: StructureScope<E, S2>.() -> OptionalParameter<E, S2, T, P>,
@@ -104,7 +107,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> Structure
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> StructureScope<E, S>.requireSender(
+inline fun <E : Environment, S : Any, reified S2 : Any, T, P : Position> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
     noinline default: ContextualValue<E, S, T>,
     noinline optional: StructureScope<E, S2>.() -> OptionalParameter<E, S2, T, P>,
@@ -116,7 +119,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, T, P : Position> Structure
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, G : GroupResult?, P : Position> StructureScope<E, S>
+inline fun <E : Environment, S : Any, reified S2 : Any, G : GroupResult?, P : Position> StructureScope<E, S>
     .requireSender(
     senderType: KClass<S2>,
     default: G,
@@ -129,7 +132,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, G : GroupResult?, P : Posi
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, G : GroupResult?, P : Position> StructureScope<E, S>
+inline fun <E : Environment, S : Any, reified S2 : Any, G : GroupResult?, P : Position> StructureScope<E, S>
     .requireSender(
     senderType: KClass<S2>,
     noinline default: ContextualValue<E, S, G>,
@@ -142,7 +145,7 @@ inline fun <E : Environment, S : Any, reified S2 : S, G : GroupResult?, P : Posi
     )
 
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureScope<E, S>.requireSender(
+inline fun <E : Environment, S : Any, reified S2 : Any, T_ : Arguments> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
     noinline command: StructureScope<E, S2>.() -> Structure<E, S2, T_>,
 ): Structure<E, S, T_> =
@@ -153,12 +156,22 @@ inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureS
 
 // TODO: unify with requireSender once T_ can be inferred
 @OverloadResolutionByLambdaReturnType
-inline fun <E : Environment, S : Any, reified S2 : S, T_ : Arguments> StructureScope<E, S>.branchRequireSender(
+inline fun <E : Environment, S : Any, reified S2 : Any, T_ : Arguments> StructureScope<E, S>.branchRequireSender(
     senderType: KClass<S2>,
     noinline branch: StructureScope<E, S2>.() -> Branch<E, S2, T_>,
 ): Branch<E, S, T_> =
     GatedBranch(
         branchMapSender({ it as S2 }, branch),
+        requirement({ sender is S2 }) { failSenderType(senderType) },
+    )
+
+// TODO: unify with requireSender once overloads whose lambdas take different receivers resolve by return type
+inline fun <E : Environment, S : Any, reified S2 : Any, T> StructureScope<E, S>.defaultRequireSender(
+    senderType: KClass<S2>,
+    noinline default: ContextualValue<E, S2, T>,
+): GatedDefault<E, S, T> =
+    GatedDefaultImpl(
+        senderMappedValue({ it as S2 }, default),
         requirement({ sender is S2 }) { failSenderType(senderType) },
     )
 

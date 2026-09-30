@@ -323,3 +323,9 @@ internal open class SenderMappedBranch<E : Environment, S, S2 : Any, T_ : Argume
         }
     }
 }
+
+@PublishedApi
+internal fun <E : Environment, S, S2 : Any, T> senderMappedValue(
+    transform: (S) -> S2,
+    value: ContextualValue<E, S2, T>,
+): ContextualValue<E, S, T> = { value(forSender(transform)) }
