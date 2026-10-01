@@ -18,7 +18,7 @@ import com.zombachu.stick.propagateError
 import com.zombachu.stick.suggestAliases
 import com.zombachu.stick.toSuggestions
 
-internal open class ValueFlagImpl<E : Environment, S, T>(
+internal class ValueFlagImpl<E : Environment, S, T>(
     override val name: String,
     private val default: ContextualValue<E, S, T>,
     private val flagParameter: FlagParameter<E, S, out T>,

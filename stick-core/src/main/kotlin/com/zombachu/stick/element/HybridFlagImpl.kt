@@ -17,7 +17,7 @@ import com.zombachu.stick.propagateError
 import com.zombachu.stick.success
 import com.zombachu.stick.suggestAliases
 
-internal open class HybridFlagImpl<E : Environment, S, T>(
+internal class HybridFlagImpl<E : Environment, S, T>(
     override val name: String,
     private val parameter: Parameter.Bounded<E, S, T>,
     aliases: Set<String>,
