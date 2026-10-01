@@ -215,25 +215,5 @@ class MapTest {
         assertEquals(["HELLO!"], zombachu.logs)
     }
 
-    @Test
-    fun `KNOWN LIMITATION - speed - default type can differ from map output`() {
-        val speedCommand = structure(Server::class, Sender::class) {
-            command("speed")(
-                optionally(
-                    parameter = stringParameter("level").map { success(it.length / 2f) },
-                    default = "one",
-                )
-            ) { level ->
-                sender.log(level::class.simpleName ?: "?")
-            }
-        }
-
-        speedCommand.execute(server, zombachu, "/speed")
-        assertEquals(["String"], zombachu.logs)
-
-        speedCommand.execute(server, zombachu, "/speed 9")
-        assertEquals(["Float"], zombachu.logs)
-    }
-
     private data class TargetPlayer(val player: Player, val isSelf: Boolean)
 }

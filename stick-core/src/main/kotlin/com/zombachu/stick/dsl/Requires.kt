@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalTypeInference::class)
+@file:Suppress("INVISIBLE_REFERENCE")
 
 package com.zombachu.stick.dsl
 
@@ -31,6 +32,7 @@ import com.zombachu.stick.element.senderMappedValue
 import com.zombachu.stick.failSenderType
 import com.zombachu.stick.success
 import kotlin.experimental.ExperimentalTypeInference
+import kotlin.internal.NoInfer
 import kotlin.reflect.KClass
 
 @OverloadResolutionByLambdaReturnType
@@ -46,7 +48,7 @@ inline fun <E : Environment, S : Any, reified S2 : Any, T, P : Position> Structu
 @OverloadResolutionByLambdaReturnType
 inline fun <E : Environment, S : Any, reified S2 : Any, T> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
-    default: T,
+    default: @NoInfer T,
     noinline flag: StructureScope<E, S2>.() -> ValueFlag<E, S2, T>,
 ): ValueFlag<E, S, T> =
     GatedValueFlag(
@@ -58,7 +60,19 @@ inline fun <E : Environment, S : Any, reified S2 : Any, T> StructureScope<E, S>.
 @OverloadResolutionByLambdaReturnType
 inline fun <E : Environment, S : Any, reified S2 : Any, T> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
-    noinline default: ContextualValue<E, S, T>,
+    default: Nothing?,
+    noinline flag: StructureScope<E, S2>.() -> ValueFlag<E, S2, T>,
+): ValueFlag<E, S, T?> =
+    GatedValueFlag(
+        mapSender({ it as S2 }, flag),
+        requirement({ sender is S2 }) { failSenderType(senderType) },
+        { success(default) },
+    )
+
+@OverloadResolutionByLambdaReturnType
+inline fun <E : Environment, S : Any, reified S2 : Any, T> StructureScope<E, S>.requireSender(
+    senderType: KClass<S2>,
+    noinline default: ContextualValue<E, S, @NoInfer T>,
     noinline flag: StructureScope<E, S2>.() -> ValueFlag<E, S2, T>,
 ): ValueFlag<E, S, T> =
     GatedValueFlag(mapSender({ it as S2 }, flag), requirement({ sender is S2 }) { failSenderType(senderType) }, default)
@@ -85,7 +99,7 @@ inline fun <E : Environment, S : Any, reified S2 : Any, T> StructureScope<E, S>.
 @OverloadResolutionByLambdaReturnType
 inline fun <E : Environment, S : Any, reified S2 : Any, T> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
-    noinline default: ContextualValue<E, S, HybridFlagResult<T>>,
+    noinline default: ContextualValue<E, S, HybridFlagResult<@NoInfer T>>,
     noinline flag: StructureScope<E, S2>.() -> HybridFlag<E, S2, T>,
 ): HybridFlag<E, S, T> =
     GatedHybridFlag(
@@ -97,7 +111,7 @@ inline fun <E : Environment, S : Any, reified S2 : Any, T> StructureScope<E, S>.
 @OverloadResolutionByLambdaReturnType
 inline fun <E : Environment, S : Any, reified S2 : Any, T, P : Position> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
-    default: T,
+    default: @NoInfer T,
     noinline optional: StructureScope<E, S2>.() -> OptionalParameter<E, S2, T, P>,
 ): OptionalParameter<E, S, T, P> =
     GatedOptionalParameter(
@@ -109,7 +123,19 @@ inline fun <E : Environment, S : Any, reified S2 : Any, T, P : Position> Structu
 @OverloadResolutionByLambdaReturnType
 inline fun <E : Environment, S : Any, reified S2 : Any, T, P : Position> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
-    noinline default: ContextualValue<E, S, T>,
+    default: Nothing?,
+    noinline optional: StructureScope<E, S2>.() -> OptionalParameter<E, S2, T, P>,
+): OptionalParameter<E, S, T?, P> =
+    GatedOptionalParameter(
+        mapSender({ it as S2 }, optional),
+        requirement({ sender is S2 }) { failSenderType(senderType) },
+        { success(default) },
+    )
+
+@OverloadResolutionByLambdaReturnType
+inline fun <E : Environment, S : Any, reified S2 : Any, T, P : Position> StructureScope<E, S>.requireSender(
+    senderType: KClass<S2>,
+    noinline default: ContextualValue<E, S, @NoInfer T>,
     noinline optional: StructureScope<E, S2>.() -> OptionalParameter<E, S2, T, P>,
 ): OptionalParameter<E, S, T, P> =
     GatedOptionalParameter(
@@ -122,7 +148,7 @@ inline fun <E : Environment, S : Any, reified S2 : Any, T, P : Position> Structu
 inline fun <E : Environment, S : Any, reified S2 : Any, G : GroupResult?, P : Position> StructureScope<E, S>
     .requireSender(
     senderType: KClass<S2>,
-    default: G,
+    default: @NoInfer G,
     noinline optional: StructureScope<E, S2>.() -> OptionalGroup<E, S2, G, P>,
 ): OptionalGroup<E, S, G, P> =
     GatedOptionalGroup(
@@ -135,7 +161,20 @@ inline fun <E : Environment, S : Any, reified S2 : Any, G : GroupResult?, P : Po
 inline fun <E : Environment, S : Any, reified S2 : Any, G : GroupResult?, P : Position> StructureScope<E, S>
     .requireSender(
     senderType: KClass<S2>,
-    noinline default: ContextualValue<E, S, G>,
+    default: Nothing?,
+    noinline optional: StructureScope<E, S2>.() -> OptionalGroup<E, S2, G, P>,
+): OptionalGroup<E, S, G?, P> =
+    GatedOptionalGroup(
+        mapSender({ it as S2 }, optional),
+        requirement({ sender is S2 }) { failSenderType(senderType) },
+        { success(default) },
+    )
+
+@OverloadResolutionByLambdaReturnType
+inline fun <E : Environment, S : Any, reified S2 : Any, G : GroupResult?, P : Position> StructureScope<E, S>
+    .requireSender(
+    senderType: KClass<S2>,
+    noinline default: ContextualValue<E, S, @NoInfer G>,
     noinline optional: StructureScope<E, S2>.() -> OptionalGroup<E, S2, G, P>,
 ): OptionalGroup<E, S, G, P> =
     GatedOptionalGroup(
@@ -196,14 +235,21 @@ fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
     requirement: Requirement<E, S>,
-    default: T,
+    default: @NoInfer T,
     flag: StructureScope<E, S>.() -> ValueFlag<E, S, T>,
 ): ValueFlag<E, S, T> = GatedValueFlag(flag(this.forSender()), requirement, { success(default) })
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
     requirement: Requirement<E, S>,
-    default: ContextualValue<E, S, T>,
+    default: Nothing?,
+    flag: StructureScope<E, S>.() -> ValueFlag<E, S, T>,
+): ValueFlag<E, S, T?> = GatedValueFlag(flag(this.forSender()), requirement, { success(default) })
+
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
+    requirement: Requirement<E, S>,
+    default: ContextualValue<E, S, @NoInfer T>,
     flag: StructureScope<E, S>.() -> ValueFlag<E, S, T>,
 ): ValueFlag<E, S, T> = GatedValueFlag(flag(this.forSender()), requirement, default)
 
@@ -223,7 +269,7 @@ fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T> StructureScope<E, S>.require(
     requirement: Requirement<E, S>,
-    default: ContextualValue<E, S, HybridFlagResult<T>>,
+    default: ContextualValue<E, S, HybridFlagResult<@NoInfer T>>,
     flag: StructureScope<E, S>.() -> HybridFlag<E, S, T>,
 ): HybridFlag<E, S, T> = GatedHybridFlag(flag(this.forSender()), requirement, default)
 
@@ -236,14 +282,22 @@ fun <E : Environment, S : Any, T, P : Position> StructureScope<E, S>.require(
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T, P : Position> StructureScope<E, S>.require(
     requirement: Requirement<E, S>,
-    default: T,
+    default: @NoInfer T,
     optional: StructureScope<E, S>.() -> OptionalParameter<E, S, T, P>,
 ): OptionalParameter<E, S, T, P> = GatedOptionalParameter(optional(this.forSender()), requirement, { success(default) })
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, T, P : Position> StructureScope<E, S>.require(
     requirement: Requirement<E, S>,
-    default: ContextualValue<E, S, T>,
+    default: Nothing?,
+    optional: StructureScope<E, S>.() -> OptionalParameter<E, S, T, P>,
+): OptionalParameter<E, S, T?, P> =
+    GatedOptionalParameter(optional(this.forSender()), requirement, { success(default) })
+
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, T, P : Position> StructureScope<E, S>.require(
+    requirement: Requirement<E, S>,
+    default: ContextualValue<E, S, @NoInfer T>,
     optional: StructureScope<E, S>.() -> OptionalParameter<E, S, T, P>,
 ): OptionalParameter<E, S, T, P> = GatedOptionalParameter(optional(this.forSender()), requirement, default)
 
@@ -256,13 +310,20 @@ fun <E : Environment, S : Any, G : GroupResult?, P : Position> StructureScope<E,
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, G : GroupResult?, P : Position> StructureScope<E, S>.require(
     requirement: Requirement<E, S>,
-    default: G,
+    default: @NoInfer G,
     optional: StructureScope<E, S>.() -> OptionalGroup<E, S, G, P>,
 ): OptionalGroup<E, S, G, P> = GatedOptionalGroup(optional(this.forSender()), requirement, { success(default) })
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, G : GroupResult?, P : Position> StructureScope<E, S>.require(
     requirement: Requirement<E, S>,
-    default: ContextualValue<E, S, G>,
+    default: Nothing?,
+    optional: StructureScope<E, S>.() -> OptionalGroup<E, S, G, P>,
+): OptionalGroup<E, S, G?, P> = GatedOptionalGroup(optional(this.forSender()), requirement, { success(default) })
+
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, G : GroupResult?, P : Position> StructureScope<E, S>.require(
+    requirement: Requirement<E, S>,
+    default: ContextualValue<E, S, @NoInfer G>,
     optional: StructureScope<E, S>.() -> OptionalGroup<E, S, G, P>,
 ): OptionalGroup<E, S, G, P> = GatedOptionalGroup(optional(this.forSender()), requirement, default)

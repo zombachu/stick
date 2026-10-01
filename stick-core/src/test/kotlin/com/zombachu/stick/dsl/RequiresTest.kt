@@ -110,6 +110,30 @@ class RequiresTest {
     }
 
     @Test
+    fun `require on ValueFlag gives denied sender null default`() = structureTest<String> {
+        val flag = require(requirement { sender == "correct" }, default = null) {
+            valueFlag(
+                name = "n",
+                parameter = intParameter("n"),
+                default = 7,
+            )
+        }
+        assertNull(flag.default(testExecutionSender("incorrect")).expectSuccessValue())
+    }
+
+    @Test
+    fun `requireSender on ValueFlag gives denied sender null default`() = structureTest<BaseSender> {
+        val flag = requireSender(Player::class, default = null) {
+            valueFlag(
+                name = "n",
+                parameter = intParameter("n"),
+                default = 7,
+            )
+        }
+        assertNull(flag.default(testExecutionSender(BaseSender("console"))).expectSuccessValue())
+    }
+
+    @Test
     fun `require on ValueFlag takes contextual denied default`() = structureTest<String> {
         // KNOWN LIMITATION: a lambda literal passed as `default` doesn't resolve on Kotlin 2.4 beside the trailing
         // element lambda ("Unresolved reference 'sender'"), so it has to be a function-typed value.
@@ -187,6 +211,35 @@ class RequiresTest {
     }
 
     @Test
+    fun `require on OptionalParameter gives denied sender null default`() = structureTest<String> {
+        val optional = require(requirement { sender == "correct" }, default = null) {
+            optionally(
+                parameter = intParameter(""),
+                default = 7,
+            )
+        }
+
+        assertEquals(7, withExecutionSender("correct") { optional.parse([]) }.expectSuccessValue())
+        assertNull(withExecutionSender("incorrect") { optional.parse([]) }.expectSuccessValue())
+    }
+
+    @Test
+    fun `require on OptionalGroup gives denied sender null default`() = structureTest<String> {
+        val optional = require(requirement { sender == "correct" }, default = null) {
+            optionally(
+                group = group(literalParameter("on")),
+                default = GroupResult.ResultA("off"),
+            )
+        }
+
+        assertEquals(
+            GroupResult.ResultA("off"),
+            withExecutionSender("correct") { optional.parse([]) }.expectSuccessValue(),
+        )
+        assertNull(withExecutionSender("incorrect") { optional.parse([]) }.expectSuccessValue())
+    }
+
+    @Test
     fun `require on OptionalGroup resolves defaults by sender validity`() = structureTest<String> {
         val optional = require(requirement { sender == "correct" }, default = GroupResult.ResultA("invalid")) {
             optionally(group(literalParameter("on")), GroupResult.ResultA("absent"))
@@ -254,6 +307,36 @@ class RequiresTest {
             Reason.InvalidSenderType(Player::class),
             withExecutionSender(console, "on") { optional.parse(["on"]) }.expectReason(),
         )
+    }
+
+    @Test
+    fun `requireSender on OptionalParameter gives denied sender null default`() = structureTest<BaseSender> {
+        val optional = requireSender(Player::class, default = null) {
+            optionally(
+                parameter = intParameter(""),
+                default = 7,
+            )
+        }
+        val player: BaseSender = Player("steve")
+        val console = BaseSender("console")
+
+        assertEquals(7, withExecutionSender(player) { optional.parse([]) }.expectSuccessValue())
+        assertNull(withExecutionSender(console) { optional.parse([]) }.expectSuccessValue())
+    }
+
+    @Test
+    fun `requireSender on OptionalGroup gives denied sender null default`() = structureTest<BaseSender> {
+        val optional = requireSender(Player::class, default = null) {
+            optionally(
+                group = group(literalParameter("on")),
+                default = GroupResult.ResultA("off"),
+            )
+        }
+        val player: BaseSender = Player("steve")
+        val console = BaseSender("console")
+
+        assertEquals(GroupResult.ResultA("off"), withExecutionSender(player) { optional.parse([]) }.expectSuccessValue())
+        assertNull(withExecutionSender(console) { optional.parse([]) }.expectSuccessValue())
     }
 
     private fun <S : BaseSender> StructureScope<TestEnv, S>.playerOnlyParameter() =

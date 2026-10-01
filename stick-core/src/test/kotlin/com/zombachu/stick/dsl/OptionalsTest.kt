@@ -41,6 +41,42 @@ class OptionalsTest {
     }
 
     @Test
+    fun `optionally on mapped Parameter defaults to null`() = structureTest<String> {
+        val optional = optionally(
+            parameter = stringParameter("").map { success(it.length) },
+            default = null,
+        )
+        assertNull(withExecutionSender("sender") { optional.parse([]) }.expectSuccessValue())
+    }
+
+    @Test
+    fun `optionally on mapped Parameter defaults to contextual value`() = structureTest<String> {
+        val optional = optionally(
+            parameter = stringParameter("").map { success(it.length) },
+            default = { success(sender.length) },
+        )
+        assertEquals(6, withExecutionSender("sender") { optional.parse([]) }.expectSuccessValue())
+    }
+
+    @Test
+    fun `optionally on mapped Parameter defaults to gated value`() = structureTest<String> {
+        val optional = optionally(
+            parameter = stringParameter("").map { success(it.length) },
+            default = defaultRequire(requirement { true }) { success(sender.length) },
+        )
+        assertEquals(6, withExecutionSender("sender") { optional.parse([]) }.expectSuccessValue())
+    }
+
+    @Test
+    fun `optionally on mapped unbounded Parameter defaults to null`() = structureTest<String> {
+        val optional = optionally(
+            parameter = textParameter("").map { success(it.length) },
+            default = null,
+        )
+        assertNull(withExecutionSender("sender") { optional.parse([]) }.expectSuccessValue())
+    }
+
+    @Test
     fun `optionals parse in order`() = structureTest {
         val structure =
             command("cmd")(

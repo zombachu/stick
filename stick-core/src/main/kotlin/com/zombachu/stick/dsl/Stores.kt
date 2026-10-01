@@ -8,19 +8,20 @@ import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.success
 
-fun <E : Environment, S, T> Helper<E, S, T>.store(id: TypedIdentifier<T>): Helper<E, S, T> = map {
+fun <E : Environment, S, T> Helper<E, S, T>.store(id: TypedIdentifier<in T>): Helper<E, S, T> = map {
     put(id, it)
     success(it)
 }
 
-fun <E : Environment, S, T, P : Position> Parameter<E, S, T, P>.store(id: TypedIdentifier<T>): Parameter<E, S, T, P> =
-    map {
-        put(id, it)
-        success(it)
-    }
+fun <E : Environment, S, T, P : Position> Parameter<E, S, T, P>.store(
+    id: TypedIdentifier<in T>
+): Parameter<E, S, T, P> = map {
+    put(id, it)
+    success(it)
+}
 
 fun <E : Environment, S, T, P : Position> OptionalParameter<E, S, T, P>.store(
-    id: TypedIdentifier<T>
+    id: TypedIdentifier<in T>
 ): OptionalParameter<E, S, T, P> = map {
     put(id, it)
     success(it)
