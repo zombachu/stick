@@ -28,9 +28,9 @@ import com.zombachu.stick.Suggestion
 import com.zombachu.stick.element.GroupElement.Companion.to
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.noMatch
-import com.zombachu.stick.propagateError
+import com.zombachu.stick.propagateFailure
 import com.zombachu.stick.success
-import com.zombachu.stick.valueOrPropagateError
+import com.zombachu.stick.valueOrPropagateFailure
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -71,7 +71,7 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
 
         for (element in prioritizedElements) {
             val groupable = element.groupable
-            groupable.validateSender().propagateError {
+            groupable.validateSender().propagateFailure {
                 branchResults.add(MatchResult.unmatched())
                 continue
             }
@@ -105,7 +105,7 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
             val groupable = element.groupable
             val size = groupable.size
             if (size is Size.Bounded && preceding.size >= size.max) continue
-            groupable.validateSender().propagateError { continue }
+            groupable.validateSender().propagateFailure { continue }
             val match = matched?.branchResults?.getOrNull(index)
             if (groupable is InternalBranch<E, S, *>) {
                 addAll(groupable.suggestBranch(preceding, partial, match))
@@ -157,11 +157,11 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
         }
 
         // Ignore elements unable to be accessed by the sender
-        groupElement.groupable.validateSender().propagateError { onElementMismatch() }
+        groupElement.groupable.validateSender().propagateFailure { onElementMismatch() }
 
         val consumedBefore = (ex as ExecutionImpl).consumedArgs
         val value =
-            ex.processElement(groupElement.groupable).valueOrPropagateError {
+            ex.processElement(groupElement.groupable).valueOrPropagateFailure {
                 // If element mismatched and args weren't committed then treat it as not an error
                 if (it is CommandResult.Failure.NoMatch && ex.consumedArgs == consumedBefore) onElementMismatch()
                 onError(it)

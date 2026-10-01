@@ -10,7 +10,7 @@ import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.success
-import com.zombachu.stick.valueOrPropagateError
+import com.zombachu.stick.valueOrPropagateFailure
 
 internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val signature: Signature<E, S, T_>) :
     InternalBranch<E, S, T_> {
@@ -37,7 +37,7 @@ internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val s
     override fun parse(args: List<String>): CommandResult<T_> {
         val parsedArgs =
             context(ex as ExecutionImpl) { signature.execute() }
-                .valueOrPropagateError {
+                .valueOrPropagateFailure {
                     return it
                 }
         return success(parsedArgs)

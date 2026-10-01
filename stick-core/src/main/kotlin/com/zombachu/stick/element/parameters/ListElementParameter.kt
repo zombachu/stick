@@ -9,7 +9,7 @@ import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.failRange
 import com.zombachu.stick.handled
 import com.zombachu.stick.success
-import com.zombachu.stick.valueOrPropagateError
+import com.zombachu.stick.valueOrPropagateFailure
 
 internal fun <E : Environment, S, T> listElementParameter(
     name: String,
@@ -22,7 +22,7 @@ internal fun <E : Environment, S, T> listElementParameter(
         NumberParameter<E, S, Int>(name, description, { toIntOrNull() }, Int.MIN_VALUE, Int.MAX_VALUE, "index")
     return MappedParameter(indexParameter) { userIndex ->
         val elements =
-            list(this).valueOrPropagateError {
+            list(this).valueOrPropagateFailure {
                 return@MappedParameter it
             }
 

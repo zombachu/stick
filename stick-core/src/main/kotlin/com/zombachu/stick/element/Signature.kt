@@ -12,9 +12,9 @@ import com.zombachu.stick.Suggestion
 import com.zombachu.stick.commit
 import com.zombachu.stick.failSyntax
 import com.zombachu.stick.isSuccess
-import com.zombachu.stick.propagateError
+import com.zombachu.stick.propagateFailure
 import com.zombachu.stick.success
-import com.zombachu.stick.valueOrPropagateError
+import com.zombachu.stick.valueOrPropagateFailure
 
 internal sealed class Signature<E : Environment, S, T_ : Arguments>(
     leadingParameterRole: LeadingParameterRole,
@@ -53,7 +53,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
     context(ex: ExecutionImpl<E, S>)
     fun execute(): CommandResult<T_> {
         val parsedValues =
-            parse().valueOrPropagateError {
+            parse().valueOrPropagateFailure {
                 return it
             }
         val parsedValuesTuple = executeParsed(parsedValues)
@@ -111,14 +111,14 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         processElements(
             unprocessedFlags,
             processFlag = { flag ->
-                parseElement(values, flag).propagateError {
+                parseElement(values, flag).propagateFailure {
                     if (it is CommandResult.Failure.NoMatch) return@processElements false
                     return it
                 }
                 true
             },
             processLinear = { element ->
-                parseElement(values, element).propagateError {
+                parseElement(values, element).propagateFailure {
                     return if (element.index == 0) it else it.commit()
                 }
             },
@@ -130,7 +130,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         // Populate unused flag values with defaults
         for ((index, flag) in unprocessedFlags) {
             values[index] =
-                flag.parse([]).valueOrPropagateError {
+                flag.parse([]).valueOrPropagateFailure {
                     return it
                 }
         }

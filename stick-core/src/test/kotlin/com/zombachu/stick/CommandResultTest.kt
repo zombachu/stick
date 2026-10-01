@@ -95,10 +95,10 @@ class CommandResultTest {
     }
 
     @Test
-    fun `propagateError does not invoke callback on success`() {
+    fun `propagateFailure does not invoke callback on success`() {
         var called = false
         val result = withInvocation { success("ok") }
-        result.propagateError {
+        result.propagateFailure {
             called = true
             error("shouldn't be called")
         }
@@ -107,9 +107,9 @@ class CommandResultTest {
     }
 
     @Test
-    fun `propagateError invokes callback inline`() {
+    fun `propagateFailure invokes callback inline`() {
         fun run(result: CommandResult<String>): String {
-            result.propagateError {
+            result.propagateFailure {
                 return "propagated"
             }
             return "success:${result.value}"
@@ -119,16 +119,16 @@ class CommandResultTest {
     }
 
     @Test
-    fun `valueOrPropagateError returns value on success`() {
+    fun `valueOrPropagateFailure returns value on success`() {
         val result = withInvocation { success("ok") }
-        val value = result.valueOrPropagateError { error("shouldn't be called") }
+        val value = result.valueOrPropagateFailure { error("shouldn't be called") }
         assertEquals("ok", value)
     }
 
     @Test
-    fun `valueOrPropagateError propagates on failure without producing value`() {
+    fun `valueOrPropagateFailure propagates on failure without producing value`() {
         fun run(result: CommandResult<String>): String {
-            val value = result.valueOrPropagateError {
+            val value = result.valueOrPropagateFailure {
                 return "propagated"
             }
             return "success:$value"

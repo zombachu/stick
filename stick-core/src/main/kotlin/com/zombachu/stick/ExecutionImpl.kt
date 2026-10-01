@@ -93,7 +93,7 @@ private constructor(override val sender: S, override val env: E, private val sta
             val result = element.parse(window)
             this@ExecutionImpl.currentMatch = null
 
-            result.propagateError {
+            result.propagateFailure {
                 return it
             }
             if (result.consumed !in element.size.min..window.size) {

@@ -80,9 +80,9 @@ context(_: Invocation<*, *>)
 fun failSenderType(required: KClass<*>): CommandResult.Failure.Error = fail(Reason.InvalidSenderType(required))
 
 @OptIn(ExperimentalContracts::class)
-inline fun <T> CommandResult<T>.propagateError(onFailure: (CommandResult.Failure) -> Nothing) {
+inline fun <T> CommandResult<T>.propagateFailure(onFailure: (CommandResult.Failure) -> Nothing) {
     contract {
-        returns() implies (this@propagateError is CommandResult.Success)
+        returns() implies (this@propagateFailure is CommandResult.Success)
         callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
     }
     if (isSuccess()) return
@@ -90,9 +90,9 @@ inline fun <T> CommandResult<T>.propagateError(onFailure: (CommandResult.Failure
 }
 
 @OptIn(ExperimentalContracts::class)
-inline fun <T> ConsumingResult<T>.propagateError(onFailure: (CommandResult.Failure) -> Nothing) {
+inline fun <T> ConsumingResult<T>.propagateFailure(onFailure: (CommandResult.Failure) -> Nothing) {
     contract {
-        returns() implies (this@propagateError is ConsumingResult.Success)
+        returns() implies (this@propagateFailure is ConsumingResult.Success)
         callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
     }
     when (this) {
@@ -101,9 +101,9 @@ inline fun <T> ConsumingResult<T>.propagateError(onFailure: (CommandResult.Failu
     }
 }
 
-inline fun <T> CommandResult<T>.valueOrPropagateError(onFailure: (CommandResult.Failure) -> Nothing): T {
+inline fun <T> CommandResult<T>.valueOrPropagateFailure(onFailure: (CommandResult.Failure) -> Nothing): T {
     contract {
-        returns() implies (this@valueOrPropagateError is CommandResult.Success)
+        returns() implies (this@valueOrPropagateFailure is CommandResult.Success)
         callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
     }
     if (isSuccess()) return value
@@ -122,7 +122,7 @@ internal fun CommandResult.Failure.commit(): CommandResult.Failure =
     if (this is CommandResult.Failure.NoMatch) CommandResult.Failure.Error(reason, origin) else this
 
 fun <T> CommandResult<T>.consuming(consumed: Int, canConsumeMore: Boolean = true): ConsumingResult<T> {
-    this.propagateError {
+    this.propagateFailure {
         return it
     }
     return ConsumingSuccess(this.value, consumed, canConsumeMore)

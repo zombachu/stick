@@ -10,8 +10,8 @@ import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.consuming
-import com.zombachu.stick.propagateError
-import com.zombachu.stick.valueOrPropagateError
+import com.zombachu.stick.propagateFailure
+import com.zombachu.stick.valueOrPropagateFailure
 
 internal class MappedParameter<E : Environment, S, A, T, P : Position>(
     private val base: Parameter<E, S, A, P>,
@@ -91,7 +91,7 @@ internal class MappedHelper<E : Environment, S, A, T>(
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): CommandResult<T> {
         val value =
-            base.parse(args).valueOrPropagateError {
+            base.parse(args).valueOrPropagateFailure {
                 return it
             }
         return transform(ex, value)
@@ -105,7 +105,7 @@ private fun <E : Environment, S, A, T> parseMapped(
     transform: Execution<E, S>.(A) -> CommandResult<T>,
 ): ConsumingResult<T> {
     val baseResult = base.parse(args)
-    baseResult.propagateError {
+    baseResult.propagateFailure {
         return it
     }
     return transform(ex, baseResult.value).consuming(baseResult.consumed)

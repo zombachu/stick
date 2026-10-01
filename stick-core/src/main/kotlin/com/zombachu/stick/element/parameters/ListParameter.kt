@@ -7,7 +7,7 @@ import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.success
-import com.zombachu.stick.valueOrPropagateError
+import com.zombachu.stick.valueOrPropagateFailure
 
 open class ListParameter<E : Environment, S, T>(name: String, description: String, val parameter: Size1<E, S, T>) :
     Parameter.Size1<E, S, List<T>>(name, description) {
@@ -31,7 +31,7 @@ open class ListParameter<E : Environment, S, T>(name: String, description: Strin
     override fun resolve(arg0: String): CommandResult<List<T>> {
         val args = arg0.split(DELIMITER)
         val parsedValues = args.map { arg ->
-            parameter.resolve(arg).valueOrPropagateError {
+            parameter.resolve(arg).valueOrPropagateFailure {
                 return it
             }
         }

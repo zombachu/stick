@@ -14,7 +14,7 @@ import com.zombachu.stick.commit
 import com.zombachu.stick.consuming
 import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.noMatch
-import com.zombachu.stick.propagateError
+import com.zombachu.stick.propagateFailure
 import com.zombachu.stick.suggestAliases
 import com.zombachu.stick.toSuggestions
 
@@ -110,7 +110,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
             if (args.isEmpty()) return noMatch()
             if (matches(args.first().lowercase())) {
                 val result = parameter.resolve(args.subList(1, args.size))
-                result.propagateError {
+                result.propagateFailure {
                     return it.commit()
                 }
                 return result.consuming(1 + result.consumed)

@@ -17,7 +17,7 @@ import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.consuming
 import com.zombachu.stick.isSuccess
-import com.zombachu.stick.propagateError
+import com.zombachu.stick.propagateFailure
 import com.zombachu.stick.success
 
 @PublishedApi
@@ -64,7 +64,7 @@ internal class GatedValueFlag<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
-        requirement.validateSender().propagateError {
+        requirement.validateSender().propagateFailure {
             return MatchResult.unmatched()
         }
         return base.match(args)
@@ -72,7 +72,7 @@ internal class GatedValueFlag<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        requirement.validateSender().propagateError {
+        requirement.validateSender().propagateFailure {
             return []
         }
         return base.suggest(preceding, partial)
@@ -81,7 +81,7 @@ internal class GatedValueFlag<E : Environment, S, T>(
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> {
         if (args.isEmpty() && deniedDefault != null) {
-            requirement.validateSender().propagateError {
+            requirement.validateSender().propagateFailure {
                 return deniedDefault(ex).consuming(0)
             }
         }
@@ -104,7 +104,7 @@ internal class GatedHybridFlag<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
-        requirement.validateSender().propagateError {
+        requirement.validateSender().propagateFailure {
             return MatchResult.unmatched()
         }
         return base.match(args)
@@ -112,7 +112,7 @@ internal class GatedHybridFlag<E : Environment, S, T>(
 
     context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        requirement.validateSender().propagateError {
+        requirement.validateSender().propagateFailure {
             return []
         }
         return base.suggest(preceding, partial)
@@ -121,7 +121,7 @@ internal class GatedHybridFlag<E : Environment, S, T>(
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> {
         if (args.isEmpty()) {
-            requirement.validateSender().propagateError {
+            requirement.validateSender().propagateFailure {
                 return (deniedDefault?.invoke(ex) ?: success(HybridFlagResult.Absent())).consuming(0)
             }
         }
@@ -144,7 +144,7 @@ internal class GatedOptionalParameter<E : Environment, S, T, P : Position>(
 
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
-        requirement.validateSender().propagateError {
+        requirement.validateSender().propagateFailure {
             return if (args.isEmpty()) MatchResult.matchedAtLeast(0) else MatchResult.unmatched(it)
         }
         return base.match(args)
@@ -152,7 +152,7 @@ internal class GatedOptionalParameter<E : Environment, S, T, P : Position>(
 
     context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        requirement.validateSender().propagateError {
+        requirement.validateSender().propagateFailure {
             return []
         }
         return base.suggest(preceding, partial)
@@ -160,10 +160,10 @@ internal class GatedOptionalParameter<E : Environment, S, T, P : Position>(
 
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<T> {
-        requirement.validateSender().propagateError { failure ->
+        requirement.validateSender().propagateFailure { failure ->
             if (args.isNotEmpty()) return failure
             if (deniedDefault != null) return deniedDefault(ex).consuming(0)
-            base.validateDefault().propagateError {
+            base.validateDefault().propagateFailure {
                 return it
             }
             return base.parse(args)
@@ -193,7 +193,7 @@ internal class GatedOptionalGroup<E : Environment, S, G : GroupResult?, P : Posi
 
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
-        requirement.validateSender().propagateError {
+        requirement.validateSender().propagateFailure {
             return if (args.isEmpty()) MatchResult.matchedAtLeast(0) else MatchResult.unmatched(it)
         }
         return base.match(args)
@@ -201,7 +201,7 @@ internal class GatedOptionalGroup<E : Environment, S, G : GroupResult?, P : Posi
 
     context(inv: Invocation<E, S>)
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
-        requirement.validateSender().propagateError {
+        requirement.validateSender().propagateFailure {
             return []
         }
         return base.suggest(preceding, partial)
@@ -209,10 +209,10 @@ internal class GatedOptionalGroup<E : Environment, S, G : GroupResult?, P : Posi
 
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): CommandResult<G> {
-        requirement.validateSender().propagateError { failure ->
+        requirement.validateSender().propagateFailure { failure ->
             if (args.isNotEmpty()) return failure
             if (deniedDefault != null) return deniedDefault(ex)
-            base.validateDefault().propagateError {
+            base.validateDefault().propagateFailure {
                 return it
             }
             return base.parse(args)
@@ -252,7 +252,7 @@ internal open class GatedBranch<E : Environment, S, T_ : Arguments>(
 
     context(inv: Invocation<E, S>)
     override fun validateSender(): CommandResult<Unit> {
-        requirement.validateSender().propagateError {
+        requirement.validateSender().propagateFailure {
             return it
         }
         return base.validateSender()

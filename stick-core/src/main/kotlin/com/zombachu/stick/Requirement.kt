@@ -8,7 +8,7 @@ private constructor(private val validations: List<Invocation<E, S>.() -> Command
     context(inv: Invocation<E, S>)
     override fun validateSender(): CommandResult<Unit> {
         validations.forEach {
-            it(inv).propagateError {
+            it(inv).propagateFailure {
                 return it
             }
         }

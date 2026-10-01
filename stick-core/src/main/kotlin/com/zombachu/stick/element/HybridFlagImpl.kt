@@ -13,7 +13,7 @@ import com.zombachu.stick.Suggestion
 import com.zombachu.stick.commit
 import com.zombachu.stick.consuming
 import com.zombachu.stick.noMatch
-import com.zombachu.stick.propagateError
+import com.zombachu.stick.propagateFailure
 import com.zombachu.stick.success
 import com.zombachu.stick.suggestAliases
 
@@ -56,7 +56,7 @@ internal class HybridFlagImpl<E : Environment, S, T>(
                     return success(HybridFlagResult.Value(matched.resolved as T)).consuming(matched.consumed)
                 }
                 val result = parameter.parse(args.subList(1, args.size))
-                result.propagateError {
+                result.propagateFailure {
                     return it.commit()
                 }
                 return success(HybridFlagResult.Value(result.value)).consuming(1 + result.consumed)

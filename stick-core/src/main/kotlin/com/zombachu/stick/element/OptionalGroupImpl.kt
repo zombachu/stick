@@ -13,7 +13,7 @@ import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.failSyntax
 import com.zombachu.stick.isSuccess
-import com.zombachu.stick.propagateError
+import com.zombachu.stick.propagateFailure
 import com.zombachu.stick.success
 
 internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Position>(
@@ -38,7 +38,7 @@ internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Posit
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): CommandResult<G> {
         if (args.isEmpty()) {
-            validateDefault().propagateError {
+            validateDefault().propagateFailure {
                 return failSyntax()
             }
             return default(ex)

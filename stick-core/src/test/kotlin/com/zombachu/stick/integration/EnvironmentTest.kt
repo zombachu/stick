@@ -42,7 +42,7 @@ import com.zombachu.stick.integration.fixtures.permission
 import com.zombachu.stick.integration.fixtures.playerParameter
 import com.zombachu.stick.integration.fixtures.warpParameter
 import com.zombachu.stick.success
-import com.zombachu.stick.valueOrPropagateError
+import com.zombachu.stick.valueOrPropagateFailure
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -213,7 +213,7 @@ class EnvironmentTest {
 
         context(inv: Invocation<WarpableServer, S>)
         override fun resolve(arg0: String): CommandResult<String> {
-            val warp = warpParameter.resolve(arg0).valueOrPropagateError { return it }
+            val warp = warpParameter.resolve(arg0).valueOrPropagateFailure { return it }
             return success(warp.name)
         }
     }
