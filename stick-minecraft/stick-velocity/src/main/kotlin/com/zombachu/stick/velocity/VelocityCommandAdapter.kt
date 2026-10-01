@@ -6,7 +6,7 @@ import com.zombachu.stick.CommandRunner
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.failure.FailureHandler
 
-class VelocityCommandAdapter<E : VelocityEnvironment>(
+internal class VelocityCommandAdapter<E : VelocityEnvironment>(
     env: E,
     failureHandler: FailureHandler<E, CommandSource>,
     structure: Structure<E, CommandSource, *>,
