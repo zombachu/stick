@@ -3,9 +3,7 @@ package com.zombachu.stick
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertIs
 import kotlin.test.assertTrue
-import com.zombachu.stick.plus as aliasEntryPlus
 
 class AliasableTest {
 
@@ -39,20 +37,6 @@ class AliasableTest {
     fun `lowercase transforms all elements`() {
         val result = setOf("Foo", "BAR", "baz").lowercase()
         assertEquals(setOf("foo", "bar", "baz"), result)
-    }
-
-    @Test
-    fun `plus extension builds AliasEntry`() {
-        // Call via aliased import as natural infix "foo" + setOf(...) is shadowed (see below)
-        val entry = "foo".aliasEntryPlus(setOf("bar", "baz"))
-        assertEquals("foo", entry.label)
-        assertEquals(setOf("bar", "baz"), entry.aliases)
-    }
-
-    @Test
-    fun `plus operator syntax shadows stdlib plus`() {
-        val result: Any = "foo" + setOf("bar", "baz")
-        assertIs<String>(result)
     }
 
     @Test

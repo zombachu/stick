@@ -10,5 +10,3 @@ interface Aliasable {
 class AliasEntry(override val label: String, override val aliases: Set<String> = []) : Aliasable
 
 fun Set<String>.lowercase(): Set<String> = this.map { it.lowercase() }.toSet()
-
-operator fun String.plus(aliases: Set<String>): AliasEntry = AliasEntry(this, aliases)
