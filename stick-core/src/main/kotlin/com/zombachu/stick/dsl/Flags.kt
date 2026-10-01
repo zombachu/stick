@@ -67,19 +67,19 @@ fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     )
 
 fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.enumFlag(
-    from: EnumParameter<E, S, T>,
+    parameter: EnumParameter<E, S, T>,
     default: ContextualValue<E, S, T>,
-): ValueFlag<E, S, T> = ValueFlagImpl(from.name, default, FlagParameter.EnumFlagParameter(from))
+): ValueFlag<E, S, T> = ValueFlagImpl(parameter.name, default, FlagParameter.EnumFlagParameter(parameter))
 
 fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.enumFlag(
-    from: EnumParameter<E, S, T>,
+    parameter: EnumParameter<E, S, T>,
     default: T,
-): ValueFlag<E, S, T> = enumFlag(from, { success(default) })
+): ValueFlag<E, S, T> = enumFlag(parameter, { success(default) })
 
 fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.enumFlag(
-    from: EnumParameter<E, S, T>,
+    parameter: EnumParameter<E, S, T>,
     default: Nothing?,
-): ValueFlag<E, S, T?> = ValueFlagImpl(from.name, { success(default) }, FlagParameter.EnumFlagParameter(from))
+): ValueFlag<E, S, T?> = ValueFlagImpl(parameter.name, { success(default) }, FlagParameter.EnumFlagParameter(parameter))
 
 fun <E : Environment, S, T> StructureScope<E, S>.hybridFlag(
     name: String,

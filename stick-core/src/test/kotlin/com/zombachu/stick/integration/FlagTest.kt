@@ -176,7 +176,7 @@ class FlagTest {
         val weatherCommand = structure(Server::class, Sender::class) {
             command("weather")(
                 enumFlag(
-                    from = enumParameter("weather", Weather::class),
+                    parameter = enumParameter("weather", Weather::class),
                     default = Weather.Clear
                 )
             ) { weather ->
