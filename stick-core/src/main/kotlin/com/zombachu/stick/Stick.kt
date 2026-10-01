@@ -109,9 +109,9 @@ internal constructor(@PublishedApi internal val stick: TransformedStick<*, E, *,
 
 @PublishedApi
 internal class TransformedStick<E0 : Environment, E : E0, S0 : Any, S : Any>(
-    val base: Stick<E0, S0>,
-    val transform: (S0) -> S,
-    val requirement: Requirement<E, S0>,
+    private val base: Stick<E0, S0>,
+    private val transform: (S0) -> S,
+    private val requirement: Requirement<E, S0>,
 ) : SenderValidator<E, S0> {
 
     context(env: E, failureHandler: FailureHandler<E, S>)

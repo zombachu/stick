@@ -17,9 +17,9 @@ import com.zombachu.stick.propagateError
 import com.zombachu.stick.success
 
 internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Position>(
-    val group: Group<E, S, out G, *>,
-    val default: ContextualValue<E, S, G>,
-    val defaultRequirement: SenderValidator<E, S>?,
+    private val group: Group<E, S, out G, *>,
+    private val default: ContextualValue<E, S, G>,
+    private val defaultRequirement: SenderValidator<E, S>?,
 ) : OptionalGroup<E, S, G, P>, InternalElement<E, S, G>, InternalOptional<E, S> {
 
     override val size: Size = group.size.orNothing()

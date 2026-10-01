@@ -9,8 +9,8 @@ interface FailureHandler<in E : Environment, S> {
 }
 
 internal class TransformedFailureHandler<E : Environment, S, S2 : Any>(
-    val base: FailureHandler<E, S2>,
-    val transform: (S) -> S2,
+    private val base: FailureHandler<E, S2>,
+    private val transform: (S) -> S2,
 ) : FailureHandler<E, S> {
     context(ex: Execution<E, S>)
     override fun onFailure(reason: Reason, origin: FailureOrigin) {
