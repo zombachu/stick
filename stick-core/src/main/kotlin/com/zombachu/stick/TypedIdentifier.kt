@@ -2,17 +2,17 @@ package com.zombachu.stick
 
 import kotlin.reflect.KProperty
 
-sealed interface TypedIdentifier<T> {
-    val name: String
-    val typeHashCode: Int
-    val nullable: Boolean
+class TypedIdentifier<T>
+@PublishedApi
+internal constructor(
+    private val name: String,
+    private val typeHashCode: Int,
+) {
 
     operator fun getValue(thisRef: Any?, property: KProperty<*>): String = name
-}
 
-@PublishedApi
-internal data class TypedIdentifierImpl<T>(
-    override val name: String,
-    override val typeHashCode: Int,
-    override val nullable: Boolean,
-) : TypedIdentifier<T>
+    override fun equals(other: Any?): Boolean =
+        other is TypedIdentifier<*> && name == other.name && typeHashCode == other.typeHashCode
+
+    override fun hashCode(): Int = 31 * name.hashCode() + typeHashCode
+}
