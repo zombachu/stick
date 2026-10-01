@@ -107,7 +107,7 @@ private constructor(override val sender: S, override val env: E, private val sta
     }
 }
 
-internal interface ExecutionState {
+private interface ExecutionState {
     val label: String
     val args: List<String>
     val unparsed: MutableList<String>
@@ -121,7 +121,7 @@ internal interface ExecutionState {
     fun consume(window: MutableList<String>, count: Int)
 }
 
-internal class ExecutionStateImpl(override val label: String, override val args: List<String>) : ExecutionState {
+private class ExecutionStateImpl(override val label: String, override val args: List<String>) : ExecutionState {
     override lateinit var currentBranch: CurrentBranch
     override val unparsed: MutableList<String> = args.toMutableList()
     override val parsed: MutableMap<TypedIdentifier<*>, Any?> = mutableMapOf()
@@ -144,7 +144,7 @@ internal class ExecutionStateImpl(override val label: String, override val args:
     }
 }
 
-internal data class CurrentBranch(
+private data class CurrentBranch(
     val start: Int,
     val element: SyntaxElement<*, *, *>? = null,
     val getSyntax: () -> String,

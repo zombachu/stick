@@ -168,7 +168,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
     }
 }
 
-internal fun MatchResult.Matched.claimedBy(element: ConsumingElement<*, *, *>, consumed: Int): MatchResult.Matched =
+private fun MatchResult.Matched.claimedBy(element: ConsumingElement<*, *, *>, consumed: Int): MatchResult.Matched =
     if (resolvedBy == null) {
         MatchResult.Matched(consumed, canConsumeMore)
     } else {
