@@ -11,6 +11,7 @@ import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.optionally
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.element.Structure
+import com.zombachu.stick.failPermission
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
@@ -29,6 +30,7 @@ import com.zombachu.stick.noopFailureHandler
 import com.zombachu.stick.success
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 import kotlin.test.fail
 
 class RegistrationTest {
@@ -245,6 +247,56 @@ class RegistrationTest {
         stick.executeWithHandler(zombachu, "/selfban 99")
         assertEquals(Reason.OutOfRange("1", "60", "99"), handler.reason)
         assertEquals("zombachu", handler.name)
+    }
+
+    @Test
+    fun `broadcast - context validation applies to commands for the platform sender`() {
+        class BroadcastCommand : Command<Server, Sender> {
+            override val structure = structure {
+                command("broadcast")() {
+                    sender.log("Broadcast sent")
+                }
+            }
+        }
+
+        stick.withContext(
+            server,
+            noopFailureHandler(),
+            { it },
+            { if (sender.hasPermission("server.admin")) success() else failPermission() }
+        ) {
+            register(BroadcastCommand())
+        }
+
+        stick.execute(zombachu, "/broadcast")
+        assertEquals(["Broadcast sent"], zombachu.logs)
+
+        assertSame(Reason.InvalidPermission, stick.executeExpectingError(steve, "/broadcast"))
+    }
+
+    @Test
+    fun `adminpanel - context validation reports its own failure`() {
+        class AdminPanelCommand : Command<Server, Profile> {
+            override val structure = structure {
+                command("adminpanel")() {
+                    sender.sender.log("Opened admin panel")
+                }
+            }
+        }
+
+        stick.withContext(
+            server,
+            noopFailureHandler(),
+            { Profile(it) },
+            { if (sender.hasPermission("server.admin")) success() else failPermission() }
+        ) {
+            register(AdminPanelCommand())
+        }
+
+        stick.execute(zombachu, "/adminpanel")
+        assertEquals(["Opened admin panel"], zombachu.logs)
+
+        assertSame(Reason.InvalidPermission, stick.executeExpectingError(steve, "/adminpanel"))
     }
 
     @Test

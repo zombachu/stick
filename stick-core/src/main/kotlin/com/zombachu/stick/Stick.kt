@@ -1,6 +1,6 @@
 package com.zombachu.stick
 
-import com.zombachu.stick.dsl.requirement
+import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.element.GatedStructure
 import com.zombachu.stick.element.SenderMappedStructure
 import com.zombachu.stick.element.Structure
@@ -19,8 +19,9 @@ abstract class Stick<E : Environment, S : Any>(
         failureHandler: FailureHandler<E2, S> = defaultFailureHandler.value,
         block: context(E2, FailureHandler<E2, S>) StickScope<E2, S>.() -> Unit,
     ) {
-        val transformedStick: TransformedStick<E, E2, S, S> = TransformedStick(this, { it }, Requirement { success() })
-        with(StickScope(transformedStick)) { context(env, failureHandler) { block() } }
+        val scope =
+            StickScope(platformSenderClass) { structure -> context(env, failureHandler) { registerCommand(structure) } }
+        with(scope) { context(env, failureHandler) { block() } }
     }
 
     fun withContext(
@@ -35,47 +36,15 @@ abstract class Stick<E : Environment, S : Any>(
         validate: Invocation<E2, S>.() -> CommandResult<Unit>,
         block: context(E2, FailureHandler<E2, S2>) StickScope<E2, S2>.() -> Unit,
     ) {
-        val transformedStick: TransformedStick<E, E2, S, S2> = TransformedStick(this, transform, Requirement(validate))
-        with(StickScope(transformedStick)) { context(env, failureHandler) { block() } }
-    }
-
-    fun <E2 : E, S2 : Any> withContext(
-        env: E2,
-        failureHandler: FailureHandler<E2, S2>,
-        transform: (S) -> S2,
-        failureResult: Invocation<E2, S>.() -> CommandResult.Failure,
-        validate: Invocation<E2, S>.() -> Boolean,
-        block: context(E2, FailureHandler<E2, S2>) StickScope<E2, S2>.() -> Unit,
-    ) {
-        withContext(
-            env,
-            failureHandler,
-            transform,
-            { if (validate()) success() else failureResult() },
-            block,
-        )
-    }
-
-    context(env: E, failureHandler: FailureHandler<E, S>)
-    internal fun <S2 : Any> internalRegister(
-        commandSenderClass: KClass<S2>,
-        command: Command<E, S2>,
-        isSenderRequiredType: (S) -> Boolean,
-        castSender: (S) -> S2,
-    ) {
-        val emptyContext: StructureScope<E, S> = StructureScope.empty()
-        val structure: Structure<E, S, *> =
-            if (commandSenderClass == platformSenderClass) {
-                @Suppress("UNCHECKED_CAST") (command as Command<E, S>).structure
-            } else {
-                with(emptyContext) {
-                    GatedStructure(
-                        SenderMappedStructure(command.structure, castSender),
-                        requirement({ isSenderRequiredType(sender) }) { failSenderType(commandSenderClass) },
-                    )
+        val requirement = Requirement(validate)
+        val platformFailureHandler: FailureHandler<E2, S> = TransformedFailureHandler(failureHandler, transform)
+        val scope =
+            StickScope(null) { structure ->
+                context(env, platformFailureHandler) {
+                    registerCommand(GatedStructure(SenderMappedStructure(structure, transform), requirement))
                 }
             }
-        registerCommand(structure)
+        with(scope) { context(env, failureHandler) { block() } }
     }
 
     context(env: E2, failureHandler: FailureHandler<E2, S>)
@@ -83,61 +52,27 @@ abstract class Stick<E : Environment, S : Any>(
 }
 
 class StickScope<E : Environment, S : Any>
-@PublishedApi
-internal constructor(@PublishedApi internal val stick: TransformedStick<*, E, *, S>) {
+internal constructor(
+    @PublishedApi internal val senderClass: KClass<S>?,
+    @PublishedApi internal val registerStructure: (Structure<E, S, *>) -> Unit,
+) {
 
-    context(env: E, failureHandler: FailureHandler<E, S>)
-    inline fun <reified S2 : S> register(command: Command<E, S2>) {
-        stick.internalRegister(S2::class, command, { it is S2 }, { it as S2 })
-    }
-
-    context(env: E, failureHandler: FailureHandler<E, S>)
     inline fun <reified S2 : S> register(structure: Structure<E, S2, *>) {
-        val command =
-            object : Command<E, S2> {
-                override val structure: Structure<E, S2, *> = structure
+        @Suppress("UNCHECKED_CAST")
+        registerStructure(
+            if (S2::class == senderClass) {
+                structure as Structure<E, S, *>
+            } else {
+                StructureScope.empty<E, S>().requireSender(S2::class) { structure }
             }
-        register(command)
+        )
     }
 
-    context(env: E, failureHandler: FailureHandler<E, S>)
+    inline fun <reified S2 : S> register(command: Command<E, S2>) {
+        register(command.structure)
+    }
+
     inline fun <reified S2 : S> register(noinline structure: StructureScope<E, S2>.() -> Structure<E, S2, *>) {
-        val emptyContext = StructureScope.empty<E, S2>()
-        register(structure(emptyContext))
-    }
-}
-
-@PublishedApi
-internal class TransformedStick<E0 : Environment, E : E0, S0 : Any, S : Any>(
-    private val base: Stick<E0, S0>,
-    private val transform: (S0) -> S,
-    private val requirement: Requirement<E, S0>,
-) : SenderValidator<E, S0> {
-
-    context(env: E, failureHandler: FailureHandler<E, S>)
-    fun <S2 : Any> internalRegister(
-        commandSenderClass: KClass<S2>,
-        command: Command<E, S2>,
-        isSenderRequiredType: (S) -> Boolean,
-        castSender: (S) -> S2,
-    ) {
-        val transformedFailureHandler: FailureHandler<E, S0> = TransformedFailureHandler(failureHandler, transform)
-        context(transformedFailureHandler) {
-            @Suppress("UNCHECKED_CAST")
-            (base as Stick<E, S0>).internalRegister(
-                commandSenderClass,
-                command,
-                {
-                    val inv: Invocation<E, S0> = Invocation(env, it)
-                    context(inv) { requirement.validateSender().isSuccess() && isSenderRequiredType(transform(it)) }
-                },
-                { castSender(transform(it)) },
-            )
-        }
-    }
-
-    context(inv: Invocation<E, S0>)
-    override fun validateSender(): CommandResult<Unit> {
-        return requirement.validateSender()
+        register(structure(StructureScope.empty()))
     }
 }
