@@ -5,11 +5,11 @@ import org.bukkit.Bukkit
 import org.bukkit.Server
 import org.bukkit.plugin.Plugin
 
-interface BukkitEnvironment : Environment {
+interface PaperEnvironment : Environment {
     val plugin: Plugin
     val server: Server
 }
 
-open class BasicBukkitEnvironment(override val plugin: Plugin) : BukkitEnvironment {
+open class BasicPaperEnvironment(override val plugin: Plugin) : PaperEnvironment {
     override val server: Server = Bukkit.getServer()
 }

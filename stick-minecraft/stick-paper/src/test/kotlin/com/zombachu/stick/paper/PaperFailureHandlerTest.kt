@@ -5,23 +5,23 @@ import com.zombachu.stick.MessageReason
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.failureOrigin
 import com.zombachu.stick.testExecution
+import org.bukkit.command.CommandSender
 import java.util.logging.Handler
 import java.util.logging.LogRecord
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
-import org.bukkit.command.CommandSender
 
-class BukkitFailureHandlerTest {
+class PaperFailureHandlerTest {
 
-    private val env = FakeBukkitEnvironment()
+    private val env = FakePaperEnvironment()
 
     @Test
     fun `sends component with reason`() {
         val sender = FakeCommandSender()
 
-        context(execution(sender)) { BasicBukkitFailureHandler().onFailure(Reason.Unknown(), failureOrigin()) }
+        context(execution(sender)) { BasicPaperFailureHandler().onFailure(Reason.Unknown(), failureOrigin()) }
 
         assertEquals(1, sender.sentMessages.size)
         assertTrue(sender.sentMessages.first().toString().contains("unknown"))
@@ -31,7 +31,7 @@ class BukkitFailureHandlerTest {
     fun `sends nothing when empty message`() {
         val sender = FakeCommandSender()
 
-        context(execution(sender)) { BasicBukkitFailureHandler().onFailure(MessageReason(""), failureOrigin()) }
+        context(execution(sender)) { BasicPaperFailureHandler().onFailure(MessageReason(""), failureOrigin()) }
 
         assertEquals(0, sender.sentMessages.size)
     }
@@ -54,7 +54,7 @@ class BukkitFailureHandlerTest {
 
         try {
             context(execution(FakeCommandSender())) {
-                BasicBukkitFailureHandler().onFailure(Reason.Unknown(cause), failureOrigin())
+                BasicPaperFailureHandler().onFailure(Reason.Unknown(cause), failureOrigin())
             }
         } finally {
             FakePlugin.logger.removeHandler(captor)
@@ -63,6 +63,6 @@ class BukkitFailureHandlerTest {
         assertSame(cause, records.single().thrown)
     }
 
-    private fun execution(sender: CommandSender): Execution<BukkitEnvironment, CommandSender> =
+    private fun execution(sender: CommandSender): Execution<PaperEnvironment, CommandSender> =
         testExecution(env, sender)
 }

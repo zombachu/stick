@@ -6,19 +6,19 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
-class BukkitStickTest {
+class PaperStickTest {
 
     @Test
     fun `registerCommand registers adapter under plugin fallback prefix`() {
         val commandMap = fakeCommandMap()
-        val stick = BukkitStick(FakePlugin)
-        val structure = bukkitStructure { command("cmd", aliases = ["c"])() }
+        val stick = PaperStick(FakePlugin)
+        val structure = paperStructure { command("cmd", aliases = ["c"])() }
 
         stick.withContext { register(structure) }
 
         val (fallbackPrefix, command) = commandMap.registered.single()
         assertEquals("fake-plugin", fallbackPrefix)
         assertEquals(["c"], command.aliases)
-        assertIs<BukkitCommandAdapter<*>>(command)
+        assertIs<PaperCommandAdapter<*>>(command)
     }
 }

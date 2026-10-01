@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.PluginIdentifiableCommand
 import org.bukkit.plugin.Plugin
 
-internal class BukkitCommandAdapter<E : BukkitEnvironment>(
+internal class PaperCommandAdapter<E : PaperEnvironment>(
     private val env: E,
     failureHandler: FailureHandler<E, CommandSender>,
     structure: Structure<E, CommandSender, *>,

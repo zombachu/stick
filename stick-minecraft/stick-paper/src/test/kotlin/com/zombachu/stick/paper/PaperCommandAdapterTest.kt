@@ -13,16 +13,16 @@ import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
-class BukkitCommandAdapterTest {
+class PaperCommandAdapterTest {
 
     @Test
     fun `execute joins label and args and returns true`() {
         var text: String? = null
         val structure =
-            bukkitStructure {
+            paperStructure {
                 command("cmd")(textParameter("")) { text = it }
             }
-        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure)
 
         val result = adapter.execute(FakeCommandSender(), "cmd", arrayOf("hello", "world"))
 
@@ -33,10 +33,10 @@ class BukkitCommandAdapterTest {
     @Test
     fun `execute with no args runs command`() {
         var executed = false
-        val structure = bukkitStructure {
+        val structure = paperStructure {
             command("cmd")() { executed = true }
         }
-        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure)
 
         val result = adapter.execute(FakeCommandSender(), "cmd", arrayOf())
 
@@ -48,10 +48,10 @@ class BukkitCommandAdapterTest {
     fun `execute accepts a namespaced label`() {
         var text: String? = null
         val structure =
-            bukkitStructure {
+            paperStructure {
                 command("cmd")(textParameter("")) { text = it }
             }
-        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure)
 
         val result = adapter.execute(FakeCommandSender(), "fake-plugin:cmd", arrayOf("hello", "world"))
 
@@ -61,12 +61,12 @@ class BukkitCommandAdapterTest {
 
     @Test
     fun `tabComplete completes arg`() {
-        val structure = bukkitStructure {
+        val structure = paperStructure {
             command("hello")(
                 literalParameter("there")
             ) { }
         }
-        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure)
 
         assertEquals(["there"], adapter.tabComplete(FakeCommandSender(), "hello", arrayOf("")))
         assertEquals(["there"], adapter.tabComplete(FakeCommandSender(), "hello", arrayOf("the")))
@@ -75,34 +75,34 @@ class BukkitCommandAdapterTest {
 
     @Test
     fun `tabComplete completes arg for a namespaced label`() {
-        val structure = bukkitStructure {
+        val structure = paperStructure {
             command("hello")(
                 literalParameter("there")
             ) { }
         }
-        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure)
 
         assertEquals(["there"], adapter.tabComplete(FakeCommandSender(), "fake-plugin:hello", arrayOf("the")))
     }
 
     @Test
     fun `tabComplete ignores consecutive spaces`() {
-        val structure = bukkitStructure {
+        val structure = paperStructure {
             command("hello")(
                 literalParameter("there")
             ) { }
         }
-        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure)
 
         assertEquals(["there"], adapter.tabComplete(FakeCommandSender(), "hello", arrayOf("", "the")))
     }
 
     @Test
     fun `testPermissionSilent delegates to sender validation`() {
-        val structure = bukkitStructure {
+        val structure = paperStructure {
             command("cmd", requirement = permission("stick.cmd"))() { }
         }
-        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure)
 
         assertTrue(adapter.testPermissionSilent(FakeCommandSender(["stick.cmd"])))
         assertFalse(adapter.testPermissionSilent(FakeCommandSender()))
@@ -110,12 +110,12 @@ class BukkitCommandAdapterTest {
 
     @Test
     fun `testPermissionSilent sees base permission of a sender-narrowed command`() {
-        val structure = bukkitStructure {
+        val structure = paperStructure {
             requireSender(FakeCommandSender::class) {
                 command("cmd", requirement = permission("stick.cmd"))() { }
             }
         }
-        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(), noopFailureHandler(), structure)
+        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure)
 
         assertTrue(adapter.testPermissionSilent(FakeCommandSender(["stick.cmd"])))
         assertFalse(adapter.testPermissionSilent(FakeCommandSender()))
@@ -123,8 +123,8 @@ class BukkitCommandAdapterTest {
 
     @Test
     fun `getPlugin returns environment plugin`() {
-        val structure = bukkitStructure { command("cmd")() }
-        val adapter = BukkitCommandAdapter(FakeBukkitEnvironment(FakePlugin), noopFailureHandler(), structure)
+        val structure = paperStructure { command("cmd")() }
+        val adapter = PaperCommandAdapter(FakePaperEnvironment(FakePlugin), noopFailureHandler(), structure)
 
         assertSame(FakePlugin, adapter.getPlugin())
     }

@@ -4,15 +4,15 @@ import com.zombachu.stick.Execution
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
-import java.util.logging.Level
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.command.CommandSender
+import java.util.logging.Level
 
-interface BukkitFailureHandler<E : BukkitEnvironment> : FailureHandler<E, CommandSender>
+interface PaperFailureHandler<E : PaperEnvironment> : FailureHandler<E, CommandSender>
 
-open class BasicBukkitFailureHandler : BukkitFailureHandler<BukkitEnvironment> {
-    context(ex: Execution<BukkitEnvironment, CommandSender>)
+open class BasicPaperFailureHandler : PaperFailureHandler<PaperEnvironment> {
+    context(ex: Execution<PaperEnvironment, CommandSender>)
     override fun onFailure(reason: Reason, origin: FailureOrigin) {
         if (reason is Reason.Unknown && reason.cause != null) {
             ex.env.plugin.logger.log(Level.SEVERE, "Command /${ex.label} threw", reason.cause)

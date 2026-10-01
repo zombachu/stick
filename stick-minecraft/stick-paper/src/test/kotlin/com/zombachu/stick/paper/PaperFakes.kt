@@ -142,14 +142,14 @@ object FakePlugin : Plugin {
     ): MutableList<String> = error("unused")
 }
 
-class FakeBukkitEnvironment(override val plugin: Plugin = FakePlugin) : BukkitEnvironment {
+class FakePaperEnvironment(override val plugin: Plugin = FakePlugin) : PaperEnvironment {
     override val server: Server
         get() = error("unused")
 }
 
-fun <T_ : Arguments> bukkitStructure(
-    block: StructureScope<BukkitEnvironment, CommandSender>.() -> Structure<BukkitEnvironment, CommandSender, T_>
-): Structure<BukkitEnvironment, CommandSender, T_> = structure(BukkitEnvironment::class, CommandSender::class, block)
+fun <T_ : Arguments> paperStructure(
+    block: StructureScope<PaperEnvironment, CommandSender>.() -> Structure<PaperEnvironment, CommandSender, T_>
+): Structure<PaperEnvironment, CommandSender, T_> = structure(PaperEnvironment::class, CommandSender::class, block)
 
 class FakeCommandMap : CommandMap {
     val registered: MutableList<Pair<String, Command>> = mutableListOf()

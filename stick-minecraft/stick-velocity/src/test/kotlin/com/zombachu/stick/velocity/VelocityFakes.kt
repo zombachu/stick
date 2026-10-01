@@ -20,11 +20,11 @@ import com.velocitypowered.api.util.ProxyVersion
 import com.zombachu.stick.Arguments
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.dsl.structure
+import com.zombachu.stick.element.Structure
+import net.kyori.adventure.text.Component
 import org.slf4j.Marker
 import org.slf4j.event.Level
 import org.slf4j.helpers.LegacyAbstractLogger
-import com.zombachu.stick.element.Structure
-import net.kyori.adventure.text.Component
 import java.net.InetSocketAddress
 import java.util.*
 

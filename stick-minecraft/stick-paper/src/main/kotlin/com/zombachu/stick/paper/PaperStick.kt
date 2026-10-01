@@ -8,18 +8,18 @@ import org.bukkit.command.CommandMap
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.Plugin
 
-class BukkitStick(plugin: Plugin) :
-    Stick<BukkitEnvironment, CommandSender>(
+class PaperStick(plugin: Plugin) :
+    Stick<PaperEnvironment, CommandSender>(
         CommandSender::class,
-        lazy(LazyThreadSafetyMode.NONE) { BasicBukkitEnvironment(plugin) },
-        lazy(LazyThreadSafetyMode.NONE) { BasicBukkitFailureHandler() },
+        lazy(LazyThreadSafetyMode.NONE) { BasicPaperEnvironment(plugin) },
+        lazy(LazyThreadSafetyMode.NONE) { BasicPaperFailureHandler() },
     ) {
 
     private val commandMap: CommandMap = Bukkit.getServer().commandMap
 
     context(env: E, failureHandler: FailureHandler<E, CommandSender>)
-    override fun <E : BukkitEnvironment> registerCommand(structure: Structure<E, CommandSender, *>) {
+    override fun <E : PaperEnvironment> registerCommand(structure: Structure<E, CommandSender, *>) {
         val fallbackPrefix = env.plugin.name.lowercase()
-        commandMap.register(fallbackPrefix, BukkitCommandAdapter(env, failureHandler, structure))
+        commandMap.register(fallbackPrefix, PaperCommandAdapter(env, failureHandler, structure))
     }
 }

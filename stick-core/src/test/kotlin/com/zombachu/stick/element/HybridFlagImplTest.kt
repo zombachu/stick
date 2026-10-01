@@ -3,9 +3,9 @@ package com.zombachu.stick.element
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.HybridFlagResult
-import com.zombachu.stick.Requirement
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
+import com.zombachu.stick.Requirement
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.consuming
