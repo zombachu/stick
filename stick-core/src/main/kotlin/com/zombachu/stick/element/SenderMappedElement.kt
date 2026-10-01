@@ -11,6 +11,7 @@ import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
+import com.zombachu.stick.Requirement
 import com.zombachu.stick.SenderValidator
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
@@ -318,6 +319,17 @@ internal open class SenderMappedBranch<E : Environment, S, S2 : Any, T_ : Argume
             return base.validateSender()
         }
     }
+}
+
+internal fun <E : Environment, S, S2 : Any, T, P : Position> senderMappedGatedParameter(
+    transform: (S) -> S2,
+    gated: GatedParameter<E, S2, T, P>,
+): GatedParameter<E, S, T, P> {
+    gated as GatedParameterImpl<E, S2, T, P>
+    return GatedParameterImpl(
+        SenderMappedParameter(gated.base, transform),
+        Requirement { context(forSender(transform)) { gated.requirement.validateSender() } },
+    )
 }
 
 @PublishedApi

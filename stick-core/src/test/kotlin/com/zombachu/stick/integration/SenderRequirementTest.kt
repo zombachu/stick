@@ -11,8 +11,10 @@ import com.zombachu.stick.dsl.hybridFlag
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.mapSender
-import com.zombachu.stick.dsl.optionally
+import com.zombachu.stick.dsl.optional
+import com.zombachu.stick.dsl.require
 import com.zombachu.stick.dsl.requireSender
+import com.zombachu.stick.dsl.requirement
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.subcommands
@@ -37,7 +39,7 @@ import kotlin.test.assertEquals
 
 class SenderRequirementTest {
 
-    private val zombachu = Player("zombachu", ["server.broadcast", "server.whois.ip", "server.echo"])
+    private val zombachu = Player("zombachu", ["server.broadcast", "server.whois.ip", "server.echo", "server.get"])
     private val steve = Player("Steve")
     private val console = Console()
     private val server = SynergyServer([zombachu, steve])
@@ -277,7 +279,7 @@ class SenderRequirementTest {
             command("realname")(
                 requireSender(Player::class, default = null) {
                     mapSender(toSocialData) {
-                        optionally(realNameParameter("name"), default = null)
+                        optional(realNameParameter("name"), default = null)
                     }
                 }
             ) { realName ->
@@ -368,5 +370,62 @@ class SenderRequirementTest {
             "/echo <>",
             echoCommand.executeExpectingInvalidSyntax(server, console, "/echo raw hello"),
         )
+    }
+
+    @Test
+    fun `get - require wraps requireSender on parameter`() {
+        val getCommand = structure(Server::class, Sender::class) {
+            command("get")(
+                group(
+                    require(permission("server.get")) {
+                        requireSender(Player::class) {
+                            literalParameter("world")
+                        }
+                    },
+                    literalParameter("name"),
+                )
+            ) { result ->
+                when (result) {
+                    is GroupResult.ResultA -> sender.log((sender as Player).world)
+                    is GroupResult.ResultB -> sender.log(sender.name)
+                }
+            }
+        }
+
+        getCommand.execute(server, zombachu, "/get world")
+        assertEquals(["overworld"], zombachu.logs)
+
+        assertEquals("/get <name>", getCommand.executeExpectingInvalidSyntax(server, steve, "/get world"))
+
+        assertEquals("/get <name>", getCommand.executeExpectingInvalidSyntax(server, console, "/get world"))
+    }
+
+    @Test
+    fun `get - requireSender narrows sender for nested require on parameter`() {
+        val getCommand = structure(Server::class, Sender::class) {
+            command("get")(
+                group(
+                    requireSender(Player::class) {
+                        require(requirement { sender.world == "nether" }) {
+                            literalParameter("world")
+                        }
+                    },
+                    literalParameter("name"),
+                )
+            ) { result ->
+                when (result) {
+                    is GroupResult.ResultA -> sender.log((sender as Player).world)
+                    is GroupResult.ResultB -> sender.log(sender.name)
+                }
+            }
+        }
+        steve.world = "nether"
+
+        getCommand.execute(server, steve, "/get world")
+        assertEquals(["nether"], steve.logs)
+
+        assertEquals("/get <name>", getCommand.executeExpectingInvalidSyntax(server, zombachu, "/get world"))
+
+        assertEquals("/get <name>", getCommand.executeExpectingInvalidSyntax(server, console, "/get world"))
     }
 }

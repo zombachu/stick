@@ -8,6 +8,7 @@ import com.zombachu.stick.GroupResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.element.Branch
+import com.zombachu.stick.element.GatedParameter
 import com.zombachu.stick.element.HybridFlag
 import com.zombachu.stick.element.OptionalGroup
 import com.zombachu.stick.element.OptionalParameter
@@ -21,6 +22,7 @@ import com.zombachu.stick.element.SenderMappedStructure
 import com.zombachu.stick.element.SenderMappedValueFlag
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.ValueFlag
+import com.zombachu.stick.element.senderMappedGatedParameter
 import kotlin.experimental.ExperimentalTypeInference
 
 @OverloadResolutionByLambdaReturnType
@@ -28,6 +30,12 @@ fun <S : Any, S2 : Any, E : Environment, T, P : Position> StructureScope<E, S>.m
     transform: (S) -> S2,
     parameter: StructureScope<E, S2>.() -> Parameter<E, S2, T, P>,
 ): Parameter<E, S, T, P> = SenderMappedParameter(parameter(this.forSender()), transform)
+
+@OverloadResolutionByLambdaReturnType
+fun <E : Environment, S : Any, S2 : Any, T, P : Position> StructureScope<E, S>.mapSender(
+    transform: (S) -> S2,
+    parameter: StructureScope<E, S2>.() -> GatedParameter<E, S2, T, P>,
+): GatedParameter<E, S, T, P> = senderMappedGatedParameter(transform, parameter(this.forSender()))
 
 @OverloadResolutionByLambdaReturnType
 fun <E : Environment, S : Any, S2 : Any, T> StructureScope<E, S>.mapSender(

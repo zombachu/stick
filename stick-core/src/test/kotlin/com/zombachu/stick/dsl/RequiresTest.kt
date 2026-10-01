@@ -11,6 +11,7 @@ import com.zombachu.stick.element.parse
 import com.zombachu.stick.element.validateSender
 import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
+import com.zombachu.stick.failPermission
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.structureTest
@@ -85,6 +86,34 @@ class RequiresTest {
 
         assertTrue(withInvocation { allowed.validateSender() }.isSuccess())
         assertSame(Reason.InvalidSender, withInvocation { denied.validateSender() }.expectReason())
+    }
+
+    @Test
+    fun `require on GatedParameter checks outer requirement before inner`() = structureTest<Int> {
+        val gated = require(requirement({ sender > 0 }) { failPermission() }) {
+            require(requirement { sender % 2 == 0 }) { stringParameter("") }
+        }
+
+        assertTrue(withInvocation(2) { gated.validateSender() }.isSuccess())
+        assertSame(Reason.InvalidSender, withInvocation(1) { gated.validateSender() }.expectReason())
+        assertSame(Reason.InvalidPermission, withInvocation(-1) { gated.validateSender() }.expectReason())
+    }
+
+    @Test
+    fun `requireSender on GatedParameter checks sender type before nested requirement`() = structureTest<BaseSender> {
+        val gated = requireSender(Player::class) {
+            require(requirement { sender.name == "steve" }) { stringParameter("") }
+        }
+        val steve: BaseSender = Player("steve")
+        val alex: BaseSender = Player("alex")
+        val console = BaseSender("steve")
+
+        assertTrue(withInvocation(steve) { gated.validateSender() }.isSuccess())
+        assertSame(Reason.InvalidSender, withInvocation(alex) { gated.validateSender() }.expectReason())
+        assertEquals(
+            Reason.InvalidSenderType(Player::class),
+            withInvocation(console) { gated.validateSender() }.expectReason(),
+        )
     }
 
     @Test

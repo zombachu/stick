@@ -46,6 +46,17 @@ inline fun <E : Environment, S : Any, reified S2 : Any, T, P : Position> Structu
     )
 
 @OverloadResolutionByLambdaReturnType
+@JvmName("requireSenderGatedParameter")
+inline fun <E : Environment, S : Any, reified S2 : Any, T, P : Position> StructureScope<E, S>.requireSender(
+    senderType: KClass<S2>,
+    noinline parameter: StructureScope<E, S2>.() -> GatedParameter<E, S2, T, P>,
+): GatedParameter<E, S, T, P> =
+    GatedParameterImpl(
+        mapSender({ it as S2 }, parameter),
+        requirement({ sender is S2 }) { failSenderType(senderType) },
+    )
+
+@OverloadResolutionByLambdaReturnType
 inline fun <E : Environment, S : Any, reified S2 : Any, T> StructureScope<E, S>.requireSender(
     senderType: KClass<S2>,
     default: @NoInfer T,
@@ -224,6 +235,13 @@ fun <E : Environment, S : Any, T> StructureScope<E, S>.defaultRequire(
 fun <E : Environment, S : Any, T, P : Position> StructureScope<E, S>.require(
     requirement: Requirement<E, S>,
     parameter: StructureScope<E, S>.() -> Parameter<E, S, T, P>,
+): GatedParameter<E, S, T, P> = GatedParameterImpl(parameter(this.forSender()), requirement)
+
+@OverloadResolutionByLambdaReturnType
+@JvmName("requireGatedParameter")
+fun <E : Environment, S : Any, T, P : Position> StructureScope<E, S>.require(
+    requirement: Requirement<E, S>,
+    parameter: StructureScope<E, S>.() -> GatedParameter<E, S, T, P>,
 ): GatedParameter<E, S, T, P> = GatedParameterImpl(parameter(this.forSender()), requirement)
 
 @OverloadResolutionByLambdaReturnType
