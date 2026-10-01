@@ -68,8 +68,6 @@ internal class SenderMappedValueFlag<E : Environment, S, S2 : Any, T>(
     private val transform: (S) -> S2,
 ) : ValueFlag<E, S, T>, InternalConsumingElement<E, S, T> {
 
-    override val default: ContextualValue<E, S, T> = { base.default(forSender(transform)) }
-
     override val size: Size.Bounded = base.size
     override val name: String = base.name
     override val description: String = base.description
@@ -111,8 +109,6 @@ internal class SenderMappedHybridFlag<E : Environment, S, S2 : Any, T>(
     private val base: HybridFlag<E, S2, T>,
     private val transform: (S) -> S2,
 ) : HybridFlag<E, S, T>, InternalConsumingElement<E, S, HybridFlagResult<T>> {
-
-    override val default: ContextualValue<E, S, HybridFlagResult<T>> = { base.default(forSender(transform)) }
 
     override val size: Size.Bounded = base.size
     override val name: String = base.name

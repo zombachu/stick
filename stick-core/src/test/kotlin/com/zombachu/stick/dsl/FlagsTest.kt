@@ -7,7 +7,6 @@ import com.zombachu.stick.element.parse
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.structureTest
 import com.zombachu.stick.success
-import com.zombachu.stick.testExecution
 import com.zombachu.stick.withExecution
 import com.zombachu.stick.withInvocation
 import kotlin.test.Test
@@ -22,7 +21,7 @@ class FlagsTest {
     @Test
     fun `flag defaults to false`() = structureTest {
         val basicFlag = flag("loud")
-        assertEquals(false, basicFlag.default(testExecution()).expectSuccessValue())
+        assertEquals(false, withExecution { basicFlag.parse([]) }.expectSuccessValue())
     }
 
     @Test
@@ -34,7 +33,7 @@ class FlagsTest {
     @Test
     fun `typed flag defaults to absent value`() = structureTest {
         val typedFlag = flag("boost", { success(10) }, { success(0) })
-        assertEquals(0, typedFlag.default(testExecution()).expectSuccessValue())
+        assertEquals(0, withExecution { typedFlag.parse([]) }.expectSuccessValue())
     }
 
     @Test
@@ -60,13 +59,13 @@ class FlagsTest {
     @Test
     fun `valueFlag defaults to given value`() = structureTest {
         val valueFlag = valueFlag("n", intParameter, 0)
-        assertEquals(0, valueFlag.default(testExecution()).expectSuccessValue())
+        assertEquals(0, withExecution { valueFlag.parse([]) }.expectSuccessValue())
     }
 
     @Test
     fun `valueFlag defaults to null`() = structureTest {
         val valueFlag = valueFlag("n", intParameter, null)
-        assertNull(valueFlag.default(testExecution()).expectSuccessValue())
+        assertNull(withExecution { valueFlag.parse([]) }.expectSuccessValue())
     }
 
     @Test
@@ -84,13 +83,13 @@ class FlagsTest {
     @Test
     fun `enumFlag defaults to given value`() = structureTest {
         val enumFlag = enumFlag(enumParameter("", Color::class), Color.RED)
-        assertEquals(Color.RED, enumFlag.default(testExecution()).expectSuccessValue())
+        assertEquals(Color.RED, withExecution { enumFlag.parse([]) }.expectSuccessValue())
     }
 
     @Test
     fun `enumFlag defaults to null`() = structureTest {
         val enumFlag = enumFlag(enumParameter("", Color::class), null)
-        assertNull(enumFlag.default(testExecution()).expectSuccessValue())
+        assertNull(withExecution { enumFlag.parse([]) }.expectSuccessValue())
     }
 
     @Test
@@ -108,7 +107,7 @@ class FlagsTest {
     @Test
     fun `hybridFlag defaults to absent`() = structureTest {
         val hybridFlag = hybridFlag("boost", intParameter)
-        val result = withExecution { hybridFlag.default(testExecution()) }.expectSuccessValue()
+        val result = withExecution { hybridFlag.parse([]) }.expectSuccessValue()
         assertIs<HybridFlagResult.Absent<Int>>(result)
     }
 

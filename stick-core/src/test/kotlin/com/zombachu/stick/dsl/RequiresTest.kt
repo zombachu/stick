@@ -106,7 +106,7 @@ class RequiresTest {
     @Test
     fun `require on ValueFlag gives denied sender the flag default`() = structureTest<String> {
         val flag = require(requirement { sender == "correct" }) { valueFlag("n", intParameter("n"), 7) }
-        assertEquals(7, flag.default(testExecutionSender("incorrect")).expectSuccessValue())
+        assertEquals(7, withExecutionSender("incorrect") { flag.parse([]) }.expectSuccessValue())
     }
 
     @Test
@@ -118,7 +118,7 @@ class RequiresTest {
                 default = 7,
             )
         }
-        assertNull(flag.default(testExecutionSender("incorrect")).expectSuccessValue())
+        assertNull(withExecutionSender("incorrect") { flag.parse([]) }.expectSuccessValue())
     }
 
     @Test
@@ -130,7 +130,7 @@ class RequiresTest {
                 default = 7,
             )
         }
-        assertNull(flag.default(testExecutionSender(BaseSender("console"))).expectSuccessValue())
+        assertNull(withExecutionSender(BaseSender("console")) { flag.parse([]) }.expectSuccessValue())
     }
 
     @Test
@@ -143,13 +143,13 @@ class RequiresTest {
             valueFlag("n", intParameter("n"), 0)
         }
 
-        assertEquals(9, flag.default(testExecutionSender("incorrect")).expectSuccessValue())
+        assertEquals(9, withExecutionSender("incorrect") { flag.parse([]) }.expectSuccessValue())
     }
 
     @Test
     fun `require on HybridFlag gives denied sender Absent`() = structureTest<String> {
         val flag = require(requirement { sender == "correct" }) { hybridFlag("n", intParameter("n")) }
-        assertIs<HybridFlagResult.Absent<Int>>(flag.default(testExecutionSender("incorrect")).expectSuccessValue())
+        assertIs<HybridFlagResult.Absent<Int>>(withExecutionSender("incorrect") { flag.parse([]) }.expectSuccessValue())
     }
 
     @Test
@@ -157,13 +157,13 @@ class RequiresTest {
         val flag = require(requirement { sender == "correct" }, default = HybridFlagResult.Present()) {
             hybridFlag("n", intParameter("n"))
         }
-        assertIs<HybridFlagResult.Present<Int>>(flag.default(testExecutionSender("incorrect")).expectSuccessValue())
+        assertIs<HybridFlagResult.Present<Int>>(withExecutionSender("incorrect") { flag.parse([]) }.expectSuccessValue())
     }
 
     @Test
     fun `requireSender on HybridFlag gives denied sender Absent`() = structureTest<BaseSender> {
         val flag = requireSender(Player::class) { hybridFlag("n", intParameter("n")) }
-        val result = flag.default(testExecutionSender(BaseSender("console")))
+        val result = withExecutionSender(BaseSender("console")) { flag.parse([]) }
         assertIs<HybridFlagResult.Absent<Int>>(result.expectSuccessValue())
     }
 

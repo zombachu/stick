@@ -21,7 +21,6 @@ import com.zombachu.stick.failSender
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.success
-import com.zombachu.stick.testExecutionSender
 import com.zombachu.stick.withExecutionSender
 import com.zombachu.stick.withInvocation
 import kotlin.test.Test
@@ -81,7 +80,7 @@ class SenderMappedElementTest {
         val flagParameter = FlagParameter.ParameterFlagParameter("f", SenderParameter<TestEnv, Int>(), [])
         val mapped = SenderMappedValueFlag(ValueFlagImpl("f", { success("$sender") }, flagParameter), String::length)
 
-        val result = mapped.default(testExecutionSender("zombachu"))
+        val result = withExecutionSender("zombachu") { mapped.parse([]) }
 
         assertEquals("8", result.expectSuccessValue())
     }
@@ -113,7 +112,7 @@ class SenderMappedElementTest {
         val gated = GatedHybridFlag(base, lengthIs8, { success(HybridFlagResult.Present()) })
         val mapped = SenderMappedHybridFlag(gated, String::length)
 
-        val result = mapped.default(testExecutionSender("steve"))
+        val result = withExecutionSender("steve") { mapped.parse([]) }
 
         assertIs<HybridFlagResult.Present<String>>(result.expectSuccessValue())
     }

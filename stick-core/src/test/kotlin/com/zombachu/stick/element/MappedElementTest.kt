@@ -16,7 +16,6 @@ import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.isSuccess
 import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.success
-import com.zombachu.stick.testExecution
 import com.zombachu.stick.withExecution
 import com.zombachu.stick.withInvocation
 import kotlin.test.Test
@@ -167,7 +166,7 @@ class MappedElementTest {
         val base = presenceValueFlag<TestEnv, Unit, Int>("", 5, 1)
         val mapped = MappedValueFlag<TestEnv, Unit, Int, Int>(base) { success(it * 10) }
 
-        val result = mapped.default(testExecution())
+        val result = withExecution { mapped.parse([]) }
 
         assertEquals(50, result.expectSuccessValue())
     }
@@ -177,7 +176,7 @@ class MappedElementTest {
         val base = presenceValueFlag<TestEnv, Unit, Int>("", 5, 1)
         val mapped = MappedValueFlag<TestEnv, Unit, Int, Int>(base) { fail(Reason.Unknown()) }
 
-        val result = mapped.default(testExecution())
+        val result = withExecution { mapped.parse([]) }
 
         assertFalse(result.isSuccess())
     }
@@ -188,7 +187,7 @@ class MappedElementTest {
         val failing = MappedValueFlag<TestEnv, Unit, Int, Int>(base) { fail(Reason.Unknown()) }
         val mapped = MappedValueFlag<TestEnv, Unit, Int, Int>(failing) { success(it) }
 
-        val result = mapped.default(testExecution())
+        val result = withExecution { mapped.parse([]) }
 
         assertFalse(result.isSuccess())
     }

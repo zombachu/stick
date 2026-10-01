@@ -20,7 +20,6 @@ import com.zombachu.stick.presenceFlagParameter
 import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
-import com.zombachu.stick.testExecutionSender
 import com.zombachu.stick.withExecution
 import com.zombachu.stick.withExecutionSender
 import com.zombachu.stick.withInvocation
@@ -253,7 +252,7 @@ class ValueFlagImplTest {
 
         assertEquals(true, withExecution { flag.parse(["-silent"]) }.expectSuccessValue())
         assertEquals("[-silent]", withInvocation { flag.getSyntax() })
-        assertEquals(false, flag.default(testExecution()).expectSuccessValue())
+        assertEquals(false, withExecution { flag.parse([]) }.expectSuccessValue())
     }
 
     @Test
@@ -276,7 +275,7 @@ class ValueFlagImplTest {
                 Requirement { success() },
                 { success(true) },
             )
-        val result = gated.default(testExecutionSender(1))
+        val result = withExecutionSender(1) { gated.parse([]) }
         assertEquals(false, result.expectSuccessValue())
     }
 
@@ -289,7 +288,7 @@ class ValueFlagImplTest {
                 Requirement { failSenderType(String::class) },
                 { success(true) },
             )
-        val result = gated.default(testExecutionSender(1))
+        val result = withExecutionSender(1) { gated.parse([]) }
         assertEquals(true, result.expectSuccessValue())
     }
 
@@ -302,7 +301,7 @@ class ValueFlagImplTest {
                 Requirement { failSenderType(String::class) },
                 null,
             )
-        val result = gated.default(testExecutionSender(1))
+        val result = withExecutionSender(1) { gated.parse([]) }
         assertEquals(false, result.expectSuccessValue())
     }
 

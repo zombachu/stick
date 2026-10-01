@@ -130,7 +130,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
         // Populate unused flag values with defaults
         for ((index, flag) in unprocessedFlags) {
             values[index] =
-                flag.default(ex).valueOrPropagateError {
+                flag.parse([]).valueOrPropagateError {
                     return it
                 }
         }

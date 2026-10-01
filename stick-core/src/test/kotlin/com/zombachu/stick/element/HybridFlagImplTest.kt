@@ -18,7 +18,6 @@ import com.zombachu.stick.failSenderType
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
-import com.zombachu.stick.testExecutionSender
 import com.zombachu.stick.withExecution
 import com.zombachu.stick.withExecutionSender
 import com.zombachu.stick.withInvocation
@@ -69,12 +68,6 @@ class HybridFlagImplTest {
     }
 
     @Test
-    fun `empty args fails with InvalidSyntax NoMatch`() {
-        val result = withExecution { flag.parse([]) }
-        assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
-    }
-
-    @Test
     fun `matches with no trailing value returns Present`() {
         val result = withExecution { flag.parse(["-boost"]) }
         assertIs<HybridFlagResult.Present<Int>>(result.expectSuccessValue())
@@ -119,7 +112,7 @@ class HybridFlagImplTest {
 
     @Test
     fun `default value is Absent`() {
-        val defaultResult = flag.default(testExecution())
+        val defaultResult = withExecution { flag.parse([]) }
         assertIs<HybridFlagResult.Absent<Int>>(defaultResult.expectSuccessValue())
     }
 
@@ -148,7 +141,7 @@ class HybridFlagImplTest {
                 Requirement { success() },
                 { success(HybridFlagResult.Present()) },
             )
-        val result = gated.default(testExecutionSender(1))
+        val result = withExecutionSender(1) { gated.parse([]) }
         assertIs<HybridFlagResult.Absent<Int>>(result.expectSuccessValue())
     }
 
@@ -160,7 +153,7 @@ class HybridFlagImplTest {
                 Requirement { failSenderType(String::class) },
                 { success(HybridFlagResult.Present()) },
             )
-        val result = gated.default(testExecutionSender(1))
+        val result = withExecutionSender(1) { gated.parse([]) }
         assertIs<HybridFlagResult.Present<Int>>(result.expectSuccessValue())
     }
 
@@ -172,7 +165,7 @@ class HybridFlagImplTest {
                 Requirement { failSenderType(String::class) },
                 null,
             )
-        val result = gated.default(testExecutionSender(1))
+        val result = withExecutionSender(1) { gated.parse([]) }
         assertIs<HybridFlagResult.Absent<Int>>(result.expectSuccessValue())
     }
 }

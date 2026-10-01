@@ -57,14 +57,6 @@ internal class GatedValueFlag<E : Environment, S, T>(
     private val deniedDefault: ContextualValue<E, S, T>?,
 ) : ValueFlag<E, S, T> by base, InternalConsumingElement<E, S, T> {
 
-    override val default: ContextualValue<E, S, T> = {
-        if (deniedDefault == null || requirement.validateSender().isSuccess()) {
-            base.default(this)
-        } else {
-            deniedDefault(this)
-        }
-    }
-
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
         requirement.validateSender().propagateError {
@@ -82,7 +74,14 @@ internal class GatedValueFlag<E : Environment, S, T>(
     }
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> = base.parse(args)
+    override fun parse(args: List<String>): ConsumingResult<T> {
+        if (args.isEmpty() && deniedDefault != null) {
+            requirement.validateSender().propagateError {
+                return deniedDefault(ex).consuming(0)
+            }
+        }
+        return base.parse(args)
+    }
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String {
@@ -98,14 +97,6 @@ internal class GatedHybridFlag<E : Environment, S, T>(
     private val deniedDefault: ContextualValue<E, S, HybridFlagResult<T>>?,
 ) : HybridFlag<E, S, T> by base, InternalConsumingElement<E, S, HybridFlagResult<T>> {
 
-    override val default: ContextualValue<E, S, HybridFlagResult<T>> = {
-        if (deniedDefault == null || requirement.validateSender().isSuccess()) {
-            success(HybridFlagResult.Absent())
-        } else {
-            deniedDefault(this)
-        }
-    }
-
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
         requirement.validateSender().propagateError {
@@ -123,7 +114,14 @@ internal class GatedHybridFlag<E : Environment, S, T>(
     }
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> = base.parse(args)
+    override fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> {
+        if (args.isEmpty()) {
+            requirement.validateSender().propagateError {
+                return (deniedDefault?.invoke(ex) ?: success(HybridFlagResult.Absent())).consuming(0)
+            }
+        }
+        return base.parse(args)
+    }
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String {

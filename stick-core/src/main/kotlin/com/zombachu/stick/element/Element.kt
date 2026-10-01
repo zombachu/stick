@@ -4,7 +4,6 @@ import com.zombachu.stick.Aliasable
 import com.zombachu.stick.Arguments
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
-import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
 import com.zombachu.stick.GroupResult
@@ -73,7 +72,6 @@ sealed interface Helper<in E : Environment, S, out T> : SignatureElement<E, S, T
 sealed interface Flag<in E : Environment, S, out T> :
     SignatureElement<E, S, T, Position.Anywhere>, ConsumingElement<E, S, T> {
     override val size: Size.Bounded
-    val default: ContextualValue<E, S, T>
 }
 
 sealed interface ValueFlag<in E : Environment, S, out T> : Flag<E, S, T>

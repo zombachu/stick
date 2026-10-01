@@ -2,7 +2,6 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.ConsumingResult
-import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
 import com.zombachu.stick.ExecutionImpl
@@ -26,7 +25,6 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
 
     override val size: Size.Bounded = Size.between(1, 1 + parameter.size.max)
     override val description: String = parameter.description
-    override val default: ContextualValue<E, S, HybridFlagResult<T>> = { success(HybridFlagResult.Absent()) }
     override val label: String = "-${name.lowercase()}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
 
@@ -47,7 +45,7 @@ internal open class HybridFlagImpl<E : Environment, S, T>(
 
     context(ex: Execution<E, S>)
     override fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> {
-        if (args.isEmpty()) return noMatch()
+        if (args.isEmpty()) return success(HybridFlagResult.Absent<T>()).consuming(0)
         if (matches(args.first().lowercase())) {
             if (args.size == 1) {
                 return success(HybridFlagResult.Present<T>()).consuming(1)

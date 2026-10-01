@@ -20,7 +20,7 @@ import com.zombachu.stick.toSuggestions
 
 internal open class ValueFlagImpl<E : Environment, S, T>(
     override val name: String,
-    override val default: ContextualValue<E, S, T>,
+    private val default: ContextualValue<E, S, T>,
     private val flagParameter: FlagParameter<E, S, out T>,
 ) : ValueFlag<E, S, T>, InternalConsumingElement<E, S, T> {
 
@@ -35,7 +35,10 @@ internal open class ValueFlagImpl<E : Environment, S, T>(
         flagParameter.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> = flagParameter.parse(args)
+    override fun parse(args: List<String>): ConsumingResult<T> {
+        if (args.isEmpty()) return default(ex).consuming(0)
+        return flagParameter.parse(args)
+    }
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = flagParameter.getSyntax()

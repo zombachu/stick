@@ -2,7 +2,6 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
-import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
 import com.zombachu.stick.Invocation
@@ -57,14 +56,6 @@ internal class MappedValueFlag<E : Environment, S, A, T>(
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = base.getSyntax()
-
-    override val default: ContextualValue<E, S, T> = default@{
-        val value =
-            base.default(this).valueOrPropagateError {
-                return@default it
-            }
-        transform(this, value)
-    }
 }
 
 internal class MappedOptionalParameter<E : Environment, S, A, T, P : Position>(
