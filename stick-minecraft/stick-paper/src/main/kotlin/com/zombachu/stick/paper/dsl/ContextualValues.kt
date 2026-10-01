@@ -8,6 +8,6 @@ import org.bukkit.command.CommandSender
 
 fun <E : BukkitEnvironment, S : CommandSender, T> StructureScope<E, S>.permissionedValue(
     permission: String,
-    default: T,
+    value: T,
     fallback: T,
-): ContextualValue<E, S, T> = { success(if (sender.hasPermission(permission)) default else fallback) }
+): ContextualValue<E, S, T> = { success(if (sender.hasPermission(permission)) value else fallback) }
