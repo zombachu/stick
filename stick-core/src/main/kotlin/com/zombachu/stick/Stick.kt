@@ -9,10 +9,10 @@ import com.zombachu.stick.failure.TransformedFailureHandler
 import kotlin.reflect.KClass
 
 abstract class Stick<E : Environment, S : Any>(
-    val platformSenderClass: KClass<S>,
+    private val platformSenderClass: KClass<S>,
     private val defaultEnvironment: Lazy<E>,
     private val defaultFailureHandler: Lazy<FailureHandler<E, S>>,
-) : CommandRegistrar<E, S> {
+) {
 
     fun <E2 : E> withContext(
         env: E2,
@@ -57,7 +57,7 @@ abstract class Stick<E : Environment, S : Any>(
     }
 
     context(env: E, failureHandler: FailureHandler<E, S>)
-    override fun <S2 : Any> internalRegister(
+    internal fun <S2 : Any> internalRegister(
         commandSenderClass: KClass<S2>,
         command: Command<E, S2>,
         isSenderRequiredType: (S) -> Boolean,
@@ -84,7 +84,7 @@ abstract class Stick<E : Environment, S : Any>(
 
 class StickScope<E : Environment, S : Any>
 @PublishedApi
-internal constructor(@PublishedApi internal val stick: CommandRegistrar<E, S>) {
+internal constructor(@PublishedApi internal val stick: TransformedStick<*, E, *, S>) {
 
     context(env: E, failureHandler: FailureHandler<E, S>)
     inline fun <reified S2 : S> register(command: Command<E, S2>) {
@@ -108,25 +108,14 @@ internal constructor(@PublishedApi internal val stick: CommandRegistrar<E, S>) {
 }
 
 @PublishedApi
-internal interface CommandRegistrar<E : Environment, S : Any> {
-    context(env: E, failureHandler: FailureHandler<E, S>)
-    fun <S2 : Any> internalRegister(
-        commandSenderClass: KClass<S2>,
-        command: Command<E, S2>,
-        isSenderRequiredType: (S) -> Boolean,
-        castSender: (S) -> S2,
-    )
-}
-
-@PublishedApi
 internal class TransformedStick<E0 : Environment, E : E0, S0 : Any, S : Any>(
     val base: Stick<E0, S0>,
     val transform: (S0) -> S,
     val requirement: Requirement<E, S0>,
-) : CommandRegistrar<E, S>, SenderValidator<E, S0> {
+) : SenderValidator<E, S0> {
 
     context(env: E, failureHandler: FailureHandler<E, S>)
-    override fun <S2 : Any> internalRegister(
+    fun <S2 : Any> internalRegister(
         commandSenderClass: KClass<S2>,
         command: Command<E, S2>,
         isSenderRequiredType: (S) -> Boolean,
