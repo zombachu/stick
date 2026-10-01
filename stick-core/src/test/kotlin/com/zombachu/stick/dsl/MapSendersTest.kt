@@ -36,7 +36,11 @@ class MapSendersTest {
 
     @Test
     fun `mapSender on GatedParameter validates requirement with transformed sender`() = structureTest<String> {
-        val gated = mapSender(length) { require(requirement { sender == 8 }) { intParameter("") } }
+        val gated = mapSender(length) {
+            require(requirement { sender == 8 }) {
+                intParameter("")
+            }
+        }
         assertTrue(withInvocation("zombachu") { gated.validateSender() }.isSuccess())
         assertSame(Reason.InvalidSender, withInvocation("steve") { gated.validateSender() }.expectReason())
     }
@@ -44,7 +48,9 @@ class MapSendersTest {
     @Test
     fun `mapSender on GatedParameter parses with transformed sender`() = structureTest<String> {
         val gated = mapSender(length) {
-            require(requirement { true }) { intParameter("").map { success(it + sender) } }
+            require(requirement { true }) {
+                intParameter("").map { success(it + sender) }
+            }
         }
         val group = group(gated, stringParameter(""))
         assertEquals(
@@ -66,14 +72,19 @@ class MapSendersTest {
 
     @Test
     fun `mapSender on OptionalParameter parses with transformed sender`() = structureTest<String> {
-        val optional = mapSender(length) { optional(intParameter(""), { success(sender) }) }
+        val optional = mapSender(length) {
+            optional(intParameter(""), { success(sender) })
+        }
         assertEquals(8, withExecutionSender("zombachu") { optional.parse([]) }.expectSuccessValue())
     }
 
     @Test
     fun `mapSender on OptionalGroup parses with transformed sender`() = structureTest<String> {
         val optional = mapSender(length) {
-            optional(group(literalParameter("on")), { success(GroupResult.ResultA("$sender")) })
+            optional(
+                group(literalParameter("on")),
+                { success(GroupResult.ResultA("$sender")) },
+            )
         }
         assertEquals(
             GroupResult.ResultA("8"),

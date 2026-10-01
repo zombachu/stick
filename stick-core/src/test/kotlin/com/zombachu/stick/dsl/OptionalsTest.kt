@@ -23,26 +23,26 @@ class OptionalsTest {
     private val intParameter = IntParameter<TestEnv, String>("", "", Int.MIN_VALUE, Int.MAX_VALUE)
 
     @Test
-    fun `optionally defaults to value`() = structureTest<String> {
-        val optional = optionally(intParameter, 7)
+    fun `optional defaults to value`() = structureTest<String> {
+        val optional = optional(intParameter, 7)
         assertEquals(7, withExecutionSender("sender") { optional.parse([]) }.expectSuccessValue())
     }
 
     @Test
-    fun `optionally defaults to contextual value`() = structureTest<String> {
-        val optional = optionally(intParameter, { success(sender.length) })
+    fun `optional defaults to contextual value`() = structureTest<String> {
+        val optional = optional(intParameter, { success(sender.length) })
         assertEquals(6, withExecutionSender("sender") { optional.parse([]) }.expectSuccessValue())
     }
 
     @Test
-    fun `optionally defaults to null`() = structureTest<String> {
-        val optional = optionally(intParameter, null)
+    fun `optional defaults to null`() = structureTest<String> {
+        val optional = optional(intParameter, null)
         assertNull(withExecutionSender("sender") { optional.parse([]) }.expectSuccessValue())
     }
 
     @Test
-    fun `optionally on mapped Parameter defaults to null`() = structureTest<String> {
-        val optional = optionally(
+    fun `optional on mapped Parameter defaults to null`() = structureTest<String> {
+        val optional = optional(
             parameter = stringParameter("").map { success(it.length) },
             default = null,
         )
@@ -50,8 +50,8 @@ class OptionalsTest {
     }
 
     @Test
-    fun `optionally on mapped Parameter defaults to contextual value`() = structureTest<String> {
-        val optional = optionally(
+    fun `optional on mapped Parameter defaults to contextual value`() = structureTest<String> {
+        val optional = optional(
             parameter = stringParameter("").map { success(it.length) },
             default = { success(sender.length) },
         )
@@ -59,8 +59,8 @@ class OptionalsTest {
     }
 
     @Test
-    fun `optionally on mapped Parameter defaults to gated value`() = structureTest<String> {
-        val optional = optionally(
+    fun `optional on mapped Parameter defaults to gated value`() = structureTest<String> {
+        val optional = optional(
             parameter = stringParameter("").map { success(it.length) },
             default = defaultRequire(requirement { true }) { success(sender.length) },
         )
@@ -68,8 +68,8 @@ class OptionalsTest {
     }
 
     @Test
-    fun `optionally on mapped unbounded Parameter defaults to null`() = structureTest<String> {
-        val optional = optionally(
+    fun `optional on mapped unbounded Parameter defaults to null`() = structureTest<String> {
+        val optional = optional(
             parameter = textParameter("").map { success(it.length) },
             default = null,
         )
@@ -81,8 +81,8 @@ class OptionalsTest {
         val structure =
             command("cmd")(
                 optionals(
-                    optionally(intParameter("a"), null),
-                    optionally(stringParameter("b"), null)
+                    optional(intParameter("a"), null),
+                    optional(stringParameter("b"), null)
                 )
             ) { (a: Int?, b: String?) -> }
 
@@ -100,8 +100,8 @@ class OptionalsTest {
         val structure =
             command("cmd")(
                 optionals(
-                    optionally(intParameter("a"), null),
-                    optionally(textParameter("b"), "")
+                    optional(intParameter("a"), null),
+                    optional(textParameter("b"), "")
                 )
             )
 
@@ -116,7 +116,7 @@ class OptionalsTest {
             command("cmd")(
                 stringParameter("a"),
                 optionals(
-                    optionally(intParameter("b"), null),
+                    optional(intParameter("b"), null),
                     flag("silent")
                 ),
             ) { a, (b, silent) -> }
@@ -140,7 +140,7 @@ class OptionalsTest {
             command("cmd")(
                 optionals(
                     flag("silent"),
-                    optionally(intParameter("a"), null)
+                    optional(intParameter("a"), null)
                 ),
             ) { (silent, a) -> }
 
@@ -156,9 +156,9 @@ class OptionalsTest {
                 flag("raw"),
                 stringParameter("a"),
                 optionals(
-                    optionally(intParameter("b"), null),
+                    optional(intParameter("b"), null),
                     flag("silent"),
-                    optionally(textParameter("c"), ""),
+                    optional(textParameter("c"), ""),
                 ),
             ) { raw, a, (b, silent, d) ->
             }
@@ -169,18 +169,18 @@ class OptionalsTest {
     }
 
     @Test
-    fun `optionally group defaults`() = structureTest {
-        val optional = optionally(group(literalParameter("on")), GroupResult.ResultA("off"))
+    fun `optional group defaults`() = structureTest {
+        val optional = optional(group(literalParameter("on")), GroupResult.ResultA("off"))
         assertEquals(GroupResult.ResultA("off"), withExecution { optional.parse([]) }.expectSuccessValue())
     }
 
     @Test
-    fun `optionally group defaults to null`() = structureTest {
+    fun `optional group defaults to null`() = structureTest {
         val structure =
             command("cmd")(
                 optionals(
-                    optionally(group(literalParameter("on"), literalParameter("off")), null),
-                    optionally(stringParameter("reason"), null)
+                    optional(group(literalParameter("on"), literalParameter("off")), null),
+                    optional(stringParameter("reason"), null)
                 )
             ) { (toggle: GroupResult2<String, String>?, reason: String?) -> }
 
@@ -197,7 +197,7 @@ class OptionalsTest {
         val structure =
             command("cmd")(
                 stringParameter("a"),
-                optionally(group(literalParameter("on"), literalParameter("off")), null),
+                optional(group(literalParameter("on"), literalParameter("off")), null),
             ) { a, toggle -> }
 
         val syntax = withInvocation { structure.getSyntax() }

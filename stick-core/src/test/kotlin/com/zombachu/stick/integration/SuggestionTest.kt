@@ -20,7 +20,7 @@ import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.listParameter
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.map
-import com.zombachu.stick.dsl.optionally
+import com.zombachu.stick.dsl.optional
 import com.zombachu.stick.dsl.optionals
 import com.zombachu.stick.dsl.require
 import com.zombachu.stick.dsl.requireSender
@@ -137,8 +137,8 @@ class SuggestionTest {
         val countCommand = structure(Server::class, Sender::class) {
             command("count")(
                 optionals(
-                    optionally(literalParameter("one"), default = null),
-                    optionally(literalParameter("two"), default = null),
+                    optional(literalParameter("one"), default = null),
+                    optional(literalParameter("two"), default = null),
                 )
             ) { }
         }
@@ -243,7 +243,7 @@ class SuggestionTest {
                     flag("announce"),
                     LocationParameter(),
                     require(permission("server.warp.privacy")) {
-                        optionally(
+                        optional(
                             parameter = enumParameter("privacy", Privacy::class),
                             default = Privacy.Private,
                         )

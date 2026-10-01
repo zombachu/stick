@@ -8,7 +8,7 @@ import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
-import com.zombachu.stick.dsl.optionally
+import com.zombachu.stick.dsl.optional
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.failPermission
@@ -181,7 +181,7 @@ class RegistrationTest {
         class WarpsCommand : Command<WarpableServer, Sender> {
             override val structure = structure {
                 command("warps")(
-                    optionally(
+                    optional(
                         parameter = literalParameter("overworld"),
                         default = "overworld",
                     ),

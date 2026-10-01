@@ -87,7 +87,7 @@ class StoresTest {
     @Test
     fun `store on OptionalParameter keeps value type for wider identifier`() = structureTest {
         val identifier = id<Any>("amount")
-        val stored = optionally(intParameter(""), 3).store(identifier)
+        val stored = optional(intParameter(""), 3).store(identifier)
 
         val ex = testExecution()
         val result: Int = context(ex) { stored.parse([]) }.expectSuccessValue()

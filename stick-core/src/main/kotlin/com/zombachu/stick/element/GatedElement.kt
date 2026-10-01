@@ -22,9 +22,14 @@ import com.zombachu.stick.success
 
 @PublishedApi
 internal class GatedParameterImpl<E : Environment, S, T, P : Position>(
-    private val base: Parameter<E, S, T, P>,
-    private val requirement: Requirement<E, S>,
+    internal val base: Parameter<E, S, T, P>,
+    internal val requirement: Requirement<E, S>,
 ) : GatedParameter<E, S, T, P>, InternalConsumingElement<E, S, T>, SenderValidator<E, S> {
+
+    constructor(
+        base: GatedParameter<E, S, T, P>,
+        requirement: Requirement<E, S>,
+    ) : this((base as GatedParameterImpl<E, S, T, P>).base, requirement + base.requirement)
 
     override val size: Size = base.size
     override val type: GroupableType = base.type

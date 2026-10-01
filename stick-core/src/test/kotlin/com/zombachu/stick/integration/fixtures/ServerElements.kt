@@ -18,7 +18,7 @@ import com.zombachu.stick.consuming
 import com.zombachu.stick.dsl.defaultRequireSender
 import com.zombachu.stick.dsl.helper
 import com.zombachu.stick.dsl.mapSender
-import com.zombachu.stick.dsl.optionally
+import com.zombachu.stick.dsl.optional
 import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.requirement
 import com.zombachu.stick.element.GatedParameter
@@ -73,7 +73,7 @@ fun <E : Server, S> StructureScope<E, S>.playerParameter(name: String): PlayerPa
 fun <E : Server, S : Sender> StructureScope<E, S>.targetPlayerParameter(
     name: String,
 ): OptionalParameter<E, S, Player, Position.Optional> =
-    optionally(
+    optional(
         parameter = playerParameter(name),
         default = defaultRequireSender(Player::class) { success(sender) },
     )

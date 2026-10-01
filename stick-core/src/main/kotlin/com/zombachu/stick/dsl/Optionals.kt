@@ -34,91 +34,91 @@ import kotlin.internal.LowPriorityInOverloadResolution
 import kotlin.internal.NoInfer
 
 @LowPriorityInOverloadResolution
-fun <E : Environment, S, T> StructureScope<E, S>.optionally(
+fun <E : Environment, S, T> StructureScope<E, S>.optional(
     parameter: Parameter<E, S, T, Position.Leading>,
     default: @NoInfer T,
 ): OptionalParameter<E, S, T, Position.Optional> = OptionalParameterImpl(parameter, { success(default) }, null)
 
-fun <E : Environment, S, T> StructureScope<E, S>.optionally(
+fun <E : Environment, S, T> StructureScope<E, S>.optional(
     parameter: Parameter<E, S, T, Position.Leading>,
     default: ContextualValue<E, S, @NoInfer T>,
 ): OptionalParameter<E, S, T, Position.Optional> = OptionalParameterImpl(parameter, default, null)
 
-fun <E : Environment, S, T> StructureScope<E, S>.optionally(
+fun <E : Environment, S, T> StructureScope<E, S>.optional(
     parameter: Parameter<E, S, T, Position.Leading>,
     default: Nothing?,
 ): OptionalParameter<E, S, T?, Position.Optional> = OptionalParameterImpl(parameter, { success(default) }, null)
 
-fun <E : Environment, S, T> StructureScope<E, S>.optionally(
+fun <E : Environment, S, T> StructureScope<E, S>.optional(
     parameter: Parameter<E, S, T, Position.Leading>,
     default: GatedDefault<E, S, T>,
 ): OptionalParameter<E, S, T, Position.Optional> = OptionalParameterImpl(parameter, default.value, default)
 
 @LowPriorityInOverloadResolution
-@JvmName("optionallyLast")
-fun <E : Environment, S, T> StructureScope<E, S>.optionally(
+@JvmName("optionalLast")
+fun <E : Environment, S, T> StructureScope<E, S>.optional(
     parameter: Parameter<E, S, T, Position.Last>,
     default: @NoInfer T,
 ): OptionalParameter<E, S, T, Position.LastOptional> = OptionalParameterImpl(parameter, { success(default) }, null)
 
-@JvmName("optionallyLast")
-fun <E : Environment, S, T> StructureScope<E, S>.optionally(
+@JvmName("optionalLast")
+fun <E : Environment, S, T> StructureScope<E, S>.optional(
     parameter: Parameter<E, S, T, Position.Last>,
     default: ContextualValue<E, S, @NoInfer T>,
 ): OptionalParameter<E, S, T, Position.LastOptional> = OptionalParameterImpl(parameter, default, null)
 
-@JvmName("optionallyLast")
-fun <E : Environment, S, T> StructureScope<E, S>.optionally(
+@JvmName("optionalLast")
+fun <E : Environment, S, T> StructureScope<E, S>.optional(
     parameter: Parameter<E, S, T, Position.Last>,
     default: Nothing?,
 ): OptionalParameter<E, S, T?, Position.LastOptional> = OptionalParameterImpl(parameter, { success(default) }, null)
 
-@JvmName("optionallyLast")
-fun <E : Environment, S, T> StructureScope<E, S>.optionally(
+@JvmName("optionalLast")
+fun <E : Environment, S, T> StructureScope<E, S>.optional(
     parameter: Parameter<E, S, T, Position.Last>,
     default: GatedDefault<E, S, T>,
 ): OptionalParameter<E, S, T, Position.LastOptional> = OptionalParameterImpl(parameter, default.value, default)
 
-fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
+fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optional(
     group: Group<E, S, G, Position.Leading>,
     default: @NoInfer G,
 ): OptionalGroup<E, S, G, Position.Optional> = OptionalGroupImpl(group, { success(default) }, null)
 
-fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
+fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optional(
     group: Group<E, S, G, Position.Leading>,
     default: ContextualValue<E, S, @NoInfer G>,
 ): OptionalGroup<E, S, G, Position.Optional> = OptionalGroupImpl(group, default, null)
 
-fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
+fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optional(
     group: Group<E, S, G, Position.Leading>,
     default: Nothing?,
 ): OptionalGroup<E, S, G?, Position.Optional> = OptionalGroupImpl(group, { success(default) }, null)
 
-fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
+fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optional(
     group: Group<E, S, G, Position.Leading>,
     default: GatedDefault<E, S, G>,
 ): OptionalGroup<E, S, G, Position.Optional> = OptionalGroupImpl(group, default.value, default)
 
-@JvmName("optionallyLastGroup")
-fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
+@JvmName("optionalLastGroup")
+fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optional(
     group: Group<E, S, G, Position.Last>,
     default: @NoInfer G,
 ): OptionalGroup<E, S, G, Position.LastOptional> = OptionalGroupImpl(group, { success(default) }, null)
 
-@JvmName("optionallyLastGroup")
-fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
+@JvmName("optionalLastGroup")
+fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optional(
     group: Group<E, S, G, Position.Last>,
     default: ContextualValue<E, S, @NoInfer G>,
 ): OptionalGroup<E, S, G, Position.LastOptional> = OptionalGroupImpl(group, default, null)
 
-@JvmName("optionallyLastGroup")
-fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
+@JvmName("optionalLastGroup")
+fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optional(
     group: Group<E, S, G, Position.Last>,
     default: Nothing?,
 ): OptionalGroup<E, S, G?, Position.LastOptional> = OptionalGroupImpl(group, { success(default) }, null)
 
-@JvmName("optionallyLastGroup")
-fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optionally(
+@JvmName("optionalLastGroup")
+fun <E : Environment, S, G : GroupResult> StructureScope<E, S>.optional(
     group: Group<E, S, G, Position.Last>,
     default: GatedDefault<E, S, G>,
 ): OptionalGroup<E, S, G, Position.LastOptional> = OptionalGroupImpl(group, default.value, default)

@@ -198,7 +198,7 @@ class RequiresTest {
 
     @Test
     fun `require on OptionalParameter gives denied sender optional default`() = structureTest<String> {
-        val optional = require(requirement { sender == "correct" }) { optionally(intParameter(""), 7) }
+        val optional = require(requirement { sender == "correct" }) { optional(intParameter(""), 7) }
 
         assertEquals(7, withExecutionSender("incorrect") { optional.parse([]) }.expectSuccessValue())
         assertSame(
@@ -210,7 +210,7 @@ class RequiresTest {
     @Test
     fun `require on OptionalParameter resolves defaults by sender validity`() = structureTest<String> {
         val optional = require(requirement { sender == "correct" }, default = -1) {
-            optionally(intParameter(""), 0)
+            optional(intParameter(""), 0)
         }
 
         assertEquals(0, withExecutionSender("correct") { optional.parse([]) }.expectSuccessValue())
@@ -226,7 +226,7 @@ class RequiresTest {
     @Test
     fun `require on nullable OptionalParameter resolves defaults by sender validity`() = structureTest<String> {
         val optional = require(requirement { sender == "correct" }, default = null) {
-            optionally(intParameter(""), null)
+            optional(intParameter(""), null)
         }
 
         assertNull(withExecutionSender("correct") { optional.parse([]) }.expectSuccessValue())
@@ -242,7 +242,7 @@ class RequiresTest {
     @Test
     fun `require on OptionalParameter gives denied sender null default`() = structureTest<String> {
         val optional = require(requirement { sender == "correct" }, default = null) {
-            optionally(
+            optional(
                 parameter = intParameter(""),
                 default = 7,
             )
@@ -255,7 +255,7 @@ class RequiresTest {
     @Test
     fun `require on OptionalGroup gives denied sender null default`() = structureTest<String> {
         val optional = require(requirement { sender == "correct" }, default = null) {
-            optionally(
+            optional(
                 group = group(literalParameter("on")),
                 default = GroupResult.ResultA("off"),
             )
@@ -271,7 +271,7 @@ class RequiresTest {
     @Test
     fun `require on OptionalGroup resolves defaults by sender validity`() = structureTest<String> {
         val optional = require(requirement { sender == "correct" }, default = GroupResult.ResultA("invalid")) {
-            optionally(group(literalParameter("on")), GroupResult.ResultA("absent"))
+            optional(group(literalParameter("on")), GroupResult.ResultA("absent"))
         }
 
         assertEquals(
@@ -296,7 +296,7 @@ class RequiresTest {
     @Test
     fun `requireSender on OptionalParameter falls back to denied default`() = structureTest<BaseSender> {
         val optional = requireSender(Player::class, default = "console") {
-            optionally(stringParameter(""), { success(sender.name) })
+            optional(stringParameter(""), { success(sender.name) })
         }
         val player: BaseSender = Player("steve")
         val console = BaseSender("console")
@@ -314,7 +314,7 @@ class RequiresTest {
     @Test
     fun `requireSender on OptionalGroup falls back to denied default`() = structureTest<BaseSender> {
         val optional = requireSender(Player::class, default = GroupResult.ResultA("console")) {
-            optionally(group(literalParameter("on")), { success(GroupResult.ResultA(sender.name)) })
+            optional(group(literalParameter("on")), { success(GroupResult.ResultA(sender.name)) })
         }
         val player: BaseSender = Player("steve")
         val console = BaseSender("console")
@@ -341,7 +341,7 @@ class RequiresTest {
     @Test
     fun `requireSender on OptionalParameter gives denied sender null default`() = structureTest<BaseSender> {
         val optional = requireSender(Player::class, default = null) {
-            optionally(
+            optional(
                 parameter = intParameter(""),
                 default = 7,
             )
@@ -356,7 +356,7 @@ class RequiresTest {
     @Test
     fun `requireSender on OptionalGroup gives denied sender null default`() = structureTest<BaseSender> {
         val optional = requireSender(Player::class, default = null) {
-            optionally(
+            optional(
                 group = group(literalParameter("on")),
                 default = GroupResult.ResultA("off"),
             )

@@ -6,7 +6,7 @@ import com.zombachu.stick.dsl.flag
 import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.map
-import com.zombachu.stick.dsl.optionally
+import com.zombachu.stick.dsl.optional
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.textParameter
@@ -35,7 +35,7 @@ class MapTest {
     fun `page - map applies to optional default`() {
         val pageCommand = structure(Server::class, Sender::class) {
             command("page")(
-                optionally(
+                optional(
                     parameter = intParameter("page", min = 1),
                     default = 1).map { success(it - 1) }
             ) { index ->
@@ -146,7 +146,7 @@ class MapTest {
     fun `stop - map inside optional does not apply to default`() {
         val stopCommand = structure(Server::class, Sender::class) {
             command("stop")(
-                optionally(
+                optional(
                     parameter = stringParameter("reason").map { success(it.replaceFirstChar(Char::uppercase)) },
                     default = "server shutting down",
                 )
@@ -166,7 +166,7 @@ class MapTest {
     fun `stop - map outside optional applies to default`() {
         val restartCommand = structure(Server::class, Sender::class) {
             command("stop")(
-                optionally(
+                optional(
                     parameter = stringParameter("reason"),
                     default = "server shutting down",
                 ).map { success(it.replaceFirstChar(Char::uppercase)) }

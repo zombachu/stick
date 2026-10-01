@@ -15,7 +15,7 @@ import com.zombachu.stick.StructureScope
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.group
 import com.zombachu.stick.dsl.invoke
-import com.zombachu.stick.dsl.optionally
+import com.zombachu.stick.dsl.optional
 import com.zombachu.stick.dsl.require
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
@@ -129,7 +129,7 @@ class EnvironmentTest {
         val worldCommand = structure(WarpableServer::class, Sender::class) {
             command("spawn")(
                 require(permission("server.spawn"), default = deniedDefault) {
-                    optionally(parameter = WorldParameter<Server, Sender>("world"), default = absentDefault)
+                    optional(parameter = WorldParameter<Server, Sender>("world"), default = absentDefault)
                 }
             ) { world -> sender.log("Teleporting to $world spawn") }
         }
