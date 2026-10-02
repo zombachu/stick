@@ -10,6 +10,7 @@ import com.zombachu.stick.failure.CustomReason
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.fail
 
 object TestEnv : Environment
@@ -38,42 +39,33 @@ fun <E : Environment, S> testExecution(env: E, sender: S): Execution<E, S> =
 fun <E : Environment, S> testInvocation(env: E, sender: S): Invocation<E, S> =
     Invocation(env, sender)
 
-internal inline fun <T> withInvocation(
-    block: context(Invocation<TestEnv, Unit>) () -> T
-): T {
-    withInvocation(Unit) {
-        return block()
-    }
+fun <T> runSync(block: suspend () -> T): T {
+    var result: Result<T>? = null
+    startUndispatched(EmptyCoroutineContext, block) { result = it }
+    return (result ?: fail()).getOrThrow()
 }
 
-internal inline fun <S, T> withInvocation(
-    sender: S,
-    block: context(Invocation<TestEnv, S>) () -> T
-): T {
+internal fun <T> withInvocation(block: suspend context(Invocation<TestEnv, Unit>) () -> T): T =
+    withInvocation(Unit, block)
+
+internal fun <S, T> withInvocation(sender: S, block: suspend context(Invocation<TestEnv, S>) () -> T): T {
     val ctx = Invocation(TestEnv, sender)
-    context(ctx) {
-        return block()
-    }
+    return runSync { context(ctx) { block() } }
 }
 
-internal inline fun <T> withExecution(
+internal fun <T> withExecution(
     vararg args: String = [],
-    block: context(ExecutionImpl<TestEnv, Unit>) () -> T,
-): T {
-    withExecutionSender(Unit, *args) {
-        return block()
-    }
-}
+    block: suspend context(ExecutionImpl<TestEnv, Unit>) () -> T,
+): T =
+    withExecutionSender(Unit, *args, block = block)
 
-internal inline fun <S, T> withExecutionSender(
+internal fun <S, T> withExecutionSender(
     sender: S,
     vararg args: String = [],
-    block: context(ExecutionImpl<TestEnv, S>) () -> T,
+    block: suspend context(ExecutionImpl<TestEnv, S>) () -> T,
 ): T {
     val ex = testExecutionSender(sender, *args)
-    context(ex) {
-        return block()
-    }
+    return runSync { context(ex) { block() } }
 }
 
 fun <E : Environment, S> noopFailureHandler(): FailureHandler<E, S> =

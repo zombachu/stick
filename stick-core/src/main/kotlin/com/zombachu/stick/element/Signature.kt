@@ -51,7 +51,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
     protected abstract fun executeParsed(parsedValues: List<Any?>): T_
 
     context(ex: ExecutionImpl<E, S>)
-    fun execute(): CommandResult<T_> {
+    suspend fun execute(): CommandResult<T_> {
         val parsedValues =
             parse().valueOrPropagateFailure {
                 return it
@@ -92,7 +92,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
     }
 
     context(ex: ExecutionImpl<E, S>)
-    private fun parseElement(
+    private suspend fun parseElement(
         values: MutableList<Any?>,
         element: IndexedElement<E, S, Element<E, S, Any?>>,
     ): CommandResult<Any?> {
@@ -104,7 +104,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
     }
 
     context(ex: ExecutionImpl<E, S>)
-    private fun parse(): CommandResult<List<Any?>> {
+    private suspend fun parse(): CommandResult<List<Any?>> {
         val values: MutableList<Any?> = MutableList(flattenedElementsCount) {}
         val unprocessedFlags = flags.toMutableList()
 

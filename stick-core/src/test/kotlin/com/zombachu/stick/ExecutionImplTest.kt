@@ -60,7 +60,7 @@ class ExecutionImplTest {
         val ex = testExecution("a", "b", "c")
         val parameter = StringParameter<TestEnv, Unit>("", "")
 
-        val result = ex.processElement(parameter)
+        val result = runSync { ex.processElement(parameter) }
 
         assertEquals("a", result.expectSuccessValue())
         assertEquals(["b", "c"], ex.unparsed)
@@ -71,7 +71,7 @@ class ExecutionImplTest {
         val ex = testExecution("a", "b", "c")
         val group = Group1Impl<TestEnv, Unit, String, Position.Leading>("", "", StringParameter("", ""))
 
-        val result = ex.processElement(group)
+        val result = runSync { ex.processElement(group) }
 
         assertTrue(result.isSuccess())
         assertEquals(["b", "c"], ex.unparsed)
@@ -93,7 +93,7 @@ class ExecutionImplTest {
                 }
             }
 
-        val result = ex.processElement(parameter)
+        val result = runSync { ex.processElement(parameter) }
 
         assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
         assertFalse(parsed)
@@ -105,7 +105,7 @@ class ExecutionImplTest {
         val ex = testExecution("foo")
         val parameter = LiteralParameter<TestEnv, Unit>("bar", [], "")
 
-        val result = ex.processElement(parameter)
+        val result = runSync { ex.processElement(parameter) }
 
         assertEquals(Reason.LiteralNotMatched(["bar"], "foo"), result.expectReason())
     }
@@ -115,7 +115,7 @@ class ExecutionImplTest {
         val ex = testExecution("foo")
         val parameter = LiteralParameter<TestEnv, Unit>("bar", [], "")
 
-        val result = ex.processElement(parameter)
+        val result = runSync { ex.processElement(parameter) }
 
         val origin = result.expectNoMatch().origin
         assertEquals("bar", origin.elementName)
@@ -135,7 +135,7 @@ class ExecutionImplTest {
                     success("").consuming(1)
             }
 
-        val result = ex.processElement(parameter)
+        val result = runSync { ex.processElement(parameter) }
 
         assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
     }
@@ -145,8 +145,8 @@ class ExecutionImplTest {
         val ex = testExecution("a", "b", "c")
         val parameter = StringParameter<TestEnv, Unit>("", "")
 
-        val first = ex.processElement(parameter)
-        val second = ex.processElement(parameter)
+        val first = runSync { ex.processElement(parameter) }
+        val second = runSync { ex.processElement(parameter) }
 
         assertTrue(first.isSuccess() && second.isSuccess())
         assertEquals(2, ex.consumedArgs)
@@ -157,7 +157,7 @@ class ExecutionImplTest {
         val ex = testExecution("a")
         val transformed = ex.forSender { 1 }
 
-        val result = transformed.processElement(StringParameter<TestEnv, Int>("", ""))
+        val result = runSync { transformed.processElement(StringParameter<TestEnv, Int>("", "")) }
 
         assertTrue(result.isSuccess())
         assertEquals(1, ex.consumedArgs)
@@ -168,7 +168,7 @@ class ExecutionImplTest {
         var resolves = 0
         val parameter = countingParameter { resolves++ }
 
-        val result = testExecution("a").processElement(parameter)
+        val result = runSync { testExecution("a").processElement(parameter) }
 
         assertEquals("a", result.expectSuccessValue())
         assertEquals(1, resolves)
@@ -181,7 +181,7 @@ class ExecutionImplTest {
         val stored = countingParameter { resolves++ }.store(identifier)
 
         val ex = testExecution("a")
-        val result = ex.processElement(stored)
+        val result = runSync { ex.processElement(stored) }
 
         assertEquals("a", result.expectSuccessValue())
         assertEquals("a", ex.get(identifier))
@@ -200,7 +200,7 @@ class ExecutionImplTest {
         val mapped =
             MappedOptionalParameter<TestEnv, Unit, String, String, Position.Optional>(optional) { success("$it!") }
 
-        val result = testExecution("a").processElement(mapped)
+        val result = runSync { testExecution("a").processElement(mapped) }
 
         assertEquals("a!", result.expectSuccessValue())
         assertEquals(1, resolves)
@@ -216,7 +216,7 @@ class ExecutionImplTest {
                     success(args.joinToString(" ")).consuming(0)
             }
 
-        val result = ex.processElement(misbehavingParameter)
+        val result = runSync { ex.processElement(misbehavingParameter) }
 
         assertIs<Reason.Unknown>(result.expectError().reason)
         assertEquals(0, ex.consumedArgs)
@@ -234,7 +234,7 @@ class ExecutionImplTest {
                 override fun resolve(args: List<String>): ConsumingResult<String> = success("a").consuming(5)
             }
 
-        val result = ex.processElement(misbehavingParameter)
+        val result = runSync { ex.processElement(misbehavingParameter) }
 
         assertIs<Reason.Unknown>(result.expectError().reason)
     }

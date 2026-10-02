@@ -21,7 +21,7 @@ internal open class OptionalsImpl<E : Environment, S, T : Arguments>(
 ) : SignatureElement<E, S, T, Position.Last>, InternalElement<E, S, T> {
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): CommandResult<T> = unusedValue()
+    override suspend fun parse(args: List<String>): CommandResult<T> = unusedValue()
 }
 
 internal class Optionals2Impl<E_ : Environment, S, A, B>(

@@ -2,6 +2,7 @@ package com.zombachu.stick.dsl
 
 import com.zombachu.stick.element.parse
 import com.zombachu.stick.expectSuccessValue
+import com.zombachu.stick.runSync
 import com.zombachu.stick.structureTest
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
@@ -25,7 +26,7 @@ class HelpersTest {
 
         val ex = testExecution()
         ex.put(identifier, "bob")
-        val result = context(ex) { helper.parse([]) }
+        val result = runSync { context(ex) { helper.parse([]) } }
 
         assertEquals("bob", result.expectSuccessValue())
     }

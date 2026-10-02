@@ -25,7 +25,7 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
 
     // Declared here instead of implementing InternalConsumingElement or else it would expose parse() to subclasses
     context(ex: Execution<E, S>)
-    internal abstract fun parse(args: List<String>): ConsumingResult<T>
+    internal abstract suspend fun parse(args: List<String>): ConsumingResult<T>
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = "<${name}>"
@@ -37,7 +37,7 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
     ) : Parameter<E, S, T, Position.Leading>(size, name, description) {
 
         context(ex: Execution<E, S>)
-        final override fun parse(args: List<String>): ConsumingResult<T> {
+        final override suspend fun parse(args: List<String>): ConsumingResult<T> {
             val matched = (ex as ExecutionImpl).currentMatch
             if (matched != null && matched.resolvedBy === this) {
                 @Suppress("UNCHECKED_CAST")
@@ -273,7 +273,7 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
     ) : Parameter<E, S, T, Position.Last>(size, name, description) {
 
         context(ex: Execution<E, S>)
-        final override fun parse(args: List<String>): ConsumingResult<T> {
+        final override suspend fun parse(args: List<String>): ConsumingResult<T> {
             val matched = (ex as ExecutionImpl).currentMatch
             if (matched != null && matched.resolvedBy === this) {
                 @Suppress("UNCHECKED_CAST")

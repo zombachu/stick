@@ -44,7 +44,7 @@ internal class HybridFlagImpl<E : Environment, S, T>(
     }
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> {
+    override suspend fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> {
         if (args.isEmpty()) return success(HybridFlagResult.Absent<T>()).consuming(0)
         if (matches(args.first().lowercase())) {
             if (args.size == 1) {

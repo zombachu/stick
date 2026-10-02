@@ -27,7 +27,7 @@ internal class MappedParameter<E : Environment, S, A, T, P : Position>(
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> = parseMapped(args, base, transform)
+    override suspend fun parse(args: List<String>): ConsumingResult<T> = parseMapped(args, base, transform)
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = base.getSyntax()
@@ -52,7 +52,7 @@ internal class MappedValueFlag<E : Environment, S, A, T>(
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> = parseMapped(args, base, transform)
+    override suspend fun parse(args: List<String>): ConsumingResult<T> = parseMapped(args, base, transform)
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = base.getSyntax()
@@ -74,7 +74,7 @@ internal class MappedOptionalParameter<E : Environment, S, A, T, P : Position>(
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> = parseMapped(args, base, transform)
+    override suspend fun parse(args: List<String>): ConsumingResult<T> = parseMapped(args, base, transform)
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = base.getSyntax()
@@ -89,7 +89,7 @@ internal class MappedHelper<E : Environment, S, A, T>(
 ) : Helper<E, S, T>, InternalElement<E, S, T> {
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): CommandResult<T> {
+    override suspend fun parse(args: List<String>): CommandResult<T> {
         val value =
             base.parse(args).valueOrPropagateFailure {
                 return it
@@ -99,7 +99,7 @@ internal class MappedHelper<E : Environment, S, A, T>(
 }
 
 context(ex: Execution<E, S>)
-private fun <E : Environment, S, A, T> parseMapped(
+private suspend fun <E : Environment, S, A, T> parseMapped(
     args: List<String>,
     base: ConsumingElement<E, S, A>,
     transform: Execution<E, S>.(A) -> CommandResult<T>,

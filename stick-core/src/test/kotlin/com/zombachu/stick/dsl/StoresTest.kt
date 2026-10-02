@@ -5,6 +5,7 @@ import com.zombachu.stick.element.GroupableType
 import com.zombachu.stick.element.parse
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.isSuccess
+import com.zombachu.stick.runSync
 import com.zombachu.stick.structureTest
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
@@ -23,7 +24,7 @@ class StoresTest {
         val stored = stringParameter("").store(identifier)
 
         val ex = testExecution("bob")
-        val result = context(ex) { stored.parse(["bob"]) }
+        val result = runSync { context(ex) { stored.parse(["bob"]) } }
 
         assertEquals("bob", result.expectSuccessValue())
         assertEquals("bob", ex.get(identifier))
@@ -35,7 +36,7 @@ class StoresTest {
         val stored = intParameter("").store(identifier)
 
         val ex = testExecution("x")
-        val result = context(ex) { stored.parse(["x"]) }
+        val result = runSync { context(ex) { stored.parse(["x"]) } }
 
         assertFalse(result.isSuccess())
         assertNull(ex.get(identifier))
@@ -47,7 +48,7 @@ class StoresTest {
         val stored = intParameter("").store(identifier)
 
         val ex = testExecution("5")
-        val result: Int = context(ex) { stored.parse(["5"]) }.expectSuccessValue()
+        val result: Int = runSync { context(ex) { stored.parse(["5"]) } }.expectSuccessValue()
 
         assertEquals(5, result)
         assertEquals(5, ex.get(identifier))
@@ -78,7 +79,7 @@ class StoresTest {
         val stored = helper { success("computed") }.store(identifier)
 
         val ex = testExecution()
-        val result = context(ex) { stored.parse([]) }
+        val result = runSync { context(ex) { stored.parse([]) } }
 
         assertEquals("computed", result.expectSuccessValue())
         assertEquals("computed", ex.get(identifier))
@@ -90,7 +91,7 @@ class StoresTest {
         val stored = optional(intParameter(""), 3).store(identifier)
 
         val ex = testExecution()
-        val result: Int = context(ex) { stored.parse([]) }.expectSuccessValue()
+        val result: Int = runSync { context(ex) { stored.parse([]) } }.expectSuccessValue()
 
         assertEquals(3, result)
         assertEquals(3, ex.get(identifier))
@@ -102,7 +103,7 @@ class StoresTest {
         val stored = helper { success(5) }.store(identifier)
 
         val ex = testExecution()
-        val result: Int = context(ex) { stored.parse([]) }.expectSuccessValue()
+        val result: Int = runSync { context(ex) { stored.parse([]) } }.expectSuccessValue()
 
         assertEquals(5, result)
         assertEquals(5, ex.get(identifier))

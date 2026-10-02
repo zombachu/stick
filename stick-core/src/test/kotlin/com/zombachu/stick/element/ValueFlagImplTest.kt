@@ -18,6 +18,7 @@ import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.noMatch
 import com.zombachu.stick.presenceFlagParameter
 import com.zombachu.stick.presenceValueFlag
+import com.zombachu.stick.runSync
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
 import com.zombachu.stick.withExecution
@@ -51,7 +52,7 @@ class ValueFlagImplTest {
         )
 
         val ex = testExecution("-red")
-        val result = ex.processElement(flag)
+        val result = runSync { ex.processElement(flag) }
 
         assertEquals(Color.RED, result.expectSuccessValue())
         assertEquals(1, resolves)
@@ -75,7 +76,7 @@ class ValueFlagImplTest {
         )
 
         val ex = testExecution("-player", "steve")
-        val result = ex.processElement(flag)
+        val result = runSync { ex.processElement(flag) }
 
         assertEquals("steve", result.expectSuccessValue())
         assertEquals(2, ex.consumedArgs)
@@ -103,7 +104,7 @@ class ValueFlagImplTest {
         )
 
         val ex = testExecution("-player", "steve")
-        val result = ex.processElement(flag)
+        val result = runSync { ex.processElement(flag) }
 
         assertEquals("steve", result.expectSuccessValue())
         assertEquals(1, resolves)

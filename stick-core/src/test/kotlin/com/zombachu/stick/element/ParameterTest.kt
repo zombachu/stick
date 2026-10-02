@@ -12,6 +12,7 @@ import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.failType
 import com.zombachu.stick.failure.Reason
+import com.zombachu.stick.runSync
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
 import com.zombachu.stick.withInvocation
@@ -97,7 +98,7 @@ class ParameterTest {
 
         val ex = testExecution("a")
         ex.currentMatch = withInvocation { other.match(["a"]) } as MatchResult.Matched
-        val result = context(ex) { parameter.parse(["a"]) }
+        val result = runSync { context(ex) { parameter.parse(["a"]) } }
 
         assertEquals("a", result.expectSuccessValue())
         assertEquals(1, resolves)

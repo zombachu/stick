@@ -35,7 +35,7 @@ internal class ValueFlagImpl<E : Environment, S, T>(
         flagParameter.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> {
+    override suspend fun parse(args: List<String>): ConsumingResult<T> {
         if (args.isEmpty()) return default(ex).consuming(0)
         return flagParameter.parse(args)
     }

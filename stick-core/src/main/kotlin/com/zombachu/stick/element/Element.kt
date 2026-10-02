@@ -18,11 +18,11 @@ sealed interface Element<in E : Environment, S, out T>
 
 internal sealed interface InternalElement<in E : Environment, S, out T> : Element<E, S, T> {
     context(ex: Execution<E, S>)
-    fun parse(args: List<String>): CommandResult<T>
+    suspend fun parse(args: List<String>): CommandResult<T>
 }
 
 context(ex: Execution<E, S>)
-internal fun <E : Environment, S, T> Element<E, S, T>.parse(args: List<String>): CommandResult<T> =
+internal suspend fun <E : Environment, S, T> Element<E, S, T>.parse(args: List<String>): CommandResult<T> =
     when (this) {
         is Parameter<E, S, out T, *> -> parse(args)
         is InternalElement -> parse(args)
@@ -50,11 +50,11 @@ sealed interface ConsumingElement<in E : Environment, S, out T> : SyntaxElement<
 internal sealed interface InternalConsumingElement<in E : Environment, S, out T> :
     InternalElement<E, S, T>, ConsumingElement<E, S, T> {
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T>
+    override suspend fun parse(args: List<String>): ConsumingResult<T>
 }
 
 context(ex: Execution<E, S>)
-internal fun <E : Environment, S, T> ConsumingElement<E, S, T>.parse(args: List<String>): ConsumingResult<T> =
+internal suspend fun <E : Environment, S, T> ConsumingElement<E, S, T>.parse(args: List<String>): ConsumingResult<T> =
     when (this) {
         is Parameter<E, S, out T, *> -> parse(args)
         is InternalConsumingElement -> parse(args)

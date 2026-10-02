@@ -34,7 +34,7 @@ internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val s
     ): List<Suggestion> = signature.suggest(preceding, partial, leadingParameterMatch)
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): CommandResult<T_> {
+    override suspend fun parse(args: List<String>): CommandResult<T_> {
         val parsedArgs =
             context(ex as ExecutionImpl) { signature.execute() }
                 .valueOrPropagateFailure {

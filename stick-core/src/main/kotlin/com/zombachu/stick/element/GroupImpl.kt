@@ -117,7 +117,7 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
     }
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): CommandResult<G> {
+    override suspend fun parse(args: List<String>): CommandResult<G> {
         for (element in prioritizedElements) {
             processGroupElement(
                 element,
@@ -144,7 +144,7 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
 
     @OptIn(ExperimentalContracts::class)
     context(ex: Execution<E, S>)
-    private inline fun <T> processGroupElement(
+    private suspend inline fun <T> processGroupElement(
         groupElement: GroupElement<E, S, T, G>,
         onSuccess: (G) -> Nothing,
         onElementMismatch: () -> Nothing,

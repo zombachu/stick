@@ -16,6 +16,7 @@ import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
 import com.zombachu.stick.failSenderType
 import com.zombachu.stick.failure.Reason
+import com.zombachu.stick.runSync
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
 import com.zombachu.stick.withExecution
@@ -44,7 +45,7 @@ class HybridFlagImplTest {
         val countingFlag = HybridFlagImpl("rank", counting, [])
 
         val ex = testExecution("-rank", "guest")
-        val result = ex.processElement(countingFlag)
+        val result = runSync { ex.processElement(countingFlag) }
 
         assertEquals("guest", assertIs<HybridFlagResult.Value<String>>(result.expectSuccessValue()).value)
         assertEquals(2, ex.consumedArgs)
@@ -61,7 +62,7 @@ class HybridFlagImplTest {
         val varyingFlag = HybridFlagImpl("boost", varying, [])
 
         val ex = testExecution("-boost", "a", "b")
-        val result = ex.processElement(varyingFlag)
+        val result = runSync { ex.processElement(varyingFlag) }
 
         assertEquals("a", assertIs<HybridFlagResult.Value<String>>(result.expectSuccessValue()).value)
         assertEquals(2, ex.consumedArgs)

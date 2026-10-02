@@ -53,7 +53,7 @@ private constructor(override val sender: S, override val env: E, private val sta
     override fun <S2 : Any> forSender(transform: (S) -> S2): ExecutionImpl<E, S2> =
         ExecutionImpl(transform(sender), env, state)
 
-    internal fun <T> processElement(element: Element<E, S, T>): CommandResult<T> {
+    internal suspend fun <T> processElement(element: Element<E, S, T>): CommandResult<T> {
         val branch = currentBranch
         currentBranch = branch.copy(element = element as? SyntaxElement)
         val result = parseElement(element)
@@ -61,7 +61,7 @@ private constructor(override val sender: S, override val env: E, private val sta
         return result
     }
 
-    private fun <T> parseElement(element: Element<E, S, T>): CommandResult<T> {
+    private suspend fun <T> parseElement(element: Element<E, S, T>): CommandResult<T> {
         context(this) {
             if (element !is SyntaxElement) {
                 return element.parse([])

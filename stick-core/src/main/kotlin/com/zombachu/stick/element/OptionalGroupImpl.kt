@@ -36,7 +36,7 @@ internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Posit
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = group.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): CommandResult<G> {
+    override suspend fun parse(args: List<String>): CommandResult<G> {
         if (args.isEmpty()) {
             validateDefault().propagateFailure {
                 return failSyntax()

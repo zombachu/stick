@@ -40,7 +40,7 @@ internal class SenderMappedParameter<E : Environment, S, S2 : Any, T, P : Positi
     }
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> {
+    override suspend fun parse(args: List<String>): ConsumingResult<T> {
         val transformedExecution = ex.forSender(transform)
         context(transformedExecution) {
             return base.parse(args)
@@ -90,7 +90,7 @@ internal class SenderMappedValueFlag<E : Environment, S, S2 : Any, T>(
     }
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> {
+    override suspend fun parse(args: List<String>): ConsumingResult<T> {
         val transformedExecution = ex.forSender(transform)
         context(transformedExecution) {
             return base.parse(args)
@@ -132,7 +132,7 @@ internal class SenderMappedHybridFlag<E : Environment, S, S2 : Any, T>(
     }
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> {
+    override suspend fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> {
         val transformedExecution = ex.forSender(transform)
         context(transformedExecution) {
             return base.parse(args)
@@ -174,7 +174,7 @@ internal class SenderMappedOptionalParameter<E : Environment, S, S2 : Any, T, P 
     }
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> {
+    override suspend fun parse(args: List<String>): ConsumingResult<T> {
         val transformedExecution = ex.forSender(transform)
         context(transformedExecution) {
             return base.parse(args)
@@ -224,7 +224,7 @@ internal class SenderMappedOptionalGroup<E : Environment, S, S2 : Any, G : Group
     }
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): CommandResult<G> {
+    override suspend fun parse(args: List<String>): CommandResult<G> {
         val transformedExecution = ex.forSender(transform)
         context(transformedExecution) {
             return base.parse(args)
@@ -289,7 +289,7 @@ internal open class SenderMappedBranch<E : Environment, S, S2 : Any, T_ : Argume
     }
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): CommandResult<T_> {
+    override suspend fun parse(args: List<String>): CommandResult<T_> {
         val transformedExecution = ex.forSender(transform)
         context(transformedExecution) {
             return base.parse(args)

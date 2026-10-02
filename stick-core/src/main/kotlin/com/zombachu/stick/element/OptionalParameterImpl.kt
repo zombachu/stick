@@ -38,7 +38,7 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
         parameter.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> {
+    override suspend fun parse(args: List<String>): ConsumingResult<T> {
         if (args.isEmpty()) {
             validateDefault().propagateFailure {
                 return failSyntax()

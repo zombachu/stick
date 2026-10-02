@@ -43,7 +43,7 @@ internal class GatedParameterImpl<E : Environment, S, T, P : Position>(
     override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> = base.parse(args)
+    override suspend fun parse(args: List<String>): ConsumingResult<T> = base.parse(args)
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = base.getSyntax()
@@ -79,7 +79,7 @@ internal class GatedValueFlag<E : Environment, S, T>(
     }
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> {
+    override suspend fun parse(args: List<String>): ConsumingResult<T> {
         if (args.isEmpty() && deniedDefault != null) {
             requirement.validateSender().propagateFailure {
                 return deniedDefault(ex).consuming(0)
@@ -119,7 +119,7 @@ internal class GatedHybridFlag<E : Environment, S, T>(
     }
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> {
+    override suspend fun parse(args: List<String>): ConsumingResult<HybridFlagResult<T>> {
         if (args.isEmpty()) {
             requirement.validateSender().propagateFailure {
                 return (deniedDefault?.invoke(ex) ?: success(HybridFlagResult.Absent())).consuming(0)
@@ -159,7 +159,7 @@ internal class GatedOptionalParameter<E : Environment, S, T, P : Position>(
     }
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): ConsumingResult<T> {
+    override suspend fun parse(args: List<String>): ConsumingResult<T> {
         requirement.validateSender().propagateFailure { failure ->
             if (args.isNotEmpty()) return failure
             if (deniedDefault != null) return deniedDefault(ex).consuming(0)
@@ -208,7 +208,7 @@ internal class GatedOptionalGroup<E : Environment, S, G : GroupResult?, P : Posi
     }
 
     context(ex: Execution<E, S>)
-    override fun parse(args: List<String>): CommandResult<G> {
+    override suspend fun parse(args: List<String>): CommandResult<G> {
         requirement.validateSender().propagateFailure { failure ->
             if (args.isNotEmpty()) return failure
             if (deniedDefault != null) return deniedDefault(ex)
