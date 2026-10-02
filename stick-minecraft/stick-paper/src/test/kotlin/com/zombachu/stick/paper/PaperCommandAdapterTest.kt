@@ -7,6 +7,7 @@ import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.textParameter
 import com.zombachu.stick.noopFailureHandler
 import com.zombachu.stick.paper.dsl.permission
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -22,7 +23,8 @@ class PaperCommandAdapterTest {
             paperStructure {
                 command("cmd")(textParameter("")) { text = it }
             }
-        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure)
+        val adapter =
+            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         val result = adapter.execute(FakeCommandSender(), "cmd", arrayOf("hello", "world"))
 
@@ -36,7 +38,8 @@ class PaperCommandAdapterTest {
         val structure = paperStructure {
             command("cmd")() { executed = true }
         }
-        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure)
+        val adapter =
+            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         val result = adapter.execute(FakeCommandSender(), "cmd", arrayOf())
 
@@ -51,7 +54,8 @@ class PaperCommandAdapterTest {
             paperStructure {
                 command("cmd")(textParameter("")) { text = it }
             }
-        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure)
+        val adapter =
+            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         val result = adapter.execute(FakeCommandSender(), "fake-plugin:cmd", arrayOf("hello", "world"))
 
@@ -66,7 +70,8 @@ class PaperCommandAdapterTest {
                 literalParameter("there")
             ) { }
         }
-        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure)
+        val adapter =
+            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         assertEquals(["there"], adapter.tabComplete(FakeCommandSender(), "hello", arrayOf("")))
         assertEquals(["there"], adapter.tabComplete(FakeCommandSender(), "hello", arrayOf("the")))
@@ -80,7 +85,8 @@ class PaperCommandAdapterTest {
                 literalParameter("there")
             ) { }
         }
-        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure)
+        val adapter =
+            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         assertEquals(["there"], adapter.tabComplete(FakeCommandSender(), "fake-plugin:hello", arrayOf("the")))
     }
@@ -92,7 +98,8 @@ class PaperCommandAdapterTest {
                 literalParameter("there")
             ) { }
         }
-        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure)
+        val adapter =
+            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         assertEquals(["there"], adapter.tabComplete(FakeCommandSender(), "hello", arrayOf("", "the")))
     }
@@ -102,7 +109,8 @@ class PaperCommandAdapterTest {
         val structure = paperStructure {
             command("cmd", requirement = permission("stick.cmd"))() { }
         }
-        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure)
+        val adapter =
+            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         assertTrue(adapter.testPermissionSilent(FakeCommandSender(["stick.cmd"])))
         assertFalse(adapter.testPermissionSilent(FakeCommandSender()))
@@ -115,7 +123,8 @@ class PaperCommandAdapterTest {
                 command("cmd", requirement = permission("stick.cmd"))() { }
             }
         }
-        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure)
+        val adapter =
+            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         assertTrue(adapter.testPermissionSilent(FakeCommandSender(["stick.cmd"])))
         assertFalse(adapter.testPermissionSilent(FakeCommandSender()))
@@ -124,7 +133,13 @@ class PaperCommandAdapterTest {
     @Test
     fun `getPlugin returns environment plugin`() {
         val structure = paperStructure { command("cmd")() }
-        val adapter = PaperCommandAdapter(FakePaperEnvironment(FakePlugin), noopFailureHandler(), structure)
+        val adapter =
+            PaperCommandAdapter(
+                FakePaperEnvironment(FakePlugin),
+                noopFailureHandler(),
+                structure,
+                EmptyCoroutineContext,
+            )
 
         assertSame(FakePlugin, adapter.getPlugin())
     }

@@ -7,6 +7,7 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertSame
 import kotlin.test.fail
 
@@ -43,7 +44,7 @@ private fun <E : Environment, S> Structure<E, S, *>.dispatch(
 }
 
 internal fun <E : Environment, S> Structure<E, S, *>.suggest(env: E, sender: S, command: String): List<String> {
-    val runner = CommandRunner(env, RecordingFailureHandler(), this)
+    val runner = CommandRunner(env, RecordingFailureHandler(), this, EmptyCoroutineContext, EmptyCoroutineContext)
 
     val args = command.replaceFirst("/", "").split(" ")
     return runner.suggest(sender, args.first(), args.drop(1))
@@ -57,7 +58,7 @@ internal fun <E : Environment, S> Structure<E, S, *>.executeWithHandler(
 ) {
     clearMessages(env, sender)
 
-    val runner = CommandRunner(env, handler, this)
+    val runner = CommandRunner(env, handler, this, EmptyCoroutineContext, EmptyCoroutineContext)
 
     val args = command.replaceFirst("/", "").split(" ")
     runner.execute(sender, args.first(), args.drop(1))

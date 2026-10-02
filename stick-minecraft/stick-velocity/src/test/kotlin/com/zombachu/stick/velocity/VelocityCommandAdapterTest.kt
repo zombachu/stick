@@ -6,6 +6,7 @@ import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.textParameter
 import com.zombachu.stick.noopFailureHandler
 import com.zombachu.stick.velocity.dsl.permission
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -39,7 +40,7 @@ class VelocityCommandAdapterTest {
         val structure = velocityStructure {
             command("cmd")() { executed = true }
         }
-        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure)
+        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         adapter.execute(FakeInvocation(FakeCommandSource(), "cmd", ""))
 
@@ -53,7 +54,7 @@ class VelocityCommandAdapterTest {
                 literalParameter("there")
             ) { }
         }
-        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure)
+        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         assertEquals(["there"], adapter.suggest(FakeInvocation(FakeCommandSource(), "hello", "")))
         assertEquals(["there"], adapter.suggest(FakeInvocation(FakeCommandSource(), "hello", "the")))
@@ -67,7 +68,7 @@ class VelocityCommandAdapterTest {
                 literalParameter("there")
             ) { }
         }
-        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure)
+        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         assertEquals(["there"], adapter.suggest(FakeInvocation(FakeCommandSource(), "hello", "  the")))
     }
@@ -77,7 +78,7 @@ class VelocityCommandAdapterTest {
         val structure = velocityStructure {
             command("cmd", requirement = permission("stick.cmd"))() { }
         }
-        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure)
+        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         assertTrue(adapter.hasPermission(FakeInvocation(FakeCommandSource(["stick.cmd"]), "cmd", "")))
         assertFalse(adapter.hasPermission(FakeInvocation(FakeCommandSource(), "cmd", "")))
@@ -90,6 +91,6 @@ class VelocityCommandAdapterTest {
             velocityStructure {
                 command("cmd")(textParameter("")) { rest -> onExecute(rest) }
             }
-        return VelocityCommandAdapter(environment(), noopFailureHandler(), structure)
+        return VelocityCommandAdapter(environment(), noopFailureHandler(), structure, EmptyCoroutineContext)
     }
 }

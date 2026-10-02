@@ -5,26 +5,37 @@ import com.zombachu.stick.element.parse
 import com.zombachu.stick.element.validateSender
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.Reason
+import kotlin.coroutines.CoroutineContext
 
 class CommandRunner<E : Environment, S>(
     private val env: E,
     private val failureHandler: FailureHandler<E, S>,
     private val structure: Structure<E, S, *>,
+    private val mainContext: CoroutineContext,
+    private val asyncContext: CoroutineContext,
 ) {
 
     @Suppress("TooGenericExceptionCaught")
     fun execute(sender: S, label: String, args: List<String>) {
         val fullArgs = [label] + args
         val ex = Execution(sender, env, label, fullArgs, structure)
-        context(env, ex) {
-            val result =
-                try {
-                    val validationResult = structure.validateSender()
-                    if (validationResult.isSuccess()) structure.parse(fullArgs) else validationResult
-                } catch (e: Exception) {
-                    fail(Reason.Unknown(e))
+        startUndispatched(
+            mainContext + StickCoroutineContext(mainContext, asyncContext),
+            {
+                context(env, ex) {
+                    val result =
+                        try {
+                            val validationResult = structure.validateSender()
+                            if (validationResult.isSuccess()) structure.parse(fullArgs) else validationResult
+                        } catch (e: Exception) {
+                            fail(Reason.Unknown(e))
+                        }
+                    if (result is CommandResult.Failure.Unhandled)
+                        failureHandler.onFailure(result.reason, result.origin)
                 }
-            if (result is CommandResult.Failure.Unhandled) failureHandler.onFailure(result.reason, result.origin)
+            },
+        ) {
+            it.getOrThrow()
         }
     }
 

@@ -5,14 +5,18 @@ import com.velocitypowered.api.command.RawCommand
 import com.zombachu.stick.CommandRunner
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.failure.FailureHandler
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 internal class VelocityCommandAdapter<E : VelocityEnvironment>(
     env: E,
     failureHandler: FailureHandler<E, CommandSource>,
     structure: Structure<E, CommandSource, *>,
+    asyncContext: CoroutineContext,
 ) : RawCommand {
 
-    private val runner = CommandRunner(env, failureHandler, structure)
+    // Velocity doesn't have a main thread
+    private val runner = CommandRunner(env, failureHandler, structure, EmptyCoroutineContext, asyncContext)
 
     override fun execute(invocation: RawCommand.Invocation) {
         val args = invocation.arguments().split(' ').filter { it.isNotEmpty() }

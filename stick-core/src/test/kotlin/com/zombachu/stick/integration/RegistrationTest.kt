@@ -28,6 +28,8 @@ import com.zombachu.stick.integration.fixtures.executeExpectingError
 import com.zombachu.stick.integration.fixtures.executeWithHandler
 import com.zombachu.stick.noopFailureHandler
 import com.zombachu.stick.success
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
@@ -351,14 +353,17 @@ class RegistrationTest {
     }
 
     private class TestStick(private val env: SynergyServer) :
-        Stick<Server, Sender>(Sender::class, lazyOf(env), lazy { noopFailureHandler() }) {
+        Stick<Server, Sender>(Sender::class, lazyOf(env), lazy { noopFailureHandler() }, EmptyCoroutineContext) {
 
         val registered: MutableList<Structure<SynergyServer, Sender, *>> = mutableListOf()
 
         private var handler: FailureHandler<SynergyServer, Sender>? = null
 
         context(env: E2, failureHandler: FailureHandler<E2, Sender>)
-        override fun <E2 : Server> registerCommand(structure: Structure<E2, Sender, *>) {
+        override fun <E2 : Server> registerCommand(
+            structure: Structure<E2, Sender, *>,
+            asyncContext: CoroutineContext,
+        ) {
             @Suppress("UNCHECKED_CAST")
             registered += structure as Structure<SynergyServer, Sender, *>
             @Suppress("UNCHECKED_CAST")

@@ -10,6 +10,7 @@ import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -21,7 +22,8 @@ class CommandRunnerTest {
         val structure = structure("cmd") { Signature0({}, LeadingParameterRole.Label, [it]) }
         val handler = RecordingFailureHandler()
 
-        CommandRunner(TestEnv, handler, structure).execute(Unit, "cmd", [])
+        CommandRunner(TestEnv, handler, structure, EmptyCoroutineContext, EmptyCoroutineContext)
+            .execute(Unit, "cmd", [])
 
         assertEquals(0, handler.calls)
     }
@@ -31,7 +33,8 @@ class CommandRunnerTest {
         val structure = structure("cmd") { Signature0({}, LeadingParameterRole.Label, [it]) }
         val handler = RecordingFailureHandler()
 
-        CommandRunner(TestEnv, handler, structure).execute(Unit, "other", [])
+        CommandRunner(TestEnv, handler, structure, EmptyCoroutineContext, EmptyCoroutineContext)
+            .execute(Unit, "other", [])
 
         assertEquals(1, handler.calls)
         assertIs<Reason.InvalidSyntax>(handler.lastReason)
@@ -48,7 +51,8 @@ class CommandRunnerTest {
             structure("cmd") { Signature1<TestEnv, Unit, String>({}, LeadingParameterRole.Label, [it, parameter]) }
         val handler = RecordingFailureHandler()
 
-        CommandRunner(TestEnv, handler, structure).execute(Unit, "cmd", ["x"])
+        CommandRunner(TestEnv, handler, structure, EmptyCoroutineContext, EmptyCoroutineContext)
+            .execute(Unit, "cmd", ["x"])
 
         assertEquals(0, handler.calls)
     }
@@ -60,7 +64,8 @@ class CommandRunnerTest {
             structure("cmd") { Signature1<TestEnv, Unit, String>({}, LeadingParameterRole.Label, [it, parameter]) }
         val handler = RecordingFailureHandler()
 
-        CommandRunner(TestEnv, handler, structure).execute(Unit, "cmd", [])
+        CommandRunner(TestEnv, handler, structure, EmptyCoroutineContext, EmptyCoroutineContext)
+            .execute(Unit, "cmd", [])
 
         assertEquals(1, handler.calls)
         assertIs<Reason.InvalidSyntax>(handler.lastReason)
