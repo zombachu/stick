@@ -12,6 +12,7 @@ import com.zombachu.stick.element.MappedValueFlag
 import com.zombachu.stick.element.OptionalParameter
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.ValueFlag
+import com.zombachu.stick.withAsyncContext
 
 fun <E : Environment, S, A, B, P : Position> Parameter<E, S, A, P>.map(
     transform: Execution<E, S>.(A) -> CommandResult<B>
@@ -28,3 +29,20 @@ fun <E : Environment, S, A, B, P : Position> OptionalParameter<E, S, A, P>.map(
 fun <E : Environment, S, A, B> Helper<E, S, A>.map(
     transform: Execution<E, S>.(A) -> CommandResult<B>
 ): Helper<E, S, B> = MappedHelper(this, transform)
+
+fun <E : Environment, S, A, B, P : Position> Parameter<E, S, A, P>.mapAsync(
+    transform: suspend Execution<E, S>.(A) -> CommandResult<B>
+): Parameter<E, S, B, P> = MappedParameter(this) { value -> withAsyncContext { transform(this, value) } }
+
+fun <E : Environment, S, A, B> ValueFlag<E, S, A>.mapAsync(
+    transform: suspend Execution<E, S>.(A) -> CommandResult<B>
+): ValueFlag<E, S, B> = MappedValueFlag(this) { value -> withAsyncContext { transform(this, value) } }
+
+fun <E : Environment, S, A, B, P : Position> OptionalParameter<E, S, A, P>.mapAsync(
+    transform: suspend Execution<E, S>.(A) -> CommandResult<B>
+): OptionalParameter<E, S, B, P> =
+    MappedOptionalParameter(this) { value -> withAsyncContext { transform(this, value) } }
+
+fun <E : Environment, S, A, B> Helper<E, S, A>.mapAsync(
+    transform: suspend Execution<E, S>.(A) -> CommandResult<B>
+): Helper<E, S, B> = MappedHelper(this) { value -> withAsyncContext { transform(this, value) } }

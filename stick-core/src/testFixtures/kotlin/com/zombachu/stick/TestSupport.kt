@@ -41,7 +41,7 @@ fun <E : Environment, S> testInvocation(env: E, sender: S): Invocation<E, S> =
 
 fun <T> runSync(block: suspend () -> T): T {
     var result: Result<T>? = null
-    startUndispatched(EmptyCoroutineContext, block) { result = it }
+    startUndispatched(StickCoroutineContext(EmptyCoroutineContext, EmptyCoroutineContext), block) { result = it }
     return (result ?: fail()).getOrThrow()
 }
 

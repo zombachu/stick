@@ -3,6 +3,7 @@ package com.zombachu.stick.integration.fixtures
 import com.zombachu.stick.CommandRunner
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Execution
+import com.zombachu.stick.asCoroutineContext
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.FailureOrigin
@@ -48,6 +49,22 @@ internal fun <E : Environment, S> Structure<E, S, *>.suggest(env: E, sender: S, 
 
     val args = command.replaceFirst("/", "").split(" ")
     return runner.suggest(sender, args.first(), args.drop(1))
+}
+
+internal fun <E : Environment, S> Structure<E, S, *>.executeOn(
+    main: TestExecutor,
+    async: TestExecutor,
+    env: E,
+    sender: S,
+    command: String,
+) {
+    clearMessages(env, sender)
+
+    val runner =
+        CommandRunner(env, RecordingFailureHandler(), this, main.asCoroutineContext(), async.asCoroutineContext())
+
+    val args = command.replaceFirst("/", "").split(" ")
+    main.execute { runner.execute(sender, args.first(), args.drop(1)) }
 }
 
 internal fun <E : Environment, S> Structure<E, S, *>.executeWithHandler(

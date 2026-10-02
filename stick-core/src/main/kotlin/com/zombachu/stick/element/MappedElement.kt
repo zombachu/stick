@@ -15,7 +15,7 @@ import com.zombachu.stick.valueOrPropagateFailure
 
 internal class MappedParameter<E : Environment, S, A, T, P : Position>(
     private val base: Parameter<E, S, A, P>,
-    private val transform: Execution<E, S>.(A) -> CommandResult<T>,
+    private val transform: suspend Execution<E, S>.(A) -> CommandResult<T>,
 ) : Parameter<E, S, T, P>(base.size, base.name, base.description) {
 
     override val type: GroupableType = base.type
@@ -38,7 +38,7 @@ internal class MappedParameter<E : Environment, S, A, T, P : Position>(
 
 internal class MappedValueFlag<E : Environment, S, A, T>(
     private val base: ValueFlag<E, S, A>,
-    private val transform: Execution<E, S>.(A) -> CommandResult<T>,
+    private val transform: suspend Execution<E, S>.(A) -> CommandResult<T>,
 ) : ValueFlag<E, S, T>, InternalConsumingElement<E, S, T> {
 
     override val size: Size.Bounded = base.size
@@ -60,7 +60,7 @@ internal class MappedValueFlag<E : Environment, S, A, T>(
 
 internal class MappedOptionalParameter<E : Environment, S, A, T, P : Position>(
     private val base: OptionalParameter<E, S, A, P>,
-    private val transform: Execution<E, S>.(A) -> CommandResult<T>,
+    private val transform: suspend Execution<E, S>.(A) -> CommandResult<T>,
 ) : OptionalParameter<E, S, T, P>, InternalConsumingElement<E, S, T>, InternalOptional<E, S> {
 
     override val size: Size = base.size
@@ -85,7 +85,7 @@ internal class MappedOptionalParameter<E : Environment, S, A, T, P : Position>(
 
 internal class MappedHelper<E : Environment, S, A, T>(
     private val base: Helper<E, S, A>,
-    private val transform: Execution<E, S>.(A) -> CommandResult<T>,
+    private val transform: suspend Execution<E, S>.(A) -> CommandResult<T>,
 ) : Helper<E, S, T>, InternalElement<E, S, T> {
 
     context(ex: Execution<E, S>)
@@ -102,7 +102,7 @@ context(ex: Execution<E, S>)
 private suspend fun <E : Environment, S, A, T> parseMapped(
     args: List<String>,
     base: ConsumingElement<E, S, A>,
-    transform: Execution<E, S>.(A) -> CommandResult<T>,
+    transform: suspend Execution<E, S>.(A) -> CommandResult<T>,
 ): ConsumingResult<T> {
     val baseResult = base.parse(args)
     baseResult.propagateFailure {
