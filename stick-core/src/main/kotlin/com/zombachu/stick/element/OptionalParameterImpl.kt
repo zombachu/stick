@@ -34,7 +34,7 @@ internal class OptionalParameterImpl<E : Environment, S, T, P : Position>(
     }
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
         parameter.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)

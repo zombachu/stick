@@ -2,9 +2,11 @@ package com.zombachu.stick
 
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.parse
+import com.zombachu.stick.element.suggest
 import com.zombachu.stick.element.validateSender
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.Reason
+import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.CoroutineContext
 
 class CommandRunner<E : Environment, S>(
@@ -47,6 +49,28 @@ class CommandRunner<E : Environment, S>(
     }
 
     fun suggest(sender: S, label: String, args: List<String>): List<String> {
+        var suggestions: List<String> = []
+        startUndispatched(
+            mainContext + StickCoroutineContext(mainContext, asyncContext) + SkipAsyncSuggestions,
+            { suggestions(sender, label, args) },
+        ) {
+            suggestions = it.getOrThrow()
+        }
+        return suggestions
+    }
+
+    fun suggestAsync(sender: S, label: String, args: List<String>): CompletableFuture<List<String>> {
+        val future = CompletableFuture<List<String>>()
+        startUndispatched(
+            mainContext + StickCoroutineContext(mainContext, asyncContext),
+            { suggestions(sender, label, args) },
+        ) {
+            future.complete(it.getOrThrow())
+        }
+        return future
+    }
+
+    private suspend fun suggestions(sender: S, label: String, args: List<String>): List<String> {
         if (args.isEmpty()) return []
 
         val preceding = [label] + args.dropLast(1).filter { it.isNotEmpty() }

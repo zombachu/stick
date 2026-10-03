@@ -91,6 +91,20 @@ class ParameterTest {
     }
 
     @Test
+    fun `async fixed arity match returns partial below arity`() {
+        val parameter =
+            object : AsyncParameter.Size2<TestEnv, Unit, String>("", "") {
+                context(inv: Invocation<TestEnv, Unit>)
+                override fun match(arg0: String, arg1: String): MatchResult = MatchResult.unmatched()
+
+                context(inv: Invocation<TestEnv, Unit>)
+                override suspend fun resolve(arg0: String, arg1: String): CommandResult<String> = success(arg0)
+            }
+
+        assertEquals(MatchResult.partial(), withInvocation { parameter.match(["a"]) })
+    }
+
+    @Test
     fun `parse ignores memo produced by another parameter`() {
         var resolves = 0
         val other = countingParameter {}

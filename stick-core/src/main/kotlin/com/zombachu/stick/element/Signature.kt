@@ -79,7 +79,11 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
     }
 
     context(inv: Invocation<E, S>)
-    fun suggest(preceding: List<String>, partial: String, leadingParameterMatch: MatchResult?): List<Suggestion> {
+    suspend fun suggest(
+        preceding: List<String>,
+        partial: String,
+        leadingParameterMatch: MatchResult?,
+    ): List<Suggestion> {
         return SuggestionProcessor(preceding, leadingParameterMatch).process().flatMap { candidate ->
             val element = candidate.element
             val window = preceding.subList(candidate.startIndex, preceding.size)
