@@ -40,7 +40,8 @@ internal class GatedParameterImpl<E : Environment, S, T, P : Position>(
     override fun match(args: List<String>): MatchResult = base.match(args)
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        base.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
     override suspend fun parse(args: List<String>): ConsumingResult<T> = base.parse(args)
@@ -71,7 +72,7 @@ internal class GatedValueFlag<E : Environment, S, T>(
     }
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
         requirement.validateSender().propagateFailure {
             return []
         }
@@ -111,7 +112,7 @@ internal class GatedHybridFlag<E : Environment, S, T>(
     }
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
         requirement.validateSender().propagateFailure {
             return []
         }
@@ -151,7 +152,7 @@ internal class GatedOptionalParameter<E : Environment, S, T, P : Position>(
     }
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
         requirement.validateSender().propagateFailure {
             return []
         }
@@ -189,7 +190,7 @@ internal class GatedOptionalGroup<E : Environment, S, G : GroupResult?, P : Posi
     private val base: OptionalGroup<E, S, G, P>,
     private val requirement: Requirement<E, S>,
     private val deniedDefault: ContextualValue<E, S, G>?,
-) : OptionalGroup<E, S, G, P> by base, InternalElement<E, S, G>, InternalOptional<E, S> {
+) : OptionalGroup<E, S, G, P> by base, InternalSyntaxElement<E, S, G>, InternalOptional<E, S> {
 
     context(inv: Invocation<E, S>)
     override fun match(args: List<String>): MatchResult {
@@ -200,7 +201,7 @@ internal class GatedOptionalGroup<E : Environment, S, G : GroupResult?, P : Posi
     }
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
         requirement.validateSender().propagateFailure {
             return []
         }

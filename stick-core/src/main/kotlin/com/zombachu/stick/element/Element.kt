@@ -39,16 +39,29 @@ sealed interface SyntaxElement<in E : Environment, S, out T> : Element<E, S, T> 
     fun match(args: List<String>): MatchResult
 
     context(inv: Invocation<E, S>)
-    fun suggest(preceding: List<String>, partial: String): List<Suggestion> = []
-
-    context(inv: Invocation<E, S>)
     fun getSyntax(): String
 }
+
+internal sealed interface InternalSyntaxElement<in E : Environment, S, out T> :
+    InternalElement<E, S, T>, SyntaxElement<E, S, T> {
+    context(inv: Invocation<E, S>)
+    suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion>
+}
+
+context(inv: Invocation<E, S>)
+internal suspend fun <E : Environment, S> SyntaxElement<E, S, *>.suggest(
+    preceding: List<String>,
+    partial: String,
+): List<Suggestion> =
+    when (this) {
+        is Parameter<E, S, *, *> -> routeSuggest(preceding, partial)
+        is InternalSyntaxElement -> suggest(preceding, partial)
+    }
 
 sealed interface ConsumingElement<in E : Environment, S, out T> : SyntaxElement<E, S, T>
 
 internal sealed interface InternalConsumingElement<in E : Environment, S, out T> :
-    InternalElement<E, S, T>, ConsumingElement<E, S, T> {
+    InternalSyntaxElement<E, S, T>, ConsumingElement<E, S, T> {
     context(ex: Execution<E, S>)
     override suspend fun parse(args: List<String>): ConsumingResult<T>
 }
@@ -84,13 +97,18 @@ sealed interface Structure<in E : Environment, S, T_ : Arguments> : Branch<E, S,
 
 sealed interface Branch<in E : Environment, S, T_ : Arguments> : Groupable<E, S, T_, Position.Last>
 
-internal interface InternalBranch<in E : Environment, S, T_ : Arguments> : Branch<E, S, T_>, InternalElement<E, S, T_> {
+internal interface InternalBranch<in E : Environment, S, T_ : Arguments> :
+    Branch<E, S, T_>, InternalSyntaxElement<E, S, T_> {
 
     context(inv: Invocation<E, S>)
-    fun suggestBranch(preceding: List<String>, partial: String, leadingParameterMatch: MatchResult?): List<Suggestion>
+    suspend fun suggestBranch(
+        preceding: List<String>,
+        partial: String,
+        leadingParameterMatch: MatchResult?,
+    ): List<Suggestion>
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
         suggestBranch(preceding, partial, null)
 }
 

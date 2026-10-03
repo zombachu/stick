@@ -5,6 +5,7 @@ import com.velocitypowered.api.command.RawCommand
 import com.zombachu.stick.CommandRunner
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.failure.FailureHandler
+import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -25,8 +26,8 @@ internal class VelocityCommandAdapter<E : VelocityEnvironment>(
 
     override fun hasPermission(invocation: RawCommand.Invocation): Boolean = runner.canUse(invocation.source())
 
-    override fun suggest(invocation: RawCommand.Invocation): List<String> {
+    override fun suggestAsync(invocation: RawCommand.Invocation): CompletableFuture<List<String>> {
         val args = invocation.arguments().split(' ')
-        return runner.suggest(invocation.source(), invocation.alias(), args)
+        return runner.suggestAsync(invocation.source(), invocation.alias(), args)
     }
 }

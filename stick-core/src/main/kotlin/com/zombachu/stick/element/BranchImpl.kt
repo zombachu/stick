@@ -27,7 +27,7 @@ internal open class BranchImpl<E : Environment, S, T_ : Arguments>(private val s
     override fun match(args: List<String>): MatchResult = leadingParameter.match(args)
 
     context(inv: Invocation<E, S>)
-    override fun suggestBranch(
+    override suspend fun suggestBranch(
         preceding: List<String>,
         partial: String,
         leadingParameterMatch: MatchResult?,

@@ -39,7 +39,7 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
     override val name: String,
     override val description: String,
     private val elements: List<GroupElement<E, S, *, G>>,
-) : Group<E, S, G, P>, InternalElement<E, S, G> {
+) : Group<E, S, G, P>, InternalSyntaxElement<E, S, G> {
 
     private val prioritizedElements: List<GroupElement<E, S, *, G>> =
         elements.sortedWith(
@@ -97,24 +97,26 @@ internal open class GroupImpl<E : Environment, S, G, P : Position>(
     }
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = suggest(preceding, partial, null)
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        suggest(preceding, partial, null)
 
     context(inv: Invocation<E, S>)
-    internal fun suggest(preceding: List<String>, partial: String, matched: GroupMatch?): List<Suggestion> = buildList {
-        for ((index, element) in prioritizedElements.withIndex()) {
-            val groupable = element.groupable
-            val size = groupable.size
-            if (size is Size.Bounded && preceding.size >= size.max) continue
-            groupable.validateSender().propagateFailure { continue }
-            val match = matched?.branchResults?.getOrNull(index)
-            if (groupable is InternalBranch<E, S, *>) {
-                addAll(groupable.suggestBranch(preceding, partial, match))
-                continue
+    internal suspend fun suggest(preceding: List<String>, partial: String, matched: GroupMatch?): List<Suggestion> =
+        buildList {
+            for ((index, element) in prioritizedElements.withIndex()) {
+                val groupable = element.groupable
+                val size = groupable.size
+                if (size is Size.Bounded && preceding.size >= size.max) continue
+                groupable.validateSender().propagateFailure { continue }
+                val match = matched?.branchResults?.getOrNull(index)
+                if (groupable is InternalBranch<E, S, *>) {
+                    addAll(groupable.suggestBranch(preceding, partial, match))
+                    continue
+                }
+                if (match?.canConsumeMore == false) continue
+                addAll(groupable.suggest(preceding, partial))
             }
-            if (match?.canConsumeMore == false) continue
-            addAll(groupable.suggest(preceding, partial))
         }
-    }
 
     context(ex: Execution<E, S>)
     override suspend fun parse(args: List<String>): CommandResult<G> {

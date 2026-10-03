@@ -8,6 +8,8 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
+import java.util.concurrent.CompletableFuture
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertSame
 import kotlin.test.fail
@@ -51,20 +53,34 @@ internal fun <E : Environment, S> Structure<E, S, *>.suggest(env: E, sender: S, 
     return runner.suggest(sender, args.first(), args.drop(1))
 }
 
+internal fun <E : Environment, S> Structure<E, S, *>.suggestAsync(
+    env: E,
+    sender: S,
+    command: String,
+    main: CoroutineContext = EmptyCoroutineContext,
+    async: CoroutineContext = EmptyCoroutineContext,
+): CompletableFuture<List<String>> {
+    val runner = CommandRunner(env, RecordingFailureHandler(), this, main, async)
+
+    val args = command.replaceFirst("/", "").split(" ")
+    return runner.suggestAsync(sender, args.first(), args.drop(1))
+}
+
 internal fun <E : Environment, S> Structure<E, S, *>.executeOn(
     main: TestExecutor,
     async: TestExecutor,
     env: E,
     sender: S,
     command: String,
-) {
+): RecordingFailureHandler<E, S> {
     clearMessages(env, sender)
 
-    val runner =
-        CommandRunner(env, RecordingFailureHandler(), this, main.asCoroutineContext(), async.asCoroutineContext())
+    val handler = RecordingFailureHandler<E, S>()
+    val runner = CommandRunner(env, handler, this, main.asCoroutineContext(), async.asCoroutineContext())
 
     val args = command.replaceFirst("/", "").split(" ")
     main.execute { runner.execute(sender, args.first(), args.drop(1)) }
+    return handler
 }
 
 internal fun <E : Environment, S> Structure<E, S, *>.executeWithHandler(
@@ -86,7 +102,7 @@ private fun clearMessages(env: Environment, sender: Any?) {
     if (sender is Sender) sender.logs.clear()
 }
 
-private class RecordingFailureHandler<E : Environment, S> : FailureHandler<E, S> {
+internal class RecordingFailureHandler<E : Environment, S> : FailureHandler<E, S> {
     var reason: Reason? = null
     var origin: FailureOrigin? = null
 

@@ -11,6 +11,7 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
+import com.zombachu.stick.Suggestion
 import com.zombachu.stick.consuming
 import com.zombachu.stick.success
 import com.zombachu.stick.toMatchResult
@@ -23,9 +24,11 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
 
     override val type: GroupableType = GroupableType.Default
 
-    // Declared here instead of implementing InternalConsumingElement or else it would expose parse() to subclasses
     context(ex: Execution<E, S>)
     internal abstract suspend fun parse(args: List<String>): ConsumingResult<T>
+
+    context(inv: Invocation<E, S>)
+    internal abstract suspend fun routeSuggest(preceding: List<String>, partial: String): List<Suggestion>
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = "<${name}>"
@@ -51,6 +54,13 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
             if (args.size < size.min) return MatchResult.partial()
             return resolve(if (args.size > size.max) args.subList(0, size.max) else args).toMatchResult(this)
         }
+
+        context(inv: Invocation<E, S>)
+        open fun suggest(preceding: List<String>, partial: String): List<Suggestion> = []
+
+        context(inv: Invocation<E, S>)
+        final override suspend fun routeSuggest(preceding: List<String>, partial: String): List<Suggestion> =
+            suggest(preceding, partial)
 
         context(inv: Invocation<E, S>)
         abstract fun resolve(args: List<String>): ConsumingResult<T>
@@ -287,6 +297,13 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
             if (args.size < size.min) return MatchResult.partial()
             return resolve(args).toMatchResult(this)
         }
+
+        context(inv: Invocation<E, S>)
+        open fun suggest(preceding: List<String>, partial: String): List<Suggestion> = []
+
+        context(inv: Invocation<E, S>)
+        final override suspend fun routeSuggest(preceding: List<String>, partial: String): List<Suggestion> =
+            suggest(preceding, partial)
 
         context(inv: Invocation<E, S>)
         abstract fun resolve(args: List<String>): ConsumingResult<T>

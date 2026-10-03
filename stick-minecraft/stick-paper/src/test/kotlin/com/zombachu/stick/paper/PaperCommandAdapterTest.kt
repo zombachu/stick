@@ -1,18 +1,27 @@
 package com.zombachu.stick.paper
 
+import com.zombachu.stick.CommandResult
+import com.zombachu.stick.Invocation
+import com.zombachu.stick.MatchResult
+import com.zombachu.stick.Suggestion
 import com.zombachu.stick.dsl.command
+import com.zombachu.stick.dsl.flag
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.textParameter
+import com.zombachu.stick.element.AsyncParameter
 import com.zombachu.stick.noopFailureHandler
 import com.zombachu.stick.paper.dsl.permission
+import com.zombachu.stick.success
+import com.zombachu.stick.toSuggestions
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import org.bukkit.command.CommandSender
 
 class PaperCommandAdapterTest {
 
@@ -79,6 +88,20 @@ class PaperCommandAdapterTest {
     }
 
     @Test
+    fun `tabComplete omits async parameter suggestions`() {
+        val structure = paperStructure {
+            command("hello")(
+                AsyncNameParameter(),
+                flag("loud"),
+            ) { _, _ -> }
+        }
+        val adapter =
+            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
+
+        assertEquals(["-loud"], adapter.tabComplete(FakeCommandSender(), "hello", arrayOf("")))
+    }
+
+    @Test
     fun `tabComplete completes arg for a namespaced label`() {
         val structure = paperStructure {
             command("hello")(
@@ -142,5 +165,17 @@ class PaperCommandAdapterTest {
             )
 
         assertSame(FakePlugin, adapter.getPlugin())
+    }
+
+    private class AsyncNameParameter : AsyncParameter.Size1<PaperEnvironment, CommandSender, String>("name", "") {
+        context(inv: Invocation<PaperEnvironment, CommandSender>)
+        override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
+
+        context(inv: Invocation<PaperEnvironment, CommandSender>)
+        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+            ["there"].toSuggestions()
+
+        context(inv: Invocation<PaperEnvironment, CommandSender>)
+        override suspend fun resolve(arg0: String): CommandResult<String> = success(arg0)
     }
 }

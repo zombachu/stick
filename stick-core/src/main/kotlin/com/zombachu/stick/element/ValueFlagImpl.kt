@@ -31,7 +31,7 @@ internal class ValueFlagImpl<E : Environment, S, T>(
     override fun match(args: List<String>): MatchResult = flagParameter.match(args)
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
         flagParameter.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)

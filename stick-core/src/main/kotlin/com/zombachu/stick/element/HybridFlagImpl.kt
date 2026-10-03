@@ -37,7 +37,7 @@ internal class HybridFlagImpl<E : Environment, S, T>(
     }
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
         if (preceding.isEmpty()) return suggestAliases()
         if (!matches(preceding.first().lowercase())) return []
         return parameter.suggest(preceding.subList(1, preceding.size), partial)

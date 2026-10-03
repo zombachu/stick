@@ -32,10 +32,10 @@ internal class SenderMappedParameter<E : Environment, S, S2 : Any, T, P : Positi
     }
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+    override suspend fun routeSuggest(preceding: List<String>, partial: String): List<Suggestion> {
         val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
-            return base.suggest(preceding, partial)
+            return base.routeSuggest(preceding, partial)
         }
     }
 
@@ -82,7 +82,7 @@ internal class SenderMappedValueFlag<E : Environment, S, S2 : Any, T>(
     }
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
         val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.suggest(preceding, partial)
@@ -124,7 +124,7 @@ internal class SenderMappedHybridFlag<E : Environment, S, S2 : Any, T>(
     }
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
         val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.suggest(preceding, partial)
@@ -166,7 +166,7 @@ internal class SenderMappedOptionalParameter<E : Environment, S, S2 : Any, T, P 
     }
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
         val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.suggest(preceding, partial)
@@ -201,7 +201,7 @@ internal class SenderMappedOptionalParameter<E : Environment, S, S2 : Any, T, P 
 internal class SenderMappedOptionalGroup<E : Environment, S, S2 : Any, G : GroupResult?, P : Position>(
     private val base: OptionalGroup<E, S2, G, P>,
     private val transform: (S) -> S2,
-) : OptionalGroup<E, S, G, P>, InternalElement<E, S, G>, InternalOptional<E, S> {
+) : OptionalGroup<E, S, G, P>, InternalSyntaxElement<E, S, G>, InternalOptional<E, S> {
 
     override val size: Size = base.size
     override val name: String = base.name
@@ -216,7 +216,7 @@ internal class SenderMappedOptionalGroup<E : Environment, S, S2 : Any, G : Group
     }
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
         val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
             return base.suggest(preceding, partial)
@@ -277,7 +277,7 @@ internal open class SenderMappedBranch<E : Environment, S, S2 : Any, T_ : Argume
     }
 
     context(inv: Invocation<E, S>)
-    override fun suggestBranch(
+    override suspend fun suggestBranch(
         preceding: List<String>,
         partial: String,
         leadingParameterMatch: MatchResult?,

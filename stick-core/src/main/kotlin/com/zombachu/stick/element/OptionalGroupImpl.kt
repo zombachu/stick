@@ -20,7 +20,7 @@ internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Posit
     private val group: Group<E, S, out G, *>,
     private val default: ContextualValue<E, S, G>,
     private val defaultRequirement: SenderValidator<E, S>?,
-) : OptionalGroup<E, S, G, P>, InternalElement<E, S, G>, InternalOptional<E, S> {
+) : OptionalGroup<E, S, G, P>, InternalSyntaxElement<E, S, G>, InternalOptional<E, S> {
 
     override val size: Size = group.size.orNothing()
     override val name: String = group.name
@@ -33,7 +33,8 @@ internal class OptionalGroupImpl<E : Environment, S, G : GroupResult?, P : Posit
     }
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = group.suggest(preceding, partial)
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        group.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
     override suspend fun parse(args: List<String>): CommandResult<G> {

@@ -25,6 +25,10 @@ internal suspend fun <T> withAsyncContext(block: suspend () -> T): T {
     return runOn(routing.asyncContext + routing, block)
 }
 
+internal object SkipAsyncSuggestions : CoroutineContext.Element, CoroutineContext.Key<SkipAsyncSuggestions> {
+    override val key: CoroutineContext.Key<*> = this
+}
+
 /** Runs [block] on the command's main context, then continues in the caller's context. */
 suspend fun <T> withMainContext(block: () -> T): T {
     val routing = checkNotNull(coroutineContext[StickCoroutineContext]) { "withMainContext called outside Stick" }

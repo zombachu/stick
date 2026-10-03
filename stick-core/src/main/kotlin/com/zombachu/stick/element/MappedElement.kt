@@ -24,7 +24,8 @@ internal class MappedParameter<E : Environment, S, A, T, P : Position>(
     override fun match(args: List<String>): MatchResult = base.match(args)
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
+    override suspend fun routeSuggest(preceding: List<String>, partial: String): List<Suggestion> =
+        base.routeSuggest(preceding, partial)
 
     context(ex: Execution<E, S>)
     override suspend fun parse(args: List<String>): ConsumingResult<T> = parseMapped(args, base, transform)
@@ -49,7 +50,8 @@ internal class MappedValueFlag<E : Environment, S, A, T>(
     override fun match(args: List<String>): MatchResult = base.match(args)
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        base.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
     override suspend fun parse(args: List<String>): ConsumingResult<T> = parseMapped(args, base, transform)
@@ -71,7 +73,8 @@ internal class MappedOptionalParameter<E : Environment, S, A, T, P : Position>(
     override fun match(args: List<String>): MatchResult = base.match(args)
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = base.suggest(preceding, partial)
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        base.suggest(preceding, partial)
 
     context(ex: Execution<E, S>)
     override suspend fun parse(args: List<String>): ConsumingResult<T> = parseMapped(args, base, transform)
