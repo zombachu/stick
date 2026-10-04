@@ -8,6 +8,7 @@ import com.zombachu.stick.ExecutionImpl
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
+import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.commit
@@ -19,11 +20,11 @@ import com.zombachu.stick.suggestAliases
 
 internal class HybridFlagImpl<E : Environment, S, T>(
     override val name: String,
-    private val parameter: Parameter.Bounded<E, S, T>,
+    private val parameter: Parameter<E, S, T, Position.Leading>,
     aliases: Set<String>,
 ) : HybridFlag<E, S, T>, InternalConsumingElement<E, S, HybridFlagResult<T>>, Aliasable {
 
-    override val size: Size.Bounded = Size.between(1, 1 + parameter.size.max)
+    override val size: Size.Bounded = Size.between(1, 1 + parameter.boundedSize.max)
     override val description: String = parameter.description
     override val label: String = "-${name.lowercase()}"
     override val aliases: Set<String> = aliases.map { "-$it" }.toSet()
@@ -33,7 +34,7 @@ internal class HybridFlagImpl<E : Environment, S, T>(
         if (args.isEmpty()) return MatchResult.partial()
         if (!matches(args.first().lowercase())) return MatchResult.unmatched()
         if (args.size == 1) return MatchResult.matchedAtLeast(1)
-        return parameter.match(args.subList(1, args.size)).includeLabelClaimedBy(this)
+        return parameter.match(args.subList(1, args.size)).includeLabelClaimedBy(this, parameter)
     }
 
     context(inv: Invocation<E, S>)

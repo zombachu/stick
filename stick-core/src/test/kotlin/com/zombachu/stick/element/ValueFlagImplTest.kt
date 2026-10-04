@@ -9,6 +9,7 @@ import com.zombachu.stick.SimpleSuggestion
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.parameters.EnumParameter
 import com.zombachu.stick.element.parameters.IntParameter
+import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectError
 import com.zombachu.stick.expectNoMatch
 import com.zombachu.stick.expectSuccessValue
@@ -81,6 +82,28 @@ class ValueFlagImplTest {
         assertEquals("steve", result.expectSuccessValue())
         assertEquals(2, ex.consumedArgs)
         assertEquals(1, resolves)
+    }
+
+    @Test
+    fun `ParameterFlagParameter ignores match resolved by another parameter`() {
+        val other = StringParameter<TestEnv, Unit>("", "")
+        val length =
+            object : AsyncParameter.Size1<TestEnv, Unit, Int>("length", "") {
+                context(inv: Invocation<TestEnv, Unit>)
+                override fun match(arg0: String): MatchResult = other.match([arg0])
+
+                context(inv: Invocation<TestEnv, Unit>)
+                override suspend fun resolve(arg0: String): CommandResult<Int> = success(arg0.length)
+            }
+        val flag = ValueFlagImpl<TestEnv, Unit, Int>(
+            "length",
+            { success(0) },
+            FlagParameter.ParameterFlagParameter("length", length, []),
+        )
+
+        val result = runSync { testExecution("-length", "steve").processElement(flag) }
+
+        assertEquals(5, result.expectSuccessValue())
     }
 
     @Test

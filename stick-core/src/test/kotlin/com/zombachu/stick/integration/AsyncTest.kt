@@ -2,6 +2,7 @@ package com.zombachu.stick.integration
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.GroupResult
+import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Suggestion
@@ -10,11 +11,13 @@ import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.flag
 import com.zombachu.stick.dsl.group
 import com.zombachu.stick.dsl.helperAsync
+import com.zombachu.stick.dsl.hybridFlag
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.map
 import com.zombachu.stick.dsl.mapAsync
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
+import com.zombachu.stick.dsl.valueFlag
 import com.zombachu.stick.element.AsyncParameter
 import com.zombachu.stick.failType
 import com.zombachu.stick.failure.Reason
@@ -26,6 +29,7 @@ import com.zombachu.stick.integration.fixtures.SynergyServer
 import com.zombachu.stick.integration.fixtures.Warp
 import com.zombachu.stick.integration.fixtures.WarpRegistry
 import com.zombachu.stick.integration.fixtures.WarpableServer
+import com.zombachu.stick.integration.fixtures.execute
 import com.zombachu.stick.integration.fixtures.executeExpectingError
 import com.zombachu.stick.integration.fixtures.executeOn
 import com.zombachu.stick.integration.fixtures.playerParameter
@@ -208,6 +212,83 @@ class AsyncTest {
         async.drain()
         main.drain()
         assertEquals(["-silent", "spawn", "shop"], suggestions.join())
+    }
+
+    @Test
+    fun `summon - value flag with async parameter resolves on async context`() {
+        val summonCommand = structure(WarpableServer::class, Sender::class) {
+            command("summon")(
+                playerParameter("player"),
+                valueFlag("warp", AsyncWarpParameter("warp"), null),
+            ) { player, warp ->
+                sender.log("Summoned ${player.name} to ${warp?.name} on ${TestExecutor.running}")
+            }
+        }
+
+        val failures = summonCommand.executeOn(main, async, server, zombachu, "/summon Steve -warp shop")
+        main.drain()
+        async.drain()
+        assertEquals(["Resolved shop on async"], zombachu.logs)
+
+        main.drain()
+        assertEquals(["Resolved shop on async", "Summoned Steve to shop on main"], zombachu.logs)
+        assertNull(failures.reason)
+    }
+
+    @Test
+    fun `summon - hybrid flag with async parameter resolves on async context`() {
+        val summonCommand = structure(WarpableServer::class, Sender::class) {
+            command("summon")(
+                playerParameter("player"),
+                hybridFlag("warp", AsyncWarpParameter("warp")),
+            ) { player, warp ->
+                when (warp) {
+                    is HybridFlagResult.Value -> sender.log("Summoned ${player.name} to ${warp.value.name}")
+                    is HybridFlagResult.Present -> sender.log("Summoned ${player.name} to the default warp")
+                    is HybridFlagResult.Absent -> sender.log("Summoned ${player.name}")
+                }
+            }
+        }
+
+        summonCommand.executeOn(main, async, server, zombachu, "/summon Steve -warp shop")
+        main.drain()
+        async.drain()
+        assertEquals(["Resolved shop on async"], zombachu.logs)
+
+        main.drain()
+        assertEquals(["Resolved shop on async", "Summoned Steve to shop"], zombachu.logs)
+
+        summonCommand.execute(server, zombachu, "/summon Steve -warp")
+        assertEquals(["Summoned Steve to the default warp"], zombachu.logs)
+    }
+
+    @Test
+    fun `summon - suggest offers label but not values of flag with async parameter`() {
+        val summonCommand = structure(WarpableServer::class, Sender::class) {
+            command("summon")(
+                playerParameter("player"),
+                valueFlag("warp", AsyncWarpParameter("warp"), null),
+            ) { player, warp ->
+                sender.log("Summoned ${player.name} to ${warp?.name}")
+            }
+        }
+
+        assertEquals(["-warp"], summonCommand.suggest(server, zombachu, "/summon Steve "))
+        assertEquals([], summonCommand.suggest(server, zombachu, "/summon Steve -warp "))
+    }
+
+    @Test
+    fun `summon - suggestAsync offers values of flag with async parameter`() {
+        val summonCommand = structure(WarpableServer::class, Sender::class) {
+            command("summon")(
+                playerParameter("player"),
+                valueFlag("warp", AsyncWarpParameter("warp"), null),
+            ) { player, warp ->
+                sender.log("Summoned ${player.name} to ${warp?.name}")
+            }
+        }
+
+        assertEquals(["spawn", "shop"], summonCommand.suggestAsync(server, zombachu, "/summon Steve -warp ").join())
     }
 
     @Test
