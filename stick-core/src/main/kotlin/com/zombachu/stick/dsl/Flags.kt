@@ -4,6 +4,7 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ContextualValue
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
+import com.zombachu.stick.Position
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.element.FlagParameter
 import com.zombachu.stick.element.HybridFlag
@@ -41,7 +42,7 @@ fun <E : Environment, S, T> StructureScope<E, S>.flag(
 
 fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     name: String,
-    parameter: Parameter.Bounded<E, S, T>,
+    parameter: Parameter<E, S, T, Position.Leading>,
     default: ContextualValue<E, S, T>,
     aliases: Set<String> = [],
 ): ValueFlag<E, S, T> =
@@ -49,14 +50,14 @@ fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
 
 fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     name: String,
-    parameter: Parameter.Bounded<E, S, T>,
+    parameter: Parameter<E, S, T, Position.Leading>,
     default: T,
     aliases: Set<String> = [],
 ): ValueFlag<E, S, T> = valueFlag(name, parameter, { success(default) }, aliases.lowercase())
 
 fun <E : Environment, S, T> StructureScope<E, S>.valueFlag(
     name: String,
-    parameter: Parameter.Bounded<E, S, T>,
+    parameter: Parameter<E, S, T, Position.Leading>,
     default: Nothing?,
     aliases: Set<String> = [],
 ): ValueFlag<E, S, T?> =
@@ -83,6 +84,6 @@ fun <E : Environment, S, T : Enum<T>> StructureScope<E, S>.enumFlag(
 
 fun <E : Environment, S, T> StructureScope<E, S>.hybridFlag(
     name: String,
-    parameter: Parameter.Bounded<E, S, T>,
+    parameter: Parameter<E, S, T, Position.Leading>,
     aliases: Set<String> = [],
 ): HybridFlag<E, S, T> = HybridFlagImpl(name, parameter, aliases.lowercase())

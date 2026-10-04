@@ -309,3 +309,6 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
         abstract fun resolve(args: List<String>): ConsumingResult<T>
     }
 }
+
+internal val Parameter<*, *, *, Position.Leading>.boundedSize: Size.Bounded
+    get() = size as Size.Bounded

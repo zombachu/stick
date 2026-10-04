@@ -1,8 +1,10 @@
 package com.zombachu.stick.integration
 
+import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.MessageReason
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.flag
+import com.zombachu.stick.dsl.hybridFlag
 import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.map
@@ -197,6 +199,34 @@ class MapTest {
 
         cookieCommand.execute(server, zombachu, "/cookie")
         assertEquals(["Giving 1 cookies"], zombachu.logs)
+    }
+
+    @Test
+    fun `name - map applies to value flag parameter`() {
+        val nameCommand = structure(Server::class, Sender::class) {
+            command("name")(
+                valueFlag("name", stringParameter("name").map { success(it.uppercase()) }, "")
+            ) { name ->
+                sender.log("Named $name")
+            }
+        }
+
+        nameCommand.execute(server, zombachu, "/name -name input")
+        assertEquals(["Named INPUT"], zombachu.logs)
+    }
+
+    @Test
+    fun `name - map applies to hybrid flag parameter`() {
+        val nameCommand = structure(Server::class, Sender::class) {
+            command("name")(
+                hybridFlag("name", stringParameter("name").map { success(it.uppercase()) })
+            ) { name ->
+                sender.log("Named ${(name as? HybridFlagResult.Value)?.value}")
+            }
+        }
+
+        nameCommand.execute(server, zombachu, "/name -name Mayor")
+        assertEquals(["Named MAYOR"], zombachu.logs)
     }
 
     @Test
