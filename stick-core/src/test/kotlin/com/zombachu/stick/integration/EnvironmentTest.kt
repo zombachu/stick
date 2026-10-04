@@ -9,7 +9,6 @@ import com.zombachu.stick.Execution
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.GroupResult3
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.dsl.command
@@ -207,9 +206,6 @@ class EnvironmentTest {
 
     private class WarpNameParameter<S>(name: String) : Parameter.Size1<WarpableServer, S, String>(name, "") {
         private val warpParameter = WarpParameter<WarpableServer, S>(name)
-
-        context(inv: Invocation<WarpableServer, S>)
-        override fun match(arg0: String): MatchResult = warpParameter.match(arg0)
 
         context(inv: Invocation<WarpableServer, S>)
         override fun resolve(arg0: String): CommandResult<String> {

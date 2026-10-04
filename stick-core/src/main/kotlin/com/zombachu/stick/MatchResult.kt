@@ -52,6 +52,7 @@ internal fun <T> ConsumingResult<T>.toMatchResult(element: ConsumingElement<*, *
     when (this) {
         is ConsumingResult.Success ->
             MatchResult.Matched(consumed, canConsumeMore && !element.size.isFull(consumed), element, value)
+        is CommandResult.Failure.NoMatch -> if (incomplete) MatchResult.partial() else MatchResult.unmatched(this)
         is CommandResult.Failure -> MatchResult.unmatched(this)
     }
 

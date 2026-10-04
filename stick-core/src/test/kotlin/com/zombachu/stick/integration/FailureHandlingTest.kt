@@ -3,7 +3,6 @@ package com.zombachu.stick.integration
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Execution
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.MatchResult
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.intParameter
 import com.zombachu.stick.dsl.invoke
@@ -115,9 +114,6 @@ class FailureHandlingTest {
     fun `throw - handler catches exception from element`() {
         class ThrowingParameter(name: String) : Parameter.Size1<Server, Sender, String>(name, "") {
             override val type: GroupableType = GroupableType.Passthrough
-
-            context(inv: Invocation<Server, Sender>)
-            override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
             context(inv: Invocation<Server, Sender>)
             override fun resolve(arg0: String): CommandResult<String> = error("this is an exception")

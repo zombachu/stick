@@ -110,12 +110,12 @@ class ValueFlagImplTest {
     fun `ParameterFlagParameter resolves parameter once with vacuous match`() {
         var resolves = 0
         val cheaplyMatched =
-            object : Parameter.Size1<TestEnv, Unit, String>("name", "") {
+            object : AsyncParameter.Size1<TestEnv, Unit, String>("name", "") {
                 context(inv: Invocation<TestEnv, Unit>)
                 override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
                 context(inv: Invocation<TestEnv, Unit>)
-                override fun resolve(arg0: String): CommandResult<String> {
+                override suspend fun resolve(arg0: String): CommandResult<String> {
                     resolves++
                     return success(arg0)
                 }

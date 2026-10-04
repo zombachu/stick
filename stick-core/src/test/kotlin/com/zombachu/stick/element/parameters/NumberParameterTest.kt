@@ -1,6 +1,5 @@
 package com.zombachu.stick.element.parameters
 
-import com.zombachu.stick.MatchResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.expectReason
@@ -81,15 +80,12 @@ class NumberParameterTest {
     }
 
     @Test
-    fun `matching considers type not range`() {
+    fun `matching considers type and range`() {
         val parameter = IntParameter<TestEnv, Unit>("", "", 0, 10)
 
-        assertEquals(MatchResult.matchedExactly(1), match(parameter, "11"))
+        assertEquals(Reason.OutOfRange("0", "10", "11"), matchFailure(parameter, "11"))
         assertEquals(Reason.TypeNotMatched("integer", "x"), matchFailure(parameter, "x"))
     }
-
-    private fun <T> match(parameter: Parameter.Size1<TestEnv, Unit, T>, arg: String): MatchResult =
-        withInvocation { parameter.match([arg]) }
 
     private fun <T> matchFailure(parameter: Parameter.Size1<TestEnv, Unit, T>, arg: String): Reason? =
         withInvocation { parameter.match([arg]) }.expectUnmatched().expectReason()

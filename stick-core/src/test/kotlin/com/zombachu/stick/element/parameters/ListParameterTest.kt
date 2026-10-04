@@ -2,7 +2,6 @@ package com.zombachu.stick.element.parameters
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.MatchResult
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.expectReason
@@ -48,9 +47,6 @@ class ListParameterTest {
         var calls = 0
         val counting =
             object : Parameter.Size1<TestEnv, Unit, String>("", "") {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
-
                 context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> {
                     calls++

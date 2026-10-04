@@ -82,9 +82,6 @@ class GroupImplTest {
         val mismatching =
             object : Parameter.Size1<TestEnv, Unit, String>("bad", "") {
                 context(inv: Invocation<TestEnv, Unit>)
-                override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
-
-                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> = failType("bad", arg0)
             }
         val fallback = StringParameter<TestEnv, Unit>("ok", "")
@@ -99,9 +96,6 @@ class GroupImplTest {
     fun `missing argument falls through to next element`() {
         val twoArgParam =
             object : Parameter.Size2<TestEnv, Unit, String>("two", "") {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun match(arg0: String, arg1: String): MatchResult = MatchResult.matchedExactly(2)
-
                 context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String, arg1: String): CommandResult<String> =
                     success("$arg0$arg1")
@@ -118,9 +112,6 @@ class GroupImplTest {
     fun `Error propagates`() {
         val hardFailure =
             object : Parameter.Size1<TestEnv, Unit, String>("bad", "") {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
-
                 context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> = failRange("0", "10", arg0)
             }
@@ -246,9 +237,6 @@ class GroupImplTest {
         val twoArgParam =
             object : Parameter.Size2<TestEnv, Unit, String>("two", "") {
                 context(inv: Invocation<TestEnv, Unit>)
-                override fun match(arg0: String, arg1: String): MatchResult = MatchResult.matchedExactly(2)
-
-                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String, arg1: String): CommandResult<String> = success("")
             }
         val give = LiteralParameter<TestEnv, Unit>("give", [], "")
@@ -298,9 +286,6 @@ class GroupImplTest {
     fun `size constrains to elements for bounded sizes`() {
         val twoArgParam =
             object : Parameter.Size2<TestEnv, Unit, String>("two", "") {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun match(arg0: String, arg1: String): MatchResult = MatchResult.matchedExactly(2)
-
                 context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String, arg1: String): CommandResult<String> = success("")
             }

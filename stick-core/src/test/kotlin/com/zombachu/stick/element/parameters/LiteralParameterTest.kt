@@ -49,12 +49,12 @@ class LiteralParameterTest {
 
     @Test
     fun `match claims one arg`() {
-        assertEquals(MatchResult.matchedExactly(1), withInvocation { parameter.match("FOO") })
+        assertEquals(MatchResult.matchedExactly(1), withInvocation { parameter.match(["FOO"]) })
     }
 
     @Test
     fun `match unmatched carries LiteralNotMatched`() {
-        val result = withInvocation { parameter.match("bar") }
+        val result = withInvocation { parameter.match(["bar"]) }
         assertEquals(Reason.LiteralNotMatched(["foo"], "bar"), result.expectUnmatched().expectReason())
     }
 

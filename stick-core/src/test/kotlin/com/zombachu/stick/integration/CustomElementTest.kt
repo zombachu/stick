@@ -5,7 +5,6 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.consuming
@@ -21,6 +20,7 @@ import com.zombachu.stick.element.ValueFlag
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.failType
+import com.zombachu.stick.incomplete
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.integration.fixtures.Location
 import com.zombachu.stick.integration.fixtures.Player
@@ -86,16 +86,11 @@ class CustomElementTest {
         class LocationParameter<E : Environment, S : Player>(name: String) :
             Parameter.Bounded<E, S, Location>(Size.between(1, 3), name, "") {
             context(inv: Invocation<E, S>)
-            override fun match(args: List<String>): MatchResult {
-                if (args.firstOrNull()?.lowercase() != "here" && args.size < 3) return MatchResult.partial()
-                return super.match(args)
-            }
-
-            context(inv: Invocation<E, S>)
             override fun resolve(args: List<String>): ConsumingResult<Location> {
                 if (args.firstOrNull()?.lowercase() == "here") {
                     return success(inv.sender.position).consuming(1)
                 }
+                if (args.size < 3) return incomplete()
                 val x = args[0].toIntOrNull() ?: return failType("integer", args[0])
                 val y = args[1].toIntOrNull() ?: return failType("integer", args[1])
                 val z = args[2].toIntOrNull() ?: return failType("integer", args[2])
