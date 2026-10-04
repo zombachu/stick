@@ -4,7 +4,6 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.MatchResult
 import com.zombachu.stick.SimpleSuggestion
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
@@ -30,6 +29,7 @@ import com.zombachu.stick.dsl.subcommands
 import com.zombachu.stick.dsl.valueFlag
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.failType
+import com.zombachu.stick.incomplete
 import com.zombachu.stick.integration.fixtures.Console
 import com.zombachu.stick.integration.fixtures.Location
 import com.zombachu.stick.integration.fixtures.Player
@@ -173,9 +173,7 @@ class SuggestionTest {
         assertEquals(["y="], selectCommand.suggest(server, zombachu, "/select x=1 "))
         assertEquals(["z="], selectCommand.suggest(server, zombachu, "/select x=1 y=2 "))
 
-        // KNOWN LIMITATION: Parameter.Fixed.match reports a short window as Partial without reading it, so point stays
-        // open after "near"
-        // TODO: fix
+        // Point is fixed-size, so it can't rule out "near" before its third token
         assertEquals(["y=", "zombachu", "Steve"], selectCommand.suggest(server, zombachu, "/select near "))
     }
 
@@ -316,19 +314,16 @@ class SuggestionTest {
     }
 
     /** near <player> **/
-    private class NearParameter<E : Server, S> : Parameter.Bounded<E, S, Player>(Size(2), "", "") {
+    private class NearParameter<E : Server, S> : Parameter.Bounded<E, S, Player>(Size.between(1, 2), "", "") {
 
         context(inv: Invocation<E, S>)
         override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
             if (preceding.isEmpty()) ["near"].toSuggestions() else inv.env.playerNames.toSuggestions()
 
         context(inv: Invocation<E, S>)
-        override fun match(args: List<String>): MatchResult =
-            if (args.firstOrNull() == "near") super.match(args)
-            else MatchResult.unmatched(failType("near", args.firstOrNull() ?: ""))
-
-        context(inv: Invocation<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<Player> {
+            if (args[0] != "near") return failType("near", args[0])
+            if (args.size < 2) return incomplete()
             val player = inv.env.getPlayer(args[1]) ?: return failType("player", args[1])
             return success(player).consuming(2)
         }
@@ -346,14 +341,11 @@ class SuggestionTest {
             else point.suggest(preceding, partial)
 
         context(inv: Invocation<E, S>)
-        override fun match(args: List<String>): MatchResult =
-            if (args.firstOrNull() != "~" && args.size < 3) MatchResult.partial() else super.match(args)
-
-        context(inv: Invocation<E, S>)
         override fun resolve(args: List<String>): ConsumingResult<Location> {
             if (args.firstOrNull() == "~") {
                 return success(inv.sender.position).consuming(1, canConsumeMore = false)
             }
+            if (args.size < 3) return incomplete()
             return point.resolve(args)
         }
     }

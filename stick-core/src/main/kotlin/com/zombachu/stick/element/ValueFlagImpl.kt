@@ -157,7 +157,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
             if (!flagArg.startsWith("-")) return MatchResult.unmatched()
 
             // Ignore the - before passing it to the enum parameter
-            val match = enumParameter.match(flagArg.substring(1))
+            val match = enumParameter.match([flagArg.substring(1)])
             if (match !is MatchResult.Matched) return MatchResult.unmatched()
             return match.claimedBy(this, 1, enumParameter)
         }

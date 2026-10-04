@@ -3,7 +3,6 @@ package com.zombachu.stick.element.parameters
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Environment
 import com.zombachu.stick.Invocation
-import com.zombachu.stick.MatchResult
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.failRange
 import com.zombachu.stick.failType
@@ -17,12 +16,6 @@ open class NumberParameter<E : Environment, S, T>(
     val max: T,
     val errorType: String,
 ) : Parameter.Size1<E, S, T>(name, description) where T : Number, T : Comparable<T> {
-
-    context(inv: Invocation<E, S>)
-    override fun match(arg0: String): MatchResult {
-        if (arg0.toOrNull() == null) return MatchResult.unmatched(failType(errorType, arg0))
-        return MatchResult.matchedExactly(1)
-    }
 
     context(inv: Invocation<E, S>)
     override fun resolve(arg0: String): CommandResult<T> {

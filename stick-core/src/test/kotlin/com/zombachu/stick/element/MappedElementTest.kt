@@ -98,9 +98,6 @@ class MappedElementTest {
         val failingBase =
             object : Parameter.Size1<TestEnv, Unit, String>("bad", "") {
                 context(inv: Invocation<TestEnv, Unit>)
-                override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
-
-                context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> = failType("bad", arg0)
             }
         val mapped =

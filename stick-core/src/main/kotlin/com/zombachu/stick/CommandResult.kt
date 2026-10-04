@@ -17,7 +17,9 @@ sealed interface CommandResult<out T> {
     sealed class Failure : ConsumingResult<Nothing> {
         sealed class Unhandled(val reason: Reason, internal val origin: FailureOrigin) : Failure()
 
-        class NoMatch internal constructor(reason: Reason, origin: FailureOrigin) : Unhandled(reason, origin)
+        class NoMatch
+        internal constructor(reason: Reason, origin: FailureOrigin, internal val incomplete: Boolean = false) :
+            Unhandled(reason, origin)
 
         class Error internal constructor(reason: Reason, origin: FailureOrigin) : Unhandled(reason, origin)
 
@@ -65,6 +67,11 @@ fun failLiteral(valid: List<String>, arg: String): CommandResult.Failure.NoMatch
 
 context(_: Invocation<*, *>)
 fun failSyntax(): CommandResult.Failure.Error = fail(Reason.InvalidSyntax)
+
+/** For a `resolve` given the start of a valid input: completion offers it again, execution fails as invalid syntax. */
+context(inv: Invocation<*, *>)
+fun incomplete(): CommandResult.Failure.NoMatch =
+    CommandResult.Failure.NoMatch(Reason.InvalidSyntax, inv.createFailureOrigin(), incomplete = true)
 
 context(_: Invocation<*, *>)
 fun failRange(min: String, max: String, arg: String): CommandResult.Failure.Error =

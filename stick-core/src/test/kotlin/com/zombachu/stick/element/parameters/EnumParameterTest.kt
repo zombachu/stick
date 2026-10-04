@@ -40,12 +40,12 @@ class EnumParameterTest {
 
     @Test
     fun `match claims one arg for an aliased value`() {
-        assertEquals(MatchResult.matchedExactly(1), withInvocation { parameter.match("R") })
+        assertEquals(MatchResult.matchedExactly(1), withInvocation { parameter.match(["R"]) })
     }
 
     @Test
     fun `match unmatched carries LiteralNotMatched`() {
-        val result = withInvocation { parameter.match("Unknown") }
+        val result = withInvocation { parameter.match(["Unknown"]) }
         val reason = result.expectUnmatched().expectReason()
         assertEquals(Reason.LiteralNotMatched(["red", "green", "blue"], "Unknown"), reason)
     }

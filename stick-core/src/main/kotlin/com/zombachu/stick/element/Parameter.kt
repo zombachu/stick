@@ -50,7 +50,7 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
         }
 
         context(inv: Invocation<E, S>)
-        override fun match(args: List<String>): MatchResult {
+        final override fun match(args: List<String>): MatchResult {
             if (args.size < size.min) return MatchResult.partial()
             return resolve(if (args.size > size.max) args.subList(0, size.max) else args).toMatchResult(this)
         }
@@ -66,36 +66,18 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
         abstract fun resolve(args: List<String>): ConsumingResult<T>
     }
 
-    abstract class Fixed<in E : Environment, S, T>(internal val arity: Int, name: String, description: String) :
+    abstract class Fixed<in E : Environment, S, T>(private val arity: Int, name: String, description: String) :
         Bounded<E, S, T>(Size(arity), name, description) {
-
-        context(inv: Invocation<E, S>)
-        final override fun match(args: List<String>): MatchResult {
-            if (args.size < arity) return MatchResult.partial()
-            return matchArity(args)
-        }
-
-        context(inv: Invocation<E, S>)
-        protected abstract fun matchArity(args: List<String>): MatchResult
 
         context(inv: Invocation<E, S>)
         final override fun resolve(args: List<String>): ConsumingResult<T> = resolveArity(args).consuming(arity)
 
         context(inv: Invocation<E, S>)
         protected abstract fun resolveArity(args: List<String>): CommandResult<T>
-
-        internal fun CommandResult<*>.toArityMatchResult(): MatchResult =
-            this.consuming(arity).toMatchResult(this@Fixed)
     }
 
     abstract class Size1<in E : Environment, S, T>(name: String, description: String) :
         Fixed<E, S, T>(1, name, description) {
-
-        context(inv: Invocation<E, S>)
-        final override fun matchArity(args: List<String>): MatchResult = match(args[0])
-
-        context(inv: Invocation<E, S>)
-        open fun match(arg0: String): MatchResult = resolve(arg0).toArityMatchResult()
 
         context(inv: Invocation<E, S>)
         final override fun resolveArity(args: List<String>): CommandResult<T> = resolve(args[0])
@@ -108,12 +90,6 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
         Fixed<E, S, T>(2, name, description) {
 
         context(inv: Invocation<E, S>)
-        final override fun matchArity(args: List<String>): MatchResult = match(args[0], args[1])
-
-        context(inv: Invocation<E, S>)
-        open fun match(arg0: String, arg1: String): MatchResult = resolve(arg0, arg1).toArityMatchResult()
-
-        context(inv: Invocation<E, S>)
         final override fun resolveArity(args: List<String>): CommandResult<T> = resolve(args[0], args[1])
 
         context(inv: Invocation<E, S>)
@@ -124,13 +100,6 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
         Fixed<E, S, T>(3, name, description) {
 
         context(inv: Invocation<E, S>)
-        final override fun matchArity(args: List<String>): MatchResult = match(args[0], args[1], args[2])
-
-        context(inv: Invocation<E, S>)
-        open fun match(arg0: String, arg1: String, arg2: String): MatchResult =
-            resolve(arg0, arg1, arg2).toArityMatchResult()
-
-        context(inv: Invocation<E, S>)
         final override fun resolveArity(args: List<String>): CommandResult<T> = resolve(args[0], args[1], args[2])
 
         context(inv: Invocation<E, S>)
@@ -139,13 +108,6 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
 
     abstract class Size4<in E : Environment, S, T>(name: String, description: String) :
         Fixed<E, S, T>(4, name, description) {
-
-        context(inv: Invocation<E, S>)
-        final override fun matchArity(args: List<String>): MatchResult = match(args[0], args[1], args[2], args[3])
-
-        context(inv: Invocation<E, S>)
-        open fun match(arg0: String, arg1: String, arg2: String, arg3: String): MatchResult =
-            resolve(arg0, arg1, arg2, arg3).toArityMatchResult()
 
         context(inv: Invocation<E, S>)
         final override fun resolveArity(args: List<String>): CommandResult<T> =
@@ -159,14 +121,6 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
         Fixed<E, S, T>(5, name, description) {
 
         context(inv: Invocation<E, S>)
-        final override fun matchArity(args: List<String>): MatchResult =
-            match(args[0], args[1], args[2], args[3], args[4])
-
-        context(inv: Invocation<E, S>)
-        open fun match(arg0: String, arg1: String, arg2: String, arg3: String, arg4: String): MatchResult =
-            resolve(arg0, arg1, arg2, arg3, arg4).toArityMatchResult()
-
-        context(inv: Invocation<E, S>)
         final override fun resolveArity(args: List<String>): CommandResult<T> =
             resolve(args[0], args[1], args[2], args[3], args[4])
 
@@ -176,20 +130,6 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
 
     abstract class Size6<in E : Environment, S, T>(name: String, description: String) :
         Fixed<E, S, T>(6, name, description) {
-
-        context(inv: Invocation<E, S>)
-        final override fun matchArity(args: List<String>): MatchResult =
-            match(args[0], args[1], args[2], args[3], args[4], args[5])
-
-        context(inv: Invocation<E, S>)
-        open fun match(
-            arg0: String,
-            arg1: String,
-            arg2: String,
-            arg3: String,
-            arg4: String,
-            arg5: String,
-        ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5).toArityMatchResult()
 
         context(inv: Invocation<E, S>)
         final override fun resolveArity(args: List<String>): CommandResult<T> =
@@ -210,21 +150,6 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
         Fixed<E, S, T>(7, name, description) {
 
         context(inv: Invocation<E, S>)
-        final override fun matchArity(args: List<String>): MatchResult =
-            match(args[0], args[1], args[2], args[3], args[4], args[5], args[6])
-
-        context(inv: Invocation<E, S>)
-        open fun match(
-            arg0: String,
-            arg1: String,
-            arg2: String,
-            arg3: String,
-            arg4: String,
-            arg5: String,
-            arg6: String,
-        ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5, arg6).toArityMatchResult()
-
-        context(inv: Invocation<E, S>)
         final override fun resolveArity(args: List<String>): CommandResult<T> =
             resolve(args[0], args[1], args[2], args[3], args[4], args[5], args[6])
 
@@ -242,22 +167,6 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
 
     abstract class Size8<in E : Environment, S, T>(name: String, description: String) :
         Fixed<E, S, T>(8, name, description) {
-
-        context(inv: Invocation<E, S>)
-        final override fun matchArity(args: List<String>): MatchResult =
-            match(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7])
-
-        context(inv: Invocation<E, S>)
-        open fun match(
-            arg0: String,
-            arg1: String,
-            arg2: String,
-            arg3: String,
-            arg4: String,
-            arg5: String,
-            arg6: String,
-            arg7: String,
-        ): MatchResult = resolve(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7).toArityMatchResult()
 
         context(inv: Invocation<E, S>)
         final override fun resolveArity(args: List<String>): CommandResult<T> =
@@ -293,7 +202,7 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
         }
 
         context(inv: Invocation<E, S>)
-        override fun match(args: List<String>): MatchResult {
+        final override fun match(args: List<String>): MatchResult {
             if (args.size < size.min) return MatchResult.partial()
             return resolve(args).toMatchResult(this)
         }
