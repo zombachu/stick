@@ -20,7 +20,7 @@ private class ExecutorInterceptor(private val executor: Executor) :
 }
 
 /** Runs [block] on the async context, then continues in the caller's context. */
-internal suspend fun <T> withAsyncContext(block: suspend () -> T): T {
+suspend fun <T> withAsyncContext(block: suspend () -> T): T {
     val routing = checkNotNull(coroutineContext[StickCoroutineContext]) { "withAsyncContext called outside Stick" }
     return runOn(routing.asyncContext + routing, block)
 }

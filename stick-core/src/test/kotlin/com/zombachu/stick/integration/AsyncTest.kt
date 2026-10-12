@@ -38,6 +38,7 @@ import com.zombachu.stick.integration.fixtures.suggestAsync
 import com.zombachu.stick.integration.fixtures.warpParameter
 import com.zombachu.stick.success
 import com.zombachu.stick.toSuggestions
+import com.zombachu.stick.withAsyncContext
 import com.zombachu.stick.withMainContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -58,7 +59,24 @@ class AsyncTest {
     private val async = TestExecutor("async")
 
     @Test
-    fun `warp - async parameter resolves on async context`() {
+    fun `warp - suspending parameter resolves on main context`() {
+        val warpCommand = structure(WarpableServer::class, Sender::class) {
+            command("warp")(
+                CachedWarpParameter(),
+            ) { warp ->
+                sender.log("Warped to ${warp.name} on ${TestExecutor.running}")
+            }
+        }
+
+        val failures = warpCommand.executeOn(main, async, server, zombachu, "/warp shop")
+        main.drain()
+
+        assertEquals(["Resolved shop on main", "Warped to shop on main"], zombachu.logs)
+        assertNull(failures.reason)
+    }
+
+    @Test
+    fun `warp - withAsyncContext block runs on async context`() {
         val warpCommand = structure(WarpableServer::class, Sender::class) {
             command("warp")(
                 AsyncWarpParameter("warp"),
@@ -72,10 +90,10 @@ class AsyncTest {
         assertEquals([], zombachu.logs)
 
         async.drain()
-        assertEquals(["Resolved shop on async"], zombachu.logs)
+        assertEquals(["Looked up shop on async"], zombachu.logs)
 
         main.drain()
-        assertEquals(["Resolved shop on async", "Warped to shop on main"], zombachu.logs)
+        assertEquals(["Looked up shop on async", "Warped to shop on main"], zombachu.logs)
         assertNull(failures.reason)
     }
 
@@ -97,18 +115,18 @@ class AsyncTest {
         val failures = linkCommand.executeOn(main, async, server, zombachu, "/link shop hello spawn")
         main.drain()
         async.drain()
-        assertEquals(["Resolved shop on async"], zombachu.logs)
+        assertEquals(["Looked up shop on async"], zombachu.logs)
 
         main.drain()
-        assertEquals(["Resolved shop on async", "Parsed hello on main"], zombachu.logs)
+        assertEquals(["Looked up shop on async", "Parsed hello on main"], zombachu.logs)
 
         async.drain()
         main.drain()
         assertEquals(
             [
-                "Resolved shop on async",
+                "Looked up shop on async",
                 "Parsed hello on main",
-                "Resolved spawn on async",
+                "Looked up spawn on async",
                 "Linked shop to spawn on main",
             ],
             zombachu.logs,
@@ -129,13 +147,14 @@ class AsyncTest {
     }
 
     @Test
-    fun `warp - exception in async parameter fails with Unknown on main`() {
+    fun `warp - exception in withAsyncContext block fails with Unknown on main`() {
         class FailingWarpParameter : SuspendingParameter.Size1<WarpableServer, Sender, Warp>("warp", "") {
             context(inv: Invocation<WarpableServer, Sender>)
             override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
             context(inv: Invocation<WarpableServer, Sender>)
-            override suspend fun resolve(arg0: String): CommandResult<Warp> = error("Lookup failed")
+            override suspend fun resolve(arg0: String): CommandResult<Warp> =
+                withAsyncContext { error("Lookup failed") }
         }
         val warpCommand = structure(WarpableServer::class, Sender::class) {
             command("warp")(FailingWarpParameter()) { warp -> sender.log("Warped to ${warp.name}") }
@@ -170,13 +189,13 @@ class AsyncTest {
         main.drain()
         async.drain()
         main.drain()
-        assertEquals(["Resolved spawn on async", "Teleported to warp spawn"], zombachu.logs)
+        assertEquals(["Looked up spawn on async", "Teleported to warp spawn"], zombachu.logs)
 
         val failures = tpCommand.executeOn(main, async, server, zombachu, "/tp Steve")
         main.drain()
         async.drain()
         main.drain()
-        assertEquals(["Resolved Steve on async", "Teleported to player Steve"], zombachu.logs)
+        assertEquals(["Looked up Steve on async", "Teleported to player Steve"], zombachu.logs)
         assertNull(failures.reason)
     }
 
@@ -215,7 +234,17 @@ class AsyncTest {
     }
 
     @Test
-    fun `summon - value flag with async parameter resolves on async context`() {
+    fun `warp - suspending parameter suggests on main context`() {
+        val warpCommand = structure(WarpableServer::class, Sender::class) {
+            command("warp")(CachedWarpParameter()) { warp -> sender.log("Warped to ${warp.name}") }
+        }
+        val suggestions =
+            warpCommand.suggestAsync(server, zombachu, "/warp ", main.asCoroutineContext(), async.asCoroutineContext())
+        assertEquals(["spawn", "shop"], suggestions.getNow([]))
+    }
+
+    @Test
+    fun `summon - value flag with async parameter rejoins main after parsing`() {
         val summonCommand = structure(WarpableServer::class, Sender::class) {
             command("summon")(
                 playerParameter("player"),
@@ -228,15 +257,15 @@ class AsyncTest {
         val failures = summonCommand.executeOn(main, async, server, zombachu, "/summon Steve -warp shop")
         main.drain()
         async.drain()
-        assertEquals(["Resolved shop on async"], zombachu.logs)
+        assertEquals(["Looked up shop on async"], zombachu.logs)
 
         main.drain()
-        assertEquals(["Resolved shop on async", "Summoned Steve to shop on main"], zombachu.logs)
+        assertEquals(["Looked up shop on async", "Summoned Steve to shop on main"], zombachu.logs)
         assertNull(failures.reason)
     }
 
     @Test
-    fun `summon - hybrid flag with async parameter resolves on async context`() {
+    fun `summon - hybrid flag with async parameter rejoins main after parsing`() {
         val summonCommand = structure(WarpableServer::class, Sender::class) {
             command("summon")(
                 playerParameter("player"),
@@ -253,10 +282,10 @@ class AsyncTest {
         summonCommand.executeOn(main, async, server, zombachu, "/summon Steve -warp shop")
         main.drain()
         async.drain()
-        assertEquals(["Resolved shop on async"], zombachu.logs)
+        assertEquals(["Looked up shop on async"], zombachu.logs)
 
         main.drain()
-        assertEquals(["Resolved shop on async", "Summoned Steve to shop"], zombachu.logs)
+        assertEquals(["Looked up shop on async", "Summoned Steve to shop"], zombachu.logs)
 
         summonCommand.execute(server, zombachu, "/summon Steve -warp")
         assertEquals(["Summoned Steve to the default warp"], zombachu.logs)
@@ -373,13 +402,30 @@ class AsyncTest {
 
         context(inv: Invocation<WarpableServer, Sender>)
         override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+            withAsyncContext { inv.env.warps.names.toSuggestions() }
+
+        context(inv: Invocation<WarpableServer, Sender>)
+        override suspend fun resolve(arg0: String): CommandResult<Warp> {
+            val warp = withAsyncContext {
+                inv.sender.log("Looked up $arg0 on ${TestExecutor.running}")
+                inv.env.warps[arg0]
+            } ?: return failType("warp", arg0)
+            return success(warp)
+        }
+    }
+
+    private class CachedWarpParameter : SuspendingParameter.Size1<WarpableServer, Sender, Warp>("warp", "") {
+        context(inv: Invocation<WarpableServer, Sender>)
+        override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
+
+        context(inv: Invocation<WarpableServer, Sender>)
+        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
             inv.env.warps.names.toSuggestions()
 
         context(inv: Invocation<WarpableServer, Sender>)
         override suspend fun resolve(arg0: String): CommandResult<Warp> {
             inv.sender.log("Resolved $arg0 on ${TestExecutor.running}")
-            val warp = inv.env.warps[arg0] ?: return failType("warp", arg0)
-            return success(warp)
+            return success(inv.env.warps[arg0]!!)
         }
     }
 }

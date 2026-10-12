@@ -13,7 +13,6 @@ import com.zombachu.stick.Size
 import com.zombachu.stick.SkipAsyncSuggestions
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.consuming
-import com.zombachu.stick.withAsyncContext
 import kotlin.coroutines.coroutineContext
 
 sealed class SuspendingParameter<in E : Environment, S, T, out P : Position>(
@@ -28,7 +27,7 @@ sealed class SuspendingParameter<in E : Environment, S, T, out P : Position>(
     context(inv: Invocation<E, S>)
     final override suspend fun routeSuggest(preceding: List<String>, partial: String): List<Suggestion> {
         if (coroutineContext[SkipAsyncSuggestions] != null) return []
-        return withAsyncContext { suggest(preceding, partial) }
+        return suggest(preceding, partial)
     }
 
     abstract class Bounded<in E : Environment, S, T>(
@@ -38,7 +37,7 @@ sealed class SuspendingParameter<in E : Environment, S, T, out P : Position>(
     ) : SuspendingParameter<E, S, T, Position.Leading>(size, name, description) {
 
         context(ex: Execution<E, S>)
-        final override suspend fun parse(args: List<String>): ConsumingResult<T> = withAsyncContext { resolve(args) }
+        final override suspend fun parse(args: List<String>): ConsumingResult<T> = resolve(args)
 
         context(inv: Invocation<E, S>)
         abstract suspend fun resolve(args: List<String>): ConsumingResult<T>
@@ -262,7 +261,7 @@ sealed class SuspendingParameter<in E : Environment, S, T, out P : Position>(
     ) : SuspendingParameter<E, S, T, Position.Last>(size, name, description) {
 
         context(ex: Execution<E, S>)
-        final override suspend fun parse(args: List<String>): ConsumingResult<T> = withAsyncContext { resolve(args) }
+        final override suspend fun parse(args: List<String>): ConsumingResult<T> = resolve(args)
 
         context(inv: Invocation<E, S>)
         abstract suspend fun resolve(args: List<String>): ConsumingResult<T>
