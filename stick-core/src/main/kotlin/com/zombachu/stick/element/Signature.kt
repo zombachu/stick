@@ -48,7 +48,7 @@ internal sealed class Signature<E : Environment, S, T_ : Arguments>(
     }
 
     context(ex: Execution<E, S>)
-    protected abstract fun executeParsed(parsedValues: List<Any?>): T_
+    protected abstract suspend fun executeParsed(parsedValues: List<Any?>): T_
 
     context(ex: ExecutionImpl<E, S>)
     suspend fun execute(): CommandResult<T_> {

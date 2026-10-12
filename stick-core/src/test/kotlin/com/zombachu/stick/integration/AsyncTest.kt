@@ -412,6 +412,26 @@ class AsyncTest {
         )
     }
 
+    @Test
+    fun `setwarp - withAsyncContext block in body runs on async context`() {
+        val setwarpCommand = structure(WarpableServer::class, Sender::class) {
+            command("setwarp")(
+                stringParameter("name"),
+            ) { name ->
+                withAsyncContext { sender.log("Saved $name on ${TestExecutor.running}") }
+                sender.log("Created $name on ${TestExecutor.running}")
+            }
+        }
+
+        setwarpCommand.executeOn(main, async, server, zombachu, "/setwarp home")
+        main.drain()
+        async.drain()
+        assertEquals(["Saved home on async"], zombachu.logs)
+
+        main.drain()
+        assertEquals(["Saved home on async", "Created home on main"], zombachu.logs)
+    }
+
     private class AsyncWarpParameter(name: String) : SuspendingParameter.Size1<WarpableServer, Sender, Warp>(name, "") {
         context(inv: Invocation<WarpableServer, Sender>)
         override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)

@@ -41,19 +41,19 @@ fun <E_ : Environment, S, A> StructureScope<E_, S>.branch(
 ): BranchScope<E_, S, A> = BranchScope(leadingParameter, requirement)
 
 operator fun <E_ : Environment, S, A> BranchScope<E_, S, A>.invoke(
-    execute: Execution<E_, S>.(A) -> Unit = { a -> }
+    execute: suspend Execution<E_, S>.(A) -> Unit = { a -> }
 ): Branch<E_, S, Arguments1<A>> = build(Signature1(execute, LeadingParameterRole.Argument, [leadingParameter]))
 
 operator fun <E_ : Environment, S, A, B> BranchScope<E_, S, A>.invoke(
     elementB: SignatureElement<E_, S, B, Position.Last>,
-    execute: Execution<E_, S>.(A, B) -> Unit = { a, b -> },
+    execute: suspend Execution<E_, S>.(A, B) -> Unit = { a, b -> },
 ): Branch<E_, S, Arguments2<A, B>> =
     build(Signature2(execute, LeadingParameterRole.Argument, [leadingParameter, elementB]))
 
 operator fun <E_ : Environment, S, A, B, C> BranchScope<E_, S, A>.invoke(
     elementB: SignatureElement<E_, S, B, Position.Leading>,
     elementC: SignatureElement<E_, S, C, Position.Last>,
-    execute: Execution<E_, S>.(A, B, C) -> Unit = { a, b, c -> },
+    execute: suspend Execution<E_, S>.(A, B, C) -> Unit = { a, b, c -> },
 ): Branch<E_, S, Arguments3<A, B, C>> =
     build(Signature3(execute, LeadingParameterRole.Argument, [leadingParameter, elementB, elementC]))
 
@@ -61,7 +61,7 @@ operator fun <E_ : Environment, S, A, B, C, D> BranchScope<E_, S, A>.invoke(
     elementB: SignatureElement<E_, S, B, Position.Leading>,
     elementC: SignatureElement<E_, S, C, Position.Leading>,
     elementD: SignatureElement<E_, S, D, Position.Last>,
-    execute: Execution<E_, S>.(A, B, C, D) -> Unit = { a, b, c, d -> },
+    execute: suspend Execution<E_, S>.(A, B, C, D) -> Unit = { a, b, c, d -> },
 ): Branch<E_, S, Arguments4<A, B, C, D>> =
     build(Signature4(execute, LeadingParameterRole.Argument, [leadingParameter, elementB, elementC, elementD]))
 
@@ -70,7 +70,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E> BranchScope<E_, S, A>.invoke(
     elementC: SignatureElement<E_, S, C, Position.Leading>,
     elementD: SignatureElement<E_, S, D, Position.Leading>,
     elementE: SignatureElement<E_, S, E, Position.Last>,
-    execute: Execution<E_, S>.(A, B, C, D, E) -> Unit = { a, b, c, d, e -> },
+    execute: suspend Execution<E_, S>.(A, B, C, D, E) -> Unit = { a, b, c, d, e -> },
 ): Branch<E_, S, Arguments5<A, B, C, D, E>> =
     build(
         Signature5(execute, LeadingParameterRole.Argument, [leadingParameter, elementB, elementC, elementD, elementE])
@@ -82,7 +82,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F> BranchScope<E_, S, A>.invok
     elementD: SignatureElement<E_, S, D, Position.Leading>,
     elementE: SignatureElement<E_, S, E, Position.Leading>,
     elementF: SignatureElement<E_, S, F, Position.Last>,
-    execute: Execution<E_, S>.(A, B, C, D, E, F) -> Unit = { a, b, c, d, e, f -> },
+    execute: suspend Execution<E_, S>.(A, B, C, D, E, F) -> Unit = { a, b, c, d, e, f -> },
 ): Branch<E_, S, Arguments6<A, B, C, D, E, F>> =
     build(
         Signature6(
@@ -99,7 +99,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G> BranchScope<E_, S, A>.in
     elementE: SignatureElement<E_, S, E, Position.Leading>,
     elementF: SignatureElement<E_, S, F, Position.Leading>,
     elementG: SignatureElement<E_, S, G, Position.Last>,
-    execute: Execution<E_, S>.(A, B, C, D, E, F, G) -> Unit = { a, b, c, d, e, f, g -> },
+    execute: suspend Execution<E_, S>.(A, B, C, D, E, F, G) -> Unit = { a, b, c, d, e, f, g -> },
 ): Branch<E_, S, Arguments7<A, B, C, D, E, F, G>> =
     build(
         Signature7(
@@ -117,7 +117,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H> BranchScope<E_, S, A>
     elementF: SignatureElement<E_, S, F, Position.Leading>,
     elementG: SignatureElement<E_, S, G, Position.Leading>,
     elementH: SignatureElement<E_, S, H, Position.Last>,
-    execute: Execution<E_, S>.(A, B, C, D, E, F, G, H) -> Unit = { a, b, c, d, e, f, g, h -> },
+    execute: suspend Execution<E_, S>.(A, B, C, D, E, F, G, H) -> Unit = { a, b, c, d, e, f, g, h -> },
 ): Branch<E_, S, Arguments8<A, B, C, D, E, F, G, H>> =
     build(
         Signature8(
@@ -136,7 +136,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I> BranchScope<E_, S,
     elementG: SignatureElement<E_, S, G, Position.Leading>,
     elementH: SignatureElement<E_, S, H, Position.Leading>,
     elementI: SignatureElement<E_, S, I, Position.Last>,
-    execute: Execution<E_, S>.(A, B, C, D, E, F, G, H, I) -> Unit = { a, b, c, d, e, f, g, h, i -> },
+    execute: suspend Execution<E_, S>.(A, B, C, D, E, F, G, H, I) -> Unit = { a, b, c, d, e, f, g, h, i -> },
 ): Branch<E_, S, Arguments9<A, B, C, D, E, F, G, H, I>> =
     build(
         Signature9(
@@ -156,7 +156,7 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J> BranchScope<E_,
     elementH: SignatureElement<E_, S, H, Position.Leading>,
     elementI: SignatureElement<E_, S, I, Position.Leading>,
     elementJ: SignatureElement<E_, S, J, Position.Last>,
-    execute: Execution<E_, S>.(A, B, C, D, E, F, G, H, I, J) -> Unit = { a, b, c, d, e, f, g, h, i, j -> },
+    execute: suspend Execution<E_, S>.(A, B, C, D, E, F, G, H, I, J) -> Unit = { a, b, c, d, e, f, g, h, i, j -> },
 ): Branch<E_, S, Arguments10<A, B, C, D, E, F, G, H, I, J>> =
     build(
         Signature10(
@@ -188,7 +188,8 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K> BranchScope<
     elementI: SignatureElement<E_, S, I, Position.Leading>,
     elementJ: SignatureElement<E_, S, J, Position.Leading>,
     elementK: SignatureElement<E_, S, K, Position.Last>,
-    execute: Execution<E_, S>.(A, B, C, D, E, F, G, H, I, J, K) -> Unit = { a, b, c, d, e, f, g, h, i, j, k -> },
+    execute: suspend Execution<E_, S>.(A, B, C, D, E, F, G, H, I, J, K) -> Unit = { a, b, c, d, e, f, g, h, i, j, k ->
+    },
 ): Branch<E_, S, Arguments11<A, B, C, D, E, F, G, H, I, J, K>> =
     build(
         Signature11(
@@ -222,7 +223,9 @@ operator fun <E_ : Environment, S, A, B, C, D, E, F, G, H, I, J, K, L> BranchSco
     elementJ: SignatureElement<E_, S, J, Position.Leading>,
     elementK: SignatureElement<E_, S, K, Position.Leading>,
     elementL: SignatureElement<E_, S, L, Position.Last>,
-    execute: Execution<E_, S>.(A, B, C, D, E, F, G, H, I, J, K, L) -> Unit = { a, b, c, d, e, f, g, h, i, j, k, l -> },
+    execute: suspend Execution<E_, S>.(A, B, C, D, E, F, G, H, I, J, K, L) -> Unit =
+        { a, b, c, d, e, f, g, h, i, j, k, l ->
+        },
 ): Branch<E_, S, Arguments12<A, B, C, D, E, F, G, H, I, J, K, L>> =
     build(
         Signature12(
