@@ -46,8 +46,14 @@ private fun <E : Environment, S> Structure<E, S, *>.dispatch(
     return handler
 }
 
-internal fun <E : Environment, S> Structure<E, S, *>.suggest(env: E, sender: S, command: String): List<String> {
-    val runner = CommandRunner(env, RecordingFailureHandler(), this, EmptyCoroutineContext, EmptyCoroutineContext)
+internal fun <E : Environment, S> Structure<E, S, *>.suggest(
+    env: E,
+    sender: S,
+    command: String,
+    main: CoroutineContext = EmptyCoroutineContext,
+    async: CoroutineContext = EmptyCoroutineContext,
+): List<String> {
+    val runner = CommandRunner(env, RecordingFailureHandler(), this, main, async)
 
     val args = command.replaceFirst("/", "").split(" ")
     return runner.suggest(sender, args.first(), args.drop(1))

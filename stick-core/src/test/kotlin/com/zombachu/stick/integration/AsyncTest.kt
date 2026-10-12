@@ -214,6 +214,25 @@ class AsyncTest {
     }
 
     @Test
+    fun `warp - suggest does not run withAsyncContext block`() {
+        val warpCommand = structure(WarpableServer::class, Sender::class) {
+            command("warp")(
+                LoggingWarpParameter(),
+                flag("silent"),
+            ) { warp, _ ->
+                sender.log("Warped to $warp")
+            }
+        }
+
+        val suggestions =
+            warpCommand.suggest(server, zombachu, "/warp ", main.asCoroutineContext(), async.asCoroutineContext())
+        async.drain()
+
+        assertEquals(["-silent"], suggestions)
+        assertEquals([], zombachu.logs)
+    }
+
+    @Test
     fun `warp - suggest includes suspending parameter suggestions from main context`() {
         val warpCommand = structure(WarpableServer::class, Sender::class) {
             command("warp")(
@@ -270,6 +289,35 @@ class AsyncTest {
         val suggestions =
             warpCommand.suggestAsync(server, zombachu, "/warp ", main.asCoroutineContext(), async.asCoroutineContext())
         assertEquals(["spawn", "shop"], suggestions.getNow([]))
+    }
+
+    @Test
+    fun `warp - suggestAsync completes empty after rejected rejoin`() {
+        val warpCommand = structure(WarpableServer::class, Sender::class) {
+            command("warp")(AsyncWarpParameter("warp")) { warp -> sender.log("Warped to ${warp.name}") }
+        }
+
+        val suggestions =
+            warpCommand.suggestAsync(server, zombachu, "/warp ", main.asCoroutineContext(), async.asCoroutineContext())
+        main.shutdown()
+        async.drain()
+
+        assertEquals([], suggestions.getNow(null))
+    }
+
+    @Test
+    fun `warp - cancelled suggestAsync stops suggest at rejoin`() {
+        val warpCommand = structure(WarpableServer::class, Sender::class) {
+            command("warp")(LoggingWarpParameter()) { warp -> sender.log("Warped to $warp") }
+        }
+
+        val suggestions =
+            warpCommand.suggestAsync(server, zombachu, "/warp ", main.asCoroutineContext(), async.asCoroutineContext())
+        async.drain()
+        val ignored = suggestions.cancel(false)
+        main.drain()
+
+        assertEquals(["Looked up warps on async"], zombachu.logs)
     }
 
     @Test
@@ -432,6 +480,26 @@ class AsyncTest {
         assertEquals(["Saved home on async", "Created home on main"], zombachu.logs)
     }
 
+    @Test
+    fun `setwarp - rejected rejoin abandons command`() {
+        val setwarpCommand = structure(WarpableServer::class, Sender::class) {
+            command("setwarp")(
+                stringParameter("name"),
+            ) { name ->
+                withAsyncContext { sender.log("Saved $name on ${TestExecutor.running}") }
+                sender.log("Created $name on ${TestExecutor.running}")
+            }
+        }
+
+        val failures = setwarpCommand.executeOn(main, async, server, zombachu, "/setwarp home")
+        main.drain()
+        main.shutdown()
+        async.drain()
+
+        assertEquals(["Saved home on async"], zombachu.logs)
+        assertNull(failures.reason)
+    }
+
     private class AsyncWarpParameter(name: String) : SuspendingParameter.Size1<WarpableServer, Sender, Warp>(name, "") {
         context(inv: Invocation<WarpableServer, Sender>)
         override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
@@ -454,6 +522,21 @@ class AsyncTest {
         context(inv: Invocation<WarpableServer, Sender>)
         override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
             withAsyncContext { inv.env.warps.names.toSuggestions() }
+
+        context(inv: Invocation<WarpableServer, Sender>)
+        override fun resolve(arg0: String): CommandResult<String> = success(arg0)
+    }
+
+    private class LoggingWarpParameter : Parameter.Size1<WarpableServer, Sender, String>("warp", "") {
+        context(inv: Invocation<WarpableServer, Sender>)
+        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+            val names = withAsyncContext {
+                inv.sender.log("Looked up warps on ${TestExecutor.running}")
+                inv.env.warps.names
+            }
+            inv.sender.log("Suggested warps on ${TestExecutor.running}")
+            return names.toSuggestions()
+        }
 
         context(inv: Invocation<WarpableServer, Sender>)
         override fun resolve(arg0: String): CommandResult<String> = success(arg0)

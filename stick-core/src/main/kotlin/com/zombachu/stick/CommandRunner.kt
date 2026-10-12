@@ -21,23 +21,18 @@ class CommandRunner<E : Environment, S>(
     fun execute(sender: S, label: String, args: List<String>) {
         val fullArgs = [label] + args
         val ex = Execution(sender, env, label, fullArgs, structure)
-        startUndispatched(
-            mainContext + StickCoroutineContext(mainContext, asyncContext),
-            {
-                context(env, ex) {
-                    val result =
-                        try {
-                            val validationResult = structure.validateSender()
-                            if (validationResult.isSuccess()) structure.parse(fullArgs) else validationResult
-                        } catch (e: Exception) {
-                            fail(Reason.Unknown(e))
-                        }
-                    if (result is CommandResult.Failure.Unhandled)
-                        failureHandler.onFailure(result.reason, result.origin)
-                }
-            },
-        ) {
-            it.getOrThrow()
+        val run = Run(mainContext, asyncContext) { it.getOrElse { e -> if (e !is RunCancelled) throw e } }
+        run.startUndispatched {
+            context(env, ex) {
+                val result =
+                    try {
+                        val validationResult = structure.validateSender()
+                        if (validationResult.isSuccess()) structure.parse(fullArgs) else validationResult
+                    } catch (e: Exception) {
+                        fail(Reason.Unknown(e))
+                    }
+                if (result is CommandResult.Failure.Unhandled) failureHandler.onFailure(result.reason, result.origin)
+            }
         }
     }
 
@@ -50,23 +45,19 @@ class CommandRunner<E : Environment, S>(
 
     fun suggest(sender: S, label: String, args: List<String>): List<String> {
         var suggestions: List<String> = []
-        startUndispatched(
-            mainContext + StickCoroutineContext(mainContext, asyncContext) + SkipAsyncSuggestions,
-            { suggestions(sender, label, args) },
-        ) {
-            suggestions = it.getOrThrow()
-        }
+        val run = Run(mainContext, asyncContext = null) { suggestions = it.getOrThrow() }
+        run.startUndispatched { suggestions(sender, label, args) }
         return suggestions
     }
 
     fun suggestAsync(sender: S, label: String, args: List<String>): CompletableFuture<List<String>> {
         val future = CompletableFuture<List<String>>()
-        startUndispatched(
-            mainContext + StickCoroutineContext(mainContext, asyncContext),
-            { suggestions(sender, label, args) },
-        ) {
-            future.complete(it.getOrThrow())
-        }
+        val run =
+            Run(mainContext, asyncContext) {
+                future.complete(it.getOrElse { e -> if (e is RunCancelled) [] else throw e })
+            }
+        future.whenComplete { _, _ -> if (future.isCancelled) run.cancel() }
+        run.startUndispatched { suggestions(sender, label, args) }
         return future
     }
 

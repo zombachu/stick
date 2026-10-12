@@ -13,13 +13,15 @@ import com.zombachu.stick.element.Structure
 import com.zombachu.stick.failure.FailureHandler
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.Commands
-import org.bukkit.Bukkit
-import org.bukkit.command.CommandSender
-import org.bukkit.plugin.Plugin
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
+import java.util.concurrent.RejectedExecutionException
 import java.util.function.Predicate
 import kotlin.coroutines.CoroutineContext
+import org.bukkit.Bukkit
+import org.bukkit.command.CommandSender
+import org.bukkit.plugin.IllegalPluginAccessException
+import org.bukkit.plugin.Plugin
 
 internal class PaperCommandAdapter<E : PaperEnvironment>(
     env: E,
@@ -64,8 +66,12 @@ private fun mainThread(plugin: Plugin): CoroutineContext {
     val executor = Executor { task ->
         if (Bukkit.isPrimaryThread()) {
             task.run()
-        } else if (plugin.isEnabled) {
-            Bukkit.getScheduler().runTask(plugin, task)
+        } else {
+            try {
+                Bukkit.getScheduler().runTask(plugin, task)
+            } catch (e: IllegalPluginAccessException) {
+                throw RejectedExecutionException(e)
+            }
         }
     }
     return executor.asCoroutineContext()

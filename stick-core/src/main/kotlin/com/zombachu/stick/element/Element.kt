@@ -12,6 +12,7 @@ import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
+import com.zombachu.stick.RunCancelled
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 
@@ -60,6 +61,8 @@ internal suspend fun <E : Environment, S> SyntaxElement<E, S, *>.suggest(
             is InternalSyntaxElement -> suggest(preceding, partial)
         }
     } catch (_: AsyncSuggestionSkipped) {
+        []
+    } catch (_: RunCancelled) {
         []
     }
 

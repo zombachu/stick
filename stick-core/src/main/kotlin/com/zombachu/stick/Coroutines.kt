@@ -7,8 +7,6 @@ import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.coroutineContext
-import kotlin.coroutines.intrinsics.createCoroutineUnintercepted
-import kotlin.coroutines.resume
 import kotlin.coroutines.startCoroutine
 import kotlin.coroutines.suspendCoroutine
 
@@ -22,29 +20,24 @@ private class ExecutorInterceptor(private val executor: Executor) :
 
 /** Runs [block] on the async context, then continues in the caller's context. */
 suspend fun <T> withAsyncContext(block: suspend () -> T): T {
-    val routing = checkNotNull(coroutineContext[StickCoroutineContext]) { "withAsyncContext called outside Stick" }
-    if (coroutineContext[SkipAsyncSuggestions] != null) throw AsyncSuggestionSkipped()
-    return runOn(routing.asyncContext + routing, block)
-}
-
-internal object SkipAsyncSuggestions : CoroutineContext.Element, CoroutineContext.Key<SkipAsyncSuggestions> {
-    override val key: CoroutineContext.Key<*> = this
+    val run = checkNotNull(coroutineContext[Run]) { "withAsyncContext called outside Stick" }
+    run.ensureActive()
+    val asyncContext = run.asyncContext ?: throw AsyncSuggestionSkipped()
+    val result = run.runOn(asyncContext + run, block)
+    run.ensureActive()
+    return result
 }
 
 internal class AsyncSuggestionSkipped : CancellationException()
 
 /** Runs [block] on the command's main context, then continues in the caller's context. */
 suspend fun <T> withMainContext(block: () -> T): T {
-    val routing = checkNotNull(coroutineContext[StickCoroutineContext]) { "withMainContext called outside Stick" }
-    return runOn(routing.mainContext) { block() }
+    val run = checkNotNull(coroutineContext[Run]) { "withMainContext called outside Stick" }
+    return run.runOn(run.mainContext) { block() }
 }
 
 /** Runs [block] on [context], then continues in the caller's context. */
-private suspend fun <T> runOn(context: CoroutineContext, block: suspend () -> T): T = suspendCoroutine { caller ->
-    block.startCoroutine(Continuation(context) { caller.resumeWith(it) })
-}
-
-/** Runs [block] on the calling thread until it first suspends. */
-internal fun <T> startUndispatched(context: CoroutineContext, block: suspend () -> T, onComplete: (Result<T>) -> Unit) {
-    block.createCoroutineUnintercepted(Continuation(context, onComplete)).resume(Unit)
-}
+private suspend fun <T> Run<*>.runOn(context: CoroutineContext, block: suspend () -> T): T =
+    suspendCoroutine { caller ->
+        block.startCoroutine(Continuation(context) { resume(caller, it) })
+    }
