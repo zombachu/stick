@@ -88,7 +88,7 @@ class ValueFlagImplTest {
     fun `ParameterFlagParameter ignores match resolved by another parameter`() {
         val other = StringParameter<TestEnv, Unit>("", "")
         val length =
-            object : AsyncParameter.Size1<TestEnv, Unit, Int>("length", "") {
+            object : SuspendingParameter.Size1<TestEnv, Unit, Int>("length", "") {
                 context(inv: Invocation<TestEnv, Unit>)
                 override fun match(arg0: String): MatchResult = other.match([arg0])
 
@@ -110,7 +110,7 @@ class ValueFlagImplTest {
     fun `ParameterFlagParameter resolves parameter once with vacuous match`() {
         var resolves = 0
         val cheaplyMatched =
-            object : AsyncParameter.Size1<TestEnv, Unit, String>("name", "") {
+            object : SuspendingParameter.Size1<TestEnv, Unit, String>("name", "") {
                 context(inv: Invocation<TestEnv, Unit>)
                 override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 

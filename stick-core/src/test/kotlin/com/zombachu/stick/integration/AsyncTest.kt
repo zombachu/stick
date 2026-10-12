@@ -18,7 +18,7 @@ import com.zombachu.stick.dsl.mapAsync
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.valueFlag
-import com.zombachu.stick.element.AsyncParameter
+import com.zombachu.stick.element.SuspendingParameter
 import com.zombachu.stick.failType
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.integration.fixtures.Location
@@ -130,7 +130,7 @@ class AsyncTest {
 
     @Test
     fun `warp - exception in async parameter fails with Unknown on main`() {
-        class FailingWarpParameter : AsyncParameter.Size1<WarpableServer, Sender, Warp>("warp", "") {
+        class FailingWarpParameter : SuspendingParameter.Size1<WarpableServer, Sender, Warp>("warp", "") {
             context(inv: Invocation<WarpableServer, Sender>)
             override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
@@ -367,7 +367,7 @@ class AsyncTest {
         assertEquals(["Found home on async", "Teleported to Location(x=1, y=64, z=1) on main"], zombachu.logs)
     }
 
-    private class AsyncWarpParameter(name: String) : AsyncParameter.Size1<WarpableServer, Sender, Warp>(name, "") {
+    private class AsyncWarpParameter(name: String) : SuspendingParameter.Size1<WarpableServer, Sender, Warp>(name, "") {
         context(inv: Invocation<WarpableServer, Sender>)
         override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 

@@ -91,9 +91,9 @@ class ParameterTest {
     }
 
     @Test
-    fun `async fixed arity match returns partial below arity`() {
+    fun `suspending fixed arity match returns partial below arity`() {
         val parameter =
-            object : AsyncParameter.Size2<TestEnv, Unit, String>("", "") {
+            object : SuspendingParameter.Size2<TestEnv, Unit, String>("", "") {
                 context(inv: Invocation<TestEnv, Unit>)
                 override fun match(arg0: String, arg1: String): MatchResult = MatchResult.unmatched()
 

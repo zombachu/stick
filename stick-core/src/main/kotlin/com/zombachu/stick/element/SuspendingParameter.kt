@@ -16,7 +16,7 @@ import com.zombachu.stick.consuming
 import com.zombachu.stick.withAsyncContext
 import kotlin.coroutines.coroutineContext
 
-sealed class AsyncParameter<in E : Environment, S, T, out P : Position>(
+sealed class SuspendingParameter<in E : Environment, S, T, out P : Position>(
     size: Size,
     name: String,
     description: String,
@@ -35,7 +35,7 @@ sealed class AsyncParameter<in E : Environment, S, T, out P : Position>(
         override val size: Size.Bounded,
         name: String,
         description: String,
-    ) : AsyncParameter<E, S, T, Position.Leading>(size, name, description) {
+    ) : SuspendingParameter<E, S, T, Position.Leading>(size, name, description) {
 
         context(ex: Execution<E, S>)
         final override suspend fun parse(args: List<String>): ConsumingResult<T> = withAsyncContext { resolve(args) }
@@ -259,7 +259,7 @@ sealed class AsyncParameter<in E : Environment, S, T, out P : Position>(
         size: Size.Unbounded,
         name: String,
         description: String,
-    ) : AsyncParameter<E, S, T, Position.Last>(size, name, description) {
+    ) : SuspendingParameter<E, S, T, Position.Last>(size, name, description) {
 
         context(ex: Execution<E, S>)
         final override suspend fun parse(args: List<String>): ConsumingResult<T> = withAsyncContext { resolve(args) }

@@ -2,11 +2,11 @@ package com.zombachu.stick
 
 import com.zombachu.stick.dsl.id
 import com.zombachu.stick.dsl.store
-import com.zombachu.stick.element.AsyncParameter
 import com.zombachu.stick.element.Group1Impl
 import com.zombachu.stick.element.MappedOptionalParameter
 import com.zombachu.stick.element.OptionalParameterImpl
 import com.zombachu.stick.element.Parameter
+import com.zombachu.stick.element.SuspendingParameter
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.failure.Reason
@@ -83,7 +83,7 @@ class ExecutionImplTest {
         val ex = testExecution("foo")
         var parsed = false
         val parameter =
-            object : AsyncParameter.Size1<TestEnv, Unit, String>("bar", "") {
+            object : SuspendingParameter.Size1<TestEnv, Unit, String>("bar", "") {
                 context(inv: Invocation<TestEnv, Unit>)
                 override fun match(arg0: String): MatchResult = MatchResult.unmatched()
 

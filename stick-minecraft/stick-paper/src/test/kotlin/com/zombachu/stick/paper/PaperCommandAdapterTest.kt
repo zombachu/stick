@@ -13,8 +13,8 @@ import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.textParameter
-import com.zombachu.stick.element.AsyncParameter
 import com.zombachu.stick.element.Structure
+import com.zombachu.stick.element.SuspendingParameter
 import com.zombachu.stick.noopFailureHandler
 import com.zombachu.stick.paper.dsl.permission
 import com.zombachu.stick.success
@@ -103,10 +103,10 @@ class PaperCommandAdapterTest {
     }
 
     @Test
-    fun `getSuggestions includes async parameter suggestions`() {
+    fun `getSuggestions includes suspending parameter suggestions`() {
         val registrar = register {
             command("hello")(
-                AsyncNameParameter(),
+                SuspendingNameParameter(),
                 flag("loud"),
             ) { _, _ -> }
         }
@@ -173,7 +173,8 @@ class PaperCommandAdapterTest {
         return registrar
     }
 
-    private class AsyncNameParameter : AsyncParameter.Size1<PaperEnvironment, CommandSender, String>("name", "") {
+    private class SuspendingNameParameter :
+        SuspendingParameter.Size1<PaperEnvironment, CommandSender, String>("name", "") {
         context(inv: Invocation<PaperEnvironment, CommandSender>)
         override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 

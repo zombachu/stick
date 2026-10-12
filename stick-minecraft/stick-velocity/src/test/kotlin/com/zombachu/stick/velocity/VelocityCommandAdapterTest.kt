@@ -10,7 +10,7 @@ import com.zombachu.stick.dsl.flag
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.textParameter
-import com.zombachu.stick.element.AsyncParameter
+import com.zombachu.stick.element.SuspendingParameter
 import com.zombachu.stick.noopFailureHandler
 import com.zombachu.stick.success
 import com.zombachu.stick.toSuggestions
@@ -71,10 +71,10 @@ class VelocityCommandAdapterTest {
     }
 
     @Test
-    fun `suggest includes async parameter suggestions`() {
+    fun `suggest includes suspending parameter suggestions`() {
         val structure = velocityStructure {
             command("hello")(
-                AsyncNameParameter(),
+                SuspendingNameParameter(),
                 flag("loud"),
             ) { _, _ -> }
         }
@@ -116,7 +116,8 @@ class VelocityCommandAdapterTest {
         return VelocityCommandAdapter(environment(), noopFailureHandler(), structure, EmptyCoroutineContext)
     }
 
-    private class AsyncNameParameter : AsyncParameter.Size1<VelocityEnvironment, CommandSource, String>("name", "") {
+    private class SuspendingNameParameter :
+        SuspendingParameter.Size1<VelocityEnvironment, CommandSource, String>("name", "") {
         context(inv: Invocation<VelocityEnvironment, CommandSource>)
         override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
