@@ -22,10 +22,10 @@ import com.zombachu.stick.element.AsyncParameter
 import com.zombachu.stick.failType
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.integration.fixtures.Location
-import com.zombachu.stick.integration.fixtures.TestExecutor
 import com.zombachu.stick.integration.fixtures.Player
 import com.zombachu.stick.integration.fixtures.Sender
 import com.zombachu.stick.integration.fixtures.SynergyServer
+import com.zombachu.stick.integration.fixtures.TestExecutor
 import com.zombachu.stick.integration.fixtures.Warp
 import com.zombachu.stick.integration.fixtures.WarpRegistry
 import com.zombachu.stick.integration.fixtures.WarpableServer

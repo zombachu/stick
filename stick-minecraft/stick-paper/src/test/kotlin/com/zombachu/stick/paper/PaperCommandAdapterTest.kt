@@ -1,8 +1,11 @@
 package com.zombachu.stick.paper
 
+import com.mojang.brigadier.Command
+import com.zombachu.stick.Arguments
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
+import com.zombachu.stick.StructureScope
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.flag
@@ -11,136 +14,142 @@ import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.textParameter
 import com.zombachu.stick.element.AsyncParameter
+import com.zombachu.stick.element.Structure
 import com.zombachu.stick.noopFailureHandler
 import com.zombachu.stick.paper.dsl.permission
 import com.zombachu.stick.success
 import com.zombachu.stick.toSuggestions
+import org.bukkit.command.CommandSender
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertSame
 import kotlin.test.assertTrue
-import org.bukkit.command.CommandSender
 
 class PaperCommandAdapterTest {
 
     @Test
-    fun `execute joins label and args and returns true`() {
+    fun `run joins label and args and returns single success`() {
         var text: String? = null
-        val structure =
-            paperStructure {
-                command("cmd")(textParameter("")) { text = it }
-            }
-        val adapter =
-            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
+        val registrar = register {
+            command("cmd")(textParameter("")) { text = it }
+        }
 
-        val result = adapter.execute(FakeCommandSender(), "cmd", arrayOf("hello", "world"))
+        val result = registrar.execute("cmd hello world")
 
-        assertTrue(result)
+        assertEquals(Command.SINGLE_SUCCESS, result)
         assertEquals("hello world", text)
     }
 
     @Test
-    fun `execute with no args runs command`() {
+    fun `run collapses consecutive spaces`() {
+        var text: String? = null
+        val registrar = register {
+            command("cmd")(textParameter("")) { text = it }
+        }
+
+        val ignored = registrar.execute("cmd hello   world")
+
+        assertEquals("hello world", text)
+    }
+
+    @Test
+    fun `run drops leading and trailing spaces`() {
+        var text: String? = null
+        val registrar = register {
+            command("cmd")(textParameter("")) { text = it }
+        }
+
+        val ignored = registrar.execute("cmd   hello world  ")
+
+        assertEquals("hello world", text)
+    }
+
+    @Test
+    fun `run with no args runs command`() {
         var executed = false
-        val structure = paperStructure {
+        val registrar = register {
             command("cmd")() { executed = true }
         }
-        val adapter =
-            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
-        val result = adapter.execute(FakeCommandSender(), "cmd", arrayOf())
+        val ignored = registrar.execute("cmd")
 
-        assertTrue(result)
         assertTrue(executed)
     }
 
     @Test
-    fun `execute accepts a namespaced label`() {
+    fun `run accepts namespaced label`() {
         var text: String? = null
-        val structure =
-            paperStructure {
-                command("cmd")(textParameter("")) { text = it }
-            }
-        val adapter =
-            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
+        val registrar = register {
+            command("cmd")(textParameter("")) { text = it }
+        }
 
-        val result = adapter.execute(FakeCommandSender(), "fake-plugin:cmd", arrayOf("hello", "world"))
+        val ignored = registrar.execute("fake-plugin:cmd hello world")
 
-        assertTrue(result)
         assertEquals("hello world", text)
     }
 
     @Test
-    fun `tabComplete completes arg`() {
-        val structure = paperStructure {
+    fun `getSuggestions completes arg`() {
+        val registrar = register {
             command("hello")(
                 literalParameter("there")
             ) { }
         }
-        val adapter =
-            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
-        assertEquals(["there"], adapter.tabComplete(FakeCommandSender(), "hello", arrayOf("")))
-        assertEquals(["there"], adapter.tabComplete(FakeCommandSender(), "hello", arrayOf("the")))
-        assertEquals([], adapter.tabComplete(FakeCommandSender(), "hello", arrayOf("general")))
+        assertEquals(["hello there"], registrar.complete("hello "))
+        assertEquals(["hello there"], registrar.complete("hello the"))
+        assertEquals([], registrar.complete("hello general"))
     }
 
     @Test
-    fun `tabComplete omits async parameter suggestions`() {
-        val structure = paperStructure {
+    fun `getSuggestions includes async parameter suggestions`() {
+        val registrar = register {
             command("hello")(
                 AsyncNameParameter(),
                 flag("loud"),
             ) { _, _ -> }
         }
-        val adapter =
-            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
-        assertEquals(["-loud"], adapter.tabComplete(FakeCommandSender(), "hello", arrayOf("")))
+        assertEquals(["hello -loud", "hello there"], registrar.complete("hello "))
     }
 
     @Test
-    fun `tabComplete completes arg for a namespaced label`() {
-        val structure = paperStructure {
+    fun `getSuggestions completes arg for namespaced label`() {
+        val registrar = register {
             command("hello")(
                 literalParameter("there")
             ) { }
         }
-        val adapter =
-            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
-        assertEquals(["there"], adapter.tabComplete(FakeCommandSender(), "fake-plugin:hello", arrayOf("the")))
+        assertEquals(["fake-plugin:hello there"], registrar.complete("fake-plugin:hello the"))
     }
 
     @Test
-    fun `tabComplete ignores consecutive spaces`() {
-        val structure = paperStructure {
+    fun `getSuggestions ignores consecutive spaces`() {
+        val registrar = register {
             command("hello")(
                 literalParameter("there")
             ) { }
         }
-        val adapter =
-            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
-        assertEquals(["there"], adapter.tabComplete(FakeCommandSender(), "hello", arrayOf("", "the")))
+        assertEquals(["hello  there"], registrar.complete("hello  the"))
     }
 
     @Test
-    fun `testPermissionSilent delegates to sender validation`() {
+    fun `test delegates to sender validation`() {
         val structure = paperStructure {
             command("cmd", requirement = permission("stick.cmd"))() { }
         }
         val adapter =
             PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
-        assertTrue(adapter.testPermissionSilent(FakeCommandSender(["stick.cmd"])))
-        assertFalse(adapter.testPermissionSilent(FakeCommandSender()))
+        assertTrue(adapter.test(FakeCommandSourceStack(FakeCommandSender(["stick.cmd"]))))
+        assertFalse(adapter.test(FakeCommandSourceStack(FakeCommandSender())))
     }
 
     @Test
-    fun `testPermissionSilent sees base permission of a sender-narrowed command`() {
+    fun `test sees base permission of a sender-narrowed command`() {
         val structure = paperStructure {
             requireSender(FakeCommandSender::class) {
                 command("cmd", requirement = permission("stick.cmd"))() { }
@@ -149,22 +158,19 @@ class PaperCommandAdapterTest {
         val adapter =
             PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
-        assertTrue(adapter.testPermissionSilent(FakeCommandSender(["stick.cmd"])))
-        assertFalse(adapter.testPermissionSilent(FakeCommandSender()))
+        assertTrue(adapter.test(FakeCommandSourceStack(FakeCommandSender(["stick.cmd"]))))
+        assertFalse(adapter.test(FakeCommandSourceStack(FakeCommandSender())))
     }
 
-    @Test
-    fun `getPlugin returns environment plugin`() {
-        val structure = paperStructure { command("cmd")() }
+    private fun <T_ : Arguments> register(
+        block: StructureScope<PaperEnvironment, CommandSender>.() -> Structure<PaperEnvironment, CommandSender, T_>
+    ): FakeRegistrar {
+        val registrar = FakeRegistrar()
+        val structure = paperStructure(block)
         val adapter =
-            PaperCommandAdapter(
-                FakePaperEnvironment(FakePlugin),
-                noopFailureHandler(),
-                structure,
-                EmptyCoroutineContext,
-            )
-
-        assertSame(FakePlugin, adapter.getPlugin())
+            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
+        registrar.register(adapter.toBrigadierNode())
+        return registrar
     }
 
     private class AsyncNameParameter : AsyncParameter.Size1<PaperEnvironment, CommandSender, String>("name", "") {

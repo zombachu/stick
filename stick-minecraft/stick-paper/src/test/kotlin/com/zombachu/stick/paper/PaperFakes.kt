@@ -1,19 +1,29 @@
 package com.zombachu.stick.paper
 
+import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.tree.LiteralCommandNode
 import com.zombachu.stick.Arguments
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.element.Structure
+import io.papermc.paper.command.brigadier.BasicCommand
+import io.papermc.paper.command.brigadier.CommandRegistrationFlag
+import io.papermc.paper.command.brigadier.CommandSourceStack
+import io.papermc.paper.command.brigadier.Commands
 import io.papermc.paper.plugin.configuration.PluginMeta
+import io.papermc.paper.plugin.lifecycle.event.LifecycleEvent
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager
+import io.papermc.paper.plugin.lifecycle.event.handler.LifecycleEventHandler
+import io.papermc.paper.plugin.lifecycle.event.handler.configuration.LifecycleEventHandlerConfiguration
+import io.papermc.paper.plugin.lifecycle.event.registrar.ReloadableRegistrarEvent
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEventType
 import net.kyori.adventure.text.Component
-import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Server
 import org.bukkit.command.Command
-import org.bukkit.command.CommandMap
 import org.bukkit.command.CommandSender
 import org.bukkit.configuration.file.FileConfiguration
+import org.bukkit.entity.Entity
 import org.bukkit.generator.BiomeProvider
 import org.bukkit.generator.ChunkGenerator
 import org.bukkit.permissions.Permission
@@ -24,7 +34,6 @@ import org.bukkit.plugin.PluginDescriptionFile
 import org.bukkit.plugin.PluginLoader
 import java.io.File
 import java.io.InputStream
-import java.lang.reflect.Proxy
 import java.util.*
 import java.util.logging.Logger
 
@@ -79,6 +88,18 @@ class FakeCommandSender(private val permissions: Set<String> = []) : CommandSend
     override fun isOp(): Boolean = error("unused")
 
     override fun setOp(value: Boolean) = error("unused")
+}
+
+class FakeCommandSourceStack(private val sender: CommandSender) : CommandSourceStack {
+    override fun getLocation(): Location = error("unused")
+
+    override fun getSender(): CommandSender = sender
+
+    override fun getExecutor(): Entity? = error("unused")
+
+    override fun withLocation(location: Location): CommandSourceStack = error("unused")
+
+    override fun withExecutor(executor: Entity): CommandSourceStack = error("unused")
 }
 
 @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
@@ -151,45 +172,96 @@ fun <T_ : Arguments> paperStructure(
     block: StructureScope<PaperEnvironment, CommandSender>.() -> Structure<PaperEnvironment, CommandSender, T_>
 ): Structure<PaperEnvironment, CommandSender, T_> = structure(PaperEnvironment::class, CommandSender::class, block)
 
-class FakeCommandMap : CommandMap {
-    val registered: MutableList<Pair<String, Command>> = mutableListOf()
+class FakeLifecyclePlugin : Plugin by FakePlugin {
+    val lifecycleEvents: FakeLifecycleEventManager = FakeLifecycleEventManager()
 
-    override fun register(fallbackPrefix: String, command: Command): Boolean {
-        registered += fallbackPrefix to command
-        return true
-    }
-
-    override fun registerAll(fallbackPrefix: String, commands: MutableList<Command>) = error("unused")
-
-    override fun register(label: String, fallbackPrefix: String, command: Command): Boolean = error("unused")
-
-    override fun dispatch(sender: CommandSender, cmdLine: String): Boolean = error("unused")
-
-    override fun clearCommands() = error("unused")
-
-    override fun getCommand(name: String): Command = error("unused")
-
-    override fun tabComplete(sender: CommandSender, cmdLine: String): MutableList<String> = error("unused")
-
-    override fun tabComplete(sender: CommandSender, cmdLine: String, location: Location?): MutableList<String> =
-        error("unused")
-
-    override fun getKnownCommands(): MutableMap<String, Command> = error("unused")
+    override fun getLifecycleManager(): LifecycleEventManager<Plugin> = lifecycleEvents
 }
 
-private val fakeCommandMap = FakeCommandMap()
+class FakeLifecycleEventManager : LifecycleEventManager<Plugin> {
+    private val handlers: MutableList<Pair<LifecycleEventType<*, *, *>, LifecycleEventHandler<*>>> = mutableListOf()
 
-fun fakeCommandMap(): FakeCommandMap {
-    val server =
-        Proxy.newProxyInstance(Server::class.java.classLoader, arrayOf(Server::class.java)) { _, method, _ ->
-            when {
-                method.name == "getCommandMap" -> fakeCommandMap
-                method.returnType == Logger::class.java -> Logger.getLogger("fake-server")
-                method.returnType == String::class.java -> "fake"
-                else -> error("unused")
-            }
+    override fun <E : LifecycleEvent> registerEventHandler(
+        eventType: LifecycleEventType<in Plugin, out E, *>,
+        eventHandler: LifecycleEventHandler<in E>,
+    ) {
+        handlers += eventType to eventHandler
+    }
+
+    override fun registerEventHandler(handlerConfiguration: LifecycleEventHandlerConfiguration<in Plugin>) =
+        error("unused")
+
+    fun <E : LifecycleEvent> fire(eventType: LifecycleEventType<*, E, *>, event: E) {
+        for ((type, handler) in handlers) {
+            @Suppress("UNCHECKED_CAST")
+            if (type === eventType) (handler as LifecycleEventHandler<E>).run(event)
         }
-    Bukkit::class.java.getDeclaredField("server").apply { isAccessible = true }.set(null, server)
-    fakeCommandMap.registered.clear()
-    return fakeCommandMap
+    }
+}
+
+class FakeCommandsEvent(private val commands: Commands) : ReloadableRegistrarEvent<Commands> {
+    override fun registrar(): Commands = commands
+
+    override fun cause(): ReloadableRegistrarEvent.Cause = error("unused")
+}
+
+data class FakeRegistration(val node: LiteralCommandNode<CommandSourceStack>, val aliases: List<String>)
+
+class FakeRegistrar : Commands {
+    val registered: MutableList<FakeRegistration> = mutableListOf()
+    private val dispatcher = CommandDispatcher<CommandSourceStack>()
+    private val source = FakeCommandSourceStack(FakeCommandSender())
+
+    fun execute(command: String): Int = dispatcher.execute(command, source)
+
+    fun complete(command: String): List<String> =
+        dispatcher.getCompletionSuggestions(dispatcher.parse(command, source)).join().list.map { it.apply(command) }
+
+    override fun getDispatcher(): CommandDispatcher<CommandSourceStack> = dispatcher
+
+    override fun register(
+        node: LiteralCommandNode<CommandSourceStack>,
+        description: String?,
+        aliases: Collection<String>,
+    ): Set<String> {
+        registered += FakeRegistration(node, aliases.toList())
+        val namespaced =
+            Commands.literal("${FakePlugin.namespace()}:${node.literal}")
+                .requires(node.requirement)
+                .executes(node.command)
+        node.children.forEach { namespaced.then(it) }
+        dispatcher.root.addChild(node)
+        dispatcher.root.addChild(namespaced.build())
+        return []
+    }
+
+    override fun register(
+        pluginMeta: PluginMeta,
+        node: LiteralCommandNode<CommandSourceStack>,
+        description: String?,
+        aliases: Collection<String>,
+    ): Set<String> = error("unused")
+
+    override fun registerWithFlags(
+        pluginMeta: PluginMeta,
+        node: LiteralCommandNode<CommandSourceStack>,
+        description: String?,
+        aliases: Collection<String>,
+        flags: Set<CommandRegistrationFlag>,
+    ): Set<String> = error("unused")
+
+    override fun register(
+        label: String,
+        description: String?,
+        aliases: Collection<String>,
+        basicCommand: BasicCommand,
+    ): Set<String> = error("unused")
+
+    override fun register(
+        pluginMeta: PluginMeta,
+        label: String,
+        description: String?,
+        aliases: Collection<String>,
+        basicCommand: BasicCommand,
+    ): Set<String> = error("unused")
 }

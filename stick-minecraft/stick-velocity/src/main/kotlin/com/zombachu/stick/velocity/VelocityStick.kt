@@ -7,9 +7,9 @@ import com.zombachu.stick.Stick
 import com.zombachu.stick.asCoroutineContext
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.failure.FailureHandler
+import org.slf4j.Logger
 import java.util.concurrent.Executor
 import kotlin.coroutines.CoroutineContext
-import org.slf4j.Logger
 
 class VelocityStick(
     private val plugin: Any,

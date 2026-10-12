@@ -20,8 +20,8 @@ import com.zombachu.stick.element.ValueFlag
 import com.zombachu.stick.element.parameters.IntParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.failType
-import com.zombachu.stick.incomplete
 import com.zombachu.stick.failure.Reason
+import com.zombachu.stick.incomplete
 import com.zombachu.stick.integration.fixtures.Location
 import com.zombachu.stick.integration.fixtures.Player
 import com.zombachu.stick.integration.fixtures.Sender
