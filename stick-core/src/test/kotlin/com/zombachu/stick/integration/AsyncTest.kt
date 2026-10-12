@@ -10,11 +10,10 @@ import com.zombachu.stick.asCoroutineContext
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.flag
 import com.zombachu.stick.dsl.group
-import com.zombachu.stick.dsl.helperAsync
+import com.zombachu.stick.dsl.helper
 import com.zombachu.stick.dsl.hybridFlag
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.map
-import com.zombachu.stick.dsl.mapAsync
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.valueFlag
@@ -351,38 +350,18 @@ class AsyncTest {
     }
 
     @Test
-    fun `uppercase - mapAsync transform runs on async context`() {
-        val uppercaseCommand = structure(WarpableServer::class, Sender::class) {
-            command("uppercase")(
-                warpParameter("warp").mapAsync { warp ->
-                    sender.log("Mapped ${warp.name} on ${TestExecutor.running}")
-                    success(warp.name.uppercase())
-                },
-            ) { name ->
-                sender.log("Renamed to $name on ${TestExecutor.running}")
-            }
-        }
-
-        uppercaseCommand.executeOn(main, async, server, zombachu, "/uppercase shop")
-        main.drain()
-        async.drain()
-        assertEquals(["Mapped shop on async"], zombachu.logs)
-
-        main.drain()
-        assertEquals(["Mapped shop on async", "Renamed to SHOP on main"], zombachu.logs)
-    }
-
-    @Test
     fun `fullname - withMainContext block runs on main context`() {
         val fullNameCommand = structure(WarpableServer::class, Sender::class) {
             command("fullname")(
-                warpParameter("warp").mapAsync { warp ->
-                    val owner = withMainContext {
-                        sender.log("Read owner on ${TestExecutor.running}")
-                        warp.owner
+                warpParameter("warp").map { warp ->
+                    withAsyncContext {
+                        val owner = withMainContext {
+                            sender.log("Read owner on ${TestExecutor.running}")
+                            warp.owner
+                        }
+                        sender.log("Mapped ${warp.name} on ${TestExecutor.running}")
+                        success("$owner's ${warp.name}")
                     }
-                    sender.log("Mapped ${warp.name} on ${TestExecutor.running}")
-                    success("$owner's ${warp.name}")
                 },
             ) { name ->
                 sender.log("Renamed to $name on ${TestExecutor.running}")
@@ -405,12 +384,16 @@ class AsyncTest {
     }
 
     @Test
-    fun `home - helperAsync value runs on async context`() {
+    fun `home - withAsyncContext block in helper runs on async context`() {
         val homeCommand = structure(WarpableServer::class, Sender::class) {
             command("home")(
-                helperAsync {
+                helper {
+                    val home = withAsyncContext {
+                        sender.log("Looked up home on ${TestExecutor.running}")
+                        Location(1, 64, 1)
+                    }
                     sender.log("Found home on ${TestExecutor.running}")
-                    success(Location(1, 64, 1))
+                    success(home)
                 },
             ) { location ->
                 sender.log("Teleported to $location on ${TestExecutor.running}")
@@ -420,10 +403,13 @@ class AsyncTest {
         homeCommand.executeOn(main, async, server, zombachu, "/home")
         main.drain()
         async.drain()
-        assertEquals(["Found home on async"], zombachu.logs)
+        assertEquals(["Looked up home on async"], zombachu.logs)
 
         main.drain()
-        assertEquals(["Found home on async", "Teleported to Location(x=1, y=64, z=1) on main"], zombachu.logs)
+        assertEquals(
+            ["Looked up home on async", "Found home on main", "Teleported to Location(x=1, y=64, z=1) on main"],
+            zombachu.logs,
+        )
     }
 
     private class AsyncWarpParameter(name: String) : SuspendingParameter.Size1<WarpableServer, Sender, Warp>(name, "") {
