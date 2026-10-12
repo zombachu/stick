@@ -5,6 +5,7 @@ import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.intrinsics.createCoroutineUnintercepted
 import kotlin.coroutines.resume
@@ -22,12 +23,15 @@ private class ExecutorInterceptor(private val executor: Executor) :
 /** Runs [block] on the async context, then continues in the caller's context. */
 suspend fun <T> withAsyncContext(block: suspend () -> T): T {
     val routing = checkNotNull(coroutineContext[StickCoroutineContext]) { "withAsyncContext called outside Stick" }
+    if (coroutineContext[SkipAsyncSuggestions] != null) throw AsyncSuggestionSkipped()
     return runOn(routing.asyncContext + routing, block)
 }
 
 internal object SkipAsyncSuggestions : CoroutineContext.Element, CoroutineContext.Key<SkipAsyncSuggestions> {
     override val key: CoroutineContext.Key<*> = this
 }
+
+internal class AsyncSuggestionSkipped : CancellationException()
 
 /** Runs [block] on the command's main context, then continues in the caller's context. */
 suspend fun <T> withMainContext(block: () -> T): T {

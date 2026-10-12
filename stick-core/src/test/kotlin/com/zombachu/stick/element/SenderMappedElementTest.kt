@@ -191,7 +191,7 @@ class SenderMappedElementTest {
     private class SenderParameter<E : Environment, S> : Parameter.Size1<E, S, String>("", "") {
 
         context(inv: Invocation<E, S>)
-        override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
             [SimpleSuggestion("${inv.sender}")]
 
         context(inv: Invocation<E, S>)

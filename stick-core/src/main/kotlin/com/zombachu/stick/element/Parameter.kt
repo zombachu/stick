@@ -28,7 +28,7 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
     internal abstract suspend fun parse(args: List<String>): ConsumingResult<T>
 
     context(inv: Invocation<E, S>)
-    internal abstract suspend fun routeSuggest(preceding: List<String>, partial: String): List<Suggestion>
+    abstract suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion>
 
     context(inv: Invocation<E, S>)
     override fun getSyntax(): String = "<${name}>"
@@ -56,11 +56,7 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
         }
 
         context(inv: Invocation<E, S>)
-        open fun suggest(preceding: List<String>, partial: String): List<Suggestion> = []
-
-        context(inv: Invocation<E, S>)
-        final override suspend fun routeSuggest(preceding: List<String>, partial: String): List<Suggestion> =
-            suggest(preceding, partial)
+        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> = []
 
         context(inv: Invocation<E, S>)
         abstract fun resolve(args: List<String>): ConsumingResult<T>
@@ -208,11 +204,7 @@ sealed class Parameter<in E : Environment, S, T, out P : Position>(
         }
 
         context(inv: Invocation<E, S>)
-        open fun suggest(preceding: List<String>, partial: String): List<Suggestion> = []
-
-        context(inv: Invocation<E, S>)
-        final override suspend fun routeSuggest(preceding: List<String>, partial: String): List<Suggestion> =
-            suggest(preceding, partial)
+        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> = []
 
         context(inv: Invocation<E, S>)
         abstract fun resolve(args: List<String>): ConsumingResult<T>

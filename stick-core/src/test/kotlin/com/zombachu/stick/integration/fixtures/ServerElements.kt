@@ -58,7 +58,7 @@ fun <E : Environment, S : Sender, T> StructureScope<E, S>.permissionedValue(
 
 class PlayerParameter<E : Server, S>(name: String) : Parameter.Size1<E, S, Player>(name, "") {
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
         inv.env.playerNames.toSuggestions()
 
     context(inv: Invocation<E, S>)
@@ -80,7 +80,7 @@ fun <E : Server, S : Sender> StructureScope<E, S>.targetPlayerParameter(
 
 class WarpParameter<E : WarpableServer, S>(name: String) : Parameter.Size1<E, S, Warp>(name, "") {
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
         inv.env.warps.names.toSuggestions()
 
     context(inv: Invocation<E, S>)

@@ -71,7 +71,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
     protected abstract suspend fun parseFlag(args: List<String>): ConsumingResult<T>
 
     context(inv: Invocation<E, S>)
-    override suspend fun routeSuggest(preceding: List<String>, partial: String): List<Suggestion> =
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
         if (preceding.isEmpty()) suggestAliases() else []
 
     internal class PresenceFlagParameter<E : Environment, S, T>(
@@ -115,7 +115,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         }
 
         context(inv: Invocation<E, S>)
-        override suspend fun routeSuggest(preceding: List<String>, partial: String): List<Suggestion> {
+        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
             if (preceding.isEmpty()) return suggestAliases()
             if (!matches(preceding.first().lowercase())) return []
             return parameter.suggest(preceding.subList(1, preceding.size), partial)
@@ -163,7 +163,7 @@ internal sealed class FlagParameter<E : Environment, S, T>(
         }
 
         context(inv: Invocation<E, S>)
-        override suspend fun routeSuggest(preceding: List<String>, partial: String): List<Suggestion> =
+        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
             primaryValues.toSuggestions() + aliasedValues.toSuggestions(isAlias = true)
 
         context(ex: Execution<E, S>)

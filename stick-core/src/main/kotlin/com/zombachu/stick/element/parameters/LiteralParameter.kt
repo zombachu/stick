@@ -18,7 +18,7 @@ open class LiteralParameter<E : Environment, S>(name: String, override val alias
     override val type: GroupableType = GroupableType.Literal
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = suggestAliases()
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> = suggestAliases()
 
     context(inv: Invocation<E, S>)
     override fun resolve(arg0: String): CommandResult<String> {

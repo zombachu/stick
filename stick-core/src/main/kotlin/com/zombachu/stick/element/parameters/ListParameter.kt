@@ -12,7 +12,7 @@ open class ListParameter<E : Environment, S, T>(name: String, description: Strin
     Parameter.Size1<E, S, List<T>>(name, description) {
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
         val entryStart = partial.lastIndexOf(DELIMITER) + 1
         return parameter.suggest([], partial.substring(entryStart)).map { it.withIndex(entryStart + it.index) }
     }

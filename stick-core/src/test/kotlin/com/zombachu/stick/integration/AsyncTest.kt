@@ -18,6 +18,7 @@ import com.zombachu.stick.dsl.mapAsync
 import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.valueFlag
+import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.SuspendingParameter
 import com.zombachu.stick.failType
 import com.zombachu.stick.failure.Reason
@@ -214,6 +215,20 @@ class AsyncTest {
     }
 
     @Test
+    fun `warp - suggest includes suspending parameter suggestions from main context`() {
+        val warpCommand = structure(WarpableServer::class, Sender::class) {
+            command("warp")(
+                CachedWarpParameter(),
+                flag("silent"),
+            ) { warp, _ ->
+                sender.log("Warped to ${warp.name}")
+            }
+        }
+
+        assertEquals(["-silent", "spawn", "shop"], warpCommand.suggest(server, zombachu, "/warp "))
+    }
+
+    @Test
     fun `warp - suggestAsync completes with async suggestions`() {
         val warpCommand = structure(WarpableServer::class, Sender::class) {
             command("warp")(
@@ -231,6 +246,21 @@ class AsyncTest {
         async.drain()
         main.drain()
         assertEquals(["-silent", "spawn", "shop"], suggestions.join())
+    }
+
+    @Test
+    fun `warp - suggestAsync completes with async suggestions of sync parameter`() {
+        val warpCommand = structure(WarpableServer::class, Sender::class) {
+            command("warp")(AsyncSuggestedWarpParameter()) { warp -> sender.log("Warped to $warp") }
+        }
+
+        val suggestions =
+            warpCommand.suggestAsync(server, zombachu, "/warp ", main.asCoroutineContext(), async.asCoroutineContext())
+        assertFalse(suggestions.isDone)
+
+        async.drain()
+        main.drain()
+        assertEquals(["spawn", "shop"], suggestions.join())
     }
 
     @Test
@@ -412,6 +442,15 @@ class AsyncTest {
             } ?: return failType("warp", arg0)
             return success(warp)
         }
+    }
+
+    private class AsyncSuggestedWarpParameter : Parameter.Size1<WarpableServer, Sender, String>("warp", "") {
+        context(inv: Invocation<WarpableServer, Sender>)
+        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+            withAsyncContext { inv.env.warps.names.toSuggestions() }
+
+        context(inv: Invocation<WarpableServer, Sender>)
+        override fun resolve(arg0: String): CommandResult<String> = success(arg0)
     }
 
     private class CachedWarpParameter : SuspendingParameter.Size1<WarpableServer, Sender, Warp>("warp", "") {

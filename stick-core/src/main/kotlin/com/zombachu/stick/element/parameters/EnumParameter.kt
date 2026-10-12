@@ -23,7 +23,7 @@ open class EnumParameter<E : Environment, S, T : Enum<T>>(
     override val type: GroupableType = GroupableType.Literal
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
         primaryValues.keys.toSuggestions() + aliasedValues.keys.toSuggestions(isAlias = true)
 
     context(inv: Invocation<E, S>)

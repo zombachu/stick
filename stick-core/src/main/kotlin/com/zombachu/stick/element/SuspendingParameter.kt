@@ -10,10 +10,8 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
 import com.zombachu.stick.Size
-import com.zombachu.stick.SkipAsyncSuggestions
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.consuming
-import kotlin.coroutines.coroutineContext
 
 sealed class SuspendingParameter<in E : Environment, S, T, out P : Position>(
     size: Size,
@@ -22,13 +20,7 @@ sealed class SuspendingParameter<in E : Environment, S, T, out P : Position>(
 ) : Parameter<E, S, T, P>(size, name, description) {
 
     context(inv: Invocation<E, S>)
-    open suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> = []
-
-    context(inv: Invocation<E, S>)
-    final override suspend fun routeSuggest(preceding: List<String>, partial: String): List<Suggestion> {
-        if (coroutineContext[SkipAsyncSuggestions] != null) return []
-        return suggest(preceding, partial)
-    }
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> = []
 
     abstract class Bounded<in E : Environment, S, T>(
         override val size: Size.Bounded,

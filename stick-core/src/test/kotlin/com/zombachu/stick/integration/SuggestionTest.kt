@@ -280,7 +280,7 @@ class SuggestionTest {
     private class MaterialParameter<E : Environment, S> : Parameter.Size1<E, S, String>("", "") {
 
         context(inv: Invocation<E, S>)
-        override fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
+        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
             val colon = partial.indexOf(':')
             if (colon < 0) return ["minecraft:"].toSuggestions()
             return [
@@ -300,7 +300,7 @@ class SuggestionTest {
         private val axes = ["x", "y", "z"]
 
         context(inv: Invocation<E, S>)
-        override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
             [axes[preceding.size] + "="].toSuggestions()
 
         context(inv: Invocation<E, S>)
@@ -317,7 +317,7 @@ class SuggestionTest {
     private class NearParameter<E : Server, S> : Parameter.Bounded<E, S, Player>(Size.between(1, 2), "", "") {
 
         context(inv: Invocation<E, S>)
-        override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
             if (preceding.isEmpty()) ["near"].toSuggestions() else inv.env.playerNames.toSuggestions()
 
         context(inv: Invocation<E, S>)
@@ -336,7 +336,7 @@ class SuggestionTest {
         private val point = PointParameter<E, S>()
 
         context(inv: Invocation<E, S>)
-        override fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
             if (preceding.isEmpty()) ["~"].toSuggestions() + point.suggest(preceding, partial)
             else point.suggest(preceding, partial)
 

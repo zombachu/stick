@@ -13,7 +13,8 @@ open class BooleanParameter<E : Environment, S>(name: String, description: Strin
     Parameter.Size1<E, S, Boolean>(name, description) {
 
     context(inv: Invocation<E, S>)
-    override fun suggest(preceding: List<String>, partial: String): List<Suggestion> = ["true", "false"].toSuggestions()
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        ["true", "false"].toSuggestions()
 
     context(inv: Invocation<E, S>)
     override fun resolve(arg0: String): CommandResult<Boolean> {

@@ -32,10 +32,10 @@ internal class SenderMappedParameter<E : Environment, S, S2 : Any, T, P : Positi
     }
 
     context(inv: Invocation<E, S>)
-    override suspend fun routeSuggest(preceding: List<String>, partial: String): List<Suggestion> {
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> {
         val transformedInvocation = inv.forSender(transform)
         context(transformedInvocation) {
-            return base.routeSuggest(preceding, partial)
+            return base.suggest(preceding, partial)
         }
     }
 

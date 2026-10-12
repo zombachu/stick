@@ -2,6 +2,7 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.Aliasable
 import com.zombachu.stick.Arguments
+import com.zombachu.stick.AsyncSuggestionSkipped
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.Environment
@@ -53,9 +54,13 @@ internal suspend fun <E : Environment, S> SyntaxElement<E, S, *>.suggest(
     preceding: List<String>,
     partial: String,
 ): List<Suggestion> =
-    when (this) {
-        is Parameter<E, S, *, *> -> routeSuggest(preceding, partial)
-        is InternalSyntaxElement -> suggest(preceding, partial)
+    try {
+        when (this) {
+            is Parameter<E, S, *, *> -> suggest(preceding, partial)
+            is InternalSyntaxElement -> suggest(preceding, partial)
+        }
+    } catch (_: AsyncSuggestionSkipped) {
+        []
     }
 
 sealed interface ConsumingElement<in E : Environment, S, out T> : SyntaxElement<E, S, T>
