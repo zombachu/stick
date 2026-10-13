@@ -2,14 +2,16 @@ package com.zombachu.stick.velocity
 
 import com.velocitypowered.api.command.CommandManager
 import com.velocitypowered.api.command.CommandSource
+import com.velocitypowered.api.event.EventManager
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent
 import com.velocitypowered.api.proxy.ProxyServer
 import com.zombachu.stick.Stick
 import com.zombachu.stick.asCoroutineContext
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.failure.FailureHandler
-import org.slf4j.Logger
 import java.util.concurrent.Executor
 import kotlin.coroutines.CoroutineContext
+import org.slf4j.Logger
 
 class VelocityStick(
     private val plugin: Any,
@@ -25,6 +27,7 @@ class VelocityStick(
     ) {
 
     private val commandManager: CommandManager = proxy.commandManager
+    private val eventManager: EventManager = proxy.eventManager
 
     context(env: E, failureHandler: FailureHandler<E, CommandSource>)
     override fun <E : VelocityEnvironment> registerCommand(
@@ -35,6 +38,10 @@ class VelocityStick(
         val commandMeta =
             commandManager.metaBuilder(structure.name).aliases(*structure.aliases.toTypedArray()).plugin(plugin).build()
         commandManager.register(commandMeta, VelocityCommandAdapter(env, failureHandler, structure, asyncContext))
+    }
+
+    override fun onFirstRegistration() {
+        eventManager.register(plugin, ProxyShutdownEvent::class.java) { cancelRuns() }
     }
 }
 

@@ -7,6 +7,9 @@ import com.velocitypowered.api.command.CommandManager
 import com.velocitypowered.api.command.CommandMeta
 import com.velocitypowered.api.command.CommandSource
 import com.velocitypowered.api.command.RawCommand
+import com.velocitypowered.api.event.EventHandler
+import com.velocitypowered.api.event.EventManager
+import com.velocitypowered.api.event.PostOrder
 import com.velocitypowered.api.permission.Tristate
 import com.velocitypowered.api.proxy.ConsoleCommandSource
 import com.velocitypowered.api.proxy.Player
@@ -27,6 +30,7 @@ import org.slf4j.event.Level
 import org.slf4j.helpers.LegacyAbstractLogger
 import java.net.InetSocketAddress
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 class FakeCommandSource(private val permissions: Set<String> = []) : CommandSource {
     val sentMessages: MutableList<Component> = mutableListOf()
@@ -119,7 +123,37 @@ class FakeCommandManager : CommandManager {
     override fun hasCommand(alias: String, source: CommandSource): Boolean = error("unused")
 }
 
-class FakeProxyServer(private val manager: CommandManager = FakeCommandManager()) : ProxyServer {
+class FakeEventManager : EventManager {
+    val handlers: MutableList<Pair<Class<*>, EventHandler<*>>> = mutableListOf()
+
+    override fun register(plugin: Any, listener: Any) = error("unused")
+
+    override fun <E> register(plugin: Any, eventClass: Class<E>, postOrder: PostOrder, handler: EventHandler<E>) {
+        handlers += eventClass to handler
+    }
+
+    override fun <E> register(plugin: Any, eventClass: Class<E>, postOrder: Short, handler: EventHandler<E>) =
+        error("unused")
+
+    override fun <E> fire(event: E): CompletableFuture<E> {
+        for ((eventClass, handler) in handlers) {
+            @Suppress("UNCHECKED_CAST")
+            if (eventClass.isInstance(event)) (handler as EventHandler<E>).execute(event)
+        }
+        return CompletableFuture.completedFuture(event)
+    }
+
+    override fun unregisterListeners(plugin: Any) = error("unused")
+
+    override fun unregisterListener(plugin: Any, listener: Any) = error("unused")
+
+    override fun <E> unregister(plugin: Any, handler: EventHandler<E>) = error("unused")
+}
+
+class FakeProxyServer(
+    private val manager: CommandManager = FakeCommandManager(),
+    private val events: EventManager = FakeEventManager(),
+) : ProxyServer {
     override fun shutdown(reason: Component?) = error("unused")
 
     override fun shutdown() = error("unused")
@@ -154,7 +188,7 @@ class FakeProxyServer(private val manager: CommandManager = FakeCommandManager()
 
     override fun getPluginManager() = error("unused")
 
-    override fun getEventManager() = error("unused")
+    override fun getEventManager(): EventManager = events
 
     override fun getCommandManager(): CommandManager = manager
 
