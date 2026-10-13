@@ -16,6 +16,8 @@ abstract class Stick<E : Environment, S : Any>(
     private val defaultAsyncContext: CoroutineContext,
 ) {
 
+    private val runs = RunGroup()
+
     fun <E2 : E> withContext(
         env: E2,
         failureHandler: FailureHandler<E2, S> = defaultFailureHandler.value,
@@ -24,7 +26,7 @@ abstract class Stick<E : Environment, S : Any>(
     ) {
         val scope =
             StickScope(platformSenderClass) { structure ->
-                context(env, failureHandler) { registerCommand(structure, asyncContext) }
+                context(env, failureHandler) { registerCommand(structure, asyncContext + runs) }
             }
         with(scope) { context(env, failureHandler) { block() } }
     }
@@ -50,7 +52,7 @@ abstract class Stick<E : Environment, S : Any>(
                 context(env, platformFailureHandler) {
                     registerCommand(
                         GatedStructure(SenderMappedStructure(structure, transform), requirement),
-                        asyncContext,
+                        asyncContext + runs,
                     )
                 }
             }
@@ -59,6 +61,10 @@ abstract class Stick<E : Environment, S : Any>(
 
     context(env: E2, failureHandler: FailureHandler<E2, S>)
     protected abstract fun <E2 : E> registerCommand(structure: Structure<E2, S, *>, asyncContext: CoroutineContext)
+
+    protected fun cancelRuns() {
+        runs.cancel()
+    }
 }
 
 class StickScope<E : Environment, S : Any>

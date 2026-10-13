@@ -16,10 +16,12 @@ internal class Run<T>(
 ) : AbstractCoroutineContextElement(Run) {
     companion object Key : CoroutineContext.Key<Run<*>>
 
+    private val group = asyncContext?.get(RunGroup)
     @Volatile private var isCancelled = false
     private val isComplete = AtomicBoolean()
 
     fun startUndispatched(block: suspend () -> T) {
+        group?.add(this)
         block.createCoroutineUnintercepted(Continuation(mainContext + this, ::complete)).resume(Unit)
     }
 
@@ -41,6 +43,7 @@ internal class Run<T>(
     }
 
     private fun complete(result: Result<T>) {
+        group?.remove(this)
         if (isComplete.compareAndSet(false, true)) onComplete(result)
     }
 }
