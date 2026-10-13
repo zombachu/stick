@@ -14,19 +14,19 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertSame
 import kotlin.test.fail
 
-internal fun <E : Environment, S> Structure<E, S, *>.execute(env: E, sender: S, command: String) {
+internal fun <E : Environment, S : Any> Structure<E, S, *>.execute(env: E, sender: S, command: String) {
     val handler = dispatch(env, sender, command)
     val reason = handler.reason ?: return
     fail("Unexpected error: ${reason.message(handler.origin!!)}")
 }
 
-internal fun <E : Environment, S> Structure<E, S, *>.executeExpectingError(
+internal fun <E : Environment, S : Any> Structure<E, S, *>.executeExpectingError(
     env: E,
     sender: S,
     command: String,
 ): Reason = dispatch(env, sender, command).reason ?: fail("No error returned")
 
-internal fun <E : Environment, S> Structure<E, S, *>.executeExpectingInvalidSyntax(
+internal fun <E : Environment, S : Any> Structure<E, S, *>.executeExpectingInvalidSyntax(
     env: E,
     sender: S,
     command: String,
@@ -36,7 +36,7 @@ internal fun <E : Environment, S> Structure<E, S, *>.executeExpectingInvalidSynt
     return handler.origin!!.usage
 }
 
-private fun <E : Environment, S> Structure<E, S, *>.dispatch(
+private fun <E : Environment, S : Any> Structure<E, S, *>.dispatch(
     env: E,
     sender: S,
     command: String,
@@ -46,7 +46,7 @@ private fun <E : Environment, S> Structure<E, S, *>.dispatch(
     return handler
 }
 
-internal fun <E : Environment, S> Structure<E, S, *>.suggest(
+internal fun <E : Environment, S : Any> Structure<E, S, *>.suggest(
     env: E,
     sender: S,
     command: String,
@@ -59,7 +59,7 @@ internal fun <E : Environment, S> Structure<E, S, *>.suggest(
     return runner.suggest(sender, args.first(), args.drop(1))
 }
 
-internal fun <E : Environment, S> Structure<E, S, *>.suggestAsync(
+internal fun <E : Environment, S : Any> Structure<E, S, *>.suggestAsync(
     env: E,
     sender: S,
     command: String,
@@ -72,7 +72,7 @@ internal fun <E : Environment, S> Structure<E, S, *>.suggestAsync(
     return runner.suggestAsync(sender, args.first(), args.drop(1))
 }
 
-internal fun <E : Environment, S> Structure<E, S, *>.executeOn(
+internal fun <E : Environment, S : Any> Structure<E, S, *>.executeOn(
     main: TestExecutor,
     async: TestExecutor,
     env: E,
@@ -89,7 +89,7 @@ internal fun <E : Environment, S> Structure<E, S, *>.executeOn(
     return handler
 }
 
-internal fun <E : Environment, S> Structure<E, S, *>.executeWithHandler(
+internal fun <E : Environment, S : Any> Structure<E, S, *>.executeWithHandler(
     handler: FailureHandler<E, S>,
     env: E,
     sender: S,

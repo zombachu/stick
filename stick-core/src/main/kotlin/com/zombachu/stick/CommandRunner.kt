@@ -7,15 +7,18 @@ import com.zombachu.stick.element.validateSender
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.Reason
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
-class CommandRunner<E : Environment, S>(
+class CommandRunner<E : Environment, S : Any>(
     private val env: E,
     private val failureHandler: FailureHandler<E, S>,
     private val structure: Structure<E, S, *>,
     private val mainContext: CoroutineContext,
     private val asyncContext: CoroutineContext,
 ) {
+
+    private val pendingSuggestions = ConcurrentHashMap<S, Run<List<String>>>()
 
     @Suppress("TooGenericExceptionCaught")
     fun execute(sender: S, label: String, args: List<String>) {
@@ -56,7 +59,11 @@ class CommandRunner<E : Environment, S>(
             Run(mainContext, asyncContext) {
                 future.complete(it.getOrElse { e -> if (e is RunCancelled) [] else throw e })
             }
-        future.whenComplete { _, _ -> if (future.isCancelled) run.cancel() }
+        future.whenComplete { _: List<String>, _: Throwable ->
+            if (future.isCancelled) run.cancel()
+            pendingSuggestions.remove(sender, run)
+        }
+        pendingSuggestions.put(sender, run)?.cancel()
         run.startUndispatched { suggestions(sender, label, args) }
         return future
     }

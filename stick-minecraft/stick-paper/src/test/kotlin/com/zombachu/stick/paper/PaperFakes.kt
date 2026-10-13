@@ -35,6 +35,7 @@ import org.bukkit.plugin.PluginLoader
 import java.io.File
 import java.io.InputStream
 import java.util.*
+import java.util.concurrent.CompletableFuture
 import java.util.logging.Logger
 
 @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
@@ -214,8 +215,12 @@ class FakeRegistrar : Commands {
 
     fun execute(command: String): Int = dispatcher.execute(command, source)
 
-    fun complete(command: String): List<String> =
-        dispatcher.getCompletionSuggestions(dispatcher.parse(command, source)).join().list.map { it.apply(command) }
+    fun complete(command: String): List<String> = suggestions(command).join()
+
+    fun suggestions(command: String): CompletableFuture<List<String>> =
+        dispatcher.getCompletionSuggestions(dispatcher.parse(command, source)).thenApply { suggestions ->
+            suggestions.list.map { it.apply(command) }
+        }
 
     override fun getDispatcher(): CommandDispatcher<CommandSourceStack> = dispatcher
 

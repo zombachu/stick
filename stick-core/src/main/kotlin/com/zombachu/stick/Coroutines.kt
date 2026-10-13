@@ -23,7 +23,11 @@ suspend fun <T> withAsyncContext(block: suspend () -> T): T {
     val run = checkNotNull(coroutineContext[Run]) { "withAsyncContext called outside Stick" }
     run.ensureActive()
     val asyncContext = run.asyncContext ?: throw AsyncSuggestionSkipped()
-    val result = run.runOn(asyncContext + run, block)
+    val result =
+        run.runOn(asyncContext + run) {
+            run.ensureActive()
+            block()
+        }
     run.ensureActive()
     return result
 }

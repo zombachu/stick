@@ -5,11 +5,11 @@ import com.zombachu.stick.asCoroutineContext
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.failure.FailureHandler
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
+import java.util.concurrent.Executor
+import kotlin.coroutines.CoroutineContext
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.Plugin
-import java.util.concurrent.Executor
-import kotlin.coroutines.CoroutineContext
 
 class PaperStick(
     plugin: Plugin,

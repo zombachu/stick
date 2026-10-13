@@ -7,19 +7,24 @@ import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.Suggestion
+import com.zombachu.stick.asCoroutineContext
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.flag
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.textParameter
+import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.SuspendingParameter
 import com.zombachu.stick.noopFailureHandler
 import com.zombachu.stick.paper.dsl.permission
 import com.zombachu.stick.success
 import com.zombachu.stick.toSuggestions
+import com.zombachu.stick.withAsyncContext
 import org.bukkit.command.CommandSender
+import java.util.concurrent.Executor
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -137,6 +142,19 @@ class PaperCommandAdapterTest {
     }
 
     @Test
+    fun `getSuggestions abandons sender's previous suggestions`() {
+        val registrar = register(Executor {}.asCoroutineContext()) {
+            command("hello")(AsyncNameParameter()) { }
+        }
+
+        val first = registrar.suggestions("hello ")
+        val second = registrar.suggestions("hello t")
+
+        assertEquals([], first.getNow(null))
+        assertFalse(second.isDone)
+    }
+
+    @Test
     fun `test delegates to sender validation`() {
         val structure = paperStructure {
             command("cmd", requirement = permission("stick.cmd"))() { }
@@ -163,14 +181,23 @@ class PaperCommandAdapterTest {
     }
 
     private fun <T_ : Arguments> register(
-        block: StructureScope<PaperEnvironment, CommandSender>.() -> Structure<PaperEnvironment, CommandSender, T_>
+        asyncContext: CoroutineContext = EmptyCoroutineContext,
+        block: StructureScope<PaperEnvironment, CommandSender>.() -> Structure<PaperEnvironment, CommandSender, T_>,
     ): FakeRegistrar {
         val registrar = FakeRegistrar()
         val structure = paperStructure(block)
-        val adapter =
-            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
+        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, asyncContext)
         registrar.register(adapter.toBrigadierNode())
         return registrar
+    }
+
+    private class AsyncNameParameter : Parameter.Size1<PaperEnvironment, CommandSender, String>("name", "") {
+        context(inv: Invocation<PaperEnvironment, CommandSender>)
+        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+            withAsyncContext { ["there"].toSuggestions() }
+
+        context(inv: Invocation<PaperEnvironment, CommandSender>)
+        override fun resolve(arg0: String): CommandResult<String> = success(arg0)
     }
 
     private class SuspendingNameParameter :

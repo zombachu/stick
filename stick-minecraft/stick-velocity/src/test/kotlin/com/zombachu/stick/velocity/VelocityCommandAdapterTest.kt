@@ -5,16 +5,20 @@ import com.zombachu.stick.CommandResult
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Suggestion
+import com.zombachu.stick.asCoroutineContext
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.flag
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.textParameter
+import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.SuspendingParameter
 import com.zombachu.stick.noopFailureHandler
 import com.zombachu.stick.success
 import com.zombachu.stick.toSuggestions
 import com.zombachu.stick.velocity.dsl.permission
+import com.zombachu.stick.withAsyncContext
+import java.util.concurrent.Executor
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -96,6 +100,22 @@ class VelocityCommandAdapterTest {
     }
 
     @Test
+    fun `suggest abandons sender's previous suggestions`() {
+        val structure = velocityStructure {
+            command("hello")(AsyncNameParameter()) { }
+        }
+        val adapter =
+            VelocityCommandAdapter(environment(), noopFailureHandler(), structure, Executor {}.asCoroutineContext())
+        val source = FakeCommandSource()
+
+        val first = adapter.suggestAsync(FakeInvocation(source, "hello", ""))
+        val second = adapter.suggestAsync(FakeInvocation(source, "hello", "t"))
+
+        assertEquals([], first.getNow(null))
+        assertFalse(second.isDone)
+    }
+
+    @Test
     fun `hasPermission delegates to sender validation`() {
         val structure = velocityStructure {
             command("cmd", requirement = permission("stick.cmd"))() { }
@@ -114,6 +134,15 @@ class VelocityCommandAdapterTest {
                 command("cmd")(textParameter("")) { rest -> onExecute(rest) }
             }
         return VelocityCommandAdapter(environment(), noopFailureHandler(), structure, EmptyCoroutineContext)
+    }
+
+    private class AsyncNameParameter : Parameter.Size1<VelocityEnvironment, CommandSource, String>("name", "") {
+        context(inv: Invocation<VelocityEnvironment, CommandSource>)
+        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+            withAsyncContext { ["there"].toSuggestions() }
+
+        context(inv: Invocation<VelocityEnvironment, CommandSource>)
+        override fun resolve(arg0: String): CommandResult<String> = success(arg0)
     }
 
     private class SuspendingNameParameter :

@@ -1,6 +1,7 @@
 package com.zombachu.stick.integration
 
 import com.zombachu.stick.CommandResult
+import com.zombachu.stick.CommandRunner
 import com.zombachu.stick.GroupResult
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
@@ -18,11 +19,13 @@ import com.zombachu.stick.dsl.stringParameter
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.dsl.valueFlag
 import com.zombachu.stick.element.Parameter
+import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.SuspendingParameter
 import com.zombachu.stick.failType
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.integration.fixtures.Location
 import com.zombachu.stick.integration.fixtures.Player
+import com.zombachu.stick.integration.fixtures.RecordingFailureHandler
 import com.zombachu.stick.integration.fixtures.Sender
 import com.zombachu.stick.integration.fixtures.SynergyServer
 import com.zombachu.stick.integration.fixtures.TestExecutor
@@ -321,6 +324,23 @@ class AsyncTest {
     }
 
     @Test
+    fun `warp - suggestAsync abandons sender's previous suggestions`() {
+        val warpCommand = structure(WarpableServer::class, Sender::class) {
+            command("warp")(LoggingWarpParameter()) { warp -> sender.log("Warped to $warp") }
+        }
+        val runner = runner(warpCommand)
+
+        val first = runner.suggestAsync(zombachu, "warp", [""])
+        val second = runner.suggestAsync(zombachu, "warp", ["s"])
+        assertEquals([], first.getNow(null))
+
+        async.drain()
+        main.drain()
+        assertEquals(["Looked up warps on async", "Suggested warps on main"], zombachu.logs)
+        assertEquals(["spawn", "shop"], second.getNow(null))
+    }
+
+    @Test
     fun `summon - value flag with async parameter rejoins main after parsing`() {
         val summonCommand = structure(WarpableServer::class, Sender::class) {
             command("summon")(
@@ -499,6 +519,15 @@ class AsyncTest {
         assertEquals(["Saved home on async"], zombachu.logs)
         assertNull(failures.reason)
     }
+
+    private fun runner(structure: Structure<WarpableServer, Sender, *>): CommandRunner<WarpableServer, Sender> =
+        CommandRunner(
+            server,
+            RecordingFailureHandler(),
+            structure,
+            main.asCoroutineContext(),
+            async.asCoroutineContext(),
+        )
 
     private class AsyncWarpParameter(name: String) : SuspendingParameter.Size1<WarpableServer, Sender, Warp>(name, "") {
         context(inv: Invocation<WarpableServer, Sender>)
