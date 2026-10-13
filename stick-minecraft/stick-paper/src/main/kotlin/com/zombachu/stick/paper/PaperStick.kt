@@ -9,10 +9,13 @@ import java.util.concurrent.Executor
 import kotlin.coroutines.CoroutineContext
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.plugin.Plugin
 
 class PaperStick(
-    plugin: Plugin,
+    private val plugin: Plugin,
     asyncContext: CoroutineContext = asyncScheduler(plugin),
 ) :
     Stick<PaperEnvironment, CommandSender>(
@@ -31,6 +34,18 @@ class PaperStick(
         env.plugin.lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS) { event ->
             event.registrar().register(adapter.toBrigadierNode(), structure.description, structure.aliases)
         }
+    }
+
+    override fun onFirstRegistration() {
+        plugin.server.pluginManager.registerEvents(PluginDisableListener(plugin, ::cancelRuns), plugin)
+    }
+}
+
+internal class PluginDisableListener(private val plugin: Plugin, private val cancelRuns: () -> Unit) : Listener {
+    @EventHandler fun onPluginDisable(event: PluginDisableEvent) = onDisable(event.plugin)
+
+    fun onDisable(disabled: Plugin) {
+        if (disabled == plugin) cancelRuns()
     }
 }
 

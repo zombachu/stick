@@ -1,10 +1,21 @@
 package com.zombachu.stick.paper
 
+import com.zombachu.stick.CommandResult
+import com.zombachu.stick.Invocation
+import com.zombachu.stick.Suggestion
+import com.zombachu.stick.asCoroutineContext
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.invoke
+import com.zombachu.stick.element.Parameter
+import com.zombachu.stick.success
+import com.zombachu.stick.toSuggestions
+import com.zombachu.stick.withAsyncContext
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
+import org.bukkit.command.CommandSender
+import java.util.concurrent.Executor
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 
 class PaperStickTest {
@@ -23,5 +34,65 @@ class PaperStickTest {
         assertEquals("cmd", node.literal)
         assertEquals(["c"], aliases)
         assertIs<PaperCommandAdapter<*>>(node.command)
+    }
+
+    @Test
+    fun `registerCommand registers one listener for all commands`() {
+        val plugin = FakeLifecyclePlugin()
+        val stick = PaperStick(plugin)
+        val first = paperStructure { command("first")() }
+        val second = paperStructure { command("second")() }
+
+        stick.withContext(FakePaperEnvironment(plugin)) {
+            register(first)
+            register(second)
+        }
+
+        assertIs<PluginDisableListener>(plugin.listeners.single())
+    }
+
+    @Test
+    fun `plugin disable abandons open suggestions`() {
+        val plugin = FakeLifecyclePlugin()
+        val stick = PaperStick(plugin, Executor {}.asCoroutineContext())
+        val structure = paperStructure {
+            command("hello")(AsyncNameParameter()) { }
+        }
+        val registrar = FakeRegistrar()
+        stick.withContext(FakePaperEnvironment(plugin)) { register(structure) }
+        plugin.lifecycleEvents.fire(LifecycleEvents.COMMANDS, FakeCommandsEvent(registrar))
+        val suggestions = registrar.suggestions("hello ")
+
+        val listener = plugin.listeners.single() as PluginDisableListener
+        listener.onDisable(plugin)
+
+        assertEquals([], suggestions.getNow(null))
+    }
+
+    @Test
+    fun `plugin disable ignores other plugins`() {
+        val plugin = FakeLifecyclePlugin()
+        val stick = PaperStick(plugin, Executor {}.asCoroutineContext())
+        val structure = paperStructure {
+            command("hello")(AsyncNameParameter()) { }
+        }
+        val registrar = FakeRegistrar()
+        stick.withContext(FakePaperEnvironment(plugin)) { register(structure) }
+        plugin.lifecycleEvents.fire(LifecycleEvents.COMMANDS, FakeCommandsEvent(registrar))
+        val suggestions = registrar.suggestions("hello ")
+
+        val listener = plugin.listeners.single() as PluginDisableListener
+        listener.onDisable(FakeLifecyclePlugin())
+
+        assertFalse(suggestions.isDone)
+    }
+
+    private class AsyncNameParameter : Parameter.Size1<PaperEnvironment, CommandSender, String>("name", "") {
+        context(inv: Invocation<PaperEnvironment, CommandSender>)
+        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+            withAsyncContext { ["there"].toSuggestions() }
+
+        context(inv: Invocation<PaperEnvironment, CommandSender>)
+        override fun resolve(arg0: String): CommandResult<String> = success(arg0)
     }
 }

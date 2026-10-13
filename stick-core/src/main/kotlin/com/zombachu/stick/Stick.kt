@@ -17,6 +17,7 @@ abstract class Stick<E : Environment, S : Any>(
 ) {
 
     private val runs = RunGroup()
+    private var hasRegistered = false
 
     fun <E2 : E> withContext(
         env: E2,
@@ -26,7 +27,7 @@ abstract class Stick<E : Environment, S : Any>(
     ) {
         val scope =
             StickScope(platformSenderClass) { structure ->
-                context(env, failureHandler) { registerCommand(structure, asyncContext + runs) }
+                context(env, failureHandler) { register(structure, asyncContext) }
             }
         with(scope) { context(env, failureHandler) { block() } }
     }
@@ -50,17 +51,27 @@ abstract class Stick<E : Environment, S : Any>(
         val scope =
             StickScope(null) { structure ->
                 context(env, platformFailureHandler) {
-                    registerCommand(
-                        GatedStructure(SenderMappedStructure(structure, transform), requirement),
-                        asyncContext + runs,
-                    )
+                    register(GatedStructure(SenderMappedStructure(structure, transform), requirement), asyncContext)
                 }
             }
         with(scope) { context(env, failureHandler) { block() } }
     }
 
     context(env: E2, failureHandler: FailureHandler<E2, S>)
+    private fun <E2 : E> register(structure: Structure<E2, S, *>, asyncContext: CoroutineContext) {
+        // Register hooks in command registration instead of Stick construction as depending on where Stick is
+        // constructed in plugins, the platform may not be ready to register listeners
+        if (!hasRegistered) {
+            onFirstRegistration()
+            hasRegistered = true
+        }
+        registerCommand(structure, asyncContext + runs)
+    }
+
+    context(env: E2, failureHandler: FailureHandler<E2, S>)
     protected abstract fun <E2 : E> registerCommand(structure: Structure<E2, S, *>, asyncContext: CoroutineContext)
+
+    protected open fun onFirstRegistration() {}
 
     protected fun cancelRuns() {
         runs.cancel()

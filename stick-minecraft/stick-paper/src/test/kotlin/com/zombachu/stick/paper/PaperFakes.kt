@@ -24,6 +24,7 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.entity.Entity
+import org.bukkit.event.Listener
 import org.bukkit.generator.BiomeProvider
 import org.bukkit.generator.ChunkGenerator
 import org.bukkit.permissions.Permission
@@ -32,8 +33,11 @@ import org.bukkit.permissions.PermissionAttachmentInfo
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.PluginDescriptionFile
 import org.bukkit.plugin.PluginLoader
+import org.bukkit.plugin.PluginManager
 import java.io.File
 import java.io.InputStream
+import java.lang.reflect.Method
+import java.lang.reflect.Proxy
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.logging.Logger
@@ -175,9 +179,23 @@ fun <T_ : Arguments> paperStructure(
 
 class FakeLifecyclePlugin : Plugin by FakePlugin {
     val lifecycleEvents: FakeLifecycleEventManager = FakeLifecycleEventManager()
+    val listeners: MutableList<Listener> = mutableListOf()
 
     override fun getLifecycleManager(): LifecycleEventManager<Plugin> = lifecycleEvents
+
+    override fun getServer(): Server = fake { serverMethod, _ ->
+        check(serverMethod.name == "getPluginManager") { "unused" }
+        fake<PluginManager> { method, args ->
+            check(method.name == "registerEvents") { "unused" }
+            listeners += args[0] as Listener
+        }
+    }
 }
+
+private inline fun <reified T : Any> fake(crossinline call: (Method, Array<Any?>) -> Any?): T =
+    Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, method, args ->
+        call(method, args ?: emptyArray())
+    } as T
 
 class FakeLifecycleEventManager : LifecycleEventManager<Plugin> {
     private val handlers: MutableList<Pair<LifecycleEventType<*, *, *>, LifecycleEventHandler<*>>> = mutableListOf()

@@ -43,6 +43,41 @@ class StickTest {
     }
 
     @Test
+    fun `onFirstRegistration runs once before first registerCommand`() {
+        val stick =
+            object :
+                Stick<TestEnv, String>(
+                    String::class,
+                    lazyOf(TestEnv),
+                    lazyOf(noopFailureHandler()),
+                    EmptyCoroutineContext,
+                ) {
+                val calls: MutableList<String> = mutableListOf()
+
+                context(env: E2, failureHandler: FailureHandler<E2, String>)
+                override fun <E2 : TestEnv> registerCommand(
+                    structure: Structure<E2, String, *>,
+                    asyncContext: CoroutineContext,
+                ) {
+                    calls += "registerCommand"
+                }
+
+                override fun onFirstRegistration() {
+                    calls += "onFirstRegistration"
+                }
+            }
+        val first = structure(TestEnv::class, String::class) { command("first")() {} }
+        val second = structure(TestEnv::class, String::class) { command("second")() {} }
+
+        stick.withContext {
+            register(first)
+            register(second)
+        }
+
+        assertEquals(["onFirstRegistration", "registerCommand", "registerCommand"], stick.calls)
+    }
+
+    @Test
     fun `cancelRuns completes open suggestions empty`() {
         val stick =
             object :
