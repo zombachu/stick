@@ -105,6 +105,20 @@ class ParameterTest {
     }
 
     @Test
+    fun `suspending fixed arity match narrows matchedAtLeast to matchedExactly`() {
+        val parameter =
+            object : SuspendingParameter.Size1<TestEnv, Unit, String>("", "") {
+                context(inv: Invocation<TestEnv, Unit>)
+                override fun match(arg0: String): MatchResult = MatchResult.matchedAtLeast(1)
+
+                context(inv: Invocation<TestEnv, Unit>)
+                override suspend fun resolve(arg0: String): CommandResult<String> = success(arg0)
+            }
+
+        assertEquals(MatchResult.matchedExactly(1), withInvocation { parameter.match(["a", "b"]) })
+    }
+
+    @Test
     fun `parse ignores memo produced by another parameter`() {
         var resolves = 0
         val other = countingParameter {}

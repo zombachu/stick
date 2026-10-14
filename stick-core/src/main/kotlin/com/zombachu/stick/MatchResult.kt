@@ -48,6 +48,11 @@ sealed interface MatchResult {
     }
 }
 
+internal fun MatchResult.Matched.exactly(consumed: Int): MatchResult.Matched {
+    val element = resolvedBy ?: return MatchResult.matchedExactly(consumed)
+    return MatchResult.Matched(consumed, canConsumeMore = false, element, resolved)
+}
+
 internal fun <T> ConsumingResult<T>.toMatchResult(element: ConsumingElement<*, *, *>): MatchResult =
     when (this) {
         is ConsumingResult.Success ->

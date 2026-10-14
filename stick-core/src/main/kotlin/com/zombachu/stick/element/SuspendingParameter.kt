@@ -12,6 +12,7 @@ import com.zombachu.stick.Position
 import com.zombachu.stick.Size
 import com.zombachu.stick.Suggestion
 import com.zombachu.stick.consuming
+import com.zombachu.stick.exactly
 
 sealed class SuspendingParameter<in E : Environment, S, T, out P : Position>(
     size: Size,
@@ -41,7 +42,8 @@ sealed class SuspendingParameter<in E : Environment, S, T, out P : Position>(
         context(inv: Invocation<E, S>)
         final override fun match(args: List<String>): MatchResult {
             if (args.size < arity) return MatchResult.partial()
-            return matchArity(args)
+            val match = matchArity(args)
+            return if (match is MatchResult.Matched) match.exactly(arity) else match
         }
 
         context(inv: Invocation<E, S>)
