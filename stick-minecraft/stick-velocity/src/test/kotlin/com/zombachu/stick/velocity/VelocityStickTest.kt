@@ -1,17 +1,11 @@
 package com.zombachu.stick.velocity
 
-import com.velocitypowered.api.command.CommandSource
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent
-import com.zombachu.stick.CommandResult
-import com.zombachu.stick.Invocation
-import com.zombachu.stick.Suggestion
+import com.zombachu.stick.AsyncNameParameter
 import com.zombachu.stick.asCoroutineContext
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.invoke
-import com.zombachu.stick.element.Parameter
-import com.zombachu.stick.success
-import com.zombachu.stick.toSuggestions
-import com.zombachu.stick.withAsyncContext
+import io.mockk.mockk
 import java.util.concurrent.Executor
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,7 +17,7 @@ class VelocityStickTest {
     fun `registerCommand registers adapter with command meta`() {
         val manager = FakeCommandManager()
         val plugin = Any()
-        val stick = VelocityStick(plugin, FakeProxyServer(manager), FakeLogger())
+        val stick = VelocityStick(plugin, FakeProxyServer(manager), mockk())
         val structure = velocityStructure { command("cmd", aliases = ["c"])() }
 
         stick.withContext { register(structure) }
@@ -37,7 +31,7 @@ class VelocityStickTest {
     @Test
     fun `registerCommand registers one shutdown handler for all commands`() {
         val events = FakeEventManager()
-        val stick = VelocityStick(Any(), FakeProxyServer(events = events), FakeLogger())
+        val stick = VelocityStick(Any(), FakeProxyServer(events = events), mockk())
         val first = velocityStructure { command("first")() }
         val second = velocityStructure { command("second")() }
 
@@ -54,7 +48,7 @@ class VelocityStickTest {
         val manager = FakeCommandManager()
         val events = FakeEventManager()
         val stick =
-            VelocityStick(Any(), FakeProxyServer(manager, events), FakeLogger(), Executor {}.asCoroutineContext())
+            VelocityStick(Any(), FakeProxyServer(manager, events), mockk(), Executor {}.asCoroutineContext())
         val structure = velocityStructure {
             command("hello")(AsyncNameParameter()) { }
         }
@@ -65,14 +59,5 @@ class VelocityStickTest {
         val ignored = events.fire(ProxyShutdownEvent())
 
         assertEquals([], suggestions.getNow(null))
-    }
-
-    private class AsyncNameParameter : Parameter.Size1<VelocityEnvironment, CommandSource, String>("name", "") {
-        context(inv: Invocation<VelocityEnvironment, CommandSource>)
-        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
-            withAsyncContext { ["there"].toSuggestions() }
-
-        context(inv: Invocation<VelocityEnvironment, CommandSource>)
-        override fun resolve(arg0: String): CommandResult<String> = success(arg0)
     }
 }

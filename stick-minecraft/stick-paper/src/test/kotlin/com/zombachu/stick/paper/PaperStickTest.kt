@@ -1,17 +1,10 @@
 package com.zombachu.stick.paper
 
-import com.zombachu.stick.CommandResult
-import com.zombachu.stick.Invocation
-import com.zombachu.stick.Suggestion
+import com.zombachu.stick.AsyncNameParameter
 import com.zombachu.stick.asCoroutineContext
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.invoke
-import com.zombachu.stick.element.Parameter
-import com.zombachu.stick.success
-import com.zombachu.stick.toSuggestions
-import com.zombachu.stick.withAsyncContext
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
-import org.bukkit.command.CommandSender
 import java.util.concurrent.Executor
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -85,14 +78,5 @@ class PaperStickTest {
         listener.onDisable(FakeLifecyclePlugin())
 
         assertFalse(suggestions.isDone)
-    }
-
-    private class AsyncNameParameter : Parameter.Size1<PaperEnvironment, CommandSender, String>("name", "") {
-        context(inv: Invocation<PaperEnvironment, CommandSender>)
-        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
-            withAsyncContext { ["there"].toSuggestions() }
-
-        context(inv: Invocation<PaperEnvironment, CommandSender>)
-        override fun resolve(arg0: String): CommandResult<String> = success(arg0)
     }
 }

@@ -2,11 +2,9 @@ package com.zombachu.stick.paper
 
 import com.mojang.brigadier.Command
 import com.zombachu.stick.Arguments
-import com.zombachu.stick.CommandResult
-import com.zombachu.stick.Invocation
-import com.zombachu.stick.MatchResult
+import com.zombachu.stick.AsyncNameParameter
 import com.zombachu.stick.StructureScope
-import com.zombachu.stick.Suggestion
+import com.zombachu.stick.SuspendingNameParameter
 import com.zombachu.stick.asCoroutineContext
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.flag
@@ -14,14 +12,10 @@ import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.requireSender
 import com.zombachu.stick.dsl.textParameter
-import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Structure
-import com.zombachu.stick.element.SuspendingParameter
 import com.zombachu.stick.noopFailureHandler
 import com.zombachu.stick.paper.dsl.permission
 import com.zombachu.stick.success
-import com.zombachu.stick.toSuggestions
-import com.zombachu.stick.withAsyncContext
 import org.bukkit.command.CommandSender
 import java.util.concurrent.Executor
 import kotlin.coroutines.CoroutineContext
@@ -156,11 +150,9 @@ class PaperCommandAdapterTest {
 
     @Test
     fun `test delegates to sender validation`() {
-        val structure = paperStructure {
+        val adapter = adapter {
             command("cmd", requirement = permission("stick.cmd"))() { }
         }
-        val adapter =
-            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         assertTrue(adapter.test(FakeCommandSourceStack(FakeCommandSender(["stick.cmd"]))))
         assertFalse(adapter.test(FakeCommandSourceStack(FakeCommandSender())))
@@ -168,13 +160,11 @@ class PaperCommandAdapterTest {
 
     @Test
     fun `test sees base permission of a sender-narrowed command`() {
-        val structure = paperStructure {
+        val adapter = adapter {
             requireSender(FakeCommandSender::class) {
                 command("cmd", requirement = permission("stick.cmd"))() { }
             }
         }
-        val adapter =
-            PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         assertTrue(adapter.test(FakeCommandSourceStack(FakeCommandSender(["stick.cmd"]))))
         assertFalse(adapter.test(FakeCommandSourceStack(FakeCommandSender())))
@@ -185,31 +175,13 @@ class PaperCommandAdapterTest {
         block: StructureScope<PaperEnvironment, CommandSender>.() -> Structure<PaperEnvironment, CommandSender, T_>,
     ): FakeRegistrar {
         val registrar = FakeRegistrar()
-        val structure = paperStructure(block)
-        val adapter = PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), structure, asyncContext)
-        registrar.register(adapter.toBrigadierNode())
+        registrar.register(adapter(asyncContext, block).toBrigadierNode())
         return registrar
     }
 
-    private class AsyncNameParameter : Parameter.Size1<PaperEnvironment, CommandSender, String>("name", "") {
-        context(inv: Invocation<PaperEnvironment, CommandSender>)
-        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
-            withAsyncContext { ["there"].toSuggestions() }
-
-        context(inv: Invocation<PaperEnvironment, CommandSender>)
-        override fun resolve(arg0: String): CommandResult<String> = success(arg0)
-    }
-
-    private class SuspendingNameParameter :
-        SuspendingParameter.Size1<PaperEnvironment, CommandSender, String>("name", "") {
-        context(inv: Invocation<PaperEnvironment, CommandSender>)
-        override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
-
-        context(inv: Invocation<PaperEnvironment, CommandSender>)
-        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
-            ["there"].toSuggestions()
-
-        context(inv: Invocation<PaperEnvironment, CommandSender>)
-        override suspend fun resolve(arg0: String): CommandResult<String> = success(arg0)
-    }
+    private fun <T_ : Arguments> adapter(
+        asyncContext: CoroutineContext = EmptyCoroutineContext,
+        block: StructureScope<PaperEnvironment, CommandSender>.() -> Structure<PaperEnvironment, CommandSender, T_>,
+    ): PaperCommandAdapter<PaperEnvironment> =
+        PaperCommandAdapter(FakePaperEnvironment(), noopFailureHandler(), paperStructure(block), asyncContext)
 }

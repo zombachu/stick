@@ -6,9 +6,11 @@ import com.zombachu.stick.MessageReason
 import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.failureOrigin
 import com.zombachu.stick.testExecution
+import io.mockk.mockk
+import io.mockk.verify
+import org.slf4j.Logger
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class VelocityFailureHandlerTest {
@@ -20,7 +22,7 @@ class VelocityFailureHandlerTest {
         val sender = FakeCommandSource()
 
         context(execution(sender)) {
-            BasicVelocityFailureHandler(FakeLogger()).onFailure(Reason.Unknown(), failureOrigin())
+            BasicVelocityFailureHandler(mockk()).onFailure(Reason.Unknown(), failureOrigin())
         }
 
         assertEquals(1, sender.sentMessages.size)
@@ -32,7 +34,7 @@ class VelocityFailureHandlerTest {
         val sender = FakeCommandSource()
 
         context(execution(sender)) {
-            BasicVelocityFailureHandler(FakeLogger()).onFailure(MessageReason(""), failureOrigin())
+            BasicVelocityFailureHandler(mockk()).onFailure(MessageReason(""), failureOrigin())
         }
 
         assertEquals(0, sender.sentMessages.size)
@@ -40,14 +42,14 @@ class VelocityFailureHandlerTest {
 
     @Test
     fun `logs the cause of an unknown failure`() {
-        val logger = FakeLogger()
+        val logger = mockk<Logger>(relaxed = true)
         val cause = IllegalStateException("boom")
 
         context(execution(FakeCommandSource())) {
             BasicVelocityFailureHandler(logger).onFailure(Reason.Unknown(cause), failureOrigin())
         }
 
-        assertSame(cause, logger.logged.single().second)
+        verify { logger.error(any<String>(), cause) }
     }
 
     private fun execution(sender: CommandSource): Execution<VelocityEnvironment, CommandSource> =

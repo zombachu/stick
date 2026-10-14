@@ -10,9 +10,9 @@ import com.zombachu.stick.element.SuspendingParameter
 import com.zombachu.stick.element.parameters.LiteralParameter
 import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.failure.Reason
+import io.mockk.spyk
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -81,23 +81,21 @@ class ExecutionImplTest {
     @Test
     fun `processElement does not parse non-matching element`() {
         val ex = testExecution("foo")
-        var parsed = false
         val parameter =
-            object : SuspendingParameter.Size1<TestEnv, Unit, String>("bar", "") {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun match(arg0: String): MatchResult = MatchResult.unmatched()
+            spyk(
+                object : SuspendingParameter.Size1<TestEnv, Unit, String>("bar", "") {
+                    context(inv: Invocation<TestEnv, Unit>)
+                    override fun match(arg0: String): MatchResult = MatchResult.unmatched()
 
-                context(inv: Invocation<TestEnv, Unit>)
-                override suspend fun resolve(arg0: String): CommandResult<String> {
-                    parsed = true
-                    return success(arg0)
+                    context(inv: Invocation<TestEnv, Unit>)
+                    override suspend fun resolve(arg0: String): CommandResult<String> = success(arg0)
                 }
-            }
+            )
 
         val result = runSync { ex.processElement(parameter) }
 
         assertIs<Reason.InvalidSyntax>(result.expectNoMatch().reason)
-        assertFalse(parsed)
+        verifyResolves(parameter, exactly = 0)
         assertEquals(["foo"], ex.unparsed)
     }
 
@@ -162,45 +160,40 @@ class ExecutionImplTest {
 
     @Test
     fun `processElement resolves derived parameter once`() {
-        var resolves = 0
-        val parameter = countingParameter { resolves++ }
+        val parameter = spyk(StringParameter<TestEnv, Unit>("", ""))
 
         val result = runSync { testExecution("a").processElement(parameter) }
 
         assertEquals("a", result.expectSuccessValue())
-        assertEquals(1, resolves)
+        verifyResolves(parameter, exactly = 1)
     }
 
     @Test
     fun `processElement resolves through decorator once`() {
-        var resolves = 0
+        val parameter = spyk(StringParameter<TestEnv, Unit>("", ""))
         val identifier = id<String>("stored")
-        val stored = countingParameter { resolves++ }.store(identifier)
+        val stored = parameter.store(identifier)
 
         val ex = testExecution("a")
         val result = runSync { ex.processElement(stored) }
 
         assertEquals("a", result.expectSuccessValue())
         assertEquals("a", ex.get(identifier))
-        assertEquals(1, resolves)
+        verifyResolves(parameter, exactly = 1)
     }
 
     @Test
     fun `processElement resolves through wrapper chain once`() {
-        var resolves = 0
+        val parameter = spyk(StringParameter<TestEnv, Unit>("", ""))
         val optional =
-            OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(
-                countingParameter { resolves++ },
-                { success("absent") },
-                null,
-            )
+            OptionalParameterImpl<TestEnv, Unit, String, Position.Optional>(parameter, { success("absent") }, null)
         val mapped =
             MappedOptionalParameter<TestEnv, Unit, String, String, Position.Optional>(optional) { success("$it!") }
 
         val result = runSync { testExecution("a").processElement(mapped) }
 
         assertEquals("a!", result.expectSuccessValue())
-        assertEquals(1, resolves)
+        verifyResolves(parameter, exactly = 1)
     }
 
     @Test
@@ -267,13 +260,4 @@ class ExecutionImplTest {
         val ex = testExecution()
         assertTrue(ex.getSyntax().startsWith("/"))
     }
-
-    private fun countingParameter(onResolve: () -> Unit) =
-        object : Parameter.Size1<TestEnv, Unit, String>("", "") {
-            context(inv: Invocation<TestEnv, Unit>)
-            override fun resolve(arg0: String): CommandResult<String> {
-                onResolve()
-                return success(arg0)
-            }
-        }
 }

@@ -22,9 +22,11 @@ import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.runSync
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
+import com.zombachu.stick.verifyResolves
 import com.zombachu.stick.withExecution
 import com.zombachu.stick.withExecutionSender
 import com.zombachu.stick.withInvocation
+import io.mockk.spyk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -37,43 +39,27 @@ class ValueFlagImplTest {
 
     @Test
     fun `EnumFlagParameter resolves parameter once`() {
-        var resolves = 0
-        val counting =
-            object : EnumParameter<TestEnv, Unit, Color>("", "", mapOf("red" to Color.RED), mapOf()) {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun resolve(arg0: String): CommandResult<Color> {
-                    resolves++
-                    return super.resolve(arg0)
-                }
-            }
+        val parameter = spyk(colorParameter)
         val flag = ValueFlagImpl<TestEnv, Unit, Color>(
             "color",
             { success(Color.GREEN) },
-            FlagParameter.EnumFlagParameter(counting),
+            FlagParameter.EnumFlagParameter(parameter),
         )
 
         val ex = testExecution("-red")
         val result = runSync { ex.processElement(flag) }
 
         assertEquals(Color.RED, result.expectSuccessValue())
-        assertEquals(1, resolves)
+        verifyResolves(parameter, exactly = 1)
     }
 
     @Test
     fun `ParameterFlagParameter resolves parameter once`() {
-        var resolves = 0
-        val counting =
-            object : Parameter.Size1<TestEnv, Unit, String>("name", "") {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun resolve(arg0: String): CommandResult<String> {
-                    resolves++
-                    return success(arg0)
-                }
-            }
+        val parameter = spyk(StringParameter<TestEnv, Unit>("name", ""))
         val flag = ValueFlagImpl<TestEnv, Unit, String>(
             "player",
             { success("nobody") },
-            FlagParameter.ParameterFlagParameter("player", counting, []),
+            FlagParameter.ParameterFlagParameter("player", parameter, []),
         )
 
         val ex = testExecution("-player", "steve")
@@ -81,7 +67,7 @@ class ValueFlagImplTest {
 
         assertEquals("steve", result.expectSuccessValue())
         assertEquals(2, ex.consumedArgs)
-        assertEquals(1, resolves)
+        verifyResolves(parameter, exactly = 1)
     }
 
     @Test
@@ -108,18 +94,16 @@ class ValueFlagImplTest {
 
     @Test
     fun `ParameterFlagParameter resolves parameter once with vacuous match`() {
-        var resolves = 0
         val cheaplyMatched =
-            object : SuspendingParameter.Size1<TestEnv, Unit, String>("name", "") {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
+            spyk(
+                object : SuspendingParameter.Size1<TestEnv, Unit, String>("name", "") {
+                    context(inv: Invocation<TestEnv, Unit>)
+                    override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
 
-                context(inv: Invocation<TestEnv, Unit>)
-                override suspend fun resolve(arg0: String): CommandResult<String> {
-                    resolves++
-                    return success(arg0)
+                    context(inv: Invocation<TestEnv, Unit>)
+                    override suspend fun resolve(arg0: String): CommandResult<String> = success(arg0)
                 }
-            }
+            )
         val flag = ValueFlagImpl<TestEnv, Unit, String>(
             "player",
             { success("nobody") },
@@ -130,7 +114,7 @@ class ValueFlagImplTest {
         val result = runSync { ex.processElement(flag) }
 
         assertEquals("steve", result.expectSuccessValue())
-        assertEquals(1, resolves)
+        verifyResolves(cheaplyMatched, exactly = 1)
     }
 
     @Test

@@ -7,6 +7,7 @@ import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.consuming
+import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
 import com.zombachu.stick.expectUnmatched
@@ -15,7 +16,9 @@ import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.runSync
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
+import com.zombachu.stick.verifyResolves
 import com.zombachu.stick.withInvocation
+import io.mockk.spyk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -120,24 +123,14 @@ class ParameterTest {
 
     @Test
     fun `parse ignores memo produced by another parameter`() {
-        var resolves = 0
-        val other = countingParameter {}
-        val parameter = countingParameter { resolves++ }
+        val other = StringParameter<TestEnv, Unit>("", "")
+        val parameter = spyk(StringParameter<TestEnv, Unit>("", ""))
 
         val ex = testExecution("a")
         ex.currentMatch = withInvocation { other.match(["a"]) } as MatchResult.Matched
         val result = runSync { context(ex) { parameter.parse(["a"]) } }
 
         assertEquals("a", result.expectSuccessValue())
-        assertEquals(1, resolves)
+        verifyResolves(parameter, exactly = 1)
     }
-
-    private fun countingParameter(onResolve: () -> Unit) =
-        object : Parameter.Size1<TestEnv, Unit, String>("", "") {
-            context(inv: Invocation<TestEnv, Unit>)
-            override fun resolve(arg0: String): CommandResult<String> {
-                onResolve()
-                return success(arg0)
-            }
-        }
 }

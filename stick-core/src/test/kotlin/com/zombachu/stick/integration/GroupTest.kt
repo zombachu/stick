@@ -33,6 +33,7 @@ import com.zombachu.stick.dsl.textParameter
 import com.zombachu.stick.dsl.uuidParameter
 import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.parameters.ListElementResult
+import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.integration.fixtures.Console
 import com.zombachu.stick.integration.fixtures.Player
 import com.zombachu.stick.integration.fixtures.Sender
@@ -52,6 +53,8 @@ import com.zombachu.stick.integration.fixtures.suggest
 import com.zombachu.stick.integration.fixtures.warpParameter
 import com.zombachu.stick.integration.fixtures.worldHelper
 import com.zombachu.stick.success
+import com.zombachu.stick.verifyResolves
+import io.mockk.spyk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -790,7 +793,7 @@ class GroupTest {
     @Test
     fun `warp - branch resolves leading parameter once`() {
         val targetWarp: TypedIdentifier<String> = id("warp")
-        val warpParameter = CountingParameter<Server, Sender>("warp")
+        val warpParameter = spyk(StringParameter<Server, Sender>("warp", ""))
         val warpCommand = structure(Server::class, Sender::class) {
             command("warp")(
                 subcommands(
@@ -811,13 +814,13 @@ class GroupTest {
         warpCommand.execute(server, zombachu, "/warp shop tp")
 
         assertEquals(["Teleported to shop"], zombachu.logs)
-        assertEquals(1, warpParameter.invocations)
+        verifyResolves(warpParameter, exactly = 1)
     }
 
     @Test
     fun `warp - branch suggestion resolves leading parameter once`() {
         val targetWarp: TypedIdentifier<String> = id("warp")
-        val warpParameter = CountingParameter<Server, Sender>("warp")
+        val warpParameter = spyk(StringParameter<Server, Sender>("warp", ""))
         val warpCommand = structure(Server::class, Sender::class) {
             command("warp")(
                 subcommands(
@@ -838,7 +841,7 @@ class GroupTest {
         val suggestions = warpCommand.suggest(server, zombachu, "/warp shop ")
 
         assertEquals(["tp"], suggestions)
-        assertEquals(1, warpParameter.invocations)
+        verifyResolves(warpParameter, exactly = 1)
     }
 
     @Test
@@ -928,15 +931,5 @@ class GroupTest {
 
         context(inv: Invocation<E, S>)
         override fun resolve(arg0: String, arg1: String): CommandResult<String> = success("$arg0,$arg1")
-    }
-
-    private class CountingParameter<E : Environment, S>(name: String) : Parameter.Size1<E, S, String>(name, "") {
-        var invocations = 0
-
-        context(inv: Invocation<E, S>)
-        override fun resolve(arg0: String): CommandResult<String> {
-            invocations++
-            return success(arg0)
-        }
     }
 }

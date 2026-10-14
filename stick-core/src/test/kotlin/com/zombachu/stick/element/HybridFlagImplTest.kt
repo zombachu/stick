@@ -1,6 +1,5 @@
 package com.zombachu.stick.element
 
-import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
 import com.zombachu.stick.HybridFlagResult
 import com.zombachu.stick.Invocation
@@ -10,6 +9,7 @@ import com.zombachu.stick.Size
 import com.zombachu.stick.TestEnv
 import com.zombachu.stick.consuming
 import com.zombachu.stick.element.parameters.IntParameter
+import com.zombachu.stick.element.parameters.StringParameter
 import com.zombachu.stick.expectNoMatch
 import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
@@ -19,9 +19,11 @@ import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.runSync
 import com.zombachu.stick.success
 import com.zombachu.stick.testExecution
+import com.zombachu.stick.verifyResolves
 import com.zombachu.stick.withExecution
 import com.zombachu.stick.withExecutionSender
 import com.zombachu.stick.withInvocation
+import io.mockk.spyk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -33,15 +35,7 @@ class HybridFlagImplTest {
 
     @Test
     fun `parse resolves parameter once`() {
-        var resolves = 0
-        val counting =
-            object : Parameter.Size1<TestEnv, Unit, String>("name", "") {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun resolve(arg0: String): CommandResult<String> {
-                    resolves++
-                    return success(arg0)
-                }
-            }
+        val counting = spyk(StringParameter<TestEnv, Unit>("name", ""))
         val countingFlag = HybridFlagImpl("rank", counting, [])
 
         val ex = testExecution("-rank", "guest")
@@ -49,7 +43,7 @@ class HybridFlagImplTest {
 
         assertEquals("guest", assertIs<HybridFlagResult.Value<String>>(result.expectSuccessValue()).value)
         assertEquals(2, ex.consumedArgs)
-        assertEquals(1, resolves)
+        verifyResolves(counting, exactly = 1)
     }
 
     @Test

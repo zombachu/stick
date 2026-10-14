@@ -13,9 +13,11 @@ import com.zombachu.stick.failure.Reason
 import com.zombachu.stick.success
 import com.zombachu.stick.withExecution
 import com.zombachu.stick.withInvocation
+import io.mockk.Called
+import io.mockk.mockk
+import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -94,17 +96,13 @@ class ListElementParameterTest {
 
     @Test
     fun `matching uses index but not list`() {
-        var listReached = false
-        val watched: ContextualValue<TestEnv, Unit, List<String>> = {
-            listReached = true
-            success(["a", "b", "c"])
-        }
-        val parameter = listElementParameter("", "", watched, oneIndexed = false, onEmpty = null)
+        val list = mockk<ContextualValue<TestEnv, Unit, List<String>>>()
+        val parameter = listElementParameter("", "", list, oneIndexed = false, onEmpty = null)
 
         val result = withInvocation { parameter.match(["x"]) }
 
         assertEquals(Reason.TypeNotMatched("index", "x"), result.expectUnmatched().expectReason())
-        assertFalse(listReached)
+        verify { list wasNot Called }
     }
 
     private fun failure(

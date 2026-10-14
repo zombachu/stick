@@ -42,6 +42,8 @@ ktfmt {
 
 dependencies {
     testImplementation(kotlin("test"))
+    testImplementation(versionCatalogs.named("libs").findLibrary("mockk").get())
+    testRuntimeOnly(kotlin("reflect"))
 }
 
 tasks {

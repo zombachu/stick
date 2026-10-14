@@ -2,18 +2,26 @@ package com.zombachu.stick
 
 import com.zombachu.stick.element.FlagParameter
 import com.zombachu.stick.element.LeadingParameterRole
+import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.element.Signature0
 import com.zombachu.stick.element.Structure
 import com.zombachu.stick.element.StructureImpl
+import com.zombachu.stick.element.SuspendingParameter
 import com.zombachu.stick.element.ValueFlagImpl
 import com.zombachu.stick.failure.CustomReason
 import com.zombachu.stick.failure.FailureHandler
 import com.zombachu.stick.failure.FailureOrigin
 import com.zombachu.stick.failure.Reason
+import java.lang.reflect.Proxy
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.fail
 
 object TestEnv : Environment
+
+inline fun <reified T : Any> unused(): T =
+    Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, method, _ ->
+        error("unused: ${T::class.simpleName}.${method.name}")
+    } as T
 
 private fun <E : Environment, S> emptyStructure(): Structure<E, S, *> =
     StructureImpl<E, S, Arguments0>("", [], "") {
@@ -135,4 +143,25 @@ fun <E : Environment, S> structureTest(block: StructureScope<E, S>.() -> Unit) {
     with(scope) {
         block()
     }
+}
+
+class AsyncNameParameter<E : Environment, S> : Parameter.Size1<E, S, String>("name", "") {
+    context(inv: Invocation<E, S>)
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        withAsyncContext { ["there"].toSuggestions() }
+
+    context(inv: Invocation<E, S>)
+    override fun resolve(arg0: String): CommandResult<String> = success(arg0)
+}
+
+class SuspendingNameParameter<E : Environment, S> : SuspendingParameter.Size1<E, S, String>("name", "") {
+    context(inv: Invocation<E, S>)
+    override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
+
+    context(inv: Invocation<E, S>)
+    override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
+        ["there"].toSuggestions()
+
+    context(inv: Invocation<E, S>)
+    override suspend fun resolve(arg0: String): CommandResult<String> = success(arg0)
 }

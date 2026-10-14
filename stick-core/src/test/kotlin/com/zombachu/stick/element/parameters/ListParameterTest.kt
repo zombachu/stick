@@ -1,15 +1,12 @@
 package com.zombachu.stick.element.parameters
 
-import com.zombachu.stick.CommandResult
-import com.zombachu.stick.Invocation
 import com.zombachu.stick.TestEnv
-import com.zombachu.stick.element.Parameter
 import com.zombachu.stick.expectReason
 import com.zombachu.stick.expectSuccessValue
-import com.zombachu.stick.failType
 import com.zombachu.stick.failure.Reason
-import com.zombachu.stick.success
+import com.zombachu.stick.verifyResolves
 import com.zombachu.stick.withExecution
+import io.mockk.spyk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -44,20 +41,12 @@ class ListParameterTest {
 
     @Test
     fun `first failure short-circuits`() {
-        var calls = 0
-        val counting =
-            object : Parameter.Size1<TestEnv, Unit, String>("", "") {
-                context(inv: Invocation<TestEnv, Unit>)
-                override fun resolve(arg0: String): CommandResult<String> {
-                    calls++
-                    return if (arg0 == "bad") failType("item", arg0) else success(arg0)
-                }
-            }
-        val listParameter = ListParameter("", "", counting)
+        val item = spyk(IntParameter<TestEnv, Unit>("", "", Int.MIN_VALUE, Int.MAX_VALUE))
+        val listParameter = ListParameter("", "", item)
 
-        val result = withExecution { listParameter.parse(["a,bad,c"]) }
+        val result = withExecution { listParameter.parse(["1,bad,3"]) }
 
-        assertEquals(Reason.TypeNotMatched("item", "bad"), result.expectReason())
-        assertEquals(2, calls)
+        assertEquals(Reason.TypeNotMatched("integer", "bad"), result.expectReason())
+        verifyResolves(item, exactly = 2)
     }
 }

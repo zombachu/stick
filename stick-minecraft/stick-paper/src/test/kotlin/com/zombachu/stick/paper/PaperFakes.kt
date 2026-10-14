@@ -6,44 +6,25 @@ import com.zombachu.stick.Arguments
 import com.zombachu.stick.StructureScope
 import com.zombachu.stick.dsl.structure
 import com.zombachu.stick.element.Structure
-import io.papermc.paper.command.brigadier.BasicCommand
-import io.papermc.paper.command.brigadier.CommandRegistrationFlag
+import com.zombachu.stick.unused
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.Commands
-import io.papermc.paper.plugin.configuration.PluginMeta
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEvent
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager
 import io.papermc.paper.plugin.lifecycle.event.handler.LifecycleEventHandler
-import io.papermc.paper.plugin.lifecycle.event.handler.configuration.LifecycleEventHandlerConfiguration
 import io.papermc.paper.plugin.lifecycle.event.registrar.ReloadableRegistrarEvent
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEventType
 import net.kyori.adventure.text.Component
-import org.bukkit.Location
 import org.bukkit.Server
-import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
-import org.bukkit.configuration.file.FileConfiguration
-import org.bukkit.entity.Entity
 import org.bukkit.event.Listener
-import org.bukkit.generator.BiomeProvider
-import org.bukkit.generator.ChunkGenerator
 import org.bukkit.permissions.Permission
-import org.bukkit.permissions.PermissionAttachment
-import org.bukkit.permissions.PermissionAttachmentInfo
 import org.bukkit.plugin.Plugin
-import org.bukkit.plugin.PluginDescriptionFile
-import org.bukkit.plugin.PluginLoader
 import org.bukkit.plugin.PluginManager
-import java.io.File
-import java.io.InputStream
-import java.lang.reflect.Method
-import java.lang.reflect.Proxy
-import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.logging.Logger
 
-@Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
-class FakeCommandSender(private val permissions: Set<String> = []) : CommandSender {
+class FakeCommandSender(private val permissions: Set<String> = []) : CommandSender by unused() {
     val sentMessages: MutableList<Component> = mutableListOf()
 
     override fun hasPermission(name: String): Boolean = name in permissions
@@ -54,118 +35,21 @@ class FakeCommandSender(private val permissions: Set<String> = []) : CommandSend
         sentMessages += message
     }
 
-    override fun sendMessage(message: String) = error("unused")
-
-    override fun sendMessage(vararg messages: String) = error("unused")
-
-    override fun sendMessage(sender: UUID?, message: String) = error("unused")
-
-    override fun sendMessage(sender: UUID?, vararg messages: String) = error("unused")
-
-    override fun getServer(): Server = error("unused")
-
     override fun getName(): String = "fake"
 
-    override fun spigot(): CommandSender.Spigot = error("unused")
-
     override fun name(): Component = Component.text("fake")
-
-    override fun isPermissionSet(name: String): Boolean = error("unused")
-
-    override fun isPermissionSet(perm: Permission): Boolean = error("unused")
-
-    override fun addAttachment(plugin: Plugin, name: String, value: Boolean): PermissionAttachment =
-        error("unused")
-
-    override fun addAttachment(plugin: Plugin): PermissionAttachment = error("unused")
-
-    override fun addAttachment(plugin: Plugin, name: String, value: Boolean, ticks: Int): PermissionAttachment =
-        error("unused")
-
-    override fun addAttachment(plugin: Plugin, ticks: Int): PermissionAttachment = error("unused")
-
-    override fun removeAttachment(attachment: PermissionAttachment) = error("unused")
-
-    override fun recalculatePermissions() = error("unused")
-
-    override fun getEffectivePermissions(): MutableSet<PermissionAttachmentInfo> = error("unused")
-
-    override fun isOp(): Boolean = error("unused")
-
-    override fun setOp(value: Boolean) = error("unused")
 }
 
-class FakeCommandSourceStack(private val sender: CommandSender) : CommandSourceStack {
-    override fun getLocation(): Location = error("unused")
-
+class FakeCommandSourceStack(private val sender: CommandSender) : CommandSourceStack by unused() {
     override fun getSender(): CommandSender = sender
-
-    override fun getExecutor(): Entity? = error("unused")
-
-    override fun withLocation(location: Location): CommandSourceStack = error("unused")
-
-    override fun withExecutor(executor: Entity): CommandSourceStack = error("unused")
 }
 
-@Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
-object FakePlugin : Plugin {
-    override fun getDataFolder(): File = error("unused")
-
-    override fun getDescription(): PluginDescriptionFile = error("unused")
-
-    override fun getPluginMeta(): PluginMeta = error("unused")
-
-    override fun getConfig(): FileConfiguration = error("unused")
-
-    override fun getResource(filename: String): InputStream = error("unused")
-
-    override fun saveConfig() = error("unused")
-
-    override fun saveDefaultConfig() = error("unused")
-
-    override fun saveResource(resourcePath: String, replace: Boolean) = error("unused")
-
-    override fun reloadConfig() = error("unused")
-
-    override fun getPluginLoader(): PluginLoader = error("unused")
-
-    override fun getServer(): Server = error("unused")
-
-    override fun isEnabled(): Boolean = error("unused")
-
-    override fun onDisable() = error("unused")
-
-    override fun onLoad() = error("unused")
-
-    override fun onEnable() = error("unused")
-
-    override fun isNaggable(): Boolean = error("unused")
-
-    override fun setNaggable(canNag: Boolean) = error("unused")
-
-    override fun getDefaultWorldGenerator(worldName: String, id: String?): ChunkGenerator =
-        error("unused")
-
-    override fun getDefaultBiomeProvider(worldName: String, id: String?): BiomeProvider =
-        error("unused")
-
+object FakePlugin : Plugin by unused() {
     override fun getLogger(): Logger = Logger.getLogger("fake-plugin")
 
     override fun getName(): String = "fake-plugin"
 
     override fun namespace(): String = "fake-plugin"
-
-    override fun getLifecycleManager(): LifecycleEventManager<Plugin> = error("unused")
-
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean =
-        error("unused")
-
-    override fun onTabComplete(
-        sender: CommandSender,
-        command: Command,
-        alias: String,
-        args: Array<out String>,
-    ): MutableList<String> = error("unused")
 }
 
 class FakePaperEnvironment(override val plugin: Plugin = FakePlugin) : PaperEnvironment {
@@ -183,21 +67,18 @@ class FakeLifecyclePlugin : Plugin by FakePlugin {
 
     override fun getLifecycleManager(): LifecycleEventManager<Plugin> = lifecycleEvents
 
-    override fun getServer(): Server = fake { serverMethod, _ ->
-        check(serverMethod.name == "getPluginManager") { "unused" }
-        fake<PluginManager> { method, args ->
-            check(method.name == "registerEvents") { "unused" }
-            listeners += args[0] as Listener
+    override fun getServer(): Server =
+        object : Server by unused() {
+            override fun getPluginManager(): PluginManager =
+                object : PluginManager by unused() {
+                    override fun registerEvents(listener: Listener, plugin: Plugin) {
+                        listeners += listener
+                    }
+                }
         }
-    }
 }
 
-private inline fun <reified T : Any> fake(crossinline call: (Method, Array<Any?>) -> Any?): T =
-    Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, method, args ->
-        call(method, args ?: emptyArray())
-    } as T
-
-class FakeLifecycleEventManager : LifecycleEventManager<Plugin> {
+class FakeLifecycleEventManager : LifecycleEventManager<Plugin> by unused() {
     private val handlers: MutableList<Pair<LifecycleEventType<*, *, *>, LifecycleEventHandler<*>>> = mutableListOf()
 
     override fun <E : LifecycleEvent> registerEventHandler(
@@ -207,9 +88,6 @@ class FakeLifecycleEventManager : LifecycleEventManager<Plugin> {
         handlers += eventType to eventHandler
     }
 
-    override fun registerEventHandler(handlerConfiguration: LifecycleEventHandlerConfiguration<in Plugin>) =
-        error("unused")
-
     fun <E : LifecycleEvent> fire(eventType: LifecycleEventType<*, E, *>, event: E) {
         for ((type, handler) in handlers) {
             @Suppress("UNCHECKED_CAST")
@@ -218,15 +96,13 @@ class FakeLifecycleEventManager : LifecycleEventManager<Plugin> {
     }
 }
 
-class FakeCommandsEvent(private val commands: Commands) : ReloadableRegistrarEvent<Commands> {
+class FakeCommandsEvent(private val commands: Commands) : ReloadableRegistrarEvent<Commands> by unused() {
     override fun registrar(): Commands = commands
-
-    override fun cause(): ReloadableRegistrarEvent.Cause = error("unused")
 }
 
 data class FakeRegistration(val node: LiteralCommandNode<CommandSourceStack>, val aliases: List<String>)
 
-class FakeRegistrar : Commands {
+class FakeRegistrar : Commands by unused() {
     val registered: MutableList<FakeRegistration> = mutableListOf()
     private val dispatcher = CommandDispatcher<CommandSourceStack>()
     private val source = FakeCommandSourceStack(FakeCommandSender())
@@ -257,34 +133,4 @@ class FakeRegistrar : Commands {
         dispatcher.root.addChild(namespaced.build())
         return []
     }
-
-    override fun register(
-        pluginMeta: PluginMeta,
-        node: LiteralCommandNode<CommandSourceStack>,
-        description: String?,
-        aliases: Collection<String>,
-    ): Set<String> = error("unused")
-
-    override fun registerWithFlags(
-        pluginMeta: PluginMeta,
-        node: LiteralCommandNode<CommandSourceStack>,
-        description: String?,
-        aliases: Collection<String>,
-        flags: Set<CommandRegistrationFlag>,
-    ): Set<String> = error("unused")
-
-    override fun register(
-        label: String,
-        description: String?,
-        aliases: Collection<String>,
-        basicCommand: BasicCommand,
-    ): Set<String> = error("unused")
-
-    override fun register(
-        pluginMeta: PluginMeta,
-        label: String,
-        description: String?,
-        aliases: Collection<String>,
-        basicCommand: BasicCommand,
-    ): Set<String> = error("unused")
 }

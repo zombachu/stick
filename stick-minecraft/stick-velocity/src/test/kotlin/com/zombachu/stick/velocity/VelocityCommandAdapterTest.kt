@@ -1,24 +1,21 @@
 package com.zombachu.stick.velocity
 
 import com.velocitypowered.api.command.CommandSource
-import com.zombachu.stick.CommandResult
-import com.zombachu.stick.Invocation
-import com.zombachu.stick.MatchResult
-import com.zombachu.stick.Suggestion
+import com.zombachu.stick.Arguments
+import com.zombachu.stick.AsyncNameParameter
+import com.zombachu.stick.StructureScope
+import com.zombachu.stick.SuspendingNameParameter
 import com.zombachu.stick.asCoroutineContext
 import com.zombachu.stick.dsl.command
 import com.zombachu.stick.dsl.flag
 import com.zombachu.stick.dsl.invoke
 import com.zombachu.stick.dsl.literalParameter
 import com.zombachu.stick.dsl.textParameter
-import com.zombachu.stick.element.Parameter
-import com.zombachu.stick.element.SuspendingParameter
+import com.zombachu.stick.element.Structure
 import com.zombachu.stick.noopFailureHandler
-import com.zombachu.stick.success
-import com.zombachu.stick.toSuggestions
 import com.zombachu.stick.velocity.dsl.permission
-import com.zombachu.stick.withAsyncContext
 import java.util.concurrent.Executor
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -30,7 +27,9 @@ class VelocityCommandAdapterTest {
     @Test
     fun `execute collapses consecutive spaces`() {
         var text: String? = null
-        val adapter = textAdapter { text = it }
+        val adapter = adapter {
+            command("cmd")(textParameter("")) { text = it }
+        }
 
         adapter.execute(FakeInvocation(FakeCommandSource(), "cmd", "hello   world"))
 
@@ -40,7 +39,9 @@ class VelocityCommandAdapterTest {
     @Test
     fun `execute drops leading and trailing spaces`() {
         var text: String? = null
-        val adapter = textAdapter { text = it }
+        val adapter = adapter {
+            command("cmd")(textParameter("")) { text = it }
+        }
 
         adapter.execute(FakeInvocation(FakeCommandSource(), "cmd", "  hello world  "))
 
@@ -50,10 +51,9 @@ class VelocityCommandAdapterTest {
     @Test
     fun `execute with no args runs command`() {
         var executed = false
-        val structure = velocityStructure {
+        val adapter = adapter {
             command("cmd")() { executed = true }
         }
-        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         adapter.execute(FakeInvocation(FakeCommandSource(), "cmd", ""))
 
@@ -62,12 +62,11 @@ class VelocityCommandAdapterTest {
 
     @Test
     fun `suggest completes arg`() {
-        val structure = velocityStructure {
+        val adapter = adapter {
             command("hello")(
                 literalParameter("there")
             ) { }
         }
-        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         assertEquals(["there"], adapter.suggestAsync(FakeInvocation(FakeCommandSource(), "hello", "")).join())
         assertEquals(["there"], adapter.suggestAsync(FakeInvocation(FakeCommandSource(), "hello", "the")).join())
@@ -76,36 +75,32 @@ class VelocityCommandAdapterTest {
 
     @Test
     fun `suggest includes suspending parameter suggestions`() {
-        val structure = velocityStructure {
+        val adapter = adapter {
             command("hello")(
                 SuspendingNameParameter(),
                 flag("loud"),
             ) { _, _ -> }
         }
-        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         assertEquals(["-loud", "there"], adapter.suggestAsync(FakeInvocation(FakeCommandSource(), "hello", "")).join())
     }
 
     @Test
     fun `suggest ignores consecutive spaces`() {
-        val structure = velocityStructure {
+        val adapter = adapter {
             command("hello")(
                 literalParameter("there")
             ) { }
         }
-        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         assertEquals(["there"], adapter.suggestAsync(FakeInvocation(FakeCommandSource(), "hello", "  the")).join())
     }
 
     @Test
     fun `suggest abandons sender's previous suggestions`() {
-        val structure = velocityStructure {
+        val adapter = adapter(Executor {}.asCoroutineContext()) {
             command("hello")(AsyncNameParameter()) { }
         }
-        val adapter =
-            VelocityCommandAdapter(environment(), noopFailureHandler(), structure, Executor {}.asCoroutineContext())
         val source = FakeCommandSource()
 
         val first = adapter.suggestAsync(FakeInvocation(source, "hello", ""))
@@ -117,44 +112,20 @@ class VelocityCommandAdapterTest {
 
     @Test
     fun `hasPermission delegates to sender validation`() {
-        val structure = velocityStructure {
+        val adapter = adapter {
             command("cmd", requirement = permission("stick.cmd"))() { }
         }
-        val adapter = VelocityCommandAdapter(environment(), noopFailureHandler(), structure, EmptyCoroutineContext)
 
         assertTrue(adapter.hasPermission(FakeInvocation(FakeCommandSource(["stick.cmd"]), "cmd", "")))
         assertFalse(adapter.hasPermission(FakeInvocation(FakeCommandSource(), "cmd", "")))
     }
 
-    private fun environment(): VelocityEnvironment = BasicVelocityEnvironment(FakeProxyServer())
-
-    private fun textAdapter(onExecute: (String) -> Unit): VelocityCommandAdapter<VelocityEnvironment> {
-        val structure =
-            velocityStructure {
-                command("cmd")(textParameter("")) { rest -> onExecute(rest) }
-            }
-        return VelocityCommandAdapter(environment(), noopFailureHandler(), structure, EmptyCoroutineContext)
-    }
-
-    private class AsyncNameParameter : Parameter.Size1<VelocityEnvironment, CommandSource, String>("name", "") {
-        context(inv: Invocation<VelocityEnvironment, CommandSource>)
-        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
-            withAsyncContext { ["there"].toSuggestions() }
-
-        context(inv: Invocation<VelocityEnvironment, CommandSource>)
-        override fun resolve(arg0: String): CommandResult<String> = success(arg0)
-    }
-
-    private class SuspendingNameParameter :
-        SuspendingParameter.Size1<VelocityEnvironment, CommandSource, String>("name", "") {
-        context(inv: Invocation<VelocityEnvironment, CommandSource>)
-        override fun match(arg0: String): MatchResult = MatchResult.matchedExactly(1)
-
-        context(inv: Invocation<VelocityEnvironment, CommandSource>)
-        override suspend fun suggest(preceding: List<String>, partial: String): List<Suggestion> =
-            ["there"].toSuggestions()
-
-        context(inv: Invocation<VelocityEnvironment, CommandSource>)
-        override suspend fun resolve(arg0: String): CommandResult<String> = success(arg0)
+    private fun <T_ : Arguments> adapter(
+        asyncContext: CoroutineContext = EmptyCoroutineContext,
+        block:
+            StructureScope<VelocityEnvironment, CommandSource>.() -> Structure<VelocityEnvironment, CommandSource, T_>,
+    ): VelocityCommandAdapter<VelocityEnvironment> {
+        val environment = BasicVelocityEnvironment(FakeProxyServer())
+        return VelocityCommandAdapter(environment, noopFailureHandler(), velocityStructure(block), asyncContext)
     }
 }

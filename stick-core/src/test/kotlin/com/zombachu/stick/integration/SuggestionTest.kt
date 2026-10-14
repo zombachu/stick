@@ -46,6 +46,8 @@ import com.zombachu.stick.integration.fixtures.suggest
 import com.zombachu.stick.integration.fixtures.warpParameter
 import com.zombachu.stick.success
 import com.zombachu.stick.toSuggestions
+import com.zombachu.stick.verifyResolves
+import io.mockk.spyk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -179,7 +181,7 @@ class SuggestionTest {
 
     @Test
     fun `rejecting - group branches match once`() {
-        val rejectingParameter = RejectingParameter<Server, Sender>()
+        val rejectingParameter = spyk(RejectingParameter<Server, Sender>())
         val rejectingCommand = structure(Server::class, Sender::class) {
             command("rejecting")(
                 group(
@@ -190,7 +192,7 @@ class SuggestionTest {
         }
 
         assertEquals(["y="], rejectingCommand.suggest(server, zombachu, "/rejecting x=1 "))
-        assertEquals(1, rejectingParameter.count)
+        verifyResolves(rejectingParameter, exactly = 1)
     }
 
     @Test
@@ -351,13 +353,8 @@ class SuggestionTest {
     }
 
     private class RejectingParameter<E : Environment, S> : Parameter.Bounded<E, S, String>(Size.between(1, 2), "", "") {
-        var count = 0
-
         context(inv: Invocation<E, S>)
-        override fun resolve(args: List<String>): ConsumingResult<String> {
-            count++
-            return failType("", args.first())
-        }
+        override fun resolve(args: List<String>): ConsumingResult<String> = failType("", args.first())
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.zombachu.stick.element
 
 import com.zombachu.stick.CommandResult
 import com.zombachu.stick.ConsumingResult
+import com.zombachu.stick.Execution
 import com.zombachu.stick.Invocation
 import com.zombachu.stick.MatchResult
 import com.zombachu.stick.Position
@@ -18,6 +19,9 @@ import com.zombachu.stick.presenceValueFlag
 import com.zombachu.stick.success
 import com.zombachu.stick.withExecution
 import com.zombachu.stick.withInvocation
+import io.mockk.Called
+import io.mockk.mockk
+import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -75,41 +79,33 @@ class MappedElementTest {
 
     @Test
     fun `MappedParameter short-circuits on failing transform`() {
-        var laterCalled = false
         val failing =
             MappedParameter<TestEnv, Unit, String, Int, Position.Leading>(StringParameter("", "")) {
                 fail(Reason.Unknown())
             }
-        val mapped =
-            MappedParameter<TestEnv, Unit, Int, Int, Position.Leading>(failing) {
-                laterCalled = true
-                success(it)
-            }
+        val later = mockk<suspend Execution<TestEnv, Unit>.(Int) -> CommandResult<Int>>()
+        val mapped = MappedParameter<TestEnv, Unit, Int, Int, Position.Leading>(failing, later)
 
         val result = withExecution { mapped.parse(["x"]) }
 
         assertFalse(result.isSuccess())
-        assertFalse(laterCalled)
+        verify { later wasNot Called }
     }
 
     @Test
     fun `MappedParameter short-circuits before transform if base element fails`() {
-        var transformCalled = false
         val failingBase =
             object : Parameter.Size1<TestEnv, Unit, String>("bad", "") {
                 context(inv: Invocation<TestEnv, Unit>)
                 override fun resolve(arg0: String): CommandResult<String> = failType("bad", arg0)
             }
-        val mapped =
-            MappedParameter<TestEnv, Unit, String, String, Position.Leading>(failingBase) {
-                transformCalled = true
-                success(it)
-            }
+        val transform = mockk<suspend Execution<TestEnv, Unit>.(String) -> CommandResult<String>>()
+        val mapped = MappedParameter<TestEnv, Unit, String, String, Position.Leading>(failingBase, transform)
 
         val result = withExecution { mapped.parse(["x"]) }
 
         assertFalse(result.isSuccess())
-        assertFalse(transformCalled)
+        verify { transform wasNot Called }
     }
 
     @Test
@@ -224,17 +220,13 @@ class MappedElementTest {
 
     @Test
     fun `MappedHelper short-circuits before transform if base fails`() {
-        var transformCalled = false
         val base = HelperImpl<TestEnv, Unit, Int>({ fail(Reason.Unknown()) })
-        val mapped =
-            MappedHelper<TestEnv, Unit, Int, Int>(base) {
-                transformCalled = true
-                success(it)
-            }
+        val transform = mockk<suspend Execution<TestEnv, Unit>.(Int) -> CommandResult<Int>>()
+        val mapped = MappedHelper(base, transform)
 
         val result = withExecution { mapped.parse([]) }
 
         assertFalse(result.isSuccess())
-        assertFalse(transformCalled)
+        verify { transform wasNot Called }
     }
 }
